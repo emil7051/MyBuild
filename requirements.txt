@@ -1,0 +1,61 @@
+# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+numpy-financial>=1.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+pytest-xdist>=3.3.0
+coverage>=7.3.0
+
+# Code formatting
+black>=23.7.0
+isort>=5.12.0
+ruff>=0.0.290  # Fast Python linter and formatter
+
+# Linting
+flake8>=6.0.0
+flake8-docstrings>=1.7.0
+flake8-import-order>=0.18.0
+flake8-bugbear>=23.7.0
+pylint>=2.17.0
+vulture>=2.9.0  # Dead code finder
+
+# Type checking
+mypy>=1.5.0
+types-requests>=2.31.0
+
+# Data validation
+pydantic>=2.0.0
+marshmallow>=3.20.0
+cerberus>=1.3.0
+
+# Development utilities
+pre-commit>=3.3.0
+tox>=4.6.0
+bandit>=1.7.0  # Security linting
+pipdeptree>=2.13.0  # Dependency tree visualisation
+pip-audit>=2.6.0  # Security vulnerability scanner
+safety>=2.3.0  # Security vulnerability checker
+interrogate>=1.5.0  # Docstring coverage checker
+
+# Documentation
+sphinx>=7.1.0
+sphinx-rtd-theme>=1.3.0
+
+# Jupyter (if needed for data analysis)
+jupyter>=1.0.0
+ipykernel>=6.25.0
+
+# Performance and profiling
+memory-profiler>=0.61.0  # Memory usage profiling
+line-profiler>=4.1.0  # Line-by-line profiling
+py-spy>=0.3.0  # Sampling profiler
+
+# Additional utilities
+rich>=13.5.0  # Rich text and beautiful formatting
+click>=8.1.0  # Command line interface creation
+python-dotenv>=1.0.0  # Environment variable management
+loguru>=0.7.0  # Enhanced logging 

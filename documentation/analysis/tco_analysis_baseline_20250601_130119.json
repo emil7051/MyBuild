@@ -1,0 +1,1955 @@
+{
+  "metadata": {
+    "generation_timestamp": "2025-06-01T13:01:19.629587",
+    "analysis_period": "2024-2035",
+    "scenario": "baseline",
+    "vehicle_types": "Light Rigid and Medium Rigid",
+    "total_vehicles_analysed": 10
+  },
+  "scenario_parameters": {
+    "scenario_name": "Baseline",
+    "scenario_description": "Current trajectory with moderate price increases",
+    "price_trajectories": {
+      "diesel_price_trajectory": [
+        1.0,
+        1.03,
+        1.0609,
+        1.092727,
+        1.1255088100000001,
+        1.1592740743,
+        1.1940522965290001,
+        1.2298738654248702,
+        1.2667700813876164,
+        1.304773183829245,
+        1.3439163793441222,
+        1.384233870724446,
+        1.4257608868461793,
+        1.4685337134515648,
+        1.512589724855112
+      ],
+      "electricity_price_trajectory": [
+        1.0,
+        1.02,
+        1.0404,
+        1.061208,
+        1.08243216,
+        1.1040808032,
+        1.126162419264,
+        1.14868566764928,
+        1.1716593810022657,
+        1.195092568622311,
+        1.2189944199947573,
+        1.2433743083946525,
+        1.2682417945625455,
+        1.2936066304537963,
+        1.3194787630628724
+      ],
+      "battery_price_trajectory": [
+        1.0,
+        0.9299999999999999,
+        0.8648999999999999,
+        0.8043569999999999,
+        0.7480520099999999,
+        0.6956883692999999,
+        0.6469901834489998,
+        0.6017008706075698,
+        0.5595818096650399,
+        0.520411082988487,
+        0.4839823071792929,
+        0.4501035456767424,
+        0.4185962974793704,
+        0.3892945566558144,
+        0.3620439376899074
+      ],
+      "carbon_price_trajectory": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "technology_improvements": {
+      "bev_efficiency_improvement": [
+        1.0,
+        0.98,
+        0.9603999999999999,
+        0.9411919999999999,
+        0.9223681599999999,
+        0.9039207967999998,
+        0.8858423808639998,
+        0.8681255332467198,
+        0.8507630225817854,
+        0.8337477621301497,
+        0.8170728068875467,
+        0.8007313507497957,
+        0.7847167237347998,
+        0.7690223892601038,
+        0.7536419414749017
+      ],
+      "diesel_efficiency_improvement": [
+        1.0,
+        0.99,
+        0.9801,
+        0.9702989999999999,
+        0.96059601,
+        0.9509900498999999,
+        0.9414801494009999,
+        0.9320653479069899,
+        0.92274469442792,
+        0.9135172474836407,
+        0.9043820750088043,
+        0.8953382542587163,
+        0.8863848717161291,
+        0.8775210229989678,
+        0.8687458127689781
+      ]
+    },
+    "cost_multipliers": {
+      "maintenance_cost_multiplier": [
+        0.85,
+        0.8785714285714286,
+        0.9071428571428571,
+        0.9357142857142857,
+        0.9642857142857143,
+        0.9928571428571429,
+        1.0214285714285714,
+        1.05,
+        1.0785714285714285,
+        1.1071428571428572,
+        1.1357142857142857,
+        1.1642857142857144,
+        1.1928571428571428,
+        1.2214285714285715,
+        1.25
+      ],
+      "bev_residual_value_multiplier": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "policy_parameters": {
+      "policy_phase_out_year": null,
+      "road_user_charge_bev_start_year": null
+    }
+  },
+  "constants": {
+    "vehicle_parameters": {
+      "vehicle_life": 15,
+      "rigid_annual_kms": 23000,
+      "articulated_annual_kms": 84000
+    },
+    "energy_costs": {
+      "retail_charging_price": 0.3,
+      "offpeak_charging_price": 0.15,
+      "solar_charging_price": 0.04,
+      "public_charging_price": 0.5,
+      "diesel_price": 2.05
+    },
+    "charging_mix": {
+      "retail_proportion": 0.0,
+      "offpeak_proportion": 1.0,
+      "solar_proportion": 0.0,
+      "public_proportion": 0.0
+    },
+    "financial_parameters": {
+      "discount_rate": 0.05,
+      "interest_rate": 0.06,
+      "inflation_rate": 0.025,
+      "financing_term": 5,
+      "down_payment_rate": 0.2,
+      "depreciation_rate_first_year": 0.2,
+      "depreciation_rate_ongoing": 0.1
+    },
+    "insurance_rates": {
+      "insurance_rate_bev": 0.035,
+      "insurance_rate_dsl": 0.0315,
+      "other_insurance": 2000
+    },
+    "maintenance_costs": {
+      "rigid_bev_maintenance_cost": 0.1,
+      "articulated_bev_maintenance_cost": 0.19,
+      "rigid_dsl_maintenance_cost": 0.18,
+      "articulated_dsl_maintenance_cost": 0.28
+    },
+    "battery_parameters": {
+      "battery_replacement_cost": 130,
+      "battery_recycle_value": 13,
+      "battery_degradation_rate": 0.025
+    },
+    "taxes_and_fees": {
+      "fuel_tax_credit": 0.203,
+      "road_user_charge": 0.305,
+      "stamp_duty_rate": 0.03
+    },
+    "emissions_factors": {
+      "retail_charging_emissions": 0.7,
+      "offpeak_charging_emissions": 0.7,
+      "solar_charging_emissions": 0.04,
+      "public_charging_emissions": 0.7,
+      "diesel_emissions": 2.68
+    }
+  },
+  "policies": {
+    "active_policies": {},
+    "all_policies": {
+      "purchase_rebate": {
+        "name": "Fixed Purchase Rebate",
+        "description": "Fixed dollar amount rebate for new BEV purchases",
+        "enabled": false,
+        "amount": 0
+      },
+      "percentage_rebate": {
+        "name": "Percentage Purchase Rebate",
+        "description": "Percentage-based rebate on BEV purchase price",
+        "enabled": false,
+        "percentage": 0.0,
+        "max_amount": null
+      },
+      "stamp_duty_exemption": {
+        "name": "Stamp Duty Exemption",
+        "description": "Full or partial exemption from stamp duty for BEVs",
+        "enabled": false,
+        "exemption_percentage": 0.0
+      },
+      "carbon_price": {
+        "name": "Carbon Pricing",
+        "description": "Price on carbon emissions from diesel vehicles",
+        "enabled": false,
+        "price_per_tonne": 0
+      },
+      "green_loan_subsidy": {
+        "name": "Green Loan Subsidy",
+        "description": "Reduced interest rate for BEV financing",
+        "enabled": false,
+        "rate_reduction": 0.0
+      },
+      "charging_grant": {
+        "name": "Charging Infrastructure Grant",
+        "description": "Grant for charging infrastructure installation",
+        "enabled": false,
+        "max_amount": null,
+        "grant_percentage": 0.0
+      }
+    }
+  },
+  "vehicle_specifications": {
+    "BEV001": {
+      "vehicle_id": "BEV001",
+      "comparison_pair": "DSL001",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "BEV",
+      "model_name": "Jac N75",
+      "payload": 4.0,
+      "msrp": 176500.0,
+      "range_km": 220.0,
+      "battery_capacity_kwh": 100.0,
+      "kwh_per_km": 0.48,
+      "litres_per_km": 0.0,
+      "battery_replacement_per_kw": 130.0,
+      "maintenance_cost_per_km": 0.05,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.004
+    },
+    "BEV002": {
+      "vehicle_id": "BEV002",
+      "comparison_pair": "DSL002",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "BEV",
+      "model_name": "Hyundai Mighty Electric",
+      "payload": 4.0,
+      "msrp": 150000.0,
+      "range_km": 200.0,
+      "battery_capacity_kwh": 97.0,
+      "kwh_per_km": 0.48,
+      "litres_per_km": 0.0,
+      "battery_replacement_per_kw": 130.0,
+      "maintenance_cost_per_km": 0.05,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.004
+    },
+    "BEV003": {
+      "vehicle_id": "BEV003",
+      "comparison_pair": "DSL003",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "BEV",
+      "model_name": "Jac N90",
+      "payload": 5.0,
+      "msrp": 150000.0,
+      "range_km": 180.0,
+      "battery_capacity_kwh": 107.0,
+      "kwh_per_km": 0.61,
+      "litres_per_km": 0.0,
+      "battery_replacement_per_kw": 130.0,
+      "maintenance_cost_per_km": 0.05,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.004
+    },
+    "BEV004": {
+      "vehicle_id": "BEV004",
+      "comparison_pair": "DSL004",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "BEV",
+      "model_name": "Volvo FL",
+      "payload": 10.5,
+      "msrp": 200000.0,
+      "range_km": 300.0,
+      "battery_capacity_kwh": 264.0,
+      "kwh_per_km": 1.09,
+      "litres_per_km": 0.0,
+      "battery_replacement_per_kw": 130.0,
+      "maintenance_cost_per_km": 0.08,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.006
+    },
+    "BEV005": {
+      "vehicle_id": "BEV005",
+      "comparison_pair": "DSL005",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "BEV",
+      "model_name": "MB eActros 300",
+      "payload": 22.0,
+      "msrp": 400000.0,
+      "range_km": 300.0,
+      "battery_capacity_kwh": 336.0,
+      "kwh_per_km": 1.09,
+      "litres_per_km": 0.0,
+      "battery_replacement_per_kw": 130.0,
+      "maintenance_cost_per_km": 0.08,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.006
+    },
+    "DSL001": {
+      "vehicle_id": "DSL001",
+      "comparison_pair": "BEV001",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "Diesel",
+      "model_name": "Hino 300",
+      "payload": 4.5,
+      "msrp": 80000.0,
+      "range_km": 600.0,
+      "battery_capacity_kwh": 0.0,
+      "kwh_per_km": 0.0,
+      "litres_per_km": 0.28,
+      "battery_replacement_per_kw": 0.0,
+      "maintenance_cost_per_km": 0.2,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.01
+    },
+    "DSL002": {
+      "vehicle_id": "DSL002",
+      "comparison_pair": "BEV002",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "Diesel",
+      "model_name": "Hyundai Mighty",
+      "payload": 4.0,
+      "msrp": 75000.0,
+      "range_km": 600.0,
+      "battery_capacity_kwh": 0.0,
+      "kwh_per_km": 0.0,
+      "litres_per_km": 0.28,
+      "battery_replacement_per_kw": 0.0,
+      "maintenance_cost_per_km": 0.02,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.01
+    },
+    "DSL003": {
+      "vehicle_id": "DSL003",
+      "comparison_pair": "BEV003",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "Diesel",
+      "model_name": "Hino 500",
+      "payload": 6.0,
+      "msrp": 130000.0,
+      "range_km": 600.0,
+      "battery_capacity_kwh": 0.0,
+      "kwh_per_km": 0.0,
+      "litres_per_km": 0.28,
+      "battery_replacement_per_kw": 0.0,
+      "maintenance_cost_per_km": 0.02,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.01
+    },
+    "DSL004": {
+      "vehicle_id": "DSL004",
+      "comparison_pair": "BEV004",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "Diesel",
+      "model_name": "Volvo FE",
+      "payload": 12.0,
+      "msrp": 220000.0,
+      "range_km": 600.0,
+      "battery_capacity_kwh": 0.0,
+      "kwh_per_km": 0.0,
+      "litres_per_km": 0.32,
+      "battery_replacement_per_kw": 0.0,
+      "maintenance_cost_per_km": 0.025,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.017
+    },
+    "DSL005": {
+      "vehicle_id": "DSL005",
+      "comparison_pair": "BEV005",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "Diesel",
+      "model_name": "MB Actros",
+      "payload": 25.0,
+      "msrp": 270000.0,
+      "range_km": 1400.0,
+      "battery_capacity_kwh": 0.0,
+      "kwh_per_km": 0.0,
+      "litres_per_km": 0.32,
+      "battery_replacement_per_kw": 0.0,
+      "maintenance_cost_per_km": 0.025,
+      "annual_registration": 653.0,
+      "annual_kms": 23000.0,
+      "noise_pollution_per_km": 0.017
+    }
+  },
+  "tco_results": {
+    "BEV001": {
+      "total_cost": 177201.35722902894,
+      "annual_cost": 11813.423815268596,
+      "cost_per_km": 0.5136271224029825,
+      "purchase_cost": 36359.0,
+      "fuel_cost": 18004.20234032592,
+      "maintenance_cost": 25673.717200081337,
+      "insurance_cost": 122662.50000000001,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 4635.14274666076,
+      "financing_cost": 23265.119394035806,
+      "depreciation_cost": 148523.90812520293,
+      "carbon_cost": 0.0
+    },
+    "BEV002": {
+      "total_cost": 161845.2879471011,
+      "annual_cost": 10789.685863140074,
+      "cost_per_km": 0.46911677665826407,
+      "purchase_cost": 30900.0,
+      "fuel_cost": 18004.20234032592,
+      "maintenance_cost": 25673.717200081337,
+      "insurance_cost": 108750.00000000001,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 4496.088464260937,
+      "financing_cost": 19772.056142240035,
+      "depreciation_cost": 126224.2845256682,
+      "carbon_cost": 0.0
+    },
+    "BEV003": {
+      "total_cost": 167184.94035560545,
+      "annual_cost": 11145.662690373696,
+      "cost_per_km": 0.4845940300162477,
+      "purchase_cost": 30900.0,
+      "fuel_cost": 22880.34047416419,
+      "maintenance_cost": 25673.717200081337,
+      "insurance_cost": 108750.00000000001,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 4959.602738927013,
+      "financing_cost": 19772.056142240035,
+      "depreciation_cost": 126224.2845256682,
+      "carbon_cost": 0.0
+    },
+    "BEV004": {
+      "total_cost": 221177.66586390213,
+      "annual_cost": 14745.177724260142,
+      "cost_per_km": 0.6410946836634844,
+      "purchase_cost": 41200.0,
+      "fuel_cost": 40884.54281449012,
+      "maintenance_cost": 25673.717200081337,
+      "insurance_cost": 135000.0,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 12236.776851184404,
+      "financing_cost": 26362.741522986733,
+      "depreciation_cost": 168299.04603422427,
+      "carbon_cost": 0.0
+    },
+    "BEV005": {
+      "total_cost": 339360.3648643509,
+      "annual_cost": 22624.024324290058,
+      "cost_per_km": 0.983653231490872,
+      "purchase_cost": 82400.0,
+      "fuel_cost": 40884.54281449012,
+      "maintenance_cost": 25673.717200081337,
+      "insurance_cost": 240000.00000000003,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 15574.079628780151,
+      "financing_cost": 52725.483045973466,
+      "depreciation_cost": 336598.09206844855,
+      "carbon_cost": 0.0
+    },
+    "DSL001": {
+      "total_cost": 279405.0535546506,
+      "annual_cost": 18627.00357031004,
+      "cost_per_km": 0.8098697204482627,
+      "purchase_cost": 16480.0,
+      "fuel_cost": 162623.27558076047,
+      "maintenance_cost": 46212.690960146414,
+      "insurance_cost": 67800.0,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 0.0,
+      "financing_cost": 10545.096609194705,
+      "depreciation_cost": 67319.6184136897,
+      "carbon_cost": 0.0
+    },
+    "DSL002": {
+      "total_cost": 276715.5626647475,
+      "annual_cost": 18447.70417764983,
+      "cost_per_km": 0.8020740946804273,
+      "purchase_cost": 15450.0,
+      "fuel_cost": 162623.27558076047,
+      "maintenance_cost": 46212.690960146414,
+      "insurance_cost": 65437.5,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 0.0,
+      "financing_cost": 9886.028071120018,
+      "depreciation_cost": 63112.1422628341,
+      "carbon_cost": 0.0
+    },
+    "DSL003": {
+      "total_cost": 306299.96245368244,
+      "annual_cost": 20419.99749691216,
+      "cost_per_km": 0.8878259781266157,
+      "purchase_cost": 26780.0,
+      "fuel_cost": 162623.27558076047,
+      "maintenance_cost": 46212.690960146414,
+      "insurance_cost": 91425.0,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 0.0,
+      "financing_cost": 17135.781989941403,
+      "depreciation_cost": 109394.37992224577,
+      "carbon_cost": 0.0
+    },
+    "DSL004": {
+      "total_cost": 377942.6949834764,
+      "annual_cost": 25196.179665565094,
+      "cost_per_km": 1.0954860724158737,
+      "purchase_cost": 45320.0,
+      "fuel_cost": 185855.17209229767,
+      "maintenance_cost": 46212.690960146414,
+      "insurance_cost": 133950.0,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 0.0,
+      "financing_cost": 28999.015675285424,
+      "depreciation_cost": 185128.95063764675,
+      "carbon_cost": 0.0
+    },
+    "DSL005": {
+      "total_cost": 404837.60388250824,
+      "annual_cost": 26989.173592167215,
+      "cost_per_km": 1.1734423300942267,
+      "purchase_cost": 55620.0,
+      "fuel_cost": 185855.17209229767,
+      "maintenance_cost": 46212.690960146414,
+      "insurance_cost": 157575.0,
+      "registration_cost": 9795.0,
+      "battery_replacement_cost": 0.0,
+      "financing_cost": 35589.70105603212,
+      "depreciation_cost": 227203.71214620283,
+      "carbon_cost": 0.0
+    }
+  },
+  "yearly_cost_breakdowns": {
+    "BEV001": {
+      "2024": {
+        "fuel_cost": 1656.0,
+        "maintenance_cost": 1955.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 36359.0,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 1655.3375999999998,
+        "maintenance_cost": 2020.7142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 14543.6,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 1654.6754649599998,
+        "maintenance_cost": 2086.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 13089.240000000002,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 1654.0135947740152,
+        "maintenance_cost": 2152.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 11780.316,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 1653.3519893361058,
+        "maintenance_cost": 2217.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10602.284400000002,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 1652.6906485403717,
+        "maintenance_cost": 2283.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9542.055960000002,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 1652.0295722809556,
+        "maintenance_cost": 2349.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 8587.850364000002,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 1651.368760452043,
+        "maintenance_cost": 2415.0,
+        "battery_replacement_cost": 6522.111317898409,
+        "carbon_cost": 0.0,
+        "depreciation": 7729.065327600001,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 1650.7082129478622,
+        "maintenance_cost": 2480.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6956.158794840002,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 1650.0479296626831,
+        "maintenance_cost": 2546.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6260.542915356003,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 1649.387910490818,
+        "maintenance_cost": 2612.142857142857,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5634.488623820402,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 1648.7281553266216,
+        "maintenance_cost": 2677.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5071.039761438362,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 1648.0686640644913,
+        "maintenance_cost": 2743.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4563.935785294526,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 1647.409436598865,
+        "maintenance_cost": 2809.2857142857147,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4107.542206765073,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 1646.7504728242259,
+        "maintenance_cost": 2875.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3696.787986088566,
+        "insurance_cost": 8177.500000000001,
+        "registration_cost": 653.0
+      }
+    },
+    "BEV002": {
+      "2024": {
+        "fuel_cost": 1656.0,
+        "maintenance_cost": 1955.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 30900.0,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 1655.3375999999998,
+        "maintenance_cost": 2020.7142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 12360.0,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 1654.6754649599998,
+        "maintenance_cost": 2086.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 11124.0,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 1654.0135947740152,
+        "maintenance_cost": 2152.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10011.6,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 1653.3519893361058,
+        "maintenance_cost": 2217.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9010.44,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 1652.6906485403717,
+        "maintenance_cost": 2283.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 8109.396000000001,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 1652.0295722809556,
+        "maintenance_cost": 2349.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7298.456400000002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 1651.368760452043,
+        "maintenance_cost": 2415.0,
+        "battery_replacement_cost": 6326.447978361456,
+        "carbon_cost": 0.0,
+        "depreciation": 6568.610760000002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 1650.7082129478622,
+        "maintenance_cost": 2480.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5911.749684000002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 1650.0479296626831,
+        "maintenance_cost": 2546.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5320.574715600002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 1649.387910490818,
+        "maintenance_cost": 2612.142857142857,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4788.517244040001,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 1648.7281553266216,
+        "maintenance_cost": 2677.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4309.665519636002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 1648.0686640644913,
+        "maintenance_cost": 2743.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3878.6989676724015,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 1647.409436598865,
+        "maintenance_cost": 2809.2857142857147,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3490.8290709051616,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 1646.7504728242259,
+        "maintenance_cost": 2875.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3141.7461638146456,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      }
+    },
+    "BEV003": {
+      "2024": {
+        "fuel_cost": 2104.5,
+        "maintenance_cost": 1955.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 30900.0,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 2103.6582,
+        "maintenance_cost": 2020.7142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 12360.0,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 2102.8167367199994,
+        "maintenance_cost": 2086.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 11124.0,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 2101.9756100253117,
+        "maintenance_cost": 2152.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10011.6,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 2101.1348197813013,
+        "maintenance_cost": 2217.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9010.44,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 2100.294365853389,
+        "maintenance_cost": 2283.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 8109.396000000001,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 2099.4542481070475,
+        "maintenance_cost": 2349.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7298.456400000002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 2098.6144664078047,
+        "maintenance_cost": 2415.0,
+        "battery_replacement_cost": 6978.659110151297,
+        "carbon_cost": 0.0,
+        "depreciation": 6568.610760000002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 2097.7750206212418,
+        "maintenance_cost": 2480.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5911.749684000002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 2096.935910612993,
+        "maintenance_cost": 2546.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5320.574715600002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 2096.0971362487485,
+        "maintenance_cost": 2612.142857142857,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4788.517244040001,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 2095.258697394249,
+        "maintenance_cost": 2677.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4309.665519636002,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 2094.4205939152907,
+        "maintenance_cost": 2743.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3878.6989676724015,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 2093.5828256777245,
+        "maintenance_cost": 2809.2857142857147,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3490.8290709051616,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 2092.7453925474533,
+        "maintenance_cost": 2875.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3141.7461638146456,
+        "insurance_cost": 7250.000000000001,
+        "registration_cost": 653.0
+      }
+    },
+    "BEV004": {
+      "2024": {
+        "fuel_cost": 3760.5000000000005,
+        "maintenance_cost": 1955.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 41200.0,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 3758.9958000000006,
+        "maintenance_cost": 2020.7142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 16480.0,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 3757.49220168,
+        "maintenance_cost": 2086.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 14832.0,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 3755.9892047993276,
+        "maintenance_cost": 2152.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 13348.800000000001,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 3754.4868091174085,
+        "maintenance_cost": 2217.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 12013.92,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 3752.9850143937606,
+        "maintenance_cost": 2283.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10812.528,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 3751.483820388003,
+        "maintenance_cost": 2349.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9731.275200000002,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 3749.983226859848,
+        "maintenance_cost": 2415.0,
+        "battery_replacement_cost": 17218.373879251798,
+        "carbon_cost": 0.0,
+        "depreciation": 8758.14768,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 3748.4832335691044,
+        "maintenance_cost": 2480.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7882.332912000002,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 3746.983840275677,
+        "maintenance_cost": 2546.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7094.0996208000015,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 3745.4850467395663,
+        "maintenance_cost": 2612.142857142857,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6384.689658720002,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 3743.9868527208705,
+        "maintenance_cost": 2677.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5746.220692848001,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 3742.4892579797825,
+        "maintenance_cost": 2743.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5171.598623563201,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 3740.99226227659,
+        "maintenance_cost": 2809.2857142857147,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4654.438761206881,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 3739.4958653716794,
+        "maintenance_cost": 2875.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4188.994885086193,
+        "insurance_cost": 9000.0,
+        "registration_cost": 653.0
+      }
+    },
+    "BEV005": {
+      "2024": {
+        "fuel_cost": 3760.5000000000005,
+        "maintenance_cost": 1955.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 82400.0,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 3758.9958000000006,
+        "maintenance_cost": 2020.7142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 32960.0,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 3757.49220168,
+        "maintenance_cost": 2086.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 29664.0,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 3755.9892047993276,
+        "maintenance_cost": 2152.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 26697.600000000002,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 3754.4868091174085,
+        "maintenance_cost": 2217.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 24027.84,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 3752.9850143937606,
+        "maintenance_cost": 2283.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 21625.056,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 3751.483820388003,
+        "maintenance_cost": 2349.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 19462.550400000004,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 3749.983226859848,
+        "maintenance_cost": 2415.0,
+        "battery_replacement_cost": 21914.29402813865,
+        "carbon_cost": 0.0,
+        "depreciation": 17516.29536,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 3748.4832335691044,
+        "maintenance_cost": 2480.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 15764.665824000003,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 3746.983840275677,
+        "maintenance_cost": 2546.4285714285716,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 14188.199241600003,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 3745.4850467395663,
+        "maintenance_cost": 2612.142857142857,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 12769.379317440003,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 3743.9868527208705,
+        "maintenance_cost": 2677.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 11492.441385696002,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 3742.4892579797825,
+        "maintenance_cost": 2743.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10343.197247126402,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 3740.99226227659,
+        "maintenance_cost": 2809.2857142857147,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9308.877522413763,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 3739.4958653716794,
+        "maintenance_cost": 2875.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 8377.989770172386,
+        "insurance_cost": 16000.000000000002,
+        "registration_cost": 653.0
+      }
+    },
+    "DSL001": {
+      "2024": {
+        "fuel_cost": 13202.0,
+        "maintenance_cost": 3519.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 16480.0,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 13462.0794,
+        "maintenance_cost": 3637.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6592.0,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 13727.282364179999,
+        "maintenance_cost": 3755.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5932.8,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 13997.709826754346,
+        "maintenance_cost": 3873.8571428571427,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5339.52,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 14273.46471034141,
+        "maintenance_cost": 3992.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4805.568000000001,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 14554.65196513513,
+        "maintenance_cost": 4110.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4325.011200000001,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 14841.378608848296,
+        "maintenance_cost": 4228.714285714285,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3892.510080000001,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 15133.75376744261,
+        "maintenance_cost": 4347.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3503.2590720000007,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 15431.888716661226,
+        "maintenance_cost": 4465.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3152.9331648000007,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 15735.89692437945,
+        "maintenance_cost": 4583.571428571428,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2837.639848320001,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 16045.894093789726,
+        "maintenance_cost": 4701.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2553.875863488001,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 16361.998207437386,
+        "maintenance_cost": 4820.142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2298.488277139201,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 16684.329572123905,
+        "maintenance_cost": 4938.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2068.639449425281,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 17013.01086469475,
+        "maintenance_cost": 5056.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 1861.7755044827527,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 17348.16717872923,
+        "maintenance_cost": 5175.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 1675.5979540344772,
+        "insurance_cost": 4520.0,
+        "registration_cost": 653.0
+      }
+    },
+    "DSL002": {
+      "2024": {
+        "fuel_cost": 13202.0,
+        "maintenance_cost": 3519.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 15450.0,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 13462.0794,
+        "maintenance_cost": 3637.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6180.0,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 13727.282364179999,
+        "maintenance_cost": 3755.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5562.0,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 13997.709826754346,
+        "maintenance_cost": 3873.8571428571427,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5005.8,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 14273.46471034141,
+        "maintenance_cost": 3992.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4505.22,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 14554.65196513513,
+        "maintenance_cost": 4110.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4054.6980000000003,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 14841.378608848296,
+        "maintenance_cost": 4228.714285714285,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3649.228200000001,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 15133.75376744261,
+        "maintenance_cost": 4347.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3284.305380000001,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 15431.888716661226,
+        "maintenance_cost": 4465.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2955.874842000001,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 15735.89692437945,
+        "maintenance_cost": 4583.571428571428,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2660.287357800001,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 16045.894093789726,
+        "maintenance_cost": 4701.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2394.2586220200005,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 16361.998207437386,
+        "maintenance_cost": 4820.142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2154.832759818001,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 16684.329572123905,
+        "maintenance_cost": 4938.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 1939.3494838362008,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 17013.01086469475,
+        "maintenance_cost": 5056.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 1745.4145354525808,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 17348.16717872923,
+        "maintenance_cost": 5175.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 1570.8730819073228,
+        "insurance_cost": 4362.5,
+        "registration_cost": 653.0
+      }
+    },
+    "DSL003": {
+      "2024": {
+        "fuel_cost": 13202.0,
+        "maintenance_cost": 3519.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 26780.0,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 13462.0794,
+        "maintenance_cost": 3637.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10712.0,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 13727.282364179999,
+        "maintenance_cost": 3755.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9640.800000000001,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 13997.709826754346,
+        "maintenance_cost": 3873.8571428571427,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 8676.72,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 14273.46471034141,
+        "maintenance_cost": 3992.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7809.048,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 14554.65196513513,
+        "maintenance_cost": 4110.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7028.1432,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 14841.378608848296,
+        "maintenance_cost": 4228.714285714285,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6325.328880000001,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 15133.75376744261,
+        "maintenance_cost": 4347.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5692.795992,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 15431.888716661226,
+        "maintenance_cost": 4465.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5123.5163928,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 15735.89692437945,
+        "maintenance_cost": 4583.571428571428,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4611.164753520001,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 16045.894093789726,
+        "maintenance_cost": 4701.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4150.048278168,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 16361.998207437386,
+        "maintenance_cost": 4820.142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3735.0434503512006,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 16684.329572123905,
+        "maintenance_cost": 4938.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3361.5391053160806,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 17013.01086469475,
+        "maintenance_cost": 5056.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 3025.385194784473,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 17348.16717872923,
+        "maintenance_cost": 5175.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 2722.8466753060256,
+        "insurance_cost": 6095.0,
+        "registration_cost": 653.0
+      }
+    },
+    "DSL004": {
+      "2024": {
+        "fuel_cost": 15087.999999999998,
+        "maintenance_cost": 3519.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 45320.0,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 15385.2336,
+        "maintenance_cost": 3637.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 18128.0,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 15688.322701919999,
+        "maintenance_cost": 3755.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 16315.2,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 15997.382659147823,
+        "maintenance_cost": 3873.8571428571427,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 14683.680000000002,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 16312.531097533036,
+        "maintenance_cost": 3992.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 13215.312000000004,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 16633.887960154436,
+        "maintenance_cost": 4110.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 11893.780800000002,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 16961.575552969476,
+        "maintenance_cost": 4228.714285714285,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10704.402720000004,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 17295.71859136298,
+        "maintenance_cost": 4347.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9633.962448000004,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 17636.44424761283,
+        "maintenance_cost": 4465.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 8670.566203200002,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 17983.8821992908,
+        "maintenance_cost": 4583.571428571428,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7803.509582880003,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 18338.16467861683,
+        "maintenance_cost": 4701.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7023.158624592003,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 18699.426522785583,
+        "maintenance_cost": 4820.142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6320.842762132803,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 19067.805225284457,
+        "maintenance_cost": 4938.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5688.758485919523,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 19443.440988222563,
+        "maintenance_cost": 5056.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5119.882637327571,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 19826.47677569055,
+        "maintenance_cost": 5175.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 4607.894373594814,
+        "insurance_cost": 8930.0,
+        "registration_cost": 653.0
+      }
+    },
+    "DSL005": {
+      "2024": {
+        "fuel_cost": 15087.999999999998,
+        "maintenance_cost": 3519.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 55620.0,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2025": {
+        "fuel_cost": 15385.2336,
+        "maintenance_cost": 3637.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 22248.0,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2026": {
+        "fuel_cost": 15688.322701919999,
+        "maintenance_cost": 3755.5714285714284,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 20023.2,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2027": {
+        "fuel_cost": 15997.382659147823,
+        "maintenance_cost": 3873.8571428571427,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 18020.88,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2028": {
+        "fuel_cost": 16312.531097533036,
+        "maintenance_cost": 3992.1428571428573,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 16218.792000000001,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2029": {
+        "fuel_cost": 16633.887960154436,
+        "maintenance_cost": 4110.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 14596.912800000004,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2030": {
+        "fuel_cost": 16961.575552969476,
+        "maintenance_cost": 4228.714285714285,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 13137.221520000005,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2031": {
+        "fuel_cost": 17295.71859136298,
+        "maintenance_cost": 4347.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 11823.499368000004,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2032": {
+        "fuel_cost": 17636.44424761283,
+        "maintenance_cost": 4465.285714285714,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 10641.149431200003,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2033": {
+        "fuel_cost": 17983.8821992908,
+        "maintenance_cost": 4583.571428571428,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 9577.034488080002,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2034": {
+        "fuel_cost": 18338.16467861683,
+        "maintenance_cost": 4701.857142857143,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 8619.331039272003,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2035": {
+        "fuel_cost": 18699.426522785583,
+        "maintenance_cost": 4820.142857142858,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 7757.397935344803,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2036": {
+        "fuel_cost": 19067.805225284457,
+        "maintenance_cost": 4938.428571428572,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6981.658141810323,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2037": {
+        "fuel_cost": 19443.440988222563,
+        "maintenance_cost": 5056.714285714286,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 6283.492327629291,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      },
+      "2038": {
+        "fuel_cost": 19826.47677569055,
+        "maintenance_cost": 5175.0,
+        "battery_replacement_cost": 0.0,
+        "carbon_cost": 0.0,
+        "depreciation": 5655.143094866362,
+        "insurance_cost": 10505.0,
+        "registration_cost": 653.0
+      }
+    }
+  }
+}

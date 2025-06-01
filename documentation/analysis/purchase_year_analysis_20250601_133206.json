@@ -1,0 +1,1400 @@
+{
+  "metadata": {
+    "analysis_type": "Purchase Year Analysis",
+    "base_scenario": "Baseline",
+    "purchase_years": [
+      2024,
+      2025,
+      2026,
+      2027,
+      2028,
+      2029,
+      2030
+    ],
+    "vehicle_life": 15,
+    "generation_timestamp": "2025-06-01T13:32:06.023684"
+  },
+  "vehicle_specifications": {
+    "BEV001": {
+      "vehicle_id": "BEV001",
+      "model_name": "Jac N75",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "BEV",
+      "base_msrp": 176500.0,
+      "comparison_pair": "DSL001"
+    },
+    "BEV002": {
+      "vehicle_id": "BEV002",
+      "model_name": "Hyundai Mighty Electric",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "BEV",
+      "base_msrp": 150000.0,
+      "comparison_pair": "DSL002"
+    },
+    "BEV003": {
+      "vehicle_id": "BEV003",
+      "model_name": "Jac N90",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "BEV",
+      "base_msrp": 150000.0,
+      "comparison_pair": "DSL003"
+    },
+    "BEV004": {
+      "vehicle_id": "BEV004",
+      "model_name": "Volvo FL",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "BEV",
+      "base_msrp": 200000.0,
+      "comparison_pair": "DSL004"
+    },
+    "BEV005": {
+      "vehicle_id": "BEV005",
+      "model_name": "MB eActros 300",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "BEV",
+      "base_msrp": 400000.0,
+      "comparison_pair": "DSL005"
+    },
+    "DSL001": {
+      "vehicle_id": "DSL001",
+      "model_name": "Hino 300",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "Diesel",
+      "base_msrp": 80000.0,
+      "comparison_pair": "BEV001"
+    },
+    "DSL002": {
+      "vehicle_id": "DSL002",
+      "model_name": "Hyundai Mighty",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "Diesel",
+      "base_msrp": 75000.0,
+      "comparison_pair": "BEV002"
+    },
+    "DSL003": {
+      "vehicle_id": "DSL003",
+      "model_name": "Hino 500",
+      "weight_class": "Light Rigid",
+      "drivetrain_type": "Diesel",
+      "base_msrp": 130000.0,
+      "comparison_pair": "BEV003"
+    },
+    "DSL004": {
+      "vehicle_id": "DSL004",
+      "model_name": "Volvo FE",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "Diesel",
+      "base_msrp": 220000.0,
+      "comparison_pair": "BEV004"
+    },
+    "DSL005": {
+      "vehicle_id": "DSL005",
+      "model_name": "MB Actros",
+      "weight_class": "Medium Rigid",
+      "drivetrain_type": "Diesel",
+      "base_msrp": 270000.0,
+      "comparison_pair": "BEV005"
+    }
+  },
+  "purchase_year_analysis": {
+    "2024": {
+      "BEV001": {
+        "adjusted_msrp": 176500.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 177201.35722902894,
+        "annual_cost": 11813.423815268596,
+        "cost_per_km": 0.5136271224029825,
+        "fuel_cost": 18004.20234032592,
+        "maintenance_cost": 25673.717200081337,
+        "battery_replacement_cost": 4635.14274666076,
+        "financing_cost": 23265.119394035806,
+        "purchase_cost": 36359.0
+      },
+      "BEV002": {
+        "adjusted_msrp": 150000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 161845.2879471011,
+        "annual_cost": 10789.685863140074,
+        "cost_per_km": 0.46911677665826407,
+        "fuel_cost": 18004.20234032592,
+        "maintenance_cost": 25673.717200081337,
+        "battery_replacement_cost": 4496.088464260937,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV003": {
+        "adjusted_msrp": 150000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 167184.94035560545,
+        "annual_cost": 11145.662690373696,
+        "cost_per_km": 0.4845940300162477,
+        "fuel_cost": 22880.34047416419,
+        "maintenance_cost": 25673.717200081337,
+        "battery_replacement_cost": 4959.602738927013,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV004": {
+        "adjusted_msrp": 200000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 221177.66586390213,
+        "annual_cost": 14745.177724260142,
+        "cost_per_km": 0.6410946836634844,
+        "fuel_cost": 40884.54281449012,
+        "maintenance_cost": 25673.717200081337,
+        "battery_replacement_cost": 12236.776851184404,
+        "financing_cost": 26362.741522986733,
+        "purchase_cost": 41200.0
+      },
+      "BEV005": {
+        "adjusted_msrp": 400000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 339360.3648643509,
+        "annual_cost": 22624.024324290058,
+        "cost_per_km": 0.983653231490872,
+        "fuel_cost": 40884.54281449012,
+        "maintenance_cost": 25673.717200081337,
+        "battery_replacement_cost": 15574.079628780151,
+        "financing_cost": 52725.483045973466,
+        "purchase_cost": 82400.0
+      },
+      "DSL001": {
+        "adjusted_msrp": 80000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 279405.0535546506,
+        "annual_cost": 18627.00357031004,
+        "cost_per_km": 0.8098697204482627,
+        "fuel_cost": 162623.27558076047,
+        "maintenance_cost": 46212.690960146414,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 10545.096609194705,
+        "purchase_cost": 16480.0
+      },
+      "DSL002": {
+        "adjusted_msrp": 75000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 276715.5626647475,
+        "annual_cost": 18447.70417764983,
+        "cost_per_km": 0.8020740946804273,
+        "fuel_cost": 162623.27558076047,
+        "maintenance_cost": 46212.690960146414,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 9886.028071120018,
+        "purchase_cost": 15450.0
+      },
+      "DSL003": {
+        "adjusted_msrp": 130000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 306299.96245368244,
+        "annual_cost": 20419.99749691216,
+        "cost_per_km": 0.8878259781266157,
+        "fuel_cost": 162623.27558076047,
+        "maintenance_cost": 46212.690960146414,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 17135.781989941403,
+        "purchase_cost": 26780.0
+      },
+      "DSL004": {
+        "adjusted_msrp": 220000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 377942.6949834764,
+        "annual_cost": 25196.179665565094,
+        "cost_per_km": 1.0954860724158737,
+        "fuel_cost": 185855.17209229767,
+        "maintenance_cost": 46212.690960146414,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 28999.015675285424,
+        "purchase_cost": 45320.0
+      },
+      "DSL005": {
+        "adjusted_msrp": 270000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 404837.60388250824,
+        "annual_cost": 26989.173592167215,
+        "cost_per_km": 1.1734423300942267,
+        "fuel_cost": 185855.17209229767,
+        "maintenance_cost": 46212.690960146414,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 35589.70105603212,
+        "purchase_cost": 55620.0
+      }
+    },
+    "2025": {
+      "BEV001": {
+        "adjusted_msrp": 171558.0,
+        "price_change_from_2024": -4942.0,
+        "price_change_percent": -2.8000000000000003,
+        "total_tco": 177521.99633789336,
+        "annual_cost": 11834.799755859558,
+        "cost_per_km": 0.5145565111243287,
+        "fuel_cost": 17997.000659389792,
+        "maintenance_cost": 26390.689983189914,
+        "battery_replacement_cost": 4246.010753352664,
+        "financing_cost": 23265.119394035806,
+        "purchase_cost": 36359.0
+      },
+      "BEV002": {
+        "adjusted_msrp": 145800.0,
+        "price_change_from_2024": -4200.0,
+        "price_change_percent": -2.8000000000000003,
+        "total_tco": 162177.6010157647,
+        "annual_cost": 10811.840067717647,
+        "cost_per_km": 0.4700800029442455,
+        "fuel_cost": 17997.000659389792,
+        "maintenance_cost": 26390.689983189914,
+        "battery_replacement_cost": 4118.630430752084,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV003": {
+        "adjusted_msrp": 145800.0,
+        "price_change_from_2024": -4200.0,
+        "price_change_percent": -2.8000000000000003,
+        "total_tco": 167476.38976968476,
+        "annual_cost": 11165.092651312318,
+        "cost_per_km": 0.4854388109266225,
+        "fuel_cost": 22871.188337974527,
+        "maintenance_cost": 26390.689983189914,
+        "battery_replacement_cost": 4543.231506087351,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV004": {
+        "adjusted_msrp": 194400.0,
+        "price_change_from_2024": -5600.0,
+        "price_change_percent": -2.8000000000000003,
+        "total_tco": 220850.97636755148,
+        "annual_cost": 14723.398424503432,
+        "cost_per_km": 0.6401477575871057,
+        "fuel_cost": 40868.18899736432,
+        "maintenance_cost": 26390.689983189914,
+        "battery_replacement_cost": 11209.468388851035,
+        "financing_cost": 26362.741522986733,
+        "purchase_cost": 41200.0
+      },
+      "BEV005": {
+        "adjusted_msrp": 388800.0,
+        "price_change_from_2024": -11200.0,
+        "price_change_percent": -2.8000000000000003,
+        "total_tco": 338753.5003328185,
+        "annual_cost": 22583.566688854564,
+        "cost_per_km": 0.9818942038632419,
+        "fuel_cost": 40868.18899736432,
+        "maintenance_cost": 26390.689983189914,
+        "battery_replacement_cost": 14266.596131264952,
+        "financing_cost": 52725.483045973466,
+        "purchase_cost": 82400.0
+      },
+      "DSL001": {
+        "adjusted_msrp": 80000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 283899.283093187,
+        "annual_cost": 18926.618872879135,
+        "cost_per_km": 0.8228964727338755,
+        "fuel_cost": 165826.95410970144,
+        "maintenance_cost": 47503.24196974184,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 10545.096609194705,
+        "purchase_cost": 16480.0
+      },
+      "DSL002": {
+        "adjusted_msrp": 75000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 281209.79220328387,
+        "annual_cost": 18747.319480218925,
+        "cost_per_km": 0.8151008469660402,
+        "fuel_cost": 165826.95410970144,
+        "maintenance_cost": 47503.24196974184,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 9886.028071120018,
+        "purchase_cost": 15450.0
+      },
+      "DSL003": {
+        "adjusted_msrp": 130000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 310794.1919922187,
+        "annual_cost": 20719.61279948125,
+        "cost_per_km": 0.9008527304122282,
+        "fuel_cost": 165826.95410970144,
+        "maintenance_cost": 47503.24196974184,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 17135.781989941403,
+        "purchase_cost": 26780.0
+      },
+      "DSL004": {
+        "adjusted_msrp": 220000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 382894.59288329014,
+        "annual_cost": 25526.30619221934,
+        "cost_per_km": 1.1098393996617104,
+        "fuel_cost": 189516.5189825159,
+        "maintenance_cost": 47503.24196974184,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 28999.015675285424,
+        "purchase_cost": 45320.0
+      },
+      "DSL005": {
+        "adjusted_msrp": 270000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 409789.50178232184,
+        "annual_cost": 27319.300118821455,
+        "cost_per_km": 1.1877956573400632,
+        "fuel_cost": 189516.5189825159,
+        "maintenance_cost": 47503.24196974184,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 35589.70105603212,
+        "purchase_cost": 55620.0
+      }
+    },
+    "2026": {
+      "BEV001": {
+        "adjusted_msrp": 166961.93999999997,
+        "price_change_from_2024": -9538.060000000027,
+        "price_change_percent": -5.404000000000015,
+        "total_tco": 177871.48730373353,
+        "annual_cost": 11858.099153582236,
+        "cost_per_km": 0.515569528416619,
+        "fuel_cost": 17989.801859126033,
+        "maintenance_cost": 27109.272503070395,
+        "battery_replacement_cost": 3884.1179995761368,
+        "financing_cost": 23265.119394035806,
+        "purchase_cost": 36359.0
+      },
+      "BEV002": {
+        "adjusted_msrp": 141894.0,
+        "price_change_from_2024": -8106.0,
+        "price_change_percent": -5.404,
+        "total_tco": 162537.9487642182,
+        "annual_cost": 10835.86325094788,
+        "cost_per_km": 0.47112448917164695,
+        "fuel_cost": 17989.801859126033,
+        "maintenance_cost": 27109.272503070395,
+        "battery_replacement_cost": 3767.5944595888523,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV003": {
+        "adjusted_msrp": 141894.0,
+        "price_change_from_2024": -8106.0,
+        "price_change_percent": -5.404,
+        "total_tco": 167798.59856768907,
+        "annual_cost": 11186.573237845938,
+        "cost_per_km": 0.4863727494715625,
+        "fuel_cost": 22862.039862639336,
+        "maintenance_cost": 27109.272503070395,
+        "battery_replacement_cost": 4156.006259546466,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV004": {
+        "adjusted_msrp": 189191.99999999997,
+        "price_change_from_2024": -10808.00000000003,
+        "price_change_percent": -5.404000000000014,
+        "total_tco": 220597.814741863,
+        "annual_cost": 14706.520982790866,
+        "cost_per_km": 0.6394139557735159,
+        "fuel_cost": 40851.84172176538,
+        "maintenance_cost": 27109.272503070395,
+        "battery_replacement_cost": 10254.071518881,
+        "financing_cost": 26362.741522986733,
+        "purchase_cost": 41200.0
+      },
+      "BEV005": {
+        "adjusted_msrp": 378383.99999999994,
+        "price_change_from_2024": -21616.00000000006,
+        "price_change_percent": -5.404000000000014,
+        "total_tco": 338239.7759244108,
+        "annual_cost": 22549.31839496072,
+        "cost_per_km": 0.9804051476069878,
+        "fuel_cost": 40851.84172176538,
+        "maintenance_cost": 27109.272503070395,
+        "battery_replacement_cost": 13050.636478575818,
+        "financing_cost": 52725.483045973466,
+        "purchase_cost": 82400.0
+      },
+      "DSL001": {
+        "adjusted_msrp": 80000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 288459.52262493304,
+        "annual_cost": 19230.634841662202,
+        "cost_per_km": 0.8361145583331392,
+        "fuel_cost": 169093.74510566256,
+        "maintenance_cost": 48796.6905055267,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 10545.096609194705,
+        "purchase_cost": 16480.0
+      },
+      "DSL002": {
+        "adjusted_msrp": 75000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 285770.0317350298,
+        "annual_cost": 19051.33544900199,
+        "cost_per_km": 0.8283189325653039,
+        "fuel_cost": 169093.74510566256,
+        "maintenance_cost": 48796.6905055267,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 9886.028071120018,
+        "purchase_cost": 15450.0
+      },
+      "DSL003": {
+        "adjusted_msrp": 130000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 315354.43152396474,
+        "annual_cost": 21023.628768264316,
+        "cost_per_km": 0.914070816011492,
+        "fuel_cost": 169093.74510566256,
+        "maintenance_cost": 48796.6905055267,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 17135.781989941403,
+        "purchase_cost": 26780.0
+      },
+      "DSL004": {
+        "adjusted_msrp": 220000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 387921.5168430306,
+        "annual_cost": 25861.434456202038,
+        "cost_per_km": 1.1244101937479147,
+        "fuel_cost": 193249.99440647144,
+        "maintenance_cost": 48796.6905055267,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 28999.015675285424,
+        "purchase_cost": 45320.0
+      },
+      "DSL005": {
+        "adjusted_msrp": 270000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 414816.4257420623,
+        "annual_cost": 27654.42838280415,
+        "cost_per_km": 1.2023664514262675,
+        "fuel_cost": 193249.99440647144,
+        "maintenance_cost": 48796.6905055267,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 35589.70105603212,
+        "purchase_cost": 55620.0
+      }
+    },
+    "2027": {
+      "BEV001": {
+        "adjusted_msrp": 162687.6042,
+        "price_change_from_2024": -13812.395799999998,
+        "price_change_percent": -7.825719999999999,
+        "total_tco": 178248.81699055916,
+        "annual_cost": 11883.254466037277,
+        "cost_per_km": 0.5166632376537946,
+        "fuel_cost": 17982.605938382385,
+        "maintenance_cost": 27830.35837165182,
+        "battery_replacement_cost": 3547.5577385639654,
+        "financing_cost": 23265.119394035806,
+        "purchase_cost": 36359.0
+      },
+      "BEV002": {
+        "adjusted_msrp": 138261.41999999998,
+        "price_change_from_2024": -11738.580000000016,
+        "price_change_percent": -7.825720000000011,
+        "total_tco": 162925.37525887415,
+        "annual_cost": 10861.691683924942,
+        "cost_per_km": 0.47224746451847577,
+        "fuel_cost": 17982.605938382385,
+        "maintenance_cost": 27830.35837165182,
+        "battery_replacement_cost": 3441.1310064070467,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV003": {
+        "adjusted_msrp": 138261.41999999998,
+        "price_change_from_2024": -11738.580000000016,
+        "price_change_percent": -7.825720000000011,
+        "total_tco": 168150.4201410425,
+        "annual_cost": 11210.028009402833,
+        "cost_per_km": 0.48739252214794926,
+        "fuel_cost": 22852.89504669428,
+        "maintenance_cost": 27830.35837165182,
+        "battery_replacement_cost": 3795.886780263443,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV004": {
+        "adjusted_msrp": 184348.56,
+        "price_change_from_2024": -15651.440000000002,
+        "price_change_percent": -7.825720000000001,
+        "total_tco": 220414.0407846836,
+        "annual_cost": 14694.269385645573,
+        "cost_per_km": 0.6388812776367641,
+        "fuel_cost": 40835.50098507667,
+        "maintenance_cost": 27830.35837165182,
+        "battery_replacement_cost": 9365.55242980887,
+        "financing_cost": 26362.741522986733,
+        "purchase_cost": 41200.0
+      },
+      "BEV005": {
+        "adjusted_msrp": 368697.12,
+        "price_change_from_2024": -31302.880000000005,
+        "price_change_percent": -7.825720000000001,
+        "total_tco": 337813.67857930274,
+        "annual_cost": 22520.91190528685,
+        "cost_per_km": 0.9791700828385587,
+        "fuel_cost": 40835.50098507667,
+        "maintenance_cost": 27830.35837165182,
+        "battery_replacement_cost": 11919.794001574923,
+        "financing_cost": 52725.483045973466,
+        "purchase_cost": 82400.0
+      },
+      "DSL001": {
+        "adjusted_msrp": 80000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 293088.62396696117,
+        "annual_cost": 19539.241597797412,
+        "cost_per_km": 0.8495322433824962,
+        "fuel_cost": 172424.89188424413,
+        "maintenance_cost": 50094.64506897328,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 10545.096609194705,
+        "purchase_cost": 16480.0
+      },
+      "DSL002": {
+        "adjusted_msrp": 75000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 290399.133077058,
+        "annual_cost": 19359.942205137202,
+        "cost_per_km": 0.841736617614661,
+        "fuel_cost": 172424.89188424413,
+        "maintenance_cost": 50094.64506897328,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 9886.028071120018,
+        "purchase_cost": 15450.0
+      },
+      "DSL003": {
+        "adjusted_msrp": 130000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 319983.53286599286,
+        "annual_cost": 21332.235524399523,
+        "cost_per_km": 0.9274885010608488,
+        "fuel_cost": 172424.89188424413,
+        "maintenance_cost": 50094.64506897328,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 17135.781989941403,
+        "purchase_cost": 26780.0
+      },
+      "DSL004": {
+        "adjusted_msrp": 220000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 393026.4962962847,
+        "annual_cost": 26201.766419752315,
+        "cost_per_km": 1.139207235641405,
+        "fuel_cost": 197057.01929627897,
+        "maintenance_cost": 50094.64506897328,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 28999.015675285424,
+        "purchase_cost": 45320.0
+      },
+      "DSL005": {
+        "adjusted_msrp": 270000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 419921.4051953163,
+        "annual_cost": 27994.76034635442,
+        "cost_per_km": 1.2171634933197573,
+        "fuel_cost": 197057.01929627897,
+        "maintenance_cost": 50094.64506897328,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 35589.70105603212,
+        "purchase_cost": 55620.0
+      }
+    },
+    "2028": {
+      "BEV001": {
+        "adjusted_msrp": 158712.471906,
+        "price_change_from_2024": -17787.52809400001,
+        "price_change_percent": -10.077919600000005,
+        "total_tco": 178653.16943572025,
+        "annual_cost": 11910.211295714684,
+        "cost_per_km": 0.5178352737267253,
+        "fuel_cost": 17975.412896007034,
+        "maintenance_cost": 28554.904901929636,
+        "battery_replacement_cost": 3234.556695822647,
+        "financing_cost": 23265.119394035806,
+        "purchase_cost": 36359.0
+      },
+      "BEV002": {
+        "adjusted_msrp": 134883.1206,
+        "price_change_from_2024": -15116.879400000005,
+        "price_change_percent": -10.077919600000003,
+        "total_tco": 163339.11773531756,
+        "annual_cost": 10889.274515687837,
+        "cost_per_km": 0.47344671807338423,
+        "fuel_cost": 17975.412896007034,
+        "maintenance_cost": 28554.904901929636,
+        "battery_replacement_cost": 3137.5199949479675,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV003": {
+        "adjusted_msrp": 134883.1206,
+        "price_change_from_2024": -15116.879400000005,
+        "price_change_percent": -10.077919600000003,
+        "total_tco": 168530.91439756838,
+        "annual_cost": 11235.394293171226,
+        "cost_per_km": 0.4884954040509229,
+        "fuel_cost": 22843.753888675605,
+        "maintenance_cost": 28554.904901929636,
+        "battery_replacement_cost": 3460.975664530232,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV004": {
+        "adjusted_msrp": 179844.16079999998,
+        "price_change_from_2024": -20155.839200000017,
+        "price_change_percent": -10.077919600000008,
+        "total_tco": 220295.93036173028,
+        "annual_cost": 14686.395357448686,
+        "cost_per_km": 0.6385389285847255,
+        "fuel_cost": 40819.16678468263,
+        "maintenance_cost": 28554.904901929636,
+        "battery_replacement_cost": 8539.229676971787,
+        "financing_cost": 26362.741522986733,
+        "purchase_cost": 41200.0
+      },
+      "BEV005": {
+        "adjusted_msrp": 359688.32159999997,
+        "price_change_from_2024": -40311.67840000003,
+        "price_change_percent": -10.077919600000008,
+        "total_tco": 337470.20740557567,
+        "annual_cost": 22498.01382703838,
+        "cost_per_km": 0.97817451421906,
+        "fuel_cost": 40819.16678468263,
+        "maintenance_cost": 28554.904901929636,
+        "battery_replacement_cost": 10868.110497964093,
+        "financing_cost": 52725.483045973466,
+        "purchase_cost": 82400.0
+      },
+      "DSL001": {
+        "adjusted_msrp": 80000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 297789.5780915808,
+        "annual_cost": 19852.63853943872,
+        "cost_per_km": 0.8631581973669009,
+        "fuel_cost": 175821.66225436373,
+        "maintenance_cost": 51398.828823473355,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 10545.096609194705,
+        "purchase_cost": 16480.0
+      },
+      "DSL002": {
+        "adjusted_msrp": 75000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 295100.08720167767,
+        "annual_cost": 19673.33914677851,
+        "cost_per_km": 0.8553625715990657,
+        "fuel_cost": 175821.66225436373,
+        "maintenance_cost": 51398.828823473355,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 9886.028071120018,
+        "purchase_cost": 15450.0
+      },
+      "DSL003": {
+        "adjusted_msrp": 130000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 324684.4869906126,
+        "annual_cost": 21645.63246604084,
+        "cost_per_km": 0.9411144550452538,
+        "fuel_cost": 175821.66225436373,
+        "maintenance_cost": 51398.828823473355,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 17135.781989941403,
+        "purchase_cost": 26780.0
+      },
+      "DSL004": {
+        "adjusted_msrp": 220000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 398212.7033309215,
+        "annual_cost": 26547.513555394766,
+        "cost_per_km": 1.1542397197997725,
+        "fuel_cost": 200939.0425764157,
+        "maintenance_cost": 51398.828823473355,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 28999.015675285424,
+        "purchase_cost": 45320.0
+      },
+      "DSL005": {
+        "adjusted_msrp": 270000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 425107.61222995305,
+        "annual_cost": 28340.50748199687,
+        "cost_per_km": 1.2321959774781248,
+        "fuel_cost": 200939.0425764157,
+        "maintenance_cost": 51398.828823473355,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 35589.70105603212,
+        "purchase_cost": 55620.0
+      }
+    },
+    "2029": {
+      "BEV001": {
+        "adjusted_msrp": 155015.59887257998,
+        "price_change_from_2024": -21484.401127420017,
+        "price_change_percent": -12.172465228000009,
+        "total_tco": 179083.92013682512,
+        "annual_cost": 11938.928009121675,
+        "cost_per_km": 0.5190838264835511,
+        "fuel_cost": 17968.22273084863,
+        "maintenance_cost": 29283.936737942295,
+        "battery_replacement_cost": 2943.4657260732206,
+        "financing_cost": 23265.119394035806,
+        "purchase_cost": 36359.0
+      },
+      "BEV002": {
+        "adjusted_msrp": 131741.30215799998,
+        "price_change_from_2024": -18258.697842000023,
+        "price_change_percent": -12.172465228000014,
+        "total_tco": 163778.6011655149,
+        "annual_cost": 10918.573411034327,
+        "cost_per_km": 0.474720583088449,
+        "fuel_cost": 17968.22273084863,
+        "maintenance_cost": 29283.936737942295,
+        "battery_replacement_cost": 2855.1617542910235,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV003": {
+        "adjusted_msrp": 131741.30215799998,
+        "price_change_from_2024": -18258.697842000023,
+        "price_change_percent": -12.172465228000014,
+        "total_tco": 168939.3413943937,
+        "annual_cost": 11262.622759626247,
+        "cost_per_km": 0.4896792504185325,
+        "fuel_cost": 22834.61638712014,
+        "maintenance_cost": 29283.936737942295,
+        "battery_replacement_cost": 3149.5083268983453,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV004": {
+        "adjusted_msrp": 175655.069544,
+        "price_change_from_2024": -24344.930456000002,
+        "price_change_percent": -12.172465228000002,
+        "total_tco": 220240.15437089052,
+        "annual_cost": 14682.676958059368,
+        "cost_per_km": 0.6383772590460595,
+        "fuel_cost": 40802.83911796876,
+        "maintenance_cost": 29283.936737942295,
+        "battery_replacement_cost": 7770.749516833302,
+        "financing_cost": 26362.741522986733,
+        "purchase_cost": 41200.0
+      },
+      "BEV005": {
+        "adjusted_msrp": 351310.139088,
+        "price_change_from_2024": -48689.860912000004,
+        "price_change_percent": -12.172465228000002,
+        "total_tco": 337204.8459165164,
+        "annual_cost": 22480.32306110109,
+        "cost_per_km": 0.9774053504826562,
+        "fuel_cost": 40802.83911796876,
+        "maintenance_cost": 29283.936737942295,
+        "battery_replacement_cost": 9890.04483960602,
+        "financing_cost": 52725.483045973466,
+        "purchase_cost": 82400.0
+      },
+      "DSL001": {
+        "adjusted_msrp": 80000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 302565.5221428146,
+        "annual_cost": 20171.034809520974,
+        "cost_per_km": 0.8770015134574336,
+        "fuel_cost": 179285.3490007747,
+        "maintenance_cost": 52711.08612829613,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 10545.096609194705,
+        "purchase_cost": 16480.0
+      },
+      "DSL002": {
+        "adjusted_msrp": 75000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 299876.03125291143,
+        "annual_cost": 19991.735416860764,
+        "cost_per_km": 0.8692058876895984,
+        "fuel_cost": 179285.3490007747,
+        "maintenance_cost": 52711.08612829613,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 9886.028071120018,
+        "purchase_cost": 15450.0
+      },
+      "DSL003": {
+        "adjusted_msrp": 130000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 329460.4310418463,
+        "annual_cost": 21964.028736123084,
+        "cost_per_km": 0.9549577711357863,
+        "fuel_cost": 179285.3490007747,
+        "maintenance_cost": 52711.08612829613,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 17135.781989941403,
+        "purchase_cost": 26780.0
+      },
+      "DSL004": {
+        "adjusted_msrp": 220000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 403483.45977449964,
+        "annual_cost": 26898.897318299976,
+        "cost_per_km": 1.1695172747086946,
+        "fuel_cost": 204897.54171517107,
+        "maintenance_cost": 52711.08612829613,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 28999.015675285424,
+        "purchase_cost": 45320.0
+      },
+      "DSL005": {
+        "adjusted_msrp": 270000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 430378.36867353134,
+        "annual_cost": 28691.89124490209,
+        "cost_per_km": 1.2474735323870474,
+        "fuel_cost": 204897.54171517107,
+        "maintenance_cost": 52711.08612829613,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 35589.70105603212,
+        "purchase_cost": 55620.0
+      }
+    },
+    "2030": {
+      "BEV001": {
+        "adjusted_msrp": 151577.50695149938,
+        "price_change_from_2024": -24922.49304850062,
+        "price_change_percent": -14.12039266204001,
+        "total_tco": 179540.63118457765,
+        "annual_cost": 11969.375412305177,
+        "cost_per_km": 0.5204076266219642,
+        "fuel_cost": 17961.03544175629,
+        "maintenance_cost": 30018.549676654206,
+        "battery_replacement_cost": 2672.7511242062537,
+        "financing_cost": 23265.119394035806,
+        "purchase_cost": 36359.0
+      },
+      "BEV002": {
+        "adjusted_msrp": 128819.41100693998,
+        "price_change_from_2024": -21180.588993060024,
+        "price_change_percent": -14.120392662040015,
+        "total_tco": 164243.4336513235,
+        "annual_cost": 10949.562243421566,
+        "cost_per_km": 0.4760679236270246,
+        "fuel_cost": 17961.03544175629,
+        "maintenance_cost": 30018.549676654206,
+        "battery_replacement_cost": 2592.5685904800657,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV003": {
+        "adjusted_msrp": 128819.41100693998,
+        "price_change_from_2024": -21180.588993060024,
+        "price_change_percent": -14.120392662040015,
+        "total_tco": 169375.1558625531,
+        "annual_cost": 11291.67705750354,
+        "cost_per_km": 0.49094248076102354,
+        "fuel_cost": 22825.482540565285,
+        "maintenance_cost": 30018.549676654206,
+        "battery_replacement_cost": 2859.843702900691,
+        "financing_cost": 19772.056142240035,
+        "purchase_cost": 30900.0
+      },
+      "BEV004": {
+        "adjusted_msrp": 171759.21467591997,
+        "price_change_from_2024": -28240.785324080032,
+        "price_change_percent": -14.120392662040015,
+        "total_tco": 220243.7596250265,
+        "annual_cost": 14682.9173083351,
+        "cost_per_km": 0.6383877090580479,
+        "fuel_cost": 40786.517982321566,
+        "maintenance_cost": 30018.549676654206,
+        "battery_replacement_cost": 7056.06296790451,
+        "financing_cost": 26362.741522986733,
+        "purchase_cost": 41200.0
+      },
+      "BEV005": {
+        "adjusted_msrp": 343518.42935183994,
+        "price_change_from_2024": -56481.570648160065,
+        "price_change_percent": -14.120392662040015,
+        "total_tco": 337013.5366573081,
+        "annual_cost": 22467.569110487206,
+        "cost_per_km": 0.9768508308907481,
+        "fuel_cost": 40786.517982321566,
+        "maintenance_cost": 30018.549676654206,
+        "battery_replacement_cost": 8980.443777333012,
+        "financing_cost": 52725.483045973466,
+        "purchase_cost": 82400.0
+      },
+      "DSL001": {
+        "adjusted_msrp": 80000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 307419.7468078113,
+        "annual_cost": 20494.64978718742,
+        "cost_per_km": 0.8910717298777139,
+        "fuel_cost": 182817.27037608996,
+        "maintenance_cost": 54033.38941797757,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 10545.096609194705,
+        "purchase_cost": 16480.0
+      },
+      "DSL002": {
+        "adjusted_msrp": 75000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 304730.2559179081,
+        "annual_cost": 20315.350394527206,
+        "cost_per_km": 0.8832761041098786,
+        "fuel_cost": 182817.27037608996,
+        "maintenance_cost": 54033.38941797757,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 9886.028071120018,
+        "purchase_cost": 15450.0
+      },
+      "DSL003": {
+        "adjusted_msrp": 130000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 334314.655706843,
+        "annual_cost": 22287.643713789534,
+        "cost_per_km": 0.9690279875560667,
+        "fuel_cost": 182817.27037608996,
+        "maintenance_cost": 54033.38941797757,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 17135.781989941403,
+        "purchase_cost": 26780.0
+      },
+      "DSL004": {
+        "adjusted_msrp": 220000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 408842.24463596987,
+        "annual_cost": 27256.14964239799,
+        "cost_per_km": 1.1850499844520865,
+        "fuel_cost": 208934.02328695994,
+        "maintenance_cost": 54033.38941797757,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 28999.015675285424,
+        "purchase_cost": 45320.0
+      },
+      "DSL005": {
+        "adjusted_msrp": 270000.0,
+        "price_change_from_2024": 0.0,
+        "price_change_percent": 0.0,
+        "total_tco": 435737.1535350017,
+        "annual_cost": 29049.143569000113,
+        "cost_per_km": 1.2630062421304398,
+        "fuel_cost": 208934.02328695994,
+        "maintenance_cost": 54033.38941797757,
+        "battery_replacement_cost": 0.0,
+        "financing_cost": 35589.70105603212,
+        "purchase_cost": 55620.0
+      }
+    }
+  },
+  "summary_by_year": {
+    "2024": {
+      "avg_bev_tco": 213353.92325199768,
+      "avg_diesel_tco": 329040.17550781305,
+      "avg_bev_cost_per_km": 0.6184171688463701,
+      "avg_diesel_cost_per_km": 0.9537396391530812
+    },
+    "2025": {
+      "avg_bev_tco": 213356.09276474259,
+      "avg_diesel_tco": 333717.4723908603,
+      "avg_bev_cost_per_km": 0.6184234572891089,
+      "avg_diesel_cost_per_km": 0.9672970214227835
+    },
+    "2026": {
+      "avg_bev_tco": 213409.1250603829,
+      "avg_diesel_tco": 338464.38569380407,
+      "avg_bev_cost_per_km": 0.6185771740880665,
+      "avg_diesel_cost_per_km": 0.9810561904168236
+    },
+    "2027": {
+      "avg_bev_tco": 213510.4663508924,
+      "avg_diesel_tco": 343283.8382803226,
+      "avg_bev_cost_per_km": 0.6188709169591085,
+      "avg_diesel_cost_per_km": 0.9950256182038336
+    },
+    "2028": {
+      "avg_bev_tco": 213657.86786718242,
+      "avg_diesel_tco": 348178.89356894913,
+      "avg_bev_cost_per_km": 0.6192981677309636,
+      "avg_diesel_cost_per_km": 1.0092141842578237
+    },
+    "2029": {
+      "avg_bev_tco": 213849.37259682812,
+      "avg_diesel_tco": 353152.7625771207,
+      "avg_bev_cost_per_km": 0.6198532539038497,
+      "avg_diesel_cost_per_km": 1.023631195875712
+    },
+    "2030": {
+      "avg_bev_tco": 214083.30339615777,
+      "avg_diesel_tco": 358208.8113207068,
+      "avg_bev_cost_per_km": 0.6205313141917617,
+      "avg_diesel_cost_per_km": 1.038286409625237
+    }
+  },
+  "bev_vs_diesel_savings": {
+    "2024": {
+      "BEV001_vs_DSL001": {
+        "bev_model": "Jac N75",
+        "diesel_model": "Hino 300",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 102203.69632562168,
+        "percent_savings": 36.5790435875674,
+        "bev_tco": 177201.35722902894,
+        "diesel_tco": 279405.0535546506
+      },
+      "BEV002_vs_DSL002": {
+        "bev_model": "Hyundai Mighty Electric",
+        "diesel_model": "Hyundai Mighty",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 114870.27471764636,
+        "percent_savings": 41.512039876418704,
+        "bev_tco": 161845.2879471011,
+        "diesel_tco": 276715.5626647475
+      },
+      "BEV003_vs_DSL003": {
+        "bev_model": "Jac N90",
+        "diesel_model": "Hino 500",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 139115.022098077,
+        "percent_savings": 45.417903738435314,
+        "bev_tco": 167184.94035560545,
+        "diesel_tco": 306299.96245368244
+      },
+      "BEV004_vs_DSL004": {
+        "bev_model": "Volvo FL",
+        "diesel_model": "Volvo FE",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 156765.0291195743,
+        "percent_savings": 41.47851809291566,
+        "bev_tco": 221177.66586390213,
+        "diesel_tco": 377942.6949834764
+      },
+      "BEV005_vs_DSL005": {
+        "bev_model": "MB eActros 300",
+        "diesel_model": "MB Actros",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 65477.23901815736,
+        "percent_savings": 16.173704811561954,
+        "bev_tco": 339360.3648643509,
+        "diesel_tco": 404837.60388250824
+      }
+    },
+    "2025": {
+      "BEV001_vs_DSL001": {
+        "bev_model": "Jac N75",
+        "diesel_model": "Hino 300",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 106377.28675529367,
+        "percent_savings": 37.470079387405995,
+        "bev_tco": 177521.99633789336,
+        "diesel_tco": 283899.283093187
+      },
+      "BEV002_vs_DSL002": {
+        "bev_model": "Hyundai Mighty Electric",
+        "diesel_model": "Hyundai Mighty",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 119032.19118751917,
+        "percent_savings": 42.32860820915935,
+        "bev_tco": 162177.6010157647,
+        "diesel_tco": 281209.79220328387
+      },
+      "BEV003_vs_DSL003": {
+        "bev_model": "Jac N90",
+        "diesel_model": "Hino 500",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 143317.80222253397,
+        "percent_savings": 46.113410712038714,
+        "bev_tco": 167476.38976968476,
+        "diesel_tco": 310794.1919922187
+      },
+      "BEV004_vs_DSL004": {
+        "bev_model": "Volvo FL",
+        "diesel_model": "Volvo FE",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 162043.61651573866,
+        "percent_savings": 42.32068551700104,
+        "bev_tco": 220850.97636755148,
+        "diesel_tco": 382894.59288329014
+      },
+      "BEV005_vs_DSL005": {
+        "bev_model": "MB eActros 300",
+        "diesel_model": "MB Actros",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 71036.00144950335,
+        "percent_savings": 17.334753853025088,
+        "bev_tco": 338753.5003328185,
+        "diesel_tco": 409789.50178232184
+      }
+    },
+    "2026": {
+      "BEV001_vs_DSL001": {
+        "bev_model": "Jac N75",
+        "diesel_model": "Hino 300",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 110588.03532119951,
+        "percent_savings": 38.33745348909511,
+        "bev_tco": 177871.48730373353,
+        "diesel_tco": 288459.52262493304
+      },
+      "BEV002_vs_DSL002": {
+        "bev_model": "Hyundai Mighty Electric",
+        "diesel_model": "Hyundai Mighty",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 123232.08297081164,
+        "percent_savings": 43.122815301036965,
+        "bev_tco": 162537.9487642182,
+        "diesel_tco": 285770.0317350298
+      },
+      "BEV003_vs_DSL003": {
+        "bev_model": "Jac N90",
+        "diesel_model": "Hino 500",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 147555.83295627567,
+        "percent_savings": 46.79047389415311,
+        "bev_tco": 167798.59856768907,
+        "diesel_tco": 315354.43152396474
+      },
+      "BEV004_vs_DSL004": {
+        "bev_model": "Volvo FL",
+        "diesel_model": "Volvo FE",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 167323.70210116758,
+        "percent_savings": 43.13339034732477,
+        "bev_tco": 220597.814741863,
+        "diesel_tco": 387921.5168430306
+      },
+      "BEV005_vs_DSL005": {
+        "bev_model": "MB eActros 300",
+        "diesel_model": "MB Actros",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 76576.64981765149,
+        "percent_savings": 18.460370676176584,
+        "bev_tco": 338239.7759244108,
+        "diesel_tco": 414816.4257420623
+      }
+    },
+    "2027": {
+      "BEV001_vs_DSL001": {
+        "bev_model": "Jac N75",
+        "diesel_model": "Hino 300",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 114839.806976402,
+        "percent_savings": 39.18262176881607,
+        "bev_tco": 178248.81699055916,
+        "diesel_tco": 293088.62396696117
+      },
+      "BEV002_vs_DSL002": {
+        "bev_model": "Hyundai Mighty Electric",
+        "diesel_model": "Hyundai Mighty",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 127473.75781818386,
+        "percent_savings": 43.896053155351,
+        "bev_tco": 162925.37525887415,
+        "diesel_tco": 290399.133077058
+      },
+      "BEV003_vs_DSL003": {
+        "bev_model": "Jac N90",
+        "diesel_model": "Hino 500",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 151833.11272495036,
+        "percent_savings": 47.45028950865954,
+        "bev_tco": 168150.4201410425,
+        "diesel_tco": 319983.53286599286
+      },
+      "BEV004_vs_DSL004": {
+        "bev_model": "Volvo FL",
+        "diesel_model": "Volvo FE",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 172612.45551160112,
+        "percent_savings": 43.91878337420703,
+        "bev_tco": 220414.0407846836,
+        "diesel_tco": 393026.4962962847
+      },
+      "BEV005_vs_DSL005": {
+        "bev_model": "MB eActros 300",
+        "diesel_model": "MB Actros",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 82107.72661601356,
+        "percent_savings": 19.5531177025432,
+        "bev_tco": 337813.67857930274,
+        "diesel_tco": 419921.4051953163
+      }
+    },
+    "2028": {
+      "BEV001_vs_DSL001": {
+        "bev_model": "Jac N75",
+        "diesel_model": "Hino 300",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 119136.40865586058,
+        "percent_savings": 40.00691005352173,
+        "bev_tco": 178653.16943572025,
+        "diesel_tco": 297789.5780915808
+      },
+      "BEV002_vs_DSL002": {
+        "bev_model": "Hyundai Mighty Electric",
+        "diesel_model": "Hyundai Mighty",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 131760.9694663601,
+        "percent_savings": 44.64958676081714,
+        "bev_tco": 163339.11773531756,
+        "diesel_tco": 295100.08720167767
+      },
+      "BEV003_vs_DSL003": {
+        "bev_model": "Jac N90",
+        "diesel_model": "Hino 500",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 156153.5725930442,
+        "percent_savings": 48.09394315089621,
+        "bev_tco": 168530.91439756838,
+        "diesel_tco": 324684.4869906126
+      },
+      "BEV004_vs_DSL004": {
+        "bev_model": "Volvo FL",
+        "diesel_model": "Volvo FE",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 177916.7729691912,
+        "percent_savings": 44.67882904813796,
+        "bev_tco": 220295.93036173028,
+        "diesel_tco": 398212.7033309215
+      },
+      "BEV005_vs_DSL005": {
+        "bev_model": "MB eActros 300",
+        "diesel_model": "MB Actros",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 87637.40482437739,
+        "percent_savings": 20.61534592727353,
+        "bev_tco": 337470.20740557567,
+        "diesel_tco": 425107.61222995305
+      }
+    },
+    "2029": {
+      "BEV001_vs_DSL001": {
+        "bev_model": "Jac N75",
+        "diesel_model": "Hino 300",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 123481.60200598947,
+        "percent_savings": 40.811524436582914,
+        "bev_tco": 179083.92013682512,
+        "diesel_tco": 302565.5221428146
+      },
+      "BEV002_vs_DSL002": {
+        "bev_model": "Hyundai Mighty Electric",
+        "diesel_model": "Hyundai Mighty",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 136097.43008739653,
+        "percent_savings": 45.38456425435808,
+        "bev_tco": 163778.6011655149,
+        "diesel_tco": 299876.03125291143
+      },
+      "BEV003_vs_DSL003": {
+        "bev_model": "Jac N90",
+        "diesel_model": "Hino 500",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 160521.08964745258,
+        "percent_savings": 48.722418391744306,
+        "bev_tco": 168939.3413943937,
+        "diesel_tco": 329460.4310418463
+      },
+      "BEV004_vs_DSL004": {
+        "bev_model": "Volvo FL",
+        "diesel_model": "Volvo FE",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 183243.30540360912,
+        "percent_savings": 45.41532024782895,
+        "bev_tco": 220240.15437089052,
+        "diesel_tco": 403483.45977449964
+      },
+      "BEV005_vs_DSL005": {
+        "bev_model": "MB eActros 300",
+        "diesel_model": "MB Actros",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 93173.52275701496,
+        "percent_savings": 21.649211377464198,
+        "bev_tco": 337204.8459165164,
+        "diesel_tco": 430378.36867353134
+      }
+    },
+    "2030": {
+      "BEV001_vs_DSL001": {
+        "bev_model": "Jac N75",
+        "diesel_model": "Hino 300",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 127879.11562323367,
+        "percent_savings": 41.59756064830132,
+        "bev_tco": 179540.63118457765,
+        "diesel_tco": 307419.7468078113
+      },
+      "BEV002_vs_DSL002": {
+        "bev_model": "Hyundai Mighty Electric",
+        "diesel_model": "Hyundai Mighty",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 140486.8222665846,
+        "percent_savings": 46.10202614880179,
+        "bev_tco": 164243.4336513235,
+        "diesel_tco": 304730.2559179081
+      },
+      "BEV003_vs_DSL003": {
+        "bev_model": "Jac N90",
+        "diesel_model": "Hino 500",
+        "weight_class": "Light Rigid",
+        "absolute_savings": 164939.4998442899,
+        "percent_savings": 49.336604611472254,
+        "bev_tco": 169375.1558625531,
+        "diesel_tco": 334314.655706843
+      },
+      "BEV004_vs_DSL004": {
+        "bev_model": "Volvo FL",
+        "diesel_model": "Volvo FE",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 188598.48501094338,
+        "percent_savings": 46.12989178231082,
+        "bev_tco": 220243.7596250265,
+        "diesel_tco": 408842.24463596987
+      },
+      "BEV005_vs_DSL005": {
+        "bev_model": "MB eActros 300",
+        "diesel_model": "MB Actros",
+        "weight_class": "Medium Rigid",
+        "absolute_savings": 98723.61687769357,
+        "percent_savings": 22.656690180485917,
+        "bev_tco": 337013.5366573081,
+        "diesel_tco": 435737.1535350017
+      }
+    }
+  }
+}
