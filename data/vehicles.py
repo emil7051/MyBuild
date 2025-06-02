@@ -1,14 +1,9 @@
 """
 Vehicle data for TCO analysis.
-
-- VehicleModel dataclass
-- ALL_MODELS - list[VehicleModel]
-- BY_ID - dict[str, VehicleModel]  (for O(1) lookup)
 """
 
 from dataclasses import dataclass
 from typing import List, Dict
-
 
 @dataclass(slots=True, frozen=True)
 class VehicleModel:
@@ -28,7 +23,7 @@ class VehicleModel:
     annual_registration: float
     annual_kms: float
     noise_pollution_per_km: float
-
+    
 
 ALL_MODELS: List[VehicleModel] = [
     VehicleModel('BEV001', 'DSL001', 'Light Rigid', 'BEV', 'Jac N75', 4.0, 176500.0, 220.0, 100.0, 0.48, 0.0, 130.0, 0.05, 653.0, 23000.0, 0.004),
