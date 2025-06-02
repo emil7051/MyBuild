@@ -8,8 +8,7 @@ Provides transparent access to vehicle inputs and TCO calculations.
 from calculations.inputs import (
     vehicle_data,
     VehicleInputs,
-    VehicleData,
-    calculate_financing_cost  # Legacy function
+    VehicleData
 )
 
 from calculations.financial import (
@@ -39,7 +38,6 @@ __all__ = [
     # Utility functions
     'calculate_stamp_duty',
     'calculate_initial_cost',
-    'calculate_financing_cost',
     'calculate_present_value',
     'discount_to_present',
     

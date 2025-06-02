@@ -108,6 +108,41 @@ class FuelCostCalculator:
         
         return base_cost * price_multiplier
 
+class ChargingTimeCostCalculator:
+    """Calculate labour cost impact of charging time for BEVs."""
+    
+    def __init__(self, vehicle: VehicleModel):
+        self.vehicle = vehicle
+        
+    def calculate_annual_charging_labour_cost(self) -> float:
+        """Calculate annual labour cost during charging stops."""
+        if self.vehicle.drivetrain_type != 'BEV':
+            return 0.0
+            
+        # Calculate daily driving needs
+        daily_kms = self.vehicle.annual_kms / const.DAYS_IN_YEAR
+        
+        # Calculate charging sessions needed
+        # Account for not fully depleting battery (typically charge at 20% remaining)
+        usable_range = self.vehicle.range_km * 0.8
+        daily_charging_sessions = daily_kms / usable_range
+        
+        # Charging time varies by weight class and charging type
+        if self.vehicle.weight_class == 'Articulated':
+            # More public fast charging needed
+            avg_charging_hours = 1.0  # 60 minutes for articulated
+        elif self.vehicle.weight_class == 'Medium Rigid':
+            avg_charging_hours = 0.75  # 45 minutes
+        else:  # Light Rigid
+            avg_charging_hours = 0.5  # 30 minutes
+            
+        # Calculate annual charging hours
+        # Assume working days only (not all 365 days)
+        working_days = const.DAYS_IN_YEAR * 0.7  # ~250 working days
+        annual_charging_hours = daily_charging_sessions * avg_charging_hours * working_days
+        
+        # Return labour cost
+        return annual_charging_hours * const.HOURLY_WAGE
 
 class MaintenanceCostCalculator:
     """Handles maintenance cost calculations."""

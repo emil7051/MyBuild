@@ -22,6 +22,7 @@ from .financial import (
 
 from .operating import (
     FuelCostCalculator,
+    ChargingTimeCostCalculator,
     MaintenanceCostCalculator,
     InsuranceCostCalculator,
     BatteryReplacementCalculator,
@@ -59,6 +60,7 @@ __all__ = [
     
     # Operating calculations
     'FuelCostCalculator',
+    'ChargingTimeCostCalculator',
     'MaintenanceCostCalculator',
     'InsuranceCostCalculator',
     'BatteryReplacementCalculator',
