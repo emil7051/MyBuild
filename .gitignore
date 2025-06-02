@@ -120,7 +120,6 @@ venv.bak/
 # mkdocs documentation
 /site
 scripts/
-tests/
 
 # mypy
 .mypy_cache/
