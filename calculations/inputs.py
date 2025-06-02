@@ -143,7 +143,6 @@ class VehicleInputs:
         """Get maintenance cost for a specific year with age-based escalation."""
         return self._maintenance_calculator.get_maintenance_cost_year(year)
 
-
 class VehicleData:
     """Universal access point for vehicle data with pre-calculated inputs."""
     
@@ -198,19 +197,5 @@ class VehicleData:
                 pairs.append((bev, diesel))
         return pairs
 
-
 # Global instance for easy access
 vehicle_data = VehicleData()
-
-# Legacy utility functions for backward compatibility (now use modular functions)
-def calculate_financing_cost(initial_cost: float, is_bev: bool = False) -> float:
-    """Calculate total financing cost over the term considering policy subsidies."""
-    calc = FinancingCalculator()
-    down_payment = calc.calculate_down_payment(initial_cost)
-    loan_amount = calc.calculate_loan_amount(initial_cost, down_payment)
-    
-    drivetrain_type = 'BEV' if is_bev else 'Diesel'
-    interest_rate = calc.calculate_interest_rate(drivetrain_type)
-    monthly_payment = calc.calculate_monthly_payment(loan_amount, interest_rate)
-    
-    return calc.calculate_total_financing_cost(monthly_payment, loan_amount) 

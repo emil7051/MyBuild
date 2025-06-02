@@ -11,18 +11,22 @@ PUBLIC_CHARGING_PRICE = 0.50 # $/kWh
 
 RETAIL_PROPORTION = 0.0 # % (Proportion of charging done at workplace AC chargers)
 OFFPEAK_PROPORTION = .86 # % (Proportion of charging done at workplace AC chargers during offpeak hours)
-SOLAR_PROPORTION = 0.0 # % (Proportion of charging done at home via solar and storage)
 PUBLIC_PROPORTION = 0.14 # % (Proportion of charging done at public DC fast chargers)
+SOLAR_PROPORTION = 0.0 # % (Proportion of charging done at home via solar and storage)
 
 # Rigid Truck Electricity Mix
 
+RIGID_RETAIL_PROPORTION = 0.00 # (Assuming most charging takes place on overnight cycles)
 RIGID_OFFPEAK_PROPORTION = 0.86 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
 RIGID_PUBLIC_PROPORTION = 0.14 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+RIGID_SOLAR_PROPORTION = 0.00 # (Assuming no investment in solar infrastructure)
 
 # Articulated Truck Electricity Mix
 
+ART_RETAIL_PROPORTION = 0.00 # (Assuming most charging takes place on overnight cycles)
 ART_OFFPEAK_PROPORTION = 0.67 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
 ART_PUBLIC_PROPORTION = 0.33 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+ART_SOLAR_PROPORTION = 0.00 # (Assuming no investment in solar infrastructure)
 
 # Charger Costs
 
