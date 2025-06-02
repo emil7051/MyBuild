@@ -26,11 +26,23 @@ class FuelCostCalculator:
         
         adjusted_kwh_per_km = self.vehicle.kwh_per_km * efficiency_multiplier
         
+        # Select charging proportions based on vehicle weight class
+        if self.vehicle.weight_class == 'Articulated':
+            retail_prop = const.ART_RETAIL_PROPORTION
+            offpeak_prop = const.ART_OFFPEAK_PROPORTION
+            solar_prop = const.ART_SOLAR_PROPORTION
+            public_prop = const.ART_PUBLIC_PROPORTION
+        else:  # Light Rigid or Medium Rigid
+            retail_prop = const.RIGID_RETAIL_PROPORTION
+            offpeak_prop = const.RIGID_OFFPEAK_PROPORTION
+            solar_prop = const.RIGID_SOLAR_PROPORTION
+            public_prop = const.RIGID_PUBLIC_PROPORTION
+        
         return adjusted_kwh_per_km * self.vehicle.annual_kms * (
-            const.RETAIL_PROPORTION * const.RETAIL_CHARGING_PRICE +
-            const.OFFPEAK_PROPORTION * const.OFFPEAK_CHARGING_PRICE +
-            const.SOLAR_PROPORTION * const.SOLAR_CHARGING_PRICE +
-            const.PUBLIC_PROPORTION * const.PUBLIC_CHARGING_PRICE
+            retail_prop * const.RETAIL_CHARGING_PRICE +
+            offpeak_prop * const.OFFPEAK_CHARGING_PRICE +
+            solar_prop * const.SOLAR_CHARGING_PRICE +
+            public_prop * const.PUBLIC_CHARGING_PRICE
         )
     
     def calculate_diesel_base_cost(self) -> float:
@@ -61,13 +73,25 @@ class FuelCostCalculator:
                 year <= len(self.scenario.bev_efficiency_improvement)):
                 efficiency_multiplier = self.scenario.bev_efficiency_improvement[year - 1]
             
+            # Select charging proportions based on vehicle weight class
+            if self.vehicle.weight_class == 'Articulated':
+                retail_prop = const.ART_RETAIL_PROPORTION
+                offpeak_prop = const.ART_OFFPEAK_PROPORTION
+                solar_prop = const.ART_SOLAR_PROPORTION
+                public_prop = const.ART_PUBLIC_PROPORTION
+            else:  # Light Rigid or Medium Rigid
+                retail_prop = const.RIGID_RETAIL_PROPORTION
+                offpeak_prop = const.RIGID_OFFPEAK_PROPORTION
+                solar_prop = const.RIGID_SOLAR_PROPORTION
+                public_prop = const.RIGID_PUBLIC_PROPORTION
+            
             # Recalculate base cost with year-specific efficiency
             adjusted_kwh_per_km = self.vehicle.kwh_per_km * efficiency_multiplier
             base_cost = adjusted_kwh_per_km * self.vehicle.annual_kms * (
-                const.RETAIL_PROPORTION * const.RETAIL_CHARGING_PRICE +
-                const.OFFPEAK_PROPORTION * const.OFFPEAK_CHARGING_PRICE +
-                const.SOLAR_PROPORTION * const.SOLAR_CHARGING_PRICE +
-                const.PUBLIC_PROPORTION * const.PUBLIC_CHARGING_PRICE
+                retail_prop * const.RETAIL_CHARGING_PRICE +
+                offpeak_prop * const.OFFPEAK_CHARGING_PRICE +
+                solar_prop * const.SOLAR_CHARGING_PRICE +
+                public_prop * const.PUBLIC_CHARGING_PRICE
             )
         else:
             # Diesel vehicle

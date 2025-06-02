@@ -9,7 +9,6 @@ from .inputs import (
     vehicle_data,
     VehicleInputs,
     VehicleData,
-    calculate_financing_cost,  # Legacy function
 )
 
 # Import from modular structure
@@ -55,7 +54,6 @@ __all__ = [
     'calculate_stamp_duty',
     'calculate_rebate',
     'calculate_initial_cost',
-    'calculate_financing_cost',  # Legacy
     'FinancingCalculator',
     'DepreciationCalculator',
     

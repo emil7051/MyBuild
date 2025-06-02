@@ -98,10 +98,14 @@ def generate_constants_summary() -> Dict:
             'diesel_price': DIESEL_PRICE,
         },
         'charging_mix': {
-            'retail_proportion': RETAIL_PROPORTION,
-            'offpeak_proportion': OFFPEAK_PROPORTION,
-            'solar_proportion': SOLAR_PROPORTION,
-            'public_proportion': PUBLIC_PROPORTION,
+            'rigid_retail_proportion': RIGID_RETAIL_PROPORTION,
+            'rigid_offpeak_proportion': RIGID_OFFPEAK_PROPORTION,
+            'rigid_solar_proportion': RIGID_SOLAR_PROPORTION,
+            'rigid_public_proportion': RIGID_PUBLIC_PROPORTION,
+            'articulated_retail_proportion': ART_RETAIL_PROPORTION,
+            'articulated_offpeak_proportion': ART_OFFPEAK_PROPORTION,
+            'articulated_solar_proportion': ART_SOLAR_PROPORTION,
+            'articulated_public_proportion': ART_PUBLIC_PROPORTION,
         },
         'financial_parameters': {
             'discount_rate': DISCOUNT_RATE,

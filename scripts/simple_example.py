@@ -2,6 +2,10 @@
 Simple example showing the transparency of the new inputs structure.
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from calculations import vehicle_data, calculate_tco_from_inputs
 
 
