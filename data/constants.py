@@ -59,6 +59,11 @@ VEHICLE_LIFE = 15  # Years
 RIGID_ANNUAL_KMS = 23000 # kms/year (SMVU Data)
 ART_ANNUAL_KMS = 84000 # kms/year (SMVU Data)
 
+# Payload Penalty - Based on BITRE freight rates
+FREIGHT_RATE_RIGID = 0.17  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
+FREIGHT_RATE_ARTICULATED = 0.26  # $/tonne-km (BITRE 2017 rate for articulated truck freight transport)
+PAYLOAD_UTILISATION_FACTOR = 0.85  # Trucks typically run at 85% payload capacity on average
+
 # Insurance Costs
 
 INSURANCE_RATE_BEV = 0.035 # % (annual insurance as a percentage of vehicle price for BEV)

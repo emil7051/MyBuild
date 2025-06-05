@@ -24,7 +24,8 @@ from .operating import (
     InsuranceCostCalculator,
     BatteryReplacementCalculator,
     calculate_carbon_cost_year,
-    ChargingTimeCostCalculator
+    ChargingTimeCostCalculator,
+    PayloadPenaltyCalculator
 )
 from .utils import calculate_present_value, discount_to_present
 
@@ -65,6 +66,9 @@ class VehicleInputs:
     # Charging labour cost (BEV only)
     annual_charging_labour_cost: float = field(init=False)
     
+    # Payload penalty
+    annual_payload_penalty: float = field(init=False)
+    
     # Depreciation
     first_year_depreciation: float = field(init=False)
     annual_depreciation_rate: float = field(init=False)
@@ -77,6 +81,7 @@ class VehicleInputs:
     _depreciation_calculator: DepreciationCalculator = field(init=False, repr=False)
     _financing_calculator: FinancingCalculator = field(init=False, repr=False)
     _charging_calculator: ChargingTimeCostCalculator = field(init=False, repr=False)
+    _payload_calculator: PayloadPenaltyCalculator = field(init=False, repr=False)
     
     def __post_init__(self):
         """Calculations of derived values listed above."""
@@ -88,6 +93,7 @@ class VehicleInputs:
         self._battery_calculator = BatteryReplacementCalculator(self.vehicle, self.scenario)
         self._financing_calculator = FinancingCalculator()
         self._charging_calculator = ChargingTimeCostCalculator(self.vehicle)
+        self._payload_calculator = PayloadPenaltyCalculator(self.vehicle)
         
         # Purchase calculations
         self.stamp_duty = calculate_stamp_duty(self.vehicle.msrp, self.vehicle.drivetrain_type == 'BEV')
@@ -125,6 +131,9 @@ class VehicleInputs:
         
         # Charging labour cost (BEV only)
         self.annual_charging_labour_cost = self._charging_calculator.calculate_annual_charging_labour_cost()
+        
+        # Payload penalty
+        self.annual_payload_penalty = self._payload_calculator.calculate_annual_payload_penalty()
     
     def get_fuel_cost_year(self, year: int) -> float:
         """Get fuel cost for a specific year with price escalation and efficiency improvements."""
@@ -157,6 +166,12 @@ class VehicleInputs:
         # For now, return constant annual cost
         # Could be enhanced with scenario-based adjustments
         return self.annual_charging_labour_cost
+    
+    def get_payload_penalty_year(self, year: int) -> float:
+        """Get payload penalty for a specific year."""
+        # Could be enhanced with scenario-based adjustments
+        # For example, freight rates might increase with inflation
+        return self.annual_payload_penalty
 
 class VehicleData:
     """Universal access point for vehicle data with pre-calculated inputs."""

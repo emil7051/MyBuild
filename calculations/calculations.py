@@ -27,6 +27,7 @@ class TCOResult:
     depreciation_cost: float
     carbon_cost: float = 0.0
     charging_labour_cost: float = 0.0
+    payload_penalty_cost: float = 0.0
     scenario_name: str = "baseline"
 
 
@@ -72,6 +73,7 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
     total_carbon_cost = 0.0
     total_maintenance_cost = 0.0
     total_charging_labour_cost = 0.0
+    total_payload_penalty = 0.0
     
     for year in range(1, const.VEHICLE_LIFE + 1):
         # Get year-specific costs
@@ -80,6 +82,7 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         carbon_cost = vehicle_inputs.get_carbon_cost_year(year)
         maintenance_cost = vehicle_inputs.get_maintenance_cost_year(year)
         charging_labour_cost = vehicle_inputs.get_charging_labour_cost_year(year)
+        payload_penalty = vehicle_inputs.get_payload_penalty_year(year)
         
         # Discount to present value
         total_fuel_cost += discount_to_present(annual_fuel, year)
@@ -87,6 +90,7 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         total_carbon_cost += discount_to_present(carbon_cost, year)
         total_maintenance_cost += discount_to_present(maintenance_cost, year)
         total_charging_labour_cost += discount_to_present(charging_labour_cost, year)
+        total_payload_penalty += discount_to_present(payload_penalty, year)
     
     # Fixed annual costs (present value)
     total_insurance_pv = calculate_present_value(vehicle_inputs.annual_insurance_cost, const.VEHICLE_LIFE)
@@ -101,7 +105,8 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         total_registration_pv + 
         total_battery_cost + 
         total_carbon_cost +
-        total_charging_labour_cost -
+        total_charging_labour_cost +
+        total_payload_penalty -
         total_depreciation
     )
     
@@ -124,6 +129,7 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         depreciation_cost=total_depreciation,  # NPV of depreciation
         carbon_cost=total_carbon_cost,
         charging_labour_cost=total_charging_labour_cost,
+        payload_penalty_cost=total_payload_penalty,
         scenario_name=vehicle_inputs.scenario.name
     )
 

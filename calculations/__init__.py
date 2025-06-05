@@ -26,6 +26,7 @@ from .operating import (
     MaintenanceCostCalculator,
     InsuranceCostCalculator,
     BatteryReplacementCalculator,
+    PayloadPenaltyCalculator,
     calculate_carbon_cost_year
 )
 
@@ -64,6 +65,7 @@ __all__ = [
     'MaintenanceCostCalculator',
     'InsuranceCostCalculator',
     'BatteryReplacementCalculator',
+    'PayloadPenaltyCalculator',
     'calculate_carbon_cost_year',
     
     # Financial utilities

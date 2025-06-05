@@ -16,6 +16,7 @@ __all__ = [
     'MaintenanceCostCalculator',
     'InsuranceCostCalculator',
     'BatteryReplacementCalculator',
+    'PayloadPenaltyCalculator',
     'calculate_carbon_cost_year',
 ]
 
@@ -240,3 +241,44 @@ def calculate_carbon_cost_year(vehicle: VehicleModel, year: int, scenario: Optio
     annual_emissions = vehicle.litres_per_km * vehicle.annual_kms * const.DIESEL_EMISSIONS / 1000
     
     return annual_emissions * carbon_price 
+
+# Payload Penalty Calculator
+class PayloadPenaltyCalculator:
+    """Calculate economic penalty for reduced payload capacity based on freight rates."""
+    
+    def __init__(self, vehicle: VehicleModel):
+        self.vehicle = vehicle
+        
+    def calculate_annual_payload_penalty(self) -> float:
+        """
+        Calculate annual cost penalty for reduced payload capacity.
+        Based on freight rates per tonne-kilometre.
+        Only applies to vehicles with comparison pairs.
+        """
+        if not self.vehicle.comparison_pair:
+            return 0.0
+            
+        # Get the comparison vehicle
+        from data.vehicles import BY_ID
+        if self.vehicle.comparison_pair not in BY_ID:
+            return 0.0
+            
+        comparison_vehicle = BY_ID[self.vehicle.comparison_pair]
+        
+        # Calculate payload difference (positive means this vehicle has less payload)
+        payload_difference = comparison_vehicle.payload - self.vehicle.payload
+        
+        # Only apply penalty if this vehicle has less payload
+        if payload_difference <= 0:
+            return 0.0
+            
+        # Get freight rate based on vehicle class
+        if self.vehicle.weight_class == 'Articulated':
+            freight_rate = const.FREIGHT_RATE_ARTICULATED
+        else:  # Light Rigid or Medium Rigid
+            freight_rate = const.FREIGHT_RATE_RIGID
+            
+        # Annual cost = payload difference × freight rate × annual kilometres × utilisation factor
+        # This represents the lost revenue from being unable to carry as much freight
+        # Apply utilisation factor as trucks rarely run at 100% capacity
+        return payload_difference * freight_rate * self.vehicle.annual_kms * const.PAYLOAD_UTILISATION_FACTOR
