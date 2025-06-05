@@ -10,6 +10,16 @@ from data.scenarios import EconomicScenario
 from data.vehicles import VehicleModel
 
 
+__all__ = [
+    'FuelCostCalculator',
+    'ChargingTimeCostCalculator',
+    'MaintenanceCostCalculator',
+    'InsuranceCostCalculator',
+    'BatteryReplacementCalculator',
+    'calculate_carbon_cost_year',
+]
+
+
 class FuelCostCalculator:
     """Handles fuel cost calculations for both BEV and diesel vehicles."""
     

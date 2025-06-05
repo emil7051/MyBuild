@@ -25,8 +25,9 @@ class TCOResult:
     battery_replacement_cost: float
     financing_cost: float
     depreciation_cost: float
-    carbon_cost: float = 0.0 
-    scenario_name: str = "baseline" 
+    carbon_cost: float = 0.0
+    charging_labour_cost: float = 0.0
+    scenario_name: str = "baseline"
 
 
 def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
@@ -59,16 +60,18 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         
         npv_purchase_payments = npv_down_payment + npv_monthly_payments
     
-    # Calculate depreciation over vehicle life
+    # Calculate depreciation over vehicle life with discounting
     total_depreciation = 0.0
     for year in range(1, const.VEHICLE_LIFE + 1):
-        total_depreciation += vehicle_inputs.get_depreciation_year(year)
+        annual_depreciation = vehicle_inputs.get_depreciation_year(year)
+        total_depreciation += discount_to_present(annual_depreciation, year)
     
     # Annual costs over vehicle life with discounting
     total_fuel_cost = 0.0
     total_battery_cost = 0.0
     total_carbon_cost = 0.0
     total_maintenance_cost = 0.0
+    total_charging_labour_cost = 0.0
     
     for year in range(1, const.VEHICLE_LIFE + 1):
         # Get year-specific costs
@@ -76,12 +79,14 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         battery_cost = vehicle_inputs.get_battery_replacement_year(year)
         carbon_cost = vehicle_inputs.get_carbon_cost_year(year)
         maintenance_cost = vehicle_inputs.get_maintenance_cost_year(year)
+        charging_labour_cost = vehicle_inputs.get_charging_labour_cost_year(year)
         
         # Discount to present value
         total_fuel_cost += discount_to_present(annual_fuel, year)
         total_battery_cost += discount_to_present(battery_cost, year)
         total_carbon_cost += discount_to_present(carbon_cost, year)
         total_maintenance_cost += discount_to_present(maintenance_cost, year)
+        total_charging_labour_cost += discount_to_present(charging_labour_cost, year)
     
     # Fixed annual costs (present value)
     total_insurance_pv = calculate_present_value(vehicle_inputs.annual_insurance_cost, const.VEHICLE_LIFE)
@@ -95,7 +100,8 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         total_insurance_pv + 
         total_registration_pv + 
         total_battery_cost + 
-        total_carbon_cost -
+        total_carbon_cost +
+        total_charging_labour_cost -
         total_depreciation
     )
     
@@ -115,8 +121,9 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         registration_cost=vehicle_inputs.vehicle.annual_registration * const.VEHICLE_LIFE,  # Undiscounted for reporting
         battery_replacement_cost=total_battery_cost,
         financing_cost=financing_cost,
-        depreciation_cost=total_depreciation,
+        depreciation_cost=total_depreciation,  # NPV of depreciation
         carbon_cost=total_carbon_cost,
+        charging_labour_cost=total_charging_labour_cost,
         scenario_name=vehicle_inputs.scenario.name
     )
 

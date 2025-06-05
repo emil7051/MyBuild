@@ -23,7 +23,8 @@ from .operating import (
     MaintenanceCostCalculator,
     InsuranceCostCalculator,
     BatteryReplacementCalculator,
-    calculate_carbon_cost_year
+    calculate_carbon_cost_year,
+    ChargingTimeCostCalculator
 )
 from .utils import calculate_present_value, discount_to_present
 
@@ -61,6 +62,9 @@ class VehicleInputs:
     # Battery-related (BEV only)
     battery_replacement_cost_year8: float = field(init=False)
     
+    # Charging labour cost (BEV only)
+    annual_charging_labour_cost: float = field(init=False)
+    
     # Depreciation
     first_year_depreciation: float = field(init=False)
     annual_depreciation_rate: float = field(init=False)
@@ -72,6 +76,7 @@ class VehicleInputs:
     _battery_calculator: BatteryReplacementCalculator = field(init=False, repr=False)
     _depreciation_calculator: DepreciationCalculator = field(init=False, repr=False)
     _financing_calculator: FinancingCalculator = field(init=False, repr=False)
+    _charging_calculator: ChargingTimeCostCalculator = field(init=False, repr=False)
     
     def __post_init__(self):
         """Calculations of derived values listed above."""
@@ -82,6 +87,7 @@ class VehicleInputs:
         self._insurance_calculator = InsuranceCostCalculator(self.vehicle)
         self._battery_calculator = BatteryReplacementCalculator(self.vehicle, self.scenario)
         self._financing_calculator = FinancingCalculator()
+        self._charging_calculator = ChargingTimeCostCalculator(self.vehicle)
         
         # Purchase calculations
         self.stamp_duty = calculate_stamp_duty(self.vehicle.msrp, self.vehicle.drivetrain_type == 'BEV')
@@ -116,6 +122,9 @@ class VehicleInputs:
         
         # Battery replacement cost (year 8 for BEVs)
         self.battery_replacement_cost_year8 = self._battery_calculator.get_replacement_cost_year8()
+        
+        # Charging labour cost (BEV only)
+        self.annual_charging_labour_cost = self._charging_calculator.calculate_annual_charging_labour_cost()
     
     def get_fuel_cost_year(self, year: int) -> float:
         """Get fuel cost for a specific year with price escalation and efficiency improvements."""
@@ -142,6 +151,12 @@ class VehicleInputs:
     def get_maintenance_cost_year(self, year: int) -> float:
         """Get maintenance cost for a specific year with age-based escalation."""
         return self._maintenance_calculator.get_maintenance_cost_year(year)
+    
+    def get_charging_labour_cost_year(self, year: int) -> float:
+        """Get charging labour cost for a specific year."""
+        # For now, return constant annual cost
+        # Could be enhanced with scenario-based adjustments
+        return self.annual_charging_labour_cost
 
 class VehicleData:
     """Universal access point for vehicle data with pre-calculated inputs."""
