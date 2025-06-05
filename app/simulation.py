@@ -173,6 +173,41 @@ class MonteCarloSimulation:
             object.__setattr__(modified_vehicle, 'annual_kms', sample_values['annual_kms_variation'])
             modified_inputs.vehicle = modified_vehicle
             
+        # Apply residual value variation (affects depreciation)
+        if 'residual_value_variation' in sample_values:
+            multiplier = sample_values['residual_value_variation']
+            # Modify the scenario's BEV residual value multipliers
+            if modified_inputs.vehicle.drivetrain_type == 'BEV':
+                modified_scenario = copy.deepcopy(modified_inputs.scenario)
+                # Apply multiplier to all residual value multipliers
+                if modified_scenario.bev_residual_value_multiplier:
+                    modified_scenario.bev_residual_value_multiplier = [
+                        v * multiplier for v in modified_scenario.bev_residual_value_multiplier
+                    ]
+                else:
+                    # Create a multiplier list if it doesn't exist
+                    modified_scenario.bev_residual_value_multiplier = [multiplier] * 15
+                modified_inputs.scenario = modified_scenario
+            
+        # Apply battery life variation (affects replacement timing/cost)
+        if 'battery_life_variation' in sample_values and modified_inputs.vehicle.drivetrain_type == 'BEV':
+            multiplier = sample_values['battery_life_variation']
+            # Shorter battery life increases replacement cost, longer life reduces it
+            cost_multiplier = 2.0 - multiplier  # If life is 0.7x, cost is 1.3x
+            original_cost = modified_inputs.battery_replacement_cost_year8
+            modified_inputs.battery_replacement_cost_year8 = original_cost * cost_multiplier
+            
+        # Apply charging efficiency variation
+        if 'charging_efficiency_variation' in sample_values and modified_inputs.vehicle.drivetrain_type == 'BEV':
+            multiplier = sample_values['charging_efficiency_variation']
+            # Higher multiplier means worse efficiency (more electricity needed)
+            # Apply to kwh_per_km which affects fuel costs
+            modified_vehicle = copy.deepcopy(modified_inputs.vehicle)
+            # Increase consumption with multiplier (higher multiplier = more kWh per km)
+            object.__setattr__(modified_vehicle, 'kwh_per_km', 
+                             modified_vehicle.kwh_per_km * multiplier)
+            modified_inputs.vehicle = modified_vehicle
+            
         # Reinitialise calculators with modified inputs
         modified_inputs.__post_init__()
         
