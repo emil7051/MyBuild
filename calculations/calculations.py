@@ -7,7 +7,7 @@ from data.vehicles import VehicleModel, BY_ID
 import data.constants as const
 from data.scenarios import EconomicScenario, get_active_scenario
 from calculations.inputs import vehicle_data, VehicleInputs
-from calculations.utils import calculate_present_value, discount_to_present
+from calculations.utils import calculate_present_value, discount_to_present, calculate_annualised_cost
 
 
 @dataclass
@@ -106,7 +106,7 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
     )
     
     # Calculate annual equivalent and cost per km
-    annual_cost = total_cost / const.VEHICLE_LIFE
+    annual_cost = calculate_annualised_cost(total_cost, const.VEHICLE_LIFE, const.DISCOUNT_RATE)
     cost_per_km = annual_cost / vehicle_inputs.vehicle.annual_kms
     
     return TCOResult(
