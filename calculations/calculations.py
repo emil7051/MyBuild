@@ -24,7 +24,6 @@ class TCOResult:
     registration_cost: float
     battery_replacement_cost: float
     financing_cost: float
-    depreciation_cost: float  # Kept for backward compatibility
     residual_value: float = 0.0  # Present value of residual value at end of vehicle life
     carbon_cost: float = 0.0
     charging_labour_cost: float = 0.0
@@ -113,7 +112,6 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         registration_cost=vehicle_inputs.vehicle.annual_registration * const.VEHICLE_LIFE,  # Undiscounted for reporting
         battery_replacement_cost=total_battery_cost,
         financing_cost=financing_cost,
-        depreciation_cost=residual_value_pv,  # For backward compatibility
         residual_value=residual_value_pv,  # Present value of residual value
         carbon_cost=total_carbon_cost,
         charging_labour_cost=total_charging_labour_cost,

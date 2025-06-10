@@ -246,9 +246,6 @@ class TestTCOCalculations:
         # Verify residual_value field is populated and positive
         assert tco.residual_value > 0
         
-        # For backward compatibility, depreciation_cost should equal residual_value
-        assert tco.depreciation_cost == tco.residual_value
-        
         # Calculate expected residual value
         residual_future = inputs.get_residual_value(const.VEHICLE_LIFE)
         residual_pv = discount_to_present(residual_future, const.VEHICLE_LIFE)
@@ -373,19 +370,6 @@ class TestTCOCalculations:
             assert bev_tco.total_cost > 0
             assert diesel_tco.total_cost > 0
             assert difference == bev_tco.total_cost - diesel_tco.total_cost
-            
-    def test_legacy_depreciation_function(self):
-        """Test that residual value is properly calculated in TCO."""
-        vehicle = BY_ID['BEV001']
-        
-        # Get residual value through proper approach
-        inputs = vehicle_data.get_vehicle(vehicle.vehicle_id)
-        residual_future = inputs.get_residual_value(const.VEHICLE_LIFE)
-        residual_pv = discount_to_present(residual_future, const.VEHICLE_LIFE)
-        
-        # Verify it matches what's in the TCO result
-        tco = calculate_tco(vehicle)
-        assert abs(tco.residual_value - residual_pv) < 0.01
 
 
 class TestNPVFinancing:

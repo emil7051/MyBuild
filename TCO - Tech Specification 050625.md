@@ -13,13 +13,12 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
 | Analysis Suite | Analytical capabilities | Monte Carlo simulation, sensitivity analysis |
 | Output Layer | Structured results | TCOResult objects, simulations, and outputs |
 
-├── app/  
-    └── simulation.py      \# Analysis (Monte Carlo, Sensitivity)  
 ├── calculations/  
     ├── calculations.py    \# TCO aggregation, TCOResult  
     ├── financial.py       \# Purchase, financing, depreciation  
     ├── inputs.py          \# VehicleInputs, VehicleData  
     ├── operating.py       \# Fuel, battery, maintenance costs etc  
+    ├── simulation.py      \# Analysis (Monte Carlo, Sensitivity)  
     └── utils.py           \# Financial utilities (PV, NPV, etc)  
 ├── data/  
      ├── constants.py       \# Global constants  
@@ -62,10 +61,9 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
     * Primary API functions: calculate\_tco, calculate\_all\_tcos, compare\_vehicle\_pairs, calculate\_scenario\_comparison, calculate\_breakeven\_analysis. These provide a clean, single-purpose interface for all TCO calculations.
     * Note: The module follows clean code principles with a streamlined API. All calculations flow through VehicleInputs objects, ensuring consistency and avoiding duplication.
 
-* **Analysis Suite (app/ directory):**  
-  * **simulation.py**:  
-    * MonteCarloSimulation: Performs Monte Carlo simulations by introducing variability to selected VehicleInputs parameters (e.g fuel prices, maintenance costs, annual kms) to assess uncertainty. Defines UncertaintyParameter and SimulationResults.  
-    * SensitivityAnalysis: Performs deterministic sensitivity analysis by varying one input parameter at a time to quantify its impact on TCO, useful for generating tornado diagrams.
+* **Analysis Suite (calculations/simulation.py):**  
+  * MonteCarloSimulation: Performs Monte Carlo simulations by introducing variability to selected VehicleInputs parameters (e.g fuel prices, maintenance costs, annual kms) to assess uncertainty. Defines UncertaintyParameter and SimulationResults.  
+  * SensitivityAnalysis: Performs deterministic sensitivity analysis by varying one input parameter at a time to quantify its impact on TCO, useful for generating tornado diagrams.
 
 * **Output Layer:**  
   * **TCOResult objects:** Detailed, structured output for individual TCO calculations, including payload penalty cost for vehicles with reduced cargo capacity. These can be reported or visualised in different ways.  

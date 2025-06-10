@@ -13,13 +13,12 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
 | Analysis Suite | Analytical capabilities | Monte Carlo simulation, sensitivity analysis |
 | Output Layer | Structured results | TCOResult objects, simulations, and outputs |
 
-├── app/  
-    └── simulation.py      \# Analysis (Monte Carlo, Sensitivity)  
 ├── calculations/  
     ├── calculations.py    \# TCO aggregation, TCOResult  
     ├── financial.py       \# Purchase, financing, depreciation  
     ├── inputs.py          \# VehicleInputs, VehicleData  
     ├── operating.py       \# Fuel, battery, maintenance costs etc  
+    ├── simulation.py      \# Analysis (Monte Carlo, Sensitivity)  
     └── utils.py           \# Financial utilities (PV, NPV, etc)  
 ├── data/  
      ├── constants.py       \# Global constants  
@@ -46,7 +45,7 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
     * FinancingCalculator: Class for loan-based financing (down payment, loan principal, interest rates, monthly payments, total financing costs).  
     * DepreciationCalculator: Class for vehicle depreciation and residual value calculations, accommodating different rates and scenario-based BEV residual value adjustments.
 
-  * **utils.py**: Common financial utility functions (e.g. calculate\_present\_value, discount\_to\_present, calculate\_npv\_of\_payments).
+  * **utils.py**: Common financial utility functions (e.g. calculate\_present\_value, discount\_to\_present, calculate\_npv\_of\_payments, calculate\_npv\_of\_annual\_cashflows).
 
   * **operating.py**:  
     * FuelCostCalculator: Determines annual fuel (diesel) or electricity (BEV) costs, factoring in efficiency, mileage, scenario-driven prices/efficiency improvements, and BEV charging mix.  
@@ -59,12 +58,12 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
   * **calculations.py**:  
     * Defines TCOResult: Standardised dataclass for TCO calculation output (total cost, annual cost, cost/km, component breakdowns including payload penalty cost). If we want additional reporting the first thing to do would be to adjust the expected output here.   
     * calculate\_tco\_from\_inputs(vehicle\_inputs: VehicleInputs): Core function that aggregates all discounted costs and revenues from a VehicleInputs object to determine TCO, average annual cost, and cost/km.  
-    * Helper functions: calculate\_tco, calculate\_all\_tcos, compare\_vehicle\_pairs. These are used for reporting.
+    * Primary API functions: calculate\_tco, calculate\_all\_tcos, compare\_vehicle\_pairs, calculate\_scenario\_comparison, calculate\_breakeven\_analysis. These provide a clean, single-purpose interface for all TCO calculations.
+    * Note: The module follows clean code principles with a streamlined API. All calculations flow through VehicleInputs objects, ensuring consistency and avoiding duplication.
 
-* **Analysis Suite (app/ directory):**  
-  * **simulation.py**:  
-    * MonteCarloSimulation: Performs Monte Carlo simulations by introducing variability to selected VehicleInputs parameters (e.g fuel prices, maintenance costs, annual kms) to assess uncertainty. Defines UncertaintyParameter and SimulationResults.  
-    * SensitivityAnalysis: Performs deterministic sensitivity analysis by varying one input parameter at a time to quantify its impact on TCO, useful for generating tornado diagrams.
+* **Analysis Suite (calculations/simulation.py):**  
+  * MonteCarloSimulation: Performs Monte Carlo simulations by introducing variability to selected VehicleInputs parameters (e.g fuel prices, maintenance costs, annual kms) to assess uncertainty. Defines UncertaintyParameter and SimulationResults.  
+  * SensitivityAnalysis: Performs deterministic sensitivity analysis by varying one input parameter at a time to quantify its impact on TCO, useful for generating tornado diagrams.
 
 * **Output Layer:**  
   * **TCOResult objects:** Detailed, structured output for individual TCO calculations, including payload penalty cost for vehicles with reduced cargo capacity. These can be reported or visualised in different ways.  
@@ -133,16 +132,14 @@ The TCO for a VehicleInputs object is calculated as follows:
 
 3. **Calculate Net Present Value (NPV) of Annual Operating Costs:**
 
-   * For each year in const.VEHICLE\_LIFE:  
-     * Retrieve annual fuel/electricity cost (vehicle\_inputs.get\_fuel\_cost\_year(year)).  
-     * Retrieve annual battery replacement cost (vehicle\_inputs.get\_battery\_replacement\_year(year) \- typically non-zero in one year for BEVs).  
-     * Retrieve annual carbon cost (vehicle\_inputs.get\_carbon\_cost\_year(year) \- diesel only).  
-     * Retrieve annual maintenance cost (vehicle\_inputs.get\_maintenance\_cost\_year(year)).
-     * Retrieve annual payload penalty (vehicle\_inputs.get\_payload\_penalty\_year(year) \- BEVs with less payload than comparison vehicle).
+   * Generate lists of annual costs over the vehicle life:
+     * Annual fuel/electricity costs for each year
+     * Annual battery replacement costs (typically non-zero in one year for BEVs)
+     * Annual carbon costs (diesel only)
+     * Annual maintenance costs
+     * Annual payload penalties (BEVs with less payload than comparison vehicle)
 
-   * Discount each annual cost to its present value using const.DISCOUNT\_RATE.
-
-   * Sum discounted costs for each category (e.g., total\_fuel\_cost, total\_maintenance\_cost).
+   * Calculate NPV of each cost category using calculate\_npv\_of\_annual\_cashflows utility function, which discounts each year's costs to present value and sums them.
 
 4. **Calculate NPV of Fixed Annual Costs (Insurance & Registration):**
 
@@ -172,7 +169,6 @@ The TCO for a VehicleInputs object is calculated as follows:
 7. **Populate and Return TCOResult Object:**
 
    * Includes identifiers, primary TCO figures, and a detailed breakdown of cost components including payload penalty cost and residual value.
-   * The depreciation_cost field is populated with the present value of residual value for backward compatibility.
 
 ## **4\. Key Calculation Logic / Classes**
 
@@ -181,13 +177,14 @@ The TCO for a VehicleInputs object is calculated as follows:
 | **Initial Cost** | MSRP \+ stamp\_duty \- rebate | financial.calculate\_initial\_cost (uses data.policies) |
 | **Stamp Duty** | msrp \* STAMP\_DUTY\_RATE \- *adjusted by StampDutyExemption policy* | financial.calculate\_stamp\_duty, data.policies |
 | **Rebate** | PurchaseRebate (fixed) \+ PercentageRebate (capped) \- *only one will be non-zero* | financial.calculate\_rebate, data.policies |
-| **Financing** | Numpy calculations for down payment, loan amount, monthly payment and interest \- *interest rate adjusted by GreenLoanSubsidy policy.* | financial.FinancingCalculator, data.policies |
+| **Financing** | Numpy calculations for down payment, loan amount, monthly payment and interest \- *interest rate adjusted by GreenLoanSubsidy policy.* | financial.FinancingCalculator, data.policies |
 | **Residual Value** | Calculated by applying annual depreciation rates to initial cost over vehicle life - *different rates for year 1 vs. ongoing* & *BEV residual value adjusted by EconomicScenario* | financial.DepreciationCalculator.get\_residual\_value |
-| **Fuel/Electricity (Yr i)** | (base\_efficiency \* scenario\_efficiency\_multiplier) \* annual\_kms \* (base\_price \* scenario\_price\_multiplier) \- *for BEV models it also considers the charging mix* | operating.FuelCostCalculator |
+| **Fuel/Electricity (Yr i)** | (base\_efficiency \* scenario\_efficiency\_multiplier) \* annual\_kms \* (base\_price \* scenario\_price\_multiplier) \- *for BEV models it also considers the charging mix* | operating.FuelCostCalculator |
 | **Maintenance (Yr i)** | (annual\_kms \* drivetrain\_rate\_per\_km) \* scenario\_maintenance\_multiplier  | operating.MaintenanceCostCalculator |
 | **Battery Value (Yr y)** | battery\_capacity\_kwh \* (scenario\_adjusted\_cost\_per\_kWh \- recycle\_value) \- *typically in a single year.*  | operating.BatteryReplacementCalculator |
 | **Carbon Cost (Yr i)** | (annual\_fuel\_consumption \* emissions\_factor) \* scenario\_carbon\_price | Operating.calculate\_carbon\_cost\_year |
 | **Payload Penalty (Yr i)** | payload\_difference \* freight\_rate \* annual\_kms \* PAYLOAD\_UTILISATION\_FACTOR | operating.PayloadPenaltyCalculator |
+| **NPV of Annual Cashflows** | Σ(cashflow\_i / (1 + discount\_rate)^i) for i = 1 to n | utils.calculate\_npv\_of\_annual\_cashflows |
 
 
 ## **5\. Assumptions and Current Limitations**
