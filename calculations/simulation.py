@@ -7,10 +7,14 @@ from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass, field
 import copy
 
-from calculations.inputs import VehicleInputs
-from calculations.calculations import calculate_tco_from_inputs, TCOResult
+from .inputs import VehicleInputs
 from data import constants as const
 from data.scenarios import EconomicScenario
+
+# Type checking imports
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .calculations import TCOResult
 
 
 @dataclass
@@ -231,6 +235,7 @@ class MonteCarloSimulation:
             modified_inputs = self._apply_uncertainties(sample_values)
             
             # Calculate TCO with modified inputs
+            from .calculations import calculate_tco_from_inputs
             tco = calculate_tco_from_inputs(modified_inputs)
             tco_results.append(tco.total_cost)
             
@@ -268,6 +273,7 @@ class SensitivityAnalysis:
     
     def __init__(self, base_inputs: VehicleInputs):
         self.base_inputs = base_inputs
+        from .calculations import calculate_tco_from_inputs
         self.base_tco = calculate_tco_from_inputs(base_inputs)
         
     def analyse_parameter(
@@ -308,6 +314,7 @@ class SensitivityAnalysis:
                     
             # Recalculate TCO
             modified_inputs.__post_init__()  # Reinitialise calculators
+            from .calculations import calculate_tco_from_inputs
             new_tco = calculate_tco_from_inputs(modified_inputs)
             
             # Calculate percent change

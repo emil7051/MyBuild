@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from data.vehicles import VehicleModel, BY_ID
 import data.constants as const
 from data.scenarios import EconomicScenario, get_active_scenario
-from calculations.inputs import vehicle_data, VehicleInputs
-from calculations.utils import calculate_present_value, discount_to_present, calculate_annualised_cost, calculate_npv_of_payments, calculate_npv_of_annual_cashflows
+from .inputs import vehicle_data, VehicleInputs
+from .utils import calculate_present_value, discount_to_present, calculate_annualised_cost, calculate_npv_of_payments, calculate_npv_of_annual_cashflows
 
 
 @dataclass
