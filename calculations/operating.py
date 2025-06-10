@@ -37,23 +37,14 @@ class FuelCostCalculator:
         
         adjusted_kwh_per_km = self.vehicle.kwh_per_km * efficiency_multiplier
         
-        # Select charging proportions based on vehicle weight class
-        if self.vehicle.weight_class == 'Articulated':
-            retail_prop = const.ART_RETAIL_PROPORTION
-            offpeak_prop = const.ART_OFFPEAK_PROPORTION
-            solar_prop = const.ART_SOLAR_PROPORTION
-            public_prop = const.ART_PUBLIC_PROPORTION
-        else:  # Light Rigid or Medium Rigid
-            retail_prop = const.RIGID_RETAIL_PROPORTION
-            offpeak_prop = const.RIGID_OFFPEAK_PROPORTION
-            solar_prop = const.RIGID_SOLAR_PROPORTION
-            public_prop = const.RIGID_PUBLIC_PROPORTION
+        # Get charging proportions from the new dictionary structure
+        proportions = const.CHARGING_MIX_PROPORTIONS['BEV'][self.vehicle.weight_class]
         
         return adjusted_kwh_per_km * self.vehicle.annual_kms * (
-            retail_prop * const.RETAIL_CHARGING_PRICE +
-            offpeak_prop * const.OFFPEAK_CHARGING_PRICE +
-            solar_prop * const.SOLAR_CHARGING_PRICE +
-            public_prop * const.PUBLIC_CHARGING_PRICE
+            proportions['retail'] * const.RETAIL_CHARGING_PRICE +
+            proportions['offpeak'] * const.OFFPEAK_CHARGING_PRICE +
+            proportions['solar'] * const.SOLAR_CHARGING_PRICE +
+            proportions['public'] * const.PUBLIC_CHARGING_PRICE
         )
     
     def calculate_diesel_base_cost(self) -> float:
@@ -93,25 +84,16 @@ class FuelCostCalculator:
             if overrides and 'charging_efficiency_variation' in overrides:
                 efficiency_multiplier *= overrides['charging_efficiency_variation']
             
-            # Select charging proportions based on vehicle weight class
-            if self.vehicle.weight_class == 'Articulated':
-                retail_prop = const.ART_RETAIL_PROPORTION
-                offpeak_prop = const.ART_OFFPEAK_PROPORTION
-                solar_prop = const.ART_SOLAR_PROPORTION
-                public_prop = const.ART_PUBLIC_PROPORTION
-            else:  # Light Rigid or Medium Rigid
-                retail_prop = const.RIGID_RETAIL_PROPORTION
-                offpeak_prop = const.RIGID_OFFPEAK_PROPORTION
-                solar_prop = const.RIGID_SOLAR_PROPORTION
-                public_prop = const.RIGID_PUBLIC_PROPORTION
+            # Get charging proportions from the new dictionary structure
+            proportions = const.CHARGING_MIX_PROPORTIONS['BEV'][self.vehicle.weight_class]
             
             # Recalculate base cost with year-specific efficiency
             adjusted_kwh_per_km = self.vehicle.kwh_per_km * efficiency_multiplier
             base_cost = adjusted_kwh_per_km * self.vehicle.annual_kms * (
-                retail_prop * const.RETAIL_CHARGING_PRICE +
-                offpeak_prop * const.OFFPEAK_CHARGING_PRICE +
-                solar_prop * const.SOLAR_CHARGING_PRICE +
-                public_prop * const.PUBLIC_CHARGING_PRICE
+                proportions['retail'] * const.RETAIL_CHARGING_PRICE +
+                proportions['offpeak'] * const.OFFPEAK_CHARGING_PRICE +
+                proportions['solar'] * const.SOLAR_CHARGING_PRICE +
+                proportions['public'] * const.PUBLIC_CHARGING_PRICE
             )
         else:
             # Diesel vehicle
@@ -178,16 +160,8 @@ class MaintenanceCostCalculator:
     
     def get_annual_base_cost(self) -> float:
         """Calculate annual maintenance cost based on vehicle type."""
-        if self.vehicle.drivetrain_type == 'BEV':
-            if self.vehicle.weight_class == 'Articulated':
-                return self.vehicle.annual_kms * const.ART_BEV_MAINTENANCE_COST
-            else:
-                return self.vehicle.annual_kms * const.RIGID_BEV_MAINTENANCE_COST
-        else:
-            if self.vehicle.weight_class == 'Articulated':
-                return self.vehicle.annual_kms * const.ART_DSL_MAINTENANCE_COST
-            else:
-                return self.vehicle.annual_kms * const.RIGID_DSL_MAINTENANCE_COST
+        cost_per_km = const.MAINTENANCE_COST_PER_KM[self.vehicle.drivetrain_type][self.vehicle.weight_class]
+        return self.vehicle.annual_kms * cost_per_km
     
     def get_maintenance_cost_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get maintenance cost for a specific year with age-based escalation."""
@@ -301,10 +275,7 @@ class PayloadPenaltyCalculator:
             return 0.0
             
         # Get freight rate based on vehicle class
-        if self.vehicle.weight_class == 'Articulated':
-            freight_rate = const.FREIGHT_RATE_ARTICULATED
-        else:  # Light Rigid or Medium Rigid
-            freight_rate = const.FREIGHT_RATE_RIGID
+        freight_rate = const.FREIGHT_RATE_PER_TONNE_KM[self.vehicle.weight_class]
             
         # Annual cost = payload difference × freight rate × annual kilometres × utilisation factor
         # This represents the lost revenue from being unable to carry as much freight

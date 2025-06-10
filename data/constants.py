@@ -14,19 +14,29 @@ OFFPEAK_PROPORTION = .86 # % (Proportion of charging done at workplace AC charge
 PUBLIC_PROPORTION = 0.14 # % (Proportion of charging done at public DC fast chargers)
 SOLAR_PROPORTION = 0.0 # % (Proportion of charging done at home via solar and storage)
 
-# Rigid Truck Electricity Mix
-
-RIGID_RETAIL_PROPORTION = 0.00 # (Assuming most charging takes place on overnight cycles)
-RIGID_OFFPEAK_PROPORTION = 0.86 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
-RIGID_PUBLIC_PROPORTION = 0.14 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
-RIGID_SOLAR_PROPORTION = 0.00 # (Assuming no investment in solar infrastructure)
-
-# Articulated Truck Electricity Mix
-
-ART_RETAIL_PROPORTION = 0.00 # (Assuming most charging takes place on overnight cycles)
-ART_OFFPEAK_PROPORTION = 0.67 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
-ART_PUBLIC_PROPORTION = 0.33 # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
-ART_SOLAR_PROPORTION = 0.00 # (Assuming no investment in solar infrastructure)
+# Charging Mix Proportions by Vehicle Type
+CHARGING_MIX_PROPORTIONS = {
+    'BEV': {
+        'Light Rigid': {
+            'retail': 0.00,  # (Assuming most charging takes place on overnight cycles)
+            'offpeak': 0.86,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'public': 0.14,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'solar': 0.00  # (Assuming no investment in solar infrastructure)
+        },
+        'Medium Rigid': {
+            'retail': 0.00,  # (Assuming most charging takes place on overnight cycles)
+            'offpeak': 0.86,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'public': 0.14,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'solar': 0.00  # (Assuming no investment in solar infrastructure)
+        },
+        'Articulated': {
+            'retail': 0.00,  # (Assuming most charging takes place on overnight cycles)
+            'offpeak': 0.67,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'public': 0.33,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'solar': 0.00  # (Assuming no investment in solar infrastructure)
+        }
+    }
+}
 
 # Charger Costs
 
@@ -60,8 +70,11 @@ RIGID_ANNUAL_KMS = 23000 # kms/year (SMVU Data)
 ART_ANNUAL_KMS = 84000 # kms/year (SMVU Data)
 
 # Payload Penalty - Based on BITRE freight rates
-FREIGHT_RATE_RIGID = 0.17  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
-FREIGHT_RATE_ARTICULATED = 0.26  # $/tonne-km (BITRE 2017 rate for articulated truck freight transport)
+FREIGHT_RATE_PER_TONNE_KM = {
+    'Light Rigid': 0.17,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
+    'Medium Rigid': 0.17,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
+    'Articulated': 0.26  # $/tonne-km (BITRE 2017 rate for articulated truck freight transport)
+}
 PAYLOAD_UTILISATION_FACTOR = 0.85  # Trucks typically run at 85% payload capacity on average
 
 # Insurance Costs
@@ -70,12 +83,19 @@ INSURANCE_RATE_BEV = 0.035 # % (annual insurance as a percentage of vehicle pric
 INSURANCE_RATE_DSL = 0.0315 # % (annual insurance as a percentage of vehicle price for Diesel, based on Transport Industry Council guidelines)
 OTHER_INSURANCE = 2000 # $/year (Permits, TAC fees, goods insurance, PLI, personal income insurance)
 
-# Mainteannce Costs
-
-RIGID_BEV_MAINTENANCE_COST = 0.10 # $/km (check this with T&E)
-ART_BEV_MAINTENANCE_COST = 0.19 # $/km (check this with T&E)
-RIGID_DSL_MAINTENANCE_COST = 0.18 # $/km (check this with T&E)
-ART_DSL_MAINTENANCE_COST = 0.28 # $/km (check this with T&E)
+# Maintenance Costs
+MAINTENANCE_COST_PER_KM = {
+    'BEV': {
+        'Light Rigid': 0.10,  # $/km (check this with T&E)
+        'Medium Rigid': 0.10,  # $/km (check this with T&E)
+        'Articulated': 0.19  # $/km (check this with T&E)
+    },
+    'Diesel': {
+        'Light Rigid': 0.18,  # $/km (check this with T&E)
+        'Medium Rigid': 0.18,  # $/km (check this with T&E)
+        'Articulated': 0.28  # $/km (check this with T&E)
+    }
+}
 
 # Financial Parameters
 
