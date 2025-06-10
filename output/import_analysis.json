@@ -1,0 +1,208 @@
+{
+  "summary": {
+    "total_files": 26,
+    "files_with_imports": 23,
+    "total_imports": 171,
+    "issues_found": 1
+  },
+  "import_types": {
+    "from": 125,
+    "import": 46
+  },
+  "module_usage": {
+    "data": 41,
+    "calculations": 28,
+    "typing": 18,
+    "dataclasses": 9,
+    "numpy": 8,
+    "plotly": 8,
+    "numpy_financial": 4,
+    "pandas": 4,
+    "analysis": 4,
+    "json": 4,
+    "sys": 4,
+    "collections": 3,
+    "datetime": 3,
+    "output": 3,
+    "os": 3,
+    "app": 3,
+    "copy": 2,
+    "pathlib": 2,
+    "financial": 2,
+    "operating": 2,
+    "utils": 2,
+    "test_comprehensive": 1,
+    "pytest": 1,
+    "scripts": 1,
+    "argparse": 1,
+    "signal": 1,
+    "traceback": 1,
+    "visualisations": 1,
+    "generators": 1,
+    "inspect": 1,
+    "textwrap": 1,
+    "ast": 1,
+    "importlib": 1,
+    "inputs": 1,
+    "simulation": 1
+  },
+  "files_by_import_count": [
+    [
+      "output/generate_html_report.py",
+      23
+    ],
+    [
+      "tests/test_comprehensive.py",
+      14
+    ],
+    [
+      "output/analysis.py",
+      13
+    ],
+    [
+      "output/visualisations.py",
+      12
+    ],
+    [
+      "scripts/generate_tco_analysis.py",
+      12
+    ],
+    [
+      "scripts/purchase_year_analysis.py",
+      10
+    ],
+    [
+      "output/generators.py",
+      9
+    ],
+    [
+      "calculations/calculations.py",
+      9
+    ],
+    [
+      "scripts/check_imports.py",
+      8
+    ],
+    [
+      "calculations/simulation.py",
+      8
+    ]
+  ],
+  "issues": [
+    {
+      "file": "calculations/__init__.py",
+      "type": "circular_dependency",
+      "message": "Circular dependency detected: calculations/__init__.py -> calculations/__init__.py"
+    }
+  ],
+  "dependency_graph": {
+    "app/__init__.py": [
+      "calculations/utils.py",
+      "calculations/calculations.py",
+      "calculations/financial.py",
+      "calculations/inputs.py"
+    ],
+    "tests/__init__.py": [
+      "data/vehicles.py"
+    ],
+    "tests/test_comprehensive.py": [
+      "calculations/financial.py",
+      "calculations/operating.py",
+      "scripts/validation.py",
+      "calculations/inputs.py",
+      "data/vehicles.py",
+      "calculations/utils.py",
+      "data/scenarios.py",
+      "calculations/simulation.py",
+      "data/__init__.py",
+      "calculations/calculations.py"
+    ],
+    "output/analysis.py": [
+      "calculations/inputs.py",
+      "calculations/utils.py",
+      "data/vehicles.py",
+      "data/scenarios.py",
+      "data/__init__.py",
+      "calculations/calculations.py"
+    ],
+    "output/visualisations.py": [
+      "data/__init__.py",
+      "calculations/calculations.py",
+      "data/scenarios.py",
+      "calculations/simulation.py"
+    ],
+    "output/generate_html_report.py": [
+      "output/generators.py",
+      "output/analysis.py",
+      "calculations/inputs.py",
+      "data/vehicles.py",
+      "data/scenarios.py",
+      "calculations/simulation.py",
+      "calculations/calculations.py",
+      "output/visualisations.py"
+    ],
+    "output/generators.py": [
+      "data/__init__.py",
+      "calculations/calculations.py",
+      "data/vehicles.py",
+      "calculations/inputs.py"
+    ],
+    "scripts/generate_tco_analysis.py": [
+      "app/__init__.py",
+      "calculations/inputs.py",
+      "data/constants.py",
+      "data/vehicles.py",
+      "data/policies.py",
+      "data/scenarios.py"
+    ],
+    "scripts/purchase_year_analysis.py": [
+      "app/__init__.py",
+      "calculations/inputs.py",
+      "data/constants.py",
+      "data/vehicles.py",
+      "data/scenarios.py"
+    ],
+    "scripts/validation.py": [
+      "data/__init__.py",
+      "data/vehicles.py",
+      "data/scenarios.py"
+    ],
+    "calculations/simulation.py": [
+      "data/__init__.py",
+      "calculations/calculations.py",
+      "data/scenarios.py",
+      "calculations/inputs.py"
+    ],
+    "calculations/__init__.py": [
+      "calculations/__init__.py"
+    ],
+    "calculations/financial.py": [
+      "data/__init__.py",
+      "data/constants.py",
+      "data/vehicles.py",
+      "data/scenarios.py"
+    ],
+    "calculations/calculations.py": [
+      "calculations/inputs.py",
+      "data/constants.py",
+      "calculations/utils.py",
+      "data/vehicles.py",
+      "data/scenarios.py"
+    ],
+    "calculations/inputs.py": [
+      "data/vehicles.py",
+      "data/scenarios.py"
+    ],
+    "calculations/utils.py": [
+      "data/constants.py"
+    ],
+    "calculations/operating.py": [
+      "data/constants.py",
+      "data/vehicles.py",
+      "data/scenarios.py"
+    ],
+    "data/scenarios.py": [
+      "data/constants.py"
+    ]
+  }
+}

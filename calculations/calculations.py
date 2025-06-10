@@ -7,7 +7,7 @@ from data.vehicles import VehicleModel, BY_ID
 import data.constants as const
 from data.scenarios import EconomicScenario, get_active_scenario
 from calculations.inputs import vehicle_data, VehicleInputs
-from calculations.utils import calculate_present_value, discount_to_present, calculate_annualised_cost
+from calculations.utils import calculate_present_value, discount_to_present, calculate_annualised_cost, calculate_npv_of_payments
 
 
 @dataclass
@@ -49,15 +49,12 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         npv_down_payment = vehicle_inputs.down_payment  # Paid in year 0
         
         # Calculate NPV of monthly loan payments
-        npv_monthly_payments = 0.0
-        monthly_payment = vehicle_inputs.monthly_payment
         num_payments = const.FINANCING_TERM * 12
-        
-        for month in range(1, num_payments + 1):
-            # Calculate the discount factor for this month
-            year_fraction = month / 12.0
-            discount_factor = (1 + const.DISCOUNT_RATE) ** year_fraction
-            npv_monthly_payments += monthly_payment / discount_factor
+        npv_monthly_payments = calculate_npv_of_payments(
+            vehicle_inputs.monthly_payment,
+            num_payments,
+            const.DISCOUNT_RATE
+        )
         
         npv_purchase_payments = npv_down_payment + npv_monthly_payments
     

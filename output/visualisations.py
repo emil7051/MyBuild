@@ -11,7 +11,7 @@ from typing import List, Dict, Optional
 
 from .analysis import PaybackAnalysis, PolicyImpactAnalysis
 from calculations.calculations import TCOResult
-from app.simulation import SensitivityAnalysis
+from calculations.simulation import SensitivityAnalysis
 from data import constants as const
 from data.scenarios import EconomicScenario
 

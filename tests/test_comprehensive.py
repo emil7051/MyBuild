@@ -30,9 +30,9 @@ from calculations.operating import (
     MaintenanceCostCalculator,
     ChargingTimeCostCalculator
 )
-from calculations.utils import calculate_present_value, discount_to_present
+from calculations.utils import calculate_present_value, discount_to_present, calculate_npv_of_payments
 from scripts.validation import DataValidator
-from app.simulation import (
+from calculations.simulation import (
     MonteCarloSimulation, 
     UncertaintyParameter,
     SensitivityAnalysis
@@ -301,10 +301,9 @@ class TestNPVFinancing:
             
             npv_payments = down_payment  # Year 0
             
-            for month in range(1, num_payments + 1):
-                year_fraction = month / 12.0
-                discount_factor = (1 + discount_rate) ** year_fraction
-                npv_payments += monthly_payment / discount_factor
+            # Use the utility function for NPV of monthly payments
+            npv_monthly_payments = calculate_npv_of_payments(monthly_payment, num_payments, discount_rate)
+            npv_payments += npv_monthly_payments
             
             total_paid = down_payment + (monthly_payment * num_payments)
             financing_cost = total_paid - initial_cost

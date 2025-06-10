@@ -7,7 +7,7 @@ from typing import Optional
 
 import data.constants as const
 from data.scenarios import EconomicScenario
-from data.vehicles import VehicleModel
+from data.vehicles import VehicleModel, BY_ID
 
 
 __all__ = [
@@ -259,7 +259,6 @@ class PayloadPenaltyCalculator:
             return 0.0
             
         # Get the comparison vehicle
-        from data.vehicles import BY_ID
         if self.vehicle.comparison_pair not in BY_ID:
             return 0.0
             

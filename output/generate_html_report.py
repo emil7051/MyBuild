@@ -21,7 +21,7 @@ from calculations.inputs import vehicle_data
 from calculations.calculations import compare_vehicle_pairs, calculate_tco_from_inputs
 from data.scenarios import SCENARIOS
 from data.vehicles import BY_ID
-from app.simulation import MonteCarloSimulation, SensitivityAnalysis
+from calculations.simulation import MonteCarloSimulation, SensitivityAnalysis
 from output.generators import (
     generate_executive_summary, 
     generate_fleet_report,
@@ -167,7 +167,7 @@ def generate_fleet_transition_chart(fleet_data: pd.DataFrame):
 
 def generate_monte_carlo_differentials(vehicle_pairs, scenario):
     """Generate Monte Carlo TCO differentials for all vehicle pairs."""
-    from app.simulation import MonteCarloSimulation
+    from calculations.simulation import MonteCarloSimulation
     
     monte_carlo_results = []
     weight_class_results = {}
