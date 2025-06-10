@@ -44,7 +44,7 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
   * **financial.py**:  
     * Standalone functions for financial calculations (e.g., calculate\_stamp\_duty, calculate\_rebate, calculate\_initial\_cost), incorporating policy impacts.  
     * FinancingCalculator: Class for loan-based financing (down payment, loan principal, interest rates, monthly payments, total financing costs).  
-    * DepreciationCalculator: Class for annual and total vehicle depreciation, accommodating different rates and scenario-based BEV residual value adjustments.
+    * DepreciationCalculator: Class for vehicle depreciation and residual value calculations, accommodating different rates and scenario-based BEV residual value adjustments.
 
   * **utils.py**: Common financial utility functions (e.g. calculate\_present\_value, discount\_to\_present, calculate\_npv\_of\_payments).
 
@@ -109,7 +109,7 @@ The policy system uses inheritance with a base class **policies.PolicyIncentive*
 
 * **inputs.VehicleInputs**: Aggregates VehicleModel, EconomicScenario, and purchase\_method. Pre-calculates net initial costs, financing details, baseline annual operating costs, and payload penalty (annual cost of reduced cargo capacity for BEVs).
 
-* **calculations.TCOResult**: The comprehensive TCO breakdown for a single vehicle calculation (total TCO (NPV), ave. annual cost, cost/km, itemised components).
+* **calculations.TCOResult**: The comprehensive TCO breakdown for a single vehicle calculation (total TCO (NPV), ave. annual cost, cost/km, itemised components including residual value).
 
 ## **3\. TCO Calculation Flow (calculate\_tco\_from\_inputs)**
 
@@ -127,8 +127,10 @@ The TCO for a VehicleInputs object is calculated as follows:
      * financing\_cost \= vehicle\_inputs.total\_financing\_cost (undiscounted sum for reporting).   
      * npv\_purchase\_payments \= down\_payment \+ NPV of all monthly loan payments (discounted month-by-month).
 
-2. **Calculate Total Depreciation (Undiscounted Sum for Reporting):**  
-   * Sum annual depreciation amounts vehicle\_inputs.get\_depreciation\_year(year) over const.VEHICLE\_LIFE. This considers initial cost, depreciation rates, and scenario-specific BEV residual value adjustments.
+2. **Calculate Residual Value at End of Vehicle Life:**  
+   * Retrieve the vehicle's residual value at year 15 using vehicle\_inputs.get\_residual\_value(const.VEHICLE\_LIFE).
+   * Discount this future residual value to present value using const.DISCOUNT\_RATE.
+   * This considers initial cost, depreciation rates, and scenario-specific BEV residual value adjustments.
 
 3. **Calculate Net Present Value (NPV) of Annual Operating Costs:**
 
@@ -160,7 +162,7 @@ The TCO for a VehicleInputs object is calculated as follows:
    	total\_battery\_cost (NPV) \+   
    	total\_carbon\_cost (NPV) \+   
    	total\_payload\_penalty (NPV) \-   
-   	total\_depreciation (undiscounted sum).
+   	residual\_value\_pv (present value of residual value).
 
 6. **Derive Aggregated Metrics:**
 
@@ -170,7 +172,8 @@ The TCO for a VehicleInputs object is calculated as follows:
 
 7. **Populate and Return TCOResult Object:**
 
-   * Includes identifiers, primary TCO figures, and a detailed breakdown of cost components including payload penalty cost (mix of NPV and undiscounted sums for reporting clarity).
+   * Includes identifiers, primary TCO figures, and a detailed breakdown of cost components including payload penalty cost and residual value.
+   * The depreciation_cost field is populated with the present value of residual value for backward compatibility.
 
 ## **4\. Key Calculation Logic / Classes**
 
@@ -180,7 +183,7 @@ The TCO for a VehicleInputs object is calculated as follows:
 | **Stamp Duty** | msrp \* STAMP\_DUTY\_RATE \- *adjusted by StampDutyExemption policy* | financial.calculate\_stamp\_duty, data.policies |
 | **Rebate** | PurchaseRebate (fixed) \+ PercentageRebate (capped) \- *only one will be non-zero* | financial.calculate\_rebate, data.policies |
 | **Financing** | Numpy calculations for down payment, loan amount, monthly payment and interest \- *interest rate adjusted by GreenLoanSubsidy policy.* | financial.FinancingCalculator, data.policies |
-| **Depreciation (Year y)** | initial\_cost \* rate \- *different rates for year 1 vs. ongoing* & *BEV residual value adjusted by EconomicScenario* | financial.DepreciationCalculator |
+| **Residual Value** | Calculated by applying annual depreciation rates to initial cost over vehicle life - *different rates for year 1 vs. ongoing* & *BEV residual value adjusted by EconomicScenario* | financial.DepreciationCalculator.get\_residual\_value |
 | **Fuel/Electricity (Yr i)** | (base\_efficiency \* scenario\_efficiency\_multiplier) \* annual\_kms \* (base\_price \* scenario\_price\_multiplier) \- *for BEV models it also considers the charging mix* | operating.FuelCostCalculator |
 | **Maintenance (Yr i)** | (annual\_kms \* drivetrain\_rate\_per\_km) \* scenario\_maintenance\_multiplier  | operating.MaintenanceCostCalculator |
 | **Battery Value (Yr y)** | battery\_capacity\_kwh \* (scenario\_adjusted\_cost\_per\_kWh \- recycle\_value) \- *typically in a single year.*  | operating.BatteryReplacementCalculator |
@@ -191,6 +194,8 @@ The TCO for a VehicleInputs object is calculated as follows:
 ## **5\. Assumptions and Current Limitations**
 
 * **Single Discount Rate:** A constant const.DISCOUNT\_RATE (currently 5% real) is used for all NPV calculations.
+
+* **Residual Value Approach:** The TCO calculation uses the standard approach of subtracting the present value of the vehicle's residual value at end of life, rather than summing discounted depreciation charges.
 
 * **Payload Penalty:** Implemented for BEVs with reduced payload capacity compared to diesel equivalents. Uses freight rates ($/tonne-km) and assumes 85% average payload utilisation. Only applies when comparison_pair is specified and BEV has less payload.
 

@@ -147,6 +147,10 @@ class VehicleInputs:
         """Get depreciation for a specific year."""
         return self._depreciation_calculator.get_depreciation_year(year, self.vehicle.drivetrain_type)
     
+    def get_residual_value(self, year: int) -> float:
+        """Get residual value at the end of a specific year."""
+        return self._depreciation_calculator.get_residual_value(year, self.vehicle.drivetrain_type)
+    
     def get_policy_adjusted_rebate(self, year: int = 1) -> float:
         """Get rebate amount considering policy phase-out from scenario."""
         if not self.scenario.policy_active(year):

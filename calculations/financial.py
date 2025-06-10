@@ -105,4 +105,29 @@ class DepreciationCalculator:
         total = 0.0
         for year in range(1, const.VEHICLE_LIFE + 1):
             total += self.get_depreciation_year(year, drivetrain_type)
-        return total 
+        return total
+
+    def get_residual_value(self, year: int, drivetrain_type: str = 'Diesel') -> float:
+        """
+        Calculate residual value at the end of a specific year.
+        
+        Residual value = Initial cost - Total depreciation up to that year
+        """
+        if year == 0:
+            return self.initial_cost
+            
+        # Start with initial cost and apply depreciation year by year
+        residual_value = self.initial_cost - self.first_year_depreciation
+        
+        # Apply ongoing depreciation for years 2 through the specified year
+        for y in range(2, year + 1):
+            residual_value *= (1 - self.annual_depreciation_rate)
+        
+        # Apply BEV residual value multiplier from scenario if applicable
+        if (drivetrain_type == 'BEV' and 
+            self.scenario and 
+            self.scenario.bev_residual_value_multiplier and
+            year <= len(self.scenario.bev_residual_value_multiplier)):
+            residual_value *= self.scenario.bev_residual_value_multiplier[year - 1]
+        
+        return residual_value 

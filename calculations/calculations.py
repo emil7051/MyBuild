@@ -24,7 +24,8 @@ class TCOResult:
     registration_cost: float
     battery_replacement_cost: float
     financing_cost: float
-    depreciation_cost: float
+    depreciation_cost: float  # Kept for backward compatibility
+    residual_value: float = 0.0  # Present value of residual value at end of vehicle life
     carbon_cost: float = 0.0
     charging_labour_cost: float = 0.0
     payload_penalty_cost: float = 0.0
@@ -58,11 +59,9 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         
         npv_purchase_payments = npv_down_payment + npv_monthly_payments
     
-    # Calculate depreciation over vehicle life with discounting
-    total_depreciation = 0.0
-    for year in range(1, const.VEHICLE_LIFE + 1):
-        annual_depreciation = vehicle_inputs.get_depreciation_year(year)
-        total_depreciation += discount_to_present(annual_depreciation, year)
+    # Calculate residual value at end of vehicle life and discount to present
+    residual_value_future = vehicle_inputs.get_residual_value(const.VEHICLE_LIFE)
+    residual_value_pv = discount_to_present(residual_value_future, const.VEHICLE_LIFE)
     
     # Annual costs over vehicle life with discounting
     total_fuel_cost = 0.0
@@ -104,7 +103,7 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         total_carbon_cost +
         total_charging_labour_cost +
         total_payload_penalty -
-        total_depreciation
+        residual_value_pv
     )
     
     # Calculate annual equivalent and cost per km
@@ -123,7 +122,8 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         registration_cost=vehicle_inputs.vehicle.annual_registration * const.VEHICLE_LIFE,  # Undiscounted for reporting
         battery_replacement_cost=total_battery_cost,
         financing_cost=financing_cost,
-        depreciation_cost=total_depreciation,  # NPV of depreciation
+        depreciation_cost=residual_value_pv,  # For backward compatibility
+        residual_value=residual_value_pv,  # Present value of residual value
         carbon_cost=total_carbon_cost,
         charging_labour_cost=total_charging_labour_cost,
         payload_penalty_cost=total_payload_penalty,
@@ -216,9 +216,12 @@ def calculate_financing_cost(vehicle: VehicleModel, scenario: Optional[EconomicS
 
 
 def calculate_depreciation_cost(vehicle: VehicleModel, scenario: Optional[EconomicScenario] = None, purchase_method: Literal['outright', 'financed'] = 'financed') -> float:
-    """Calculate total depreciation cost over vehicle life."""
+    """
+    Calculate present value of residual value at end of vehicle life.
+    
+    Note: Previously this calculated total depreciation, but has been updated to return
+    the present value of residual value for consistency with standard TCO calculations.
+    """
     vehicle_inputs = vehicle_data.get_vehicle(vehicle.vehicle_id, scenario, purchase_method)
-    total_depreciation = 0.0
-    for year in range(1, const.VEHICLE_LIFE + 1):
-        total_depreciation += vehicle_inputs.get_depreciation_year(year)
-    return total_depreciation
+    residual_value_future = vehicle_inputs.get_residual_value(const.VEHICLE_LIFE)
+    return discount_to_present(residual_value_future, const.VEHICLE_LIFE)

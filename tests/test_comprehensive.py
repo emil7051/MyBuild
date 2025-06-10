@@ -94,6 +94,29 @@ class TestFinancialCalculations:
         remaining_value = initial_cost - year1_depreciation
         expected = remaining_value * const.DEPRECIATION_RATE_ONGOING
         assert abs(year2_depreciation - expected) < 0.01
+        
+    def test_residual_value_calculator(self):
+        """Test residual value calculations."""
+        initial_cost = 100000
+        calc = DepreciationCalculator(initial_cost)
+        
+        # Test year 0 (should return initial cost)
+        assert calc.get_residual_value(0) == initial_cost
+        
+        # Test year 1 residual value
+        year1_residual = calc.get_residual_value(1)
+        expected_year1 = initial_cost * (1 - const.DEPRECIATION_RATE_FIRST_YEAR)
+        assert abs(year1_residual - expected_year1) < 0.01
+        
+        # Test year 15 residual value
+        residual_15 = calc.get_residual_value(15)
+        assert residual_15 > 0  # Should still have some value
+        assert residual_15 < initial_cost * 0.2  # Should be significantly depreciated
+        
+        # Verify residual value = initial cost - total depreciation
+        total_depreciation = sum(calc.get_depreciation_year(y) for y in range(1, 16))
+        residual_calculated = initial_cost - total_depreciation
+        assert abs(residual_15 - residual_calculated) < 0.01
 
 
 class TestOperatingCalculations:
@@ -181,6 +204,24 @@ class TestVehicleInputs:
                 assert battery_cost > 0
             else:
                 assert battery_cost == 0
+                
+    def test_residual_value_method(self):
+        """Test residual value calculation in VehicleInputs."""
+        vehicle = BY_ID['BEV001']
+        inputs = VehicleInputs(vehicle)
+        
+        # Test residual value at different years
+        residual_0 = inputs.get_residual_value(0)
+        assert residual_0 == inputs.initial_cost
+        
+        residual_15 = inputs.get_residual_value(const.VEHICLE_LIFE)
+        assert residual_15 > 0
+        assert residual_15 < inputs.initial_cost
+        
+        # Residual value should decrease over time
+        residual_5 = inputs.get_residual_value(5)
+        residual_10 = inputs.get_residual_value(10)
+        assert residual_5 > residual_10 > residual_15
 
 
 class TestTCOCalculations:
@@ -195,6 +236,49 @@ class TestTCOCalculations:
         assert tco.annual_cost > 0
         assert tco.cost_per_km > 0
         assert tco.vehicle_id == vehicle.vehicle_id
+        
+    def test_tco_residual_value_approach(self):
+        """Test that TCO properly uses residual value approach."""
+        vehicle = BY_ID['BEV001']
+        inputs = vehicle_data.get_vehicle(vehicle.vehicle_id)
+        tco = calculate_tco(vehicle)
+        
+        # Verify residual_value field is populated and positive
+        assert tco.residual_value > 0
+        
+        # For backward compatibility, depreciation_cost should equal residual_value
+        assert tco.depreciation_cost == tco.residual_value
+        
+        # Calculate expected residual value
+        residual_future = inputs.get_residual_value(const.VEHICLE_LIFE)
+        residual_pv = discount_to_present(residual_future, const.VEHICLE_LIFE)
+        assert abs(tco.residual_value - residual_pv) < 0.01
+        
+        # Verify TCO calculation includes residual value as a credit
+        # Re-calculate TCO components manually
+        npv_purchase = inputs.initial_cost if inputs.purchase_method == 'outright' else (
+            inputs.down_payment + calculate_npv_of_payments(
+                inputs.monthly_payment, 
+                const.FINANCING_TERM * 12, 
+                const.DISCOUNT_RATE
+            )
+        )
+        
+        # Sum all cost components (simplified check)
+        costs_without_residual = (
+            npv_purchase +
+            tco.fuel_cost +
+            tco.maintenance_cost / const.VEHICLE_LIFE * calculate_present_value(1, const.VEHICLE_LIFE) +
+            tco.battery_replacement_cost +
+            tco.carbon_cost +
+            tco.charging_labour_cost +
+            tco.payload_penalty_cost
+        )
+        
+        # The actual TCO should be approximately costs minus residual value
+        # (allowing for rounding and other minor differences)
+        expected_tco = costs_without_residual - residual_pv
+        assert abs(tco.total_cost - expected_tco) / tco.total_cost < 0.1  # Within 10%
         
     def test_bev_vs_diesel_comparison(self):
         """Test BEV vs Diesel TCO comparison."""
@@ -283,6 +367,20 @@ class TestTCOCalculations:
             assert bev_tco.total_cost > 0
             assert diesel_tco.total_cost > 0
             assert difference == bev_tco.total_cost - diesel_tco.total_cost
+            
+    def test_legacy_depreciation_function(self):
+        """Test that legacy calculate_depreciation_cost returns residual value PV."""
+        vehicle = BY_ID['BEV001']
+        
+        # Get residual value using the updated function
+        residual_pv = calculate_depreciation_cost(vehicle)
+        
+        # Calculate expected value
+        inputs = vehicle_data.get_vehicle(vehicle.vehicle_id)
+        residual_future = inputs.get_residual_value(const.VEHICLE_LIFE)
+        expected_pv = discount_to_present(residual_future, const.VEHICLE_LIFE)
+        
+        assert abs(residual_pv - expected_pv) < 0.01
 
 
 class TestNPVFinancing:
