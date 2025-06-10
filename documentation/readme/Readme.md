@@ -180,16 +180,16 @@ The optional `overrides` parameter allows for variation of specific parameters d
 
 | Topic | Key Logic / Formula | Source Modules/Classes |
 | :---- | :---- | :---- |
-| **Initial Cost** | MSRP \+ stamp\_duty \- rebate | financial.calculate\_initial\_cost (uses data.policies) |
-| **Stamp Duty** | msrp \* STAMP\_DUTY\_RATE \- *adjusted by StampDutyExemption policy* | financial.calculate\_stamp\_duty, data.policies |
-| **Rebate** | PurchaseRebate (fixed) \+ PercentageRebate (capped) \- *only one will be non-zero* | financial.calculate\_rebate, data.policies |
+| **Initial Cost** | MSRP \+ stamp\_duty \- rebate | financial.calculate\_initial\_cost (uses data.policies) |
+| **Stamp Duty** | msrp \* STAMP\_DUTY\_RATE \- *adjusted by StampDutyExemption policy* | financial.calculate\_stamp\_duty, data.policies |
+| **Rebate** | PurchaseRebate (fixed) \+ PercentageRebate (capped) \- *only one will be non-zero* | financial.calculate\_rebate, data.policies |
 | **Financing** | Numpy calculations for down payment, loan amount, monthly payment and interest \- *interest rate adjusted by GreenLoanSubsidy policy.* | financial.FinancingCalculator, data.policies |
 | **Residual Value** | Calculated by applying annual depreciation rates to initial cost over vehicle life - *different rates for year 1 vs. ongoing* & *BEV residual value adjusted by EconomicScenario* | financial.DepreciationCalculator.get\_residual\_value |
-| **Fuel/Electricity (Yr i)** | (base\_efficiency \* scenario\_efficiency\_multiplier) \* annual\_kms \* (base\_price \* scenario\_price\_multiplier) \- *for BEV models it also considers the charging mix* | operating.FuelCostCalculator |
-| **Maintenance (Yr i)** | (annual\_kms \* drivetrain\_rate\_per\_km) \* scenario\_maintenance\_multiplier  | operating.MaintenanceCostCalculator |
+| **Fuel/Electricity (Yr i)** | (base\_efficiency \* scenario\_efficiency\_multiplier) \* annual\_kms \* (base\_price \* scenario\_price\_multiplier) \- *for BEV models it also considers the charging mix from CHARGING\_MIX\_PROPORTIONS dictionary* | operating.FuelCostCalculator |
+| **Maintenance (Yr i)** | (annual\_kms \* MAINTENANCE\_COST\_PER\_KM[drivetrain][weight\_class]) \* scenario\_maintenance\_multiplier  | operating.MaintenanceCostCalculator |
 | **Battery Value (Yr y)** | battery\_capacity\_kwh \* (scenario\_adjusted\_cost\_per\_kWh \- recycle\_value) \- *typically in a single year.*  | operating.BatteryReplacementCalculator |
 | **Carbon Cost (Yr i)** | (annual\_fuel\_consumption \* emissions\_factor) \* scenario\_carbon\_price | Operating.calculate\_carbon\_cost\_year |
-| **Payload Penalty (Yr i)** | payload\_difference \* freight\_rate \* annual\_kms \* PAYLOAD\_UTILISATION\_FACTOR | operating.PayloadPenaltyCalculator |
+| **Payload Penalty (Yr i)** | payload\_difference \* FREIGHT\_RATE\_PER\_TONNE\_KM[weight\_class] \* annual\_kms \* PAYLOAD\_UTILISATION\_FACTOR | operating.PayloadPenaltyCalculator |
 | **NPV of Annual Cashflows** | Σ(cashflow\_i / (1 + discount\_rate)^i) for i = 1 to n | utils.calculate\_npv\_of\_annual\_cashflows |
 | **Monte Carlo Overrides** | Parameters varied through overrides dictionary: fuel_price_variation, electricity_price_variation, maintenance_cost_variation, annual_kms_variation (absolute), residual_value_variation, battery_life_variation, charging_efficiency_variation | MonteCarloSimulation, all calculator classes accept overrides |
 
@@ -240,16 +240,20 @@ The optional `overrides` parameter allows for variation of specific parameters d
 
 **Charging Mix** 
 
-| Constant | Parameter | Value | Unit | Data Source |
+| Vehicle Type | Weight Class | Charging Type | Proportion | Data Source |
 | :---- | :---- | :---- | :---- | :---- |
-| Rigid truck retail charging | RIGID\_RETAIL\_PROPORTION | 0.00 | fraction (0%) | SMVU & Scania eMobility Hub |
-| Rigid truck off-peak charging | RIGID\_OFFPEAK\_PROPORTION | 0.86 | fraction (86%) | SMVU & Scania eMobility Hub |
-| Rigid truck public charging | RIGID\_PUBLIC\_PROPORTION | 0.14 | fraction (14%) | SMVU & Scania eMobility Hub |
-| Rigid truck solar charging | RIGID\_SOLAR\_PROPORTION | 0.00 | fraction (0%) | No solar infrastructure assumed |
-| Articulated truck retail charging | ART\_RETAIL\_PROPORTION | 0.00 | fraction (0%) | SMVU & Scania eMobility Hub |
-| Articulated truck off-peak charging | ART\_OFFPEAK\_PROPORTION | 0.67 | fraction (67%) | SMVU & Scania eMobility Hub |
-| Articulated truck public charging | ART\_PUBLIC\_PROPORTION | 0.33 | fraction (33%) | SMVU & Scania eMobility Hub |
-| Articulated truck solar charging | ART\_SOLAR\_PROPORTION | 0.00 | fraction (0%) | No solar infrastructure assumed |
+| BEV | Light Rigid | Retail | 0.00 (0%) | SMVU & Scania eMobility Hub |
+| BEV | Light Rigid | Off-peak | 0.86 (86%) | SMVU & Scania eMobility Hub |
+| BEV | Light Rigid | Public | 0.14 (14%) | SMVU & Scania eMobility Hub |
+| BEV | Light Rigid | Solar | 0.00 (0%) | No solar infrastructure assumed |
+| BEV | Medium Rigid | Retail | 0.00 (0%) | SMVU & Scania eMobility Hub |
+| BEV | Medium Rigid | Off-peak | 0.86 (86%) | SMVU & Scania eMobility Hub |
+| BEV | Medium Rigid | Public | 0.14 (14%) | SMVU & Scania eMobility Hub |
+| BEV | Medium Rigid | Solar | 0.00 (0%) | No solar infrastructure assumed |
+| BEV | Articulated | Retail | 0.00 (0%) | SMVU & Scania eMobility Hub |
+| BEV | Articulated | Off-peak | 0.67 (67%) | SMVU & Scania eMobility Hub |
+| BEV | Articulated | Public | 0.33 (33%) | SMVU & Scania eMobility Hub |
+| BEV | Articulated | Solar | 0.00 (0%) | No solar infrastructure assumed |
 
 **Fuel Cost**
 
@@ -291,15 +295,17 @@ The optional `overrides` parameter allows for variation of specific parameters d
 
 **Operating Costs**
 
-| Constant | Parameter | Value | Unit | Data Source |
-| :---- | :---- | :---- | :---- | :---- |
-| BEV insurance rate | INSURANCE\_RATE\_BEV | 0.035 | fraction (3.5%) | Industry estimates |
-| Diesel insurance rate | INSURANCE\_RATE\_DSL | 0.0315 | fraction (3.15%) | Transport Industry Council |
-| Other insurance costs | OTHER\_INSURANCE | 2000 | $/year | Industry estimates |
-| Rigid BEV maintenance rate | RIGID\_BEV\_MAINTENANCE\_COST | 0.10 | $/km | T\&E estimates (to be verified) |
-| Articulated BEV maintenance rate | ART\_BEV\_MAINTENANCE\_COST | 0.19 | $/km | T\&E estimates (to be verified) |
-| Rigid diesel maintenance rate | RIGID\_DSL\_MAINTENANCE\_COST | 0.18 | $/km | T\&E estimates (to be verified) |
-| Articulated diesel maintenance rate | ART\_DSL\_MAINTENANCE\_COST | 0.28 | $/km | T\&E estimates (to be verified) |
+| Drivetrain | Weight Class | Parameter | Value | Unit | Data Source |
+| :---- | :---- | :---- | :---- | :---- | :---- |
+| All | All | BEV insurance rate | 0.035 | fraction (3.5%) | Industry estimates |
+| All | All | Diesel insurance rate | 0.0315 | fraction (3.15%) | Transport Industry Council |
+| All | All | Other insurance costs | 2000 | $/year | Industry estimates |
+| BEV | Light Rigid | Maintenance rate | 0.10 | $/km | T\&E estimates (to be verified) |
+| BEV | Medium Rigid | Maintenance rate | 0.10 | $/km | T\&E estimates (to be verified) |
+| BEV | Articulated | Maintenance rate | 0.19 | $/km | T\&E estimates (to be verified) |
+| Diesel | Light Rigid | Maintenance rate | 0.18 | $/km | T\&E estimates (to be verified) |
+| Diesel | Medium Rigid | Maintenance rate | 0.18 | $/km | T\&E estimates (to be verified) |
+| Diesel | Articulated | Maintenance rate | 0.28 | $/km | T\&E estimates (to be verified) |
 
 **Government Policies & Incentives**
 
@@ -311,11 +317,12 @@ The optional `overrides` parameter allows for variation of specific parameters d
 
 **Payload Penalty**
 
-| Constant | Parameter | Value | Unit | Data Source |
+| Weight Class | Parameter | Value | Unit | Data Source |
 | :---- | :---- | :---- | :---- | :---- |
-| Rigid truck freight rate | FREIGHT\_RATE\_RIGID | 0.17 | $/tonne-km | BITRE 2017 freight transport data |
-| Articulated truck freight rate | FREIGHT\_RATE\_ARTICULATED | 0.26 | $/tonne-km | BITRE 2017 freight transport data |
-| Payload utilisation factor | PAYLOAD\_UTILISATION\_FACTOR | 0.85 | fraction (85%) | Industry average - trucks rarely run at 100% capacity |
+| Light Rigid | Freight rate | 0.17 | $/tonne-km | BITRE 2017 freight transport data |
+| Medium Rigid | Freight rate | 0.17 | $/tonne-km | BITRE 2017 freight transport data |
+| Articulated | Freight rate | 0.26 | $/tonne-km | BITRE 2017 freight transport data |
+| All | Payload utilisation factor | 0.85 | fraction (85%) | Industry average - trucks rarely run at 100% capacity |
 
 ### Appendix 2: Vehicle Models & Static Attributes
 
