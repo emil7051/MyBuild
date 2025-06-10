@@ -59,7 +59,8 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
   * **calculations.py**:  
     * Defines TCOResult: Standardised dataclass for TCO calculation output (total cost, annual cost, cost/km, component breakdowns including payload penalty cost). If we want additional reporting the first thing to do would be to adjust the expected output here.   
     * calculate\_tco\_from\_inputs(vehicle\_inputs: VehicleInputs): Core function that aggregates all discounted costs and revenues from a VehicleInputs object to determine TCO, average annual cost, and cost/km.  
-    * Helper functions: calculate\_tco, calculate\_all\_tcos, compare\_vehicle\_pairs. These are used for reporting.
+    * Primary API functions: calculate\_tco, calculate\_all\_tcos, compare\_vehicle\_pairs, calculate\_scenario\_comparison, calculate\_breakeven\_analysis. These provide a clean, single-purpose interface for all TCO calculations.
+    * Note: The module follows clean code principles with a streamlined API. All calculations flow through VehicleInputs objects, ensuring consistency and avoiding duplication.
 
 * **Analysis Suite (app/ directory):**  
   * **simulation.py**:  
@@ -170,7 +171,6 @@ The TCO for a VehicleInputs object is calculated as follows:
 7. **Populate and Return TCOResult Object:**
 
    * Includes identifiers, primary TCO figures, and a detailed breakdown of cost components including payload penalty cost and residual value.
-   * The depreciation_cost field is populated with the present value of residual value for backward compatibility.
 
 ## **4\. Key Calculation Logic / Classes**
 
