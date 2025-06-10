@@ -4,6 +4,7 @@ Handles present value calculations and discounting.
 """
 
 import data.constants as const
+from typing import List
 
 
 def calculate_present_value(annual_amount: float, years: int, discount_rate: float = const.DISCOUNT_RATE) -> float:
@@ -70,4 +71,21 @@ def escalate_cost(base_cost: float, escalation_rate: float, year: int) -> float:
     
     Formula: Future Cost = Base Cost × (1 + rate)^year
     """
-    return base_cost * (1 + escalation_rate) ** year 
+    return base_cost * (1 + escalation_rate) ** year
+
+
+def calculate_npv_of_annual_cashflows(cashflows: List[float], discount_rate: float = const.DISCOUNT_RATE) -> float:
+    """
+    Calculate net present value of a series of annual cashflows.
+    
+    Args:
+        cashflows: List of cashflows, one per year (year 1 to n)
+        discount_rate: Annual discount rate
+    
+    Returns:
+        Net present value of all cashflows
+    """
+    npv = 0.0
+    for year, amount in enumerate(cashflows, 1):
+        npv += discount_to_present(amount, year, discount_rate)
+    return npv 

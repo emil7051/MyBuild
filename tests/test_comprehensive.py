@@ -17,7 +17,8 @@ from calculations.calculations import (
     calculate_tco_from_inputs,
     compare_vehicle_pairs,
     calculate_scenario_comparison,
-    calculate_breakeven_analysis
+    calculate_breakeven_analysis,
+    calculate_depreciation_cost
 )
 from calculations.financial import (
     calculate_stamp_duty, 
@@ -264,21 +265,27 @@ class TestTCOCalculations:
             )
         )
         
-        # Sum all cost components (simplified check)
+        # Calculate PV of fixed annual costs
+        insurance_pv = calculate_present_value(inputs.annual_insurance_cost, const.VEHICLE_LIFE)
+        registration_pv = calculate_present_value(inputs.vehicle.annual_registration, const.VEHICLE_LIFE)
+        
+        # Sum all cost components (all values from TCO are already in present value)
         costs_without_residual = (
             npv_purchase +
-            tco.fuel_cost +
-            tco.maintenance_cost / const.VEHICLE_LIFE * calculate_present_value(1, const.VEHICLE_LIFE) +
-            tco.battery_replacement_cost +
-            tco.carbon_cost +
-            tco.charging_labour_cost +
-            tco.payload_penalty_cost
+            tco.fuel_cost +  # Already NPV
+            tco.maintenance_cost +  # Already NPV
+            insurance_pv +  # Calculate PV
+            registration_pv +  # Calculate PV
+            tco.battery_replacement_cost +  # Already NPV
+            tco.carbon_cost +  # Already NPV
+            tco.charging_labour_cost +  # Already NPV
+            tco.payload_penalty_cost  # Already NPV
         )
         
         # The actual TCO should be approximately costs minus residual value
         # (allowing for rounding and other minor differences)
         expected_tco = costs_without_residual - residual_pv
-        assert abs(tco.total_cost - expected_tco) / tco.total_cost < 0.1  # Within 10%
+        assert abs(tco.total_cost - expected_tco) / tco.total_cost < 0.01  # Within 1%
         
     def test_bev_vs_diesel_comparison(self):
         """Test BEV vs Diesel TCO comparison."""

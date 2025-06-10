@@ -7,7 +7,7 @@ from data.vehicles import VehicleModel, BY_ID
 import data.constants as const
 from data.scenarios import EconomicScenario, get_active_scenario
 from calculations.inputs import vehicle_data, VehicleInputs
-from calculations.utils import calculate_present_value, discount_to_present, calculate_annualised_cost, calculate_npv_of_payments
+from calculations.utils import calculate_present_value, discount_to_present, calculate_annualised_cost, calculate_npv_of_payments, calculate_npv_of_annual_cashflows
 
 
 @dataclass
@@ -63,30 +63,21 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
     residual_value_future = vehicle_inputs.get_residual_value(const.VEHICLE_LIFE)
     residual_value_pv = discount_to_present(residual_value_future, const.VEHICLE_LIFE)
     
-    # Annual costs over vehicle life with discounting
-    total_fuel_cost = 0.0
-    total_battery_cost = 0.0
-    total_carbon_cost = 0.0
-    total_maintenance_cost = 0.0
-    total_charging_labour_cost = 0.0
-    total_payload_penalty = 0.0
+    # Generate lists of annual costs over vehicle life
+    annual_fuel_costs = [vehicle_inputs.get_fuel_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_battery_costs = [vehicle_inputs.get_battery_replacement_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_carbon_costs = [vehicle_inputs.get_carbon_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_maintenance_costs = [vehicle_inputs.get_maintenance_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_charging_labour_costs = [vehicle_inputs.get_charging_labour_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_payload_penalties = [vehicle_inputs.get_payload_penalty_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
     
-    for year in range(1, const.VEHICLE_LIFE + 1):
-        # Get year-specific costs
-        annual_fuel = vehicle_inputs.get_fuel_cost_year(year)
-        battery_cost = vehicle_inputs.get_battery_replacement_year(year)
-        carbon_cost = vehicle_inputs.get_carbon_cost_year(year)
-        maintenance_cost = vehicle_inputs.get_maintenance_cost_year(year)
-        charging_labour_cost = vehicle_inputs.get_charging_labour_cost_year(year)
-        payload_penalty = vehicle_inputs.get_payload_penalty_year(year)
-        
-        # Discount to present value
-        total_fuel_cost += discount_to_present(annual_fuel, year)
-        total_battery_cost += discount_to_present(battery_cost, year)
-        total_carbon_cost += discount_to_present(carbon_cost, year)
-        total_maintenance_cost += discount_to_present(maintenance_cost, year)
-        total_charging_labour_cost += discount_to_present(charging_labour_cost, year)
-        total_payload_penalty += discount_to_present(payload_penalty, year)
+    # Calculate NPV of all operating costs
+    total_fuel_cost = calculate_npv_of_annual_cashflows(annual_fuel_costs)
+    total_battery_cost = calculate_npv_of_annual_cashflows(annual_battery_costs)
+    total_carbon_cost = calculate_npv_of_annual_cashflows(annual_carbon_costs)
+    total_maintenance_cost = calculate_npv_of_annual_cashflows(annual_maintenance_costs)
+    total_charging_labour_cost = calculate_npv_of_annual_cashflows(annual_charging_labour_costs)
+    total_payload_penalty = calculate_npv_of_annual_cashflows(annual_payload_penalties)
     
     # Fixed annual costs (present value)
     total_insurance_pv = calculate_present_value(vehicle_inputs.annual_insurance_cost, const.VEHICLE_LIFE)
