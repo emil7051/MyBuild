@@ -55,7 +55,6 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
     * BatteryReplacementCalculator: For BEVs, calculates battery replacement cost, considering capacity, scenario-adjusted cost/kWh, and recycle value.  
     * PayloadPenaltyCalculator: Calculates annual cost penalty for reduced payload capacity in BEVs compared to equivalent diesel vehicles, based on freight rates per tonne-kilometre.
     * calculate\_carbon\_cost\_year: For diesel, calculates annual carbon emission costs based on consumption, CO2 factor, and scenario-driven carbon prices.  
-    * *Note: ChargingTimeCostCalculator exists but is **not currently integrated** into the main TCO calculation flow.*
 
   * **calculations.py**:  
     * Defines TCOResult: Standardised dataclass for TCO calculation output (total cost, annual cost, cost/km, component breakdowns including payload penalty cost). If we want additional reporting the first thing to do would be to adjust the expected output here.   
