@@ -135,21 +135,27 @@ class VehicleInputs:
         # Payload penalty
         self.annual_payload_penalty = self._payload_calculator.calculate_annual_payload_penalty()
     
-    def get_fuel_cost_year(self, year: int) -> float:
+    def get_fuel_cost_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get fuel cost for a specific year with price escalation and efficiency improvements."""
-        return self._fuel_calculator.get_fuel_cost_year(year)
+        return self._fuel_calculator.get_fuel_cost_year(year, overrides)
     
-    def get_battery_replacement_year(self, year: int) -> float:
+    def get_battery_replacement_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get battery replacement cost for a specific year (only year 8 for BEVs)."""
-        return self._battery_calculator.get_battery_replacement_year(year)
+        return self._battery_calculator.get_battery_replacement_year(year, overrides)
     
     def get_depreciation_year(self, year: int) -> float:
         """Get depreciation for a specific year."""
         return self._depreciation_calculator.get_depreciation_year(year, self.vehicle.drivetrain_type)
     
-    def get_residual_value(self, year: int) -> float:
+    def get_residual_value(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get residual value at the end of a specific year."""
-        return self._depreciation_calculator.get_residual_value(year, self.vehicle.drivetrain_type)
+        residual_value = self._depreciation_calculator.get_residual_value(year, self.vehicle.drivetrain_type)
+        
+        # Apply residual value variation if present
+        if overrides and 'residual_value_variation' in overrides:
+            residual_value *= overrides['residual_value_variation']
+            
+        return residual_value
     
     def get_policy_adjusted_rebate(self, year: int = 1) -> float:
         """Get rebate amount considering policy phase-out from scenario."""
@@ -157,25 +163,31 @@ class VehicleInputs:
             return 0.0
         return self.rebate
     
-    def get_carbon_cost_year(self, year: int) -> float:
+    def get_carbon_cost_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Calculate carbon cost for a specific year (diesel only)."""
-        return calculate_carbon_cost_year(self.vehicle, year, self.scenario)
+        return calculate_carbon_cost_year(self.vehicle, year, self.scenario, overrides)
     
-    def get_maintenance_cost_year(self, year: int) -> float:
+    def get_maintenance_cost_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get maintenance cost for a specific year with age-based escalation."""
-        return self._maintenance_calculator.get_maintenance_cost_year(year)
+        return self._maintenance_calculator.get_maintenance_cost_year(year, overrides)
     
-    def get_charging_labour_cost_year(self, year: int) -> float:
+    def get_charging_labour_cost_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get charging labour cost for a specific year."""
         # For now, return constant annual cost
         # Could be enhanced with scenario-based adjustments
         return self.annual_charging_labour_cost
     
-    def get_payload_penalty_year(self, year: int) -> float:
+    def get_payload_penalty_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get payload penalty for a specific year."""
         # Could be enhanced with scenario-based adjustments
         # For example, freight rates might increase with inflation
         return self.annual_payload_penalty
+    
+    def get_annual_kms(self, overrides: Optional[Dict[str, float]] = None) -> float:
+        """Get annual kms, applying an absolute override if present."""
+        if overrides and 'annual_kms_variation' in overrides:
+            return overrides['annual_kms_variation']  # Return the absolute value from the override
+        return self.vehicle.annual_kms
 
 class VehicleData:
     """Universal access point for vehicle data with pre-calculated inputs."""

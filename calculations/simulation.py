@@ -5,7 +5,6 @@ Monte Carlo simulation and uncertainty analysis for TCO calculations.
 import numpy as np
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass, field
-import copy
 
 from .inputs import VehicleInputs
 from data import constants as const
@@ -20,7 +19,8 @@ if TYPE_CHECKING:
 @dataclass
 class UncertaintyParameter:
     """Define uncertain parameter with probability distribution."""
-    name: str
+    name: str  # The human-readable name of the parameter
+    override_key: str  # The key this parameter maps to in the overrides dictionary
     distribution: str  # 'normal', 'uniform', 'triangular'
     base_value: float
     # For normal distribution
@@ -83,12 +83,14 @@ class MonteCarloSimulation:
         uncertainties = {
             'fuel_price_variation': UncertaintyParameter(
                 name='fuel_price_variation',
+                override_key='fuel_price_variation',
                 distribution='normal',
                 base_value=1.0,
                 std_dev=0.15  # 15% standard deviation
             ),
             'electricity_price_variation': UncertaintyParameter(
                 name='electricity_price_variation',
+                override_key='electricity_price_variation',
                 distribution='triangular',
                 base_value=1.0,
                 min_value=0.7,   # 30% below base
@@ -97,18 +99,21 @@ class MonteCarloSimulation:
             ),
             'maintenance_cost_variation': UncertaintyParameter(
                 name='maintenance_cost_variation',
+                override_key='maintenance_cost_variation',
                 distribution='normal',
                 base_value=1.0,
                 std_dev=0.10  # 10% standard deviation
             ),
             'annual_kms_variation': UncertaintyParameter(
                 name='annual_kms_variation',
+                override_key='annual_kms_variation',
                 distribution='normal',
                 base_value=vehicle.annual_kms,
                 std_dev=vehicle.annual_kms * 0.1  # 10% variation
             ),
             'residual_value_variation': UncertaintyParameter(
                 name='residual_value_variation',
+                override_key='residual_value_variation',
                 distribution='uniform',
                 base_value=1.0,
                 min_value=0.8,  # 20% below expected
@@ -120,6 +125,7 @@ class MonteCarloSimulation:
         if vehicle.drivetrain_type == 'BEV':
             uncertainties['battery_life_variation'] = UncertaintyParameter(
                 name='battery_life_variation',
+                override_key='battery_life_variation',
                 distribution='triangular',
                 base_value=1.0,
                 min_value=0.7,   # Battery might fail earlier
@@ -128,6 +134,7 @@ class MonteCarloSimulation:
             )
             uncertainties['charging_efficiency_variation'] = UncertaintyParameter(
                 name='charging_efficiency_variation',
+                override_key='charging_efficiency_variation',
                 distribution='normal',
                 base_value=1.0,
                 std_dev=0.05  # 5% variation in charging losses
@@ -138,84 +145,6 @@ class MonteCarloSimulation:
     def add_custom_uncertainty(self, param: UncertaintyParameter):
         """Add or override an uncertainty parameter."""
         self.parameters[param.name] = param
-        
-    def _apply_uncertainties(self, sample_values: Dict[str, float]) -> VehicleInputs:
-        """Create modified inputs with sampled uncertainty values."""
-        # Deep copy to avoid modifying original
-        modified_inputs = copy.deepcopy(self.base_inputs)
-        
-        # Apply fuel/electricity price variations
-        if 'fuel_price_variation' in sample_values:
-            # Modify fuel cost calculator's base prices
-            if modified_inputs.vehicle.drivetrain_type == 'Diesel':
-                # Apply to diesel price in scenario
-                multiplier = sample_values['fuel_price_variation']
-                modified_scenario = copy.deepcopy(modified_inputs.scenario)
-                modified_scenario.diesel_price_trajectory = [
-                    p * multiplier for p in modified_scenario.diesel_price_trajectory
-                ]
-                modified_inputs.scenario = modified_scenario
-                
-        if 'electricity_price_variation' in sample_values:
-            if modified_inputs.vehicle.drivetrain_type == 'BEV':
-                multiplier = sample_values['electricity_price_variation']
-                modified_scenario = copy.deepcopy(modified_inputs.scenario)
-                modified_scenario.electricity_price_trajectory = [
-                    p * multiplier for p in modified_scenario.electricity_price_trajectory
-                ]
-                modified_inputs.scenario = modified_scenario
-                
-        # Apply maintenance cost variation
-        if 'maintenance_cost_variation' in sample_values:
-            multiplier = sample_values['maintenance_cost_variation']
-            modified_inputs.annual_maintenance_cost *= multiplier
-            
-        # Apply annual kms variation
-        if 'annual_kms_variation' in sample_values:
-            # Create new vehicle with modified annual kms
-            modified_vehicle = copy.deepcopy(modified_inputs.vehicle)
-            object.__setattr__(modified_vehicle, 'annual_kms', sample_values['annual_kms_variation'])
-            modified_inputs.vehicle = modified_vehicle
-            
-        # Apply residual value variation (affects depreciation)
-        if 'residual_value_variation' in sample_values:
-            multiplier = sample_values['residual_value_variation']
-            # Modify the scenario's BEV residual value multipliers
-            if modified_inputs.vehicle.drivetrain_type == 'BEV':
-                modified_scenario = copy.deepcopy(modified_inputs.scenario)
-                # Apply multiplier to all residual value multipliers
-                if modified_scenario.bev_residual_value_multiplier:
-                    modified_scenario.bev_residual_value_multiplier = [
-                        v * multiplier for v in modified_scenario.bev_residual_value_multiplier
-                    ]
-                else:
-                    # Create a multiplier list if it doesn't exist
-                    modified_scenario.bev_residual_value_multiplier = [multiplier] * 15
-                modified_inputs.scenario = modified_scenario
-            
-        # Apply battery life variation (affects replacement timing/cost)
-        if 'battery_life_variation' in sample_values and modified_inputs.vehicle.drivetrain_type == 'BEV':
-            multiplier = sample_values['battery_life_variation']
-            # Shorter battery life increases replacement cost, longer life reduces it
-            cost_multiplier = 2.0 - multiplier  # If life is 0.7x, cost is 1.3x
-            original_cost = modified_inputs.battery_replacement_cost_year8
-            modified_inputs.battery_replacement_cost_year8 = original_cost * cost_multiplier
-            
-        # Apply charging efficiency variation
-        if 'charging_efficiency_variation' in sample_values and modified_inputs.vehicle.drivetrain_type == 'BEV':
-            multiplier = sample_values['charging_efficiency_variation']
-            # Higher multiplier means worse efficiency (more electricity needed)
-            # Apply to kwh_per_km which affects fuel costs
-            modified_vehicle = copy.deepcopy(modified_inputs.vehicle)
-            # Increase consumption with multiplier (higher multiplier = more kWh per km)
-            object.__setattr__(modified_vehicle, 'kwh_per_km', 
-                             modified_vehicle.kwh_per_km * multiplier)
-            modified_inputs.vehicle = modified_vehicle
-            
-        # Reinitialise calculators with modified inputs
-        modified_inputs.__post_init__()
-        
-        return modified_inputs
     
     def run(self, iterations: int = 10000, seed: Optional[int] = None) -> SimulationResults:
         """Run Monte Carlo simulation."""
@@ -225,18 +154,15 @@ class MonteCarloSimulation:
         tco_results = []
         
         for i in range(iterations):
-            # Sample from all uncertainty distributions
-            sample_values = {
-                name: param.sample() 
-                for name, param in self.parameters.items()
+            # 1. Create the overrides dictionary from sampled parameters
+            sample_overrides = {
+                param.override_key: param.sample()
+                for param in self.parameters.values()
             }
             
-            # Apply uncertainties to create modified inputs
-            modified_inputs = self._apply_uncertainties(sample_values)
-            
-            # Calculate TCO with modified inputs
+            # 2. Calculate TCO directly, passing the base inputs and the new overrides
             from .calculations import calculate_tco_from_inputs
-            tco = calculate_tco_from_inputs(modified_inputs)
+            tco = calculate_tco_from_inputs(self.base_inputs, overrides=sample_overrides)
             tco_results.append(tco.total_cost)
             
         return SimulationResults(
@@ -290,32 +216,27 @@ class SensitivityAnalysis:
         results = []
         
         for value in values:
-            modified_inputs = copy.deepcopy(self.base_inputs)
+            # Create overrides dictionary based on parameter name and type
+            overrides = {}
             
-            # Apply parameter change based on type
             if parameter_type == 'multiplier':
                 if parameter_name == 'diesel_price':
-                    modified_scenario = copy.deepcopy(modified_inputs.scenario)
-                    modified_scenario.diesel_price_trajectory = [
-                        p * value for p in modified_scenario.diesel_price_trajectory
-                    ]
-                    modified_inputs.scenario = modified_scenario
+                    overrides['fuel_price_variation'] = value
                 elif parameter_name == 'electricity_price':
-                    modified_scenario = copy.deepcopy(modified_inputs.scenario)
-                    modified_scenario.electricity_price_trajectory = [
-                        p * value for p in modified_scenario.electricity_price_trajectory
-                    ]
-                    modified_inputs.scenario = modified_scenario
+                    overrides['electricity_price_variation'] = value
                 elif parameter_name == 'maintenance_cost':
-                    modified_inputs.annual_maintenance_cost *= value
-                elif parameter_name == 'interest_rate':
-                    # Modify interest rate and recalculate financing
-                    modified_inputs.__post_init__()
+                    overrides['maintenance_cost_variation'] = value
+                elif parameter_name == 'battery_life':
+                    overrides['battery_life_variation'] = value
+                elif parameter_name == 'residual_value':
+                    overrides['residual_value_variation'] = value
+            elif parameter_type == 'absolute':
+                if parameter_name == 'annual_kms':
+                    overrides['annual_kms_variation'] = value
                     
-            # Recalculate TCO
-            modified_inputs.__post_init__()  # Reinitialise calculators
+            # Calculate TCO with overrides
             from .calculations import calculate_tco_from_inputs
-            new_tco = calculate_tco_from_inputs(modified_inputs)
+            new_tco = calculate_tco_from_inputs(self.base_inputs, overrides=overrides)
             
             # Calculate percent change
             percent_change = (new_tco.total_cost - self.base_tco.total_cost) / self.base_tco.total_cost * 100

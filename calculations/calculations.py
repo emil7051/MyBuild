@@ -31,8 +31,11 @@ class TCOResult:
     scenario_name: str = "baseline"
 
 
-def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
-    """Calculate total cost of ownership using pre-calculated vehicle inputs."""
+def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs, overrides: Optional[Dict[str, float]] = None) -> TCOResult:
+    """Calculate total cost of ownership using pre-calculated vehicle inputs and optional overrides."""
+    
+    # Get annual kms with potential override
+    annual_kms = vehicle_inputs.get_annual_kms(overrides)
     
     # Initial costs depend on purchase method
     if vehicle_inputs.purchase_method == 'outright':
@@ -59,16 +62,16 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         npv_purchase_payments = npv_down_payment + npv_monthly_payments
     
     # Calculate residual value at end of vehicle life and discount to present
-    residual_value_future = vehicle_inputs.get_residual_value(const.VEHICLE_LIFE)
+    residual_value_future = vehicle_inputs.get_residual_value(const.VEHICLE_LIFE, overrides)
     residual_value_pv = discount_to_present(residual_value_future, const.VEHICLE_LIFE)
     
     # Generate lists of annual costs over vehicle life
-    annual_fuel_costs = [vehicle_inputs.get_fuel_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
-    annual_battery_costs = [vehicle_inputs.get_battery_replacement_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
-    annual_carbon_costs = [vehicle_inputs.get_carbon_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
-    annual_maintenance_costs = [vehicle_inputs.get_maintenance_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
-    annual_charging_labour_costs = [vehicle_inputs.get_charging_labour_cost_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
-    annual_payload_penalties = [vehicle_inputs.get_payload_penalty_year(year) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_fuel_costs = [vehicle_inputs.get_fuel_cost_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_battery_costs = [vehicle_inputs.get_battery_replacement_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_carbon_costs = [vehicle_inputs.get_carbon_cost_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_maintenance_costs = [vehicle_inputs.get_maintenance_cost_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_charging_labour_costs = [vehicle_inputs.get_charging_labour_cost_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
+    annual_payload_penalties = [vehicle_inputs.get_payload_penalty_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
     
     # Calculate NPV of all operating costs
     total_fuel_cost = calculate_npv_of_annual_cashflows(annual_fuel_costs)
@@ -96,9 +99,9 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs) -> TCOResult:
         residual_value_pv
     )
     
-    # Calculate annual equivalent and cost per km
+    # Calculate annual equivalent and cost per km using potentially overridden annual_kms
     annual_cost = calculate_annualised_cost(total_cost, const.VEHICLE_LIFE, const.DISCOUNT_RATE)
-    cost_per_km = annual_cost / vehicle_inputs.vehicle.annual_kms
+    cost_per_km = annual_cost / annual_kms
     
     return TCOResult(
         vehicle_id=vehicle_inputs.vehicle.vehicle_id,

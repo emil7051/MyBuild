@@ -3,7 +3,7 @@ Operating cost calculations for vehicle TCO analysis.
 Handles fuel, maintenance, insurance, and battery replacement costs.
 """
 
-from typing import Optional
+from typing import Optional, Dict
 
 import data.constants as const
 from data.scenarios import EconomicScenario
@@ -73,16 +73,25 @@ class FuelCostCalculator:
             return self.calculate_bev_base_cost()
         return self.calculate_diesel_base_cost()
     
-    def get_fuel_cost_year(self, year: int) -> float:
+    def get_fuel_cost_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get fuel cost for a specific year with price escalation and efficiency improvements."""
         if self.vehicle.drivetrain_type == 'BEV':
             # Get price and efficiency multipliers from scenario
             price_multiplier = self.scenario.get_electricity_price_multiplier(year) if self.scenario else 1.0
+            
+            # Apply electricity price variation from overrides
+            if overrides and 'electricity_price_variation' in overrides:
+                price_multiplier *= overrides['electricity_price_variation']
+                
             efficiency_multiplier = 1.0
             if (self.scenario and 
                 self.scenario.bev_efficiency_improvement and 
                 year <= len(self.scenario.bev_efficiency_improvement)):
                 efficiency_multiplier = self.scenario.bev_efficiency_improvement[year - 1]
+            
+            # Apply charging efficiency variation from overrides
+            if overrides and 'charging_efficiency_variation' in overrides:
+                efficiency_multiplier *= overrides['charging_efficiency_variation']
             
             # Select charging proportions based on vehicle weight class
             if self.vehicle.weight_class == 'Articulated':
@@ -107,6 +116,11 @@ class FuelCostCalculator:
         else:
             # Diesel vehicle
             price_multiplier = self.scenario.get_diesel_price_multiplier(year) if self.scenario else 1.0
+            
+            # Apply fuel price variation from overrides
+            if overrides and 'fuel_price_variation' in overrides:
+                price_multiplier *= overrides['fuel_price_variation']
+                
             efficiency_multiplier = 1.0
             if (self.scenario and 
                 self.scenario.diesel_efficiency_improvement and 
@@ -175,10 +189,17 @@ class MaintenanceCostCalculator:
             else:
                 return self.vehicle.annual_kms * const.RIGID_DSL_MAINTENANCE_COST
     
-    def get_maintenance_cost_year(self, year: int) -> float:
+    def get_maintenance_cost_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get maintenance cost for a specific year with age-based escalation."""
         base_cost = self.get_annual_base_cost()
+        
+        # Get the standard multiplier from the scenario
         multiplier = self.scenario.get_maintenance_cost_multiplier(year) if self.scenario else 1.0
+        
+        # Apply the override if it exists
+        if overrides and 'maintenance_cost_variation' in overrides:
+            multiplier *= overrides['maintenance_cost_variation']
+            
         return base_cost * multiplier
 
 
@@ -220,14 +241,22 @@ class BatteryReplacementCalculator:
         
         return self.vehicle.battery_capacity_kwh * net_cost_per_kwh
     
-    def get_battery_replacement_year(self, year: int) -> float:
+    def get_battery_replacement_year(self, year: int, overrides: Optional[Dict[str, float]] = None) -> float:
         """Get battery replacement cost for a specific year (only year 8 for BEVs)."""
         if year == 8 and self.vehicle.drivetrain_type == 'BEV':
-            return self.get_replacement_cost_year8()
+            base_cost = self.get_replacement_cost_year8()
+            
+            # Apply battery life variation if present
+            if overrides and 'battery_life_variation' in overrides:
+                # Shorter battery life increases replacement cost, longer life reduces it
+                multiplier = 2.0 - overrides['battery_life_variation']  # If life is 0.7x, cost is 1.3x
+                base_cost *= multiplier
+                
+            return base_cost
         return 0.0
 
 
-def calculate_carbon_cost_year(vehicle: VehicleModel, year: int, scenario: Optional[EconomicScenario] = None) -> float:
+def calculate_carbon_cost_year(vehicle: VehicleModel, year: int, scenario: Optional[EconomicScenario] = None, overrides: Optional[Dict[str, float]] = None) -> float:
     """Calculate carbon cost for a specific year (diesel only)."""
     if vehicle.drivetrain_type == 'BEV':
         return 0.0
@@ -240,7 +269,7 @@ def calculate_carbon_cost_year(vehicle: VehicleModel, year: int, scenario: Optio
     # Calculate emissions (tonnes CO2e)
     annual_emissions = vehicle.litres_per_km * vehicle.annual_kms * const.DIESEL_EMISSIONS / 1000
     
-    return annual_emissions * carbon_price 
+    return annual_emissions * carbon_price
 
 # Payload Penalty Calculator
 class PayloadPenaltyCalculator:

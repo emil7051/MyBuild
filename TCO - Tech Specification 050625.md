@@ -57,13 +57,13 @@ The TCO Calculator is a quantitative modeling tool designed to assess and compar
 
   * **calculations.py**:  
     * Defines TCOResult: Standardised dataclass for TCO calculation output (total cost, annual cost, cost/km, component breakdowns including payload penalty cost). If we want additional reporting the first thing to do would be to adjust the expected output here.   
-    * calculate\_tco\_from\_inputs(vehicle\_inputs: VehicleInputs): Core function that aggregates all discounted costs and revenues from a VehicleInputs object to determine TCO, average annual cost, and cost/km.  
+    * calculate\_tco\_from\_inputs(vehicle\_inputs: VehicleInputs, overrides: Optional[Dict[str, float]] = None) -> TCOResult: Core function that aggregates all discounted costs and revenues from a VehicleInputs object to determine TCO, average annual cost, and cost/km. The optional `overrides` parameter allows for variation of specific parameters during Monte Carlo simulation or sensitivity analysis without modifying the base VehicleInputs object.
     * Primary API functions: calculate\_tco, calculate\_all\_tcos, compare\_vehicle\_pairs, calculate\_scenario\_comparison, calculate\_breakeven\_analysis. These provide a clean, single-purpose interface for all TCO calculations.
     * Note: The module follows clean code principles with a streamlined API. All calculations flow through VehicleInputs objects, ensuring consistency and avoiding duplication.
 
 * **Analysis Suite (calculations/simulation.py):**  
-  * MonteCarloSimulation: Performs Monte Carlo simulations by introducing variability to selected VehicleInputs parameters (e.g fuel prices, maintenance costs, annual kms) to assess uncertainty. Defines UncertaintyParameter and SimulationResults.  
-  * SensitivityAnalysis: Performs deterministic sensitivity analysis by varying one input parameter at a time to quantify its impact on TCO, useful for generating tornado diagrams.
+  * MonteCarloSimulation: Performs Monte Carlo simulations using an efficient "overrides dictionary" approach. Defines UncertaintyParameter (with override_key field) and SimulationResults. The simulation passes parameter overrides through the calculation chain without modifying objects, improving performance and maintainability.
+  * SensitivityAnalysis: Performs deterministic sensitivity analysis by varying one input parameter at a time through the overrides mechanism to quantify its impact on TCO, useful for generating tornado diagrams.
 
 * **Output Layer:**  
   * **TCOResult objects:** Detailed, structured output for individual TCO calculations, including payload penalty cost for vehicles with reduced cargo capacity. These can be reported or visualised in different ways.  
@@ -109,9 +109,15 @@ The policy system uses inheritance with a base class **policies.PolicyIncentive*
 
 * **calculations.TCOResult**: The comprehensive TCO breakdown for a single vehicle calculation (total TCO (NPV), ave. annual cost, cost/km, itemised components including residual value).
 
+* **simulation.UncertaintyParameter**: Defines uncertain parameters for Monte Carlo simulation with probability distributions (normal, uniform, triangular) and an `override_key` field that maps to the specific parameter to vary in the calculation chain.
+
 ## **3\. TCO Calculation Flow (calculate\_tco\_from\_inputs)**
 
 The TCO for a VehicleInputs object is calculated as follows:
+
+**Function signature:** `calculate_tco_from_inputs(vehicle_inputs: VehicleInputs, overrides: Optional[Dict[str, float]] = None) -> TCOResult`
+
+The optional `overrides` parameter allows for variation of specific parameters during Monte Carlo simulation or sensitivity analysis without modifying the base VehicleInputs object.
 
 1. **Determine Purchase & Financing Cash Flows:**
 
@@ -185,6 +191,7 @@ The TCO for a VehicleInputs object is calculated as follows:
 | **Carbon Cost (Yr i)** | (annual\_fuel\_consumption \* emissions\_factor) \* scenario\_carbon\_price | Operating.calculate\_carbon\_cost\_year |
 | **Payload Penalty (Yr i)** | payload\_difference \* freight\_rate \* annual\_kms \* PAYLOAD\_UTILISATION\_FACTOR | operating.PayloadPenaltyCalculator |
 | **NPV of Annual Cashflows** | Σ(cashflow\_i / (1 + discount\_rate)^i) for i = 1 to n | utils.calculate\_npv\_of\_annual\_cashflows |
+| **Monte Carlo Overrides** | Parameters varied through overrides dictionary: fuel_price_variation, electricity_price_variation, maintenance_cost_variation, annual_kms_variation (absolute), residual_value_variation, battery_life_variation, charging_efficiency_variation | MonteCarloSimulation, all calculator classes accept overrides |
 
 
 ## **5\. Assumptions and Current Limitations**
@@ -195,7 +202,7 @@ The TCO for a VehicleInputs object is calculated as follows:
 
 * **Payload Penalty:** Implemented for BEVs with reduced payload capacity compared to diesel equivalents. Uses freight rates ($/tonne-km) and assumes 85% average payload utilisation. Only applies when comparison_pair is specified and BEV has less payload.
 
-* **Monte Carlo Parameter Application:** The MonteCarloSimulation currently applies variability to fuel/electricity prices, maintenance costs, annual kms
+* **Monte Carlo Parameter Application:** The MonteCarloSimulation uses an efficient "overrides dictionary" approach, passing parameter variations through the calculation chain without object modification. Currently supports variations in: fuel/electricity prices, maintenance costs, annual kilometres (absolute value), residual value, battery life, and charging efficiency. The system is easily extensible for additional parameters.
 
 * **Reliance on Input Data:** Accuracy depends heavily on constants in data/constants.py, vehicle data in data/vehicles.py, and scenario definitions in data/scenarios.py. These require regular review and updates.
 
