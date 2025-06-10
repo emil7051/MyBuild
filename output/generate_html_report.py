@@ -22,17 +22,17 @@ from calculations.calculations import compare_vehicle_pairs, calculate_tco_from_
 from data.scenarios import SCENARIOS
 from data.vehicles import BY_ID
 from app.simulation import MonteCarloSimulation, SensitivityAnalysis
-from reports.generators import (
+from output.generators import (
     generate_executive_summary, 
     generate_fleet_report,
     generate_policy_recommendations
 )
-from reports.analysis import (
+from output.analysis import (
     calculate_payback_analysis,
     analyse_policy_combinations,
     PolicyImpactAnalysis
 )
-from reports.visualisations import TCOVisualiser
+from output.visualisations import TCOVisualiser
 
 
 def generate_monte_carlo_chart(sim_results, title="Monte Carlo TCO Distribution"):

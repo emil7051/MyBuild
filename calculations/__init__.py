@@ -46,6 +46,13 @@ from .calculations import (
     compare_vehicle_pairs
 )
 
+from .simulation import (
+    UncertaintyParameter,
+    SimulationResults,
+    MonteCarloSimulation,
+    SensitivityAnalysis
+)
+
 __all__ = [
     # Data access
     'vehicle_data',
@@ -80,5 +87,11 @@ __all__ = [
     'calculate_tco',
     'calculate_tco_from_inputs',
     'calculate_all_tcos',
-    'compare_vehicle_pairs'
+    'compare_vehicle_pairs',
+    
+    # Simulation and uncertainty analysis exports
+    'UncertaintyParameter',
+    'SimulationResults',
+    'MonteCarloSimulation',
+    'SensitivityAnalysis'
 ] 
