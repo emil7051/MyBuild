@@ -17,8 +17,7 @@ from calculations.calculations import (
     calculate_tco_from_inputs,
     compare_vehicle_pairs,
     calculate_scenario_comparison,
-    calculate_breakeven_analysis,
-    calculate_depreciation_cost
+    calculate_breakeven_analysis
 )
 from calculations.financial import (
     calculate_stamp_duty, 
@@ -376,18 +375,17 @@ class TestTCOCalculations:
             assert difference == bev_tco.total_cost - diesel_tco.total_cost
             
     def test_legacy_depreciation_function(self):
-        """Test that legacy calculate_depreciation_cost returns residual value PV."""
+        """Test that residual value is properly calculated in TCO."""
         vehicle = BY_ID['BEV001']
         
-        # Get residual value using the updated function
-        residual_pv = calculate_depreciation_cost(vehicle)
-        
-        # Calculate expected value
+        # Get residual value through proper approach
         inputs = vehicle_data.get_vehicle(vehicle.vehicle_id)
         residual_future = inputs.get_residual_value(const.VEHICLE_LIFE)
-        expected_pv = discount_to_present(residual_future, const.VEHICLE_LIFE)
+        residual_pv = discount_to_present(residual_future, const.VEHICLE_LIFE)
         
-        assert abs(residual_pv - expected_pv) < 0.01
+        # Verify it matches what's in the TCO result
+        tco = calculate_tco(vehicle)
+        assert abs(tco.residual_value - residual_pv) < 0.01
 
 
 class TestNPVFinancing:
