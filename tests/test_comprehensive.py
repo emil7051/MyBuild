@@ -516,6 +516,7 @@ class TestMonteCarloSimulation:
         # Normal distribution
         param_normal = UncertaintyParameter(
             name='test_normal',
+            override_key='test_normal_key',
             distribution='normal',
             base_value=100,
             std_dev=10
@@ -526,6 +527,7 @@ class TestMonteCarloSimulation:
         # Uniform distribution
         param_uniform = UncertaintyParameter(
             name='test_uniform',
+            override_key='test_uniform_key',
             distribution='uniform',
             base_value=100,
             min_value=50,
@@ -538,6 +540,7 @@ class TestMonteCarloSimulation:
         # Triangular distribution
         param_triangular = UncertaintyParameter(
             name='test_triangular',
+            override_key='test_triangular_key',
             distribution='triangular',
             base_value=100,
             min_value=50,
