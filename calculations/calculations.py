@@ -28,6 +28,8 @@ class TCOResult:
     carbon_cost: float = 0.0
     charging_labour_cost: float = 0.0
     payload_penalty_cost: float = 0.0
+    depreciation: float = 0.0
+    taxes_and_fees: float = 0.0
     scenario_name: str = "baseline"
 
 
@@ -65,6 +67,13 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs, overrides: Optional
     residual_value_future = vehicle_inputs.get_residual_value(const.VEHICLE_LIFE, overrides)
     residual_value_pv = discount_to_present(residual_value_future, const.VEHICLE_LIFE)
     
+    # Calculate undiscounted depreciation for reporting
+    depreciation = vehicle_inputs.initial_cost - residual_value_future
+
+    # Calculate undiscounted taxes and fees for reporting
+    total_registration_undiscounted = vehicle_inputs.vehicle.annual_registration * const.VEHICLE_LIFE
+    taxes_and_fees = vehicle_inputs.stamp_duty + total_registration_undiscounted
+
     # Generate lists of annual costs over vehicle life
     annual_fuel_costs = [vehicle_inputs.get_fuel_cost_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
     annual_battery_costs = [vehicle_inputs.get_battery_replacement_year(year, overrides) for year in range(1, const.VEHICLE_LIFE + 1)]
@@ -119,6 +128,8 @@ def calculate_tco_from_inputs(vehicle_inputs: VehicleInputs, overrides: Optional
         carbon_cost=total_carbon_cost,
         charging_labour_cost=total_charging_labour_cost,
         payload_penalty_cost=total_payload_penalty,
+        depreciation=depreciation,
+        taxes_and_fees=taxes_and_fees,
         scenario_name=vehicle_inputs.scenario.name
     )
 

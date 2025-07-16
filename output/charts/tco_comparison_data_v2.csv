@@ -1,0 +1,23 @@
+vehicle_id,model_name,drivetrain_type,weight_class,comparison_pair_id,comparison_pair_name,total_tco_npv,annual_tco,cost_per_km_total,cost_km_capital,cost_km_fuel,cost_km_maintenance,cost_km_insurance,cost_km_registration,cost_km_carbon,cost_km_battery,cost_km_penalties
+BEV001,Jac N75,BEV,Light Rigid,DSL001,Hino 300,356342.27,34330.83,1.49,0.71,0.10,0.11,0.36,0.03,0.00,0.02,0.17
+BEV002,Hyundai Mighty Electric,BEV,Light Rigid,DSL002,Hyundai Mighty,305441.67,29426.95,1.28,0.60,0.10,0.11,0.32,0.03,0.00,0.02,0.11
+BEV003,Jac N90,BEV,Light Rigid,DSL003,Hino 500,351459.37,33860.40,1.47,0.60,0.13,0.11,0.32,0.03,0.00,0.02,0.27
+BEV004,Volvo FL,BEV,Medium Rigid,DSL004,Volvo FE,463895.12,44692.72,1.94,0.80,0.23,0.11,0.39,0.03,0.00,0.05,0.34
+BEV005,MB eActros 300,BEV,Medium Rigid,DSL005,MB Actros,785667.77,75693.03,3.29,1.60,0.23,0.11,0.70,0.03,0.00,0.07,0.56
+BEV006,MB eActros 600,BEV,Articulated,DSL006,MB Actros,3076175.77,296365.81,3.53,0.66,0.33,0.20,0.27,0.08,0.00,0.03,1.94
+BEV007,Volvo FH,BEV,Articulated,DSL007,Volvo FH,2924543.27,281757.19,3.35,0.49,0.33,0.20,0.21,0.08,0.00,0.03,2.00
+BEV008,Scania 45R,BEV,Articulated,DSL008,Scania R560,2727808.86,262803.35,3.13,0.35,0.33,0.20,0.16,0.08,0.00,0.03,1.97
+DSL001,Hino 300,Diesel,Light Rigid,BEV001,Jac N75,339108.05,32670.45,1.42,0.32,0.68,0.19,0.20,0.03,0.00,0.00,0.00
+DSL002,Hyundai Mighty,Diesel,Light Rigid,BEV002,Hyundai Mighty Electric,332687.13,32051.84,1.39,0.30,0.68,0.19,0.19,0.03,0.00,0.00,0.00
+DSL003,Hino 500,Diesel,Light Rigid,BEV003,Jac N90,403317.34,38856.52,1.69,0.52,0.68,0.19,0.27,0.03,0.00,0.00,0.00
+DSL004,Volvo FE,Diesel,Medium Rigid,BEV004,Volvo FL,542125.95,52229.65,2.27,0.88,0.78,0.19,0.39,0.03,0.00,0.00,0.00
+DSL005,MB Actros,Diesel,Medium Rigid,BEV005,MB eActros 300,606335.23,58415.72,2.54,1.08,0.78,0.19,0.46,0.03,0.00,0.00,0.00
+DSL006,MB Actros,Diesel,Articulated,BEV006,MB eActros 600,1443770.73,139096.18,1.66,0.30,0.85,0.30,0.13,0.08,0.00,0.00,0.00
+DSL007,Volvo FH,Diesel,Articulated,BEV007,Volvo FH,1456612.59,140333.39,1.67,0.31,0.85,0.30,0.13,0.08,0.00,0.00,0.00
+DSL008,Scania R560,Diesel,Articulated,BEV008,Scania 45R,1482296.30,142807.82,1.70,0.33,0.85,0.30,0.14,0.08,0.00,0.00,0.00
+AVG_Articulated_BEV,Average Articulated BEV,BEV,Articulated,,,2909509.30,280308.78,3.34,0.50,0.33,0.20,0.21,0.08,0.00,0.03,1.97
+AVG_Articulated_Diesel,Average Articulated Diesel,Diesel,Articulated,,,1460893.21,140745.79,1.68,0.31,0.85,0.30,0.13,0.08,0.00,0.00,0.00
+AVG_Light_Rigid_BEV,Average Light Rigid BEV,BEV,Light Rigid,,,337747.77,32539.39,1.41,0.64,0.11,0.11,0.33,0.03,0.00,0.02,0.18
+AVG_Light_Rigid_Diesel,Average Light Rigid Diesel,Diesel,Light Rigid,,,358370.84,34526.27,1.50,0.38,0.68,0.19,0.22,0.03,0.00,0.00,0.00
+AVG_Medium_Rigid_BEV,Average Medium Rigid BEV,BEV,Medium Rigid,,,624781.44,60192.87,2.62,1.20,0.23,0.11,0.54,0.03,0.00,0.06,0.45
+AVG_Medium_Rigid_Diesel,Average Medium Rigid Diesel,Diesel,Medium Rigid,,,574230.59,55322.69,2.41,0.98,0.78,0.19,0.42,0.03,0.00,0.00,0.00

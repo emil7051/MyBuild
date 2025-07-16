@@ -13,6 +13,9 @@ from .analysis import PaybackAnalysis, PolicyImpactAnalysis
 from calculations.calculations import TCOResult
 from calculations.simulation import SensitivityAnalysis
 from data import constants as const
+from data.vehicles import BY_ID
+from calculations.utils import calculate_annualised_cost, calculate_present_value
+from calculations.inputs import VehicleInputs
 from data.scenarios import EconomicScenario
 
 class TCOVisualiser:
@@ -315,7 +318,148 @@ class TCOVisualiser:
         )
         
         return fig
+    
+    @staticmethod
+    def create_cost_per_km_chart(results: List[TCOResult], title: str = 'Cost per km Comparison') -> go.Figure:
+        """Create a stacked bar chart comparing cost per km for a list of TCO results."""
+        df_data = []
+        for r in results:
+            vehicle = BY_ID[r.vehicle_id]
+            annual_kms = vehicle.annual_kms
+            
+            # Annualise NPV costs
+            depreciation_annual = calculate_annualised_cost(r.depreciation, const.VEHICLE_LIFE, const.DISCOUNT_RATE)
+            fuel_annual = calculate_annualised_cost(r.fuel_cost, const.VEHICLE_LIFE, const.DISCOUNT_RATE)
+            maintenance_annual = calculate_annualised_cost(r.maintenance_cost, const.VEHICLE_LIFE, const.DISCOUNT_RATE)
+            
+            df_data.append({
+                'Vehicle': f"{vehicle.model_name} ({vehicle.drivetrain_type})",
+                'Depreciation': depreciation_annual / annual_kms,
+                'Fuel': fuel_annual / annual_kms,
+                'Maintenance': maintenance_annual / annual_kms,
+                'Drivetrain': vehicle.drivetrain_type
+            })
 
+        df = pd.DataFrame(df_data)
+
+        fig = px.bar(
+            df, 
+            x='Vehicle', 
+            y=['Depreciation', 'Fuel', 'Maintenance'],
+            title=title,
+            labels={'value': 'Cost per km ($)', 'variable': 'Cost Component'},
+            color_discrete_map={'Depreciation': 'blue', 'Fuel': 'red', 'Maintenance': 'green'}
+        )
+
+        fig.update_layout(
+            yaxis_title='Cost per km ($)',
+            xaxis_title='Vehicle',
+            barmode='stack',
+            template='plotly_white'
+        )
+        return fig
+    
+    @staticmethod
+    def create_cost_per_km_chart_from_avg(df: pd.DataFrame, title: str) -> go.Figure:
+        """Create a stacked bar chart from aggregated average data."""
+        df_melted = df.melt(
+            id_vars=['weight_class', 'drivetrain_type'],
+            value_vars=['Depreciation', 'Fuel', 'Maintenance'],
+            var_name='Cost Component',
+            value_name='Cost per km'
+        )
+        df_melted['Vehicle'] = df_melted['drivetrain_type']
+        
+        fig = px.bar(
+            df_melted,
+            x='Vehicle',
+            y='Cost per km',
+            color='Cost Component',
+            title=title,
+            labels={'Cost per km': 'Cost per km ($)', 'Cost Component': 'Cost Component'},
+            color_discrete_map={'Depreciation': 'blue', 'Fuel': 'red', 'Maintenance': 'green'},
+            barmode='stack'
+        )
+        
+        fig.update_layout(
+            yaxis_title='Cost per km ($)',
+            xaxis_title='Drivetrain Type',
+            template='plotly_white'
+        )
+        return fig
+
+    @staticmethod
+    def create_tco_waterfall_chart(result: TCOResult, inputs: VehicleInputs, title: str = 'TCO Waterfall Chart', include_infrastructure: bool = True) -> go.Figure:
+        """Creates a waterfall chart for a single TCO result."""
+        vehicle = BY_ID[result.vehicle_id]
+        
+        # --- Use discounted (NPV/PV) values for a financially accurate waterfall ---
+        initial_cost = inputs.initial_cost  # This is a year 0 cost, its PV is itself.
+        residual_value_pv = result.residual_value # Use the PV from TCOResult.
+
+        # Use NPVs of operating costs directly from the TCOResult object
+        fuel_cost_npv = result.fuel_cost
+        maintenance_npv = result.maintenance_cost
+        
+        # Calculate PV of fixed costs for consistency
+        insurance_pv = calculate_present_value(inputs.annual_insurance_cost, const.VEHICLE_LIFE)
+        registration_pv = calculate_present_value(inputs.vehicle.annual_registration, const.VEHICLE_LIFE)
+        taxes_and_fees_pv = inputs.stamp_duty + registration_pv # Stamp duty is a year 0 cost.
+        
+        # Use NPV of penalties directly from the TCOResult object
+        penalties_npv = result.payload_penalty_cost + result.charging_labour_cost
+
+        texts = [f"${val:,.0f}" for val in [
+            initial_cost, -residual_value_pv, fuel_cost_npv, 
+            maintenance_npv, insurance_pv, taxes_and_fees_pv, penalties_npv
+        ]]
+        
+        # Add charging infrastructure for BEVs if toggled on
+        # Note: This is an upfront cost, so its PV is itself.
+        if vehicle.drivetrain_type == 'BEV' and include_infrastructure:
+            measures = ["absolute"] + ["relative"] * 7
+            texts.insert(4, f"${const.CHARGER_COST:,.0f}")
+            y_values = [
+                "Asset Cost", "Residual Value (PV)", "Fuel (NPV)", "Maintenance (NPV)", 
+                "Infrastructure", "Insurance (PV)", "Taxes & Fees (PV)", "Payload/Charging Penalties (NPV)", "Final TCO (NPV)"
+            ]
+            x_values = [
+                initial_cost, -residual_value_pv, fuel_cost_npv, maintenance_npv, 
+                const.CHARGER_COST, insurance_pv, taxes_and_fees_pv, penalties_npv
+            ]
+        else:
+            measures = ["absolute"] + ["relative"] * 6
+            y_values = [
+                "Asset Cost", "Residual Value (PV)", "Fuel (NPV)", "Maintenance (NPV)", 
+                "Insurance (PV)", "Taxes & Fees (PV)", "Payload/Charging Penalties (NPV)", "Final TCO (NPV)"
+            ]
+            x_values = [
+                initial_cost, -residual_value_pv, fuel_cost_npv, maintenance_npv, 
+                insurance_pv, taxes_and_fees_pv, penalties_npv
+            ]
+
+        # Final TCO in the chart should now correctly sum to the NPV TCO
+        final_tco = sum(x_values)
+
+        fig = go.Figure(go.Waterfall(
+            name=result.vehicle_id,
+            orientation="v",
+            measure=measures + ["total"],
+            x=y_values,
+            textposition="outside",
+            text=texts + [f"${final_tco:,.0f}"],
+            y=x_values,
+            connector={"line": {"color": "rgb(63, 63, 63)"}},
+        ))
+
+        fig.update_layout(
+            title=title,
+            showlegend=True,
+            template='plotly_white',
+            yaxis_title="Cost (Present Value $)"
+        )
+
+        return fig
 
 # Standalone convenience functions
 def create_payback_chart(payback_analysis: PaybackAnalysis) -> go.Figure:
