@@ -2,8 +2,13 @@
 Reporting module for TCO analysis.
 Provides analysis, visualisation and report generation capabilities.
 """
+import sys
+import os
 
-from .analysis import (
+# Ensure the project root is on the python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from analysis.analysis import (
     PaybackAnalysis,
     PolicyImpactAnalysis,
     FleetTransitionAnalysis,

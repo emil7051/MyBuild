@@ -218,6 +218,102 @@ def generate_comparison_csv():
     final_df.to_csv(csv_path, index=False)
     print(f"Comparison data saved to {csv_path}")
 
+def generate_waterfall_data_csv():
+    """Generates a CSV file with the data for all waterfall charts."""
+    print("Generating waterfall chart data CSV...")
+
+    all_inputs = vehicle_data.get_all_vehicles()
+    
+    waterfall_data = []
+
+    for vehicle_id, inputs in all_inputs.items():
+        result = calculate_tco_from_inputs(inputs)
+        vehicle = BY_ID[vehicle_id]
+
+        # Calculate common components
+        initial_cost = inputs.initial_cost
+        residual_value_pv = result.residual_value
+        fuel_cost_npv = result.fuel_cost
+        maintenance_npv = result.maintenance_cost
+        insurance_pv = calculate_present_value(inputs.annual_insurance_cost, const.VEHICLE_LIFE)
+        registration_pv = calculate_present_value(inputs.vehicle.annual_registration, const.VEHICLE_LIFE)
+        taxes_and_fees_pv = inputs.stamp_duty + registration_pv
+        penalties_npv = result.payload_penalty_cost + result.charging_labour_cost
+
+        base_components = {
+            "Asset Cost": initial_cost,
+            "Residual Value (PV)": -residual_value_pv,
+            "Fuel (NPV)": fuel_cost_npv,
+            "Maintenance (NPV)": maintenance_npv,
+            "Insurance (PV)": insurance_pv,
+            "Taxes & Fees (PV)": taxes_and_fees_pv,
+            "Payload/Charging Penalties (NPV)": penalties_npv,
+        }
+
+        if vehicle.drivetrain_type == 'BEV':
+            # With infrastructure
+            components_with_infra = base_components.copy()
+            components_with_infra["Infrastructure"] = const.CHARGER_COST
+            for component, value in components_with_infra.items():
+                waterfall_data.append({
+                    'vehicle_id': vehicle.vehicle_id,
+                    'model_name': vehicle.model_name,
+                    'drivetrain_type': vehicle.drivetrain_type,
+                    'chart_type': 'with_infra',
+                    'cost_component': component,
+                    'value': value,
+                })
+
+            # Without infrastructure
+            components_no_infra = base_components.copy()
+            for component, value in components_no_infra.items():
+                 waterfall_data.append({
+                    'vehicle_id': vehicle.vehicle_id,
+                    'model_name': vehicle.model_name,
+                    'drivetrain_type': vehicle.drivetrain_type,
+                    'chart_type': 'no_infra',
+                    'cost_component': component,
+                    'value': value,
+                })
+
+        else: # Diesel
+            components_diesel = base_components.copy()
+            for component, value in components_diesel.items():
+                waterfall_data.append({
+                    'vehicle_id': vehicle.vehicle_id,
+                    'model_name': vehicle.model_name,
+                    'drivetrain_type': vehicle.drivetrain_type,
+                    'chart_type': 'diesel',
+                    'cost_component': component,
+                    'value': value,
+                })
+
+    df = pd.DataFrame(waterfall_data)
+    
+    # Add a 'total' row for each chart group
+    total_rows = []
+    for (vid, chart_type), group in df.groupby(['vehicle_id', 'chart_type']):
+        total_value = group['value'].sum()
+        vehicle = BY_ID[vid]
+        total_rows.append({
+            'vehicle_id': vid,
+            'model_name': vehicle.model_name,
+            'drivetrain_type': vehicle.drivetrain_type,
+            'chart_type': chart_type,
+            'cost_component': 'Final TCO (NPV)',
+            'value': total_value
+        })
+        
+    total_df = pd.DataFrame(total_rows)
+    final_df = pd.concat([df, total_df], ignore_index=True)
+
+    # Reorder for better readability
+    final_df = final_df.sort_values(by=['vehicle_id', 'chart_type']).reset_index(drop=True)
+
+    csv_path = os.path.join(OUTPUT_DIR, 'waterfall_chart_data.csv')
+    final_df.to_csv(csv_path, index=False)
+    print(f"Waterfall chart data saved to {csv_path}")
+
 def generate_all_charts():
     """Generates all charts."""
     generate_paired_charts()
@@ -226,3 +322,4 @@ def generate_all_charts():
 def generate_all_csv():
     """Generates all CSVs."""
     generate_comparison_csv() 
+    generate_waterfall_data_csv() 

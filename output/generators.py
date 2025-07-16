@@ -7,11 +7,13 @@ import numpy as np
 from typing import Dict, List, Tuple, Optional
 from collections import defaultdict
 
-from calculations.calculations import TCOResult, compare_vehicle_pairs, calculate_tco_from_inputs
-from calculations.inputs import vehicle_data
-from .analysis import calculate_payback_analysis, analyse_purchase_timing
-from data import constants as const
+from data.scenarios import EconomicScenario
 from data.vehicles import BY_ID
+
+from analysis.analysis import calculate_payback_analysis, analyse_purchase_timing
+from calculations.inputs import vehicle_data
+from calculations.calculations import calculate_tco_from_inputs, TCOResult
+from data import constants as const
 
 
 def generate_executive_summary(

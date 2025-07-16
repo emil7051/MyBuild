@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Optional
 
-from .analysis import PaybackAnalysis, PolicyImpactAnalysis
+from analysis.analysis import PaybackAnalysis, PolicyImpactAnalysis
 from calculations.calculations import TCOResult
 from calculations.simulation import SensitivityAnalysis
 from data import constants as const
