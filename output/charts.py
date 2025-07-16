@@ -4,14 +4,14 @@ Generates and saves TCO component comparison visualisations.
 import os
 import sys
 import pandas as pd
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 
 # Add project root to Python path to allow for correct module imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from calculations.calculations import calculate_tco_from_inputs, TCOResult
+from calculations.calculations import calculate_tco_from_inputs
 from calculations.inputs import vehicle_data, VehicleInputs
-from data.vehicles import BY_ID, VehicleModel
+from data.vehicles import BY_ID
 from output.visualisations import TCOVisualiser
 import data.constants as const
 from calculations.utils import calculate_annualised_cost
@@ -113,7 +113,6 @@ def generate_class_average_charts():
             fig.write_html(f"{OUTPUT_DIR}/AVG_{weight_class.replace(' ', '_')}_cost_per_km.html")
 
     print(f"Class average charts generated in {OUTPUT_DIR}/")
-
 
 def generate_comparison_csv():
     """Generates a CSV file with detailed TCO comparison data."""
@@ -219,8 +218,11 @@ def generate_comparison_csv():
     final_df.to_csv(csv_path, index=False)
     print(f"Comparison data saved to {csv_path}")
 
-if __name__ == '__main__':
+def generate_all_charts():
+    """Generates all charts."""
     generate_paired_charts()
     generate_class_average_charts()
-    generate_comparison_csv()
-    print("All comparison charts and data have been generated.") 
+
+def generate_all_csv():
+    """Generates all CSVs."""
+    generate_comparison_csv() 

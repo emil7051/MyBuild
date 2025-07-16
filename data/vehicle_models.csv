@@ -1,0 +1,31 @@
+vehicle_id,comparison_pair,weight_class,drivetrain_type,model_name,payload,msrp,range,battery_capacity,kwh_perkm,litres_perkm,battery_replacement_perkw,maintenance_cost_perkm,annual_registration,annual_kms,noise_pollution_perkm
+BEV001,DSL001,Light Rigid,BEV,Jac N75,4,176500,220,100,0.48,0,130,0.05,653,23000,0.004
+BEV002,DSL002,Light Rigid,BEV,Hyundai Mighty Electric,4,150000,200,97,0.48,0,130,0.05,653,23000,0.004
+BEV003,DSL003,Light Rigid,BEV,Jac N90,5,150000,180,107,0.61,0,130,0.05,653,23000,0.004
+BEV004,DSL004,Medium Rigid,BEV,Volvo FL,10.5,200000,300,264,1.09,0,130,0.08,653,23000,0.006
+BEV005,DSL005,Medium Rigid,BEV,MB eActros 300,22,400000,300,336,1.09,0,130,0.08,653,23000,0.006
+BEV006,DSL006,Articulated,BEV,MB eActros 600,42,600000,500,621,1.20,0,130,0.12,6872,84000,0.009
+BEV007,DSL007,Articulated,BEV,Volvo FH,42,450000,300,540,1.20,0,130,0.12,6872,84000,0.009
+BEV008,DSL008,Articulated,BEV,Scania 45R,42,320000,390,624,1.20,0,130,0.12,6872,84000,0.009
+DSL001,BEV001,Light Rigid,Diesel,Hino 300,4.5,80000,600,0,0,0.28,0,0.20,653,23000,0.01
+DSL002,BEV002,Light Rigid,Diesel,Hyundai Mighty,4,75000,600,0,0,0.28,0,0.02,653,23000,0.01
+DSL003,BEV003,Light Rigid,Diesel,Hino 500,6,130000,600,0,0,0.28,0,0.02,653,23000,0.01
+DSL004,BEV004,Medium Rigid,Diesel,Volvo FE,12,220000,600,0,0,0.32,0,0.025,653,23000,0.017
+DSL005,BEV005,Medium Rigid,Diesel,MB Actros,25,270000,1400,0,0,0.32,0,0.025,653,23000,0.017
+DSL006,BEV006,Articulated,Diesel,MB Actros,50,270000,1400,0,0,0.35,0,0.03,6872,84000,0.025
+DSL007,BEV007,Articulated,Diesel,Volvo FH,50,280000,2000,0,0,0.35,0,0.03,6872,84000,0.025
+DSL008,BEV008,Articulated,Diesel,Scania R560,50,300000,1500,0,0,0.35,0,0.03,6872,84000,0.025
+,,,,,,,,,,,,,,,
+Purchase Costs:,,,,,,,,,,,,,,,
+stamp_duty,stamp_duty_rate * msrp,,,,,,,,,,,,,,
+insurance_cost_initial,insurance_rate * msrp,,,,,,,,,,,,,,
+incentives_applied,needs ,,,,,,,,,,,,,,
+initial_price,msrp + stamp_duty + insurance_cost + registration_cost + annual_registration - incentives_applied,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,
+Financing Costs:,,,,,,,,,,,,,,,
+down_payment,down_payment_rate * msrp,,,,,,,,,,,,,,
+financing_cost,(msrp - down_payment) * interest_rate,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,
+Operating Costs:,,,,,,,,,,,,,,,
+charging_mix,(retail_charging*energy_mix) + (offpeak_charging*energy_mix) + (solar_charging*energy_mix) + (public_charging*energy_mix),,,,,,,,,,,,,,
+bev_operating_cost,,,,,,,,,,,,,,,

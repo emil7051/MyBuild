@@ -157,3 +157,9 @@ Thumbs.db
 # Data files (if sensitive)
 # Uncomment if your data directory contains sensitive information
 # data/ 
+
+# macOS
+.DS_Store
+
+# venv
+venv/ 
