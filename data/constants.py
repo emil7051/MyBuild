@@ -31,8 +31,8 @@ CHARGING_MIX_PROPORTIONS = {
         },
         'Articulated': {
             'retail': 0.00,  # (Assuming most charging takes place on overnight cycles)
-            'offpeak': 0.67,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
-            'public': 0.33,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'offpeak': 0.33,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            'public': 0.57,  # (Using industry consultation data from ARENA/AECOM information)
             'solar': 0.00  # (Assuming no investment in solar infrastructure)
         }
     }
@@ -71,9 +71,9 @@ ART_ANNUAL_KMS = 84000 # kms/year (SMVU Data)
 
 # Payload Penalty - Based on BITRE freight rates
 FREIGHT_RATE_PER_TONNE_KM = {
-    'Light Rigid': 0.17,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
-    'Medium Rigid': 0.17,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
-    'Articulated': 0.26  # $/tonne-km (BITRE 2017 rate for articulated truck freight transport)
+    'Light Rigid': 0.25,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
+    'Medium Rigid': 0.25,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
+    'Articulated': 0.08  # $/tonne-km (BITRE 2017 rate for articulated truck freight transport)
 }
 PAYLOAD_UTILISATION_FACTOR = 0.85  # Trucks typically run at 85% payload capacity on average
 
