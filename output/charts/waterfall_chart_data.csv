@@ -5,136 +5,136 @@ BEV001,Jac N75,BEV,no_infra,Fuel (NPV),23885.575104832387
 BEV001,Jac N75,BEV,no_infra,Maintenance (NPV),25673.717200081337
 BEV001,Jac N75,BEV,no_infra,Insurance (PV),84879.65360722186
 BEV001,Jac N75,BEV,no_infra,Taxes & Fees (PV),12072.916698931931
-BEV001,Jac N75,BEV,no_infra,Payload/Charging Penalties (NPV),41539.79839857409
-BEV001,Jac N75,BEV,no_infra,Final TCO (NPV),353042.49874251196
+BEV001,Jac N75,BEV,no_infra,Payload/Charging Penalties (NPV),26633.553797344008
+BEV001,Jac N75,BEV,no_infra,Final TCO (NPV),338136.25414128194
 BEV001,Jac N75,BEV,with_infra,Asset Cost,181795.0
 BEV001,Jac N75,BEV,with_infra,Residual Value (PV),-16804.162267129595
 BEV001,Jac N75,BEV,with_infra,Fuel (NPV),23885.575104832387
 BEV001,Jac N75,BEV,with_infra,Maintenance (NPV),25673.717200081337
 BEV001,Jac N75,BEV,with_infra,Insurance (PV),84879.65360722186
 BEV001,Jac N75,BEV,with_infra,Taxes & Fees (PV),12072.916698931931
-BEV001,Jac N75,BEV,with_infra,Payload/Charging Penalties (NPV),41539.79839857409
+BEV001,Jac N75,BEV,with_infra,Payload/Charging Penalties (NPV),26633.553797344008
 BEV001,Jac N75,BEV,with_infra,Infrastructure,300000.0
-BEV001,Jac N75,BEV,with_infra,Final TCO (NPV),653042.498742512
+BEV001,Jac N75,BEV,with_infra,Final TCO (NPV),638136.2541412818
 BEV002,Hyundai Mighty Electric,BEV,no_infra,Asset Cost,154500.0
 BEV002,Hyundai Mighty Electric,BEV,no_infra,Residual Value (PV),-14281.157734104474
 BEV002,Hyundai Mighty Electric,BEV,no_infra,Fuel (NPV),23885.575104832387
 BEV002,Hyundai Mighty Electric,BEV,no_infra,Maintenance (NPV),25673.717200081337
 BEV002,Hyundai Mighty Electric,BEV,no_infra,Insurance (PV),75252.52077680935
 BEV002,Hyundai Mighty Electric,BEV,no_infra,Taxes & Fees (PV),11277.916698931931
-BEV002,Hyundai Mighty Electric,BEV,no_infra,Payload/Charging Penalties (NPV),25771.879998018176
-BEV002,Hyundai Mighty Electric,BEV,no_infra,Final TCO (NPV),302080.4520445687
+BEV002,Hyundai Mighty Electric,BEV,no_infra,Payload/Charging Penalties (NPV),0.0
+BEV002,Hyundai Mighty Electric,BEV,no_infra,Final TCO (NPV),276308.5720465506
 BEV002,Hyundai Mighty Electric,BEV,with_infra,Asset Cost,154500.0
 BEV002,Hyundai Mighty Electric,BEV,with_infra,Residual Value (PV),-14281.157734104474
 BEV002,Hyundai Mighty Electric,BEV,with_infra,Fuel (NPV),23885.575104832387
 BEV002,Hyundai Mighty Electric,BEV,with_infra,Maintenance (NPV),25673.717200081337
 BEV002,Hyundai Mighty Electric,BEV,with_infra,Insurance (PV),75252.52077680935
 BEV002,Hyundai Mighty Electric,BEV,with_infra,Taxes & Fees (PV),11277.916698931931
-BEV002,Hyundai Mighty Electric,BEV,with_infra,Payload/Charging Penalties (NPV),25771.879998018176
+BEV002,Hyundai Mighty Electric,BEV,with_infra,Payload/Charging Penalties (NPV),0.0
 BEV002,Hyundai Mighty Electric,BEV,with_infra,Infrastructure,300000.0
-BEV002,Hyundai Mighty Electric,BEV,with_infra,Final TCO (NPV),602080.4520445687
+BEV002,Hyundai Mighty Electric,BEV,with_infra,Final TCO (NPV),576308.5720465505
 BEV003,Jac N90,BEV,no_infra,Asset Cost,154500.0
 BEV003,Jac N90,BEV,no_infra,Residual Value (PV),-14281.157734104474
 BEV003,Jac N90,BEV,no_infra,Fuel (NPV),30354.585029057835
 BEV003,Jac N90,BEV,no_infra,Maintenance (NPV),25673.717200081337
 BEV003,Jac N90,BEV,no_infra,Insurance (PV),75252.52077680935
 BEV003,Jac N90,BEV,no_infra,Taxes & Fees (PV),11277.916698931931
-BEV003,Jac N90,BEV,no_infra,Payload/Charging Penalties (NPV),64857.05538440804
-BEV003,Jac N90,BEV,no_infra,Final TCO (NPV),347634.63735518407
+BEV003,Jac N90,BEV,no_infra,Payload/Charging Penalties (NPV),53267.107594688016
+BEV003,Jac N90,BEV,no_infra,Final TCO (NPV),336044.68956546404
 BEV003,Jac N90,BEV,with_infra,Asset Cost,154500.0
 BEV003,Jac N90,BEV,with_infra,Residual Value (PV),-14281.157734104474
 BEV003,Jac N90,BEV,with_infra,Fuel (NPV),30354.585029057835
 BEV003,Jac N90,BEV,with_infra,Maintenance (NPV),25673.717200081337
 BEV003,Jac N90,BEV,with_infra,Insurance (PV),75252.52077680935
 BEV003,Jac N90,BEV,with_infra,Taxes & Fees (PV),11277.916698931931
-BEV003,Jac N90,BEV,with_infra,Payload/Charging Penalties (NPV),64857.05538440804
+BEV003,Jac N90,BEV,with_infra,Payload/Charging Penalties (NPV),53267.107594688016
 BEV003,Jac N90,BEV,with_infra,Infrastructure,300000.0
-BEV003,Jac N90,BEV,with_infra,Final TCO (NPV),647634.6373551841
+BEV003,Jac N90,BEV,with_infra,Final TCO (NPV),636044.689565464
 BEV004,Volvo FL,BEV,no_infra,Asset Cost,206000.0
 BEV004,Volvo FL,BEV,no_infra,Residual Value (PV),-19041.543645472626
 BEV004,Volvo FL,BEV,no_infra,Fuel (NPV),54240.16013389023
 BEV004,Volvo FL,BEV,no_infra,Maintenance (NPV),25673.717200081337
 BEV004,Volvo FL,BEV,no_infra,Insurance (PV),93416.9223436254
 BEV004,Volvo FL,BEV,no_infra,Taxes & Fees (PV),12777.916698931931
-BEV004,Volvo FL,BEV,no_infra,Payload/Charging Penalties (NPV),80104.32974459996
-BEV004,Volvo FL,BEV,no_infra,Final TCO (NPV),453171.5024756562
+BEV004,Volvo FL,BEV,no_infra,Payload/Charging Penalties (NPV),79900.66139203204
+BEV004,Volvo FL,BEV,no_infra,Final TCO (NPV),452967.83412308834
 BEV004,Volvo FL,BEV,with_infra,Asset Cost,206000.0
 BEV004,Volvo FL,BEV,with_infra,Residual Value (PV),-19041.543645472626
 BEV004,Volvo FL,BEV,with_infra,Fuel (NPV),54240.16013389023
 BEV004,Volvo FL,BEV,with_infra,Maintenance (NPV),25673.717200081337
 BEV004,Volvo FL,BEV,with_infra,Insurance (PV),93416.9223436254
 BEV004,Volvo FL,BEV,with_infra,Taxes & Fees (PV),12777.916698931931
-BEV004,Volvo FL,BEV,with_infra,Payload/Charging Penalties (NPV),80104.32974459996
+BEV004,Volvo FL,BEV,with_infra,Payload/Charging Penalties (NPV),79900.66139203204
 BEV004,Volvo FL,BEV,with_infra,Infrastructure,300000.0
-BEV004,Volvo FL,BEV,with_infra,Final TCO (NPV),753171.5024756563
+BEV004,Volvo FL,BEV,with_infra,Final TCO (NPV),752967.8341230883
 BEV005,MB eActros 300,BEV,no_infra,Asset Cost,412000.0
 BEV005,MB eActros 300,BEV,no_infra,Residual Value (PV),-38083.08729094525
 BEV005,MB eActros 300,BEV,no_infra,Fuel (NPV),54240.16013389023
 BEV005,MB eActros 300,BEV,no_infra,Maintenance (NPV),25673.717200081337
 BEV005,MB eActros 300,BEV,no_infra,Insurance (PV),166074.5286108896
 BEV005,MB eActros 300,BEV,no_infra,Taxes & Fees (PV),18777.91669893193
-BEV005,MB eActros 300,BEV,no_infra,Payload/Charging Penalties (NPV),134436.77949118175
-BEV005,MB eActros 300,BEV,no_infra,Final TCO (NPV),773120.0148440296
+BEV005,MB eActros 300,BEV,no_infra,Payload/Charging Penalties (NPV),159801.32278406408
+BEV005,MB eActros 300,BEV,no_infra,Final TCO (NPV),798484.558136912
 BEV005,MB eActros 300,BEV,with_infra,Asset Cost,412000.0
 BEV005,MB eActros 300,BEV,with_infra,Residual Value (PV),-38083.08729094525
 BEV005,MB eActros 300,BEV,with_infra,Fuel (NPV),54240.16013389023
 BEV005,MB eActros 300,BEV,with_infra,Maintenance (NPV),25673.717200081337
 BEV005,MB eActros 300,BEV,with_infra,Insurance (PV),166074.5286108896
 BEV005,MB eActros 300,BEV,with_infra,Taxes & Fees (PV),18777.91669893193
-BEV005,MB eActros 300,BEV,with_infra,Payload/Charging Penalties (NPV),134436.77949118175
+BEV005,MB eActros 300,BEV,with_infra,Payload/Charging Penalties (NPV),159801.32278406408
 BEV005,MB eActros 300,BEV,with_infra,Infrastructure,300000.0
-BEV005,MB eActros 300,BEV,with_infra,Final TCO (NPV),1073120.0148440297
+BEV005,MB eActros 300,BEV,with_infra,Final TCO (NPV),1098484.558136912
 BEV006,MB eActros 600,BEV,no_infra,Asset Cost,618000.0
 BEV006,MB eActros 600,BEV,no_infra,Residual Value (PV),-57124.630936417896
-BEV006,MB eActros 600,BEV,no_infra,Fuel (NPV),290963.5656477889
+BEV006,MB eActros 600,BEV,no_infra,Fuel (NPV),366581.2154771577
 BEV006,MB eActros 600,BEV,no_infra,Maintenance (NPV),178153.27239708614
 BEV006,MB eActros 600,BEV,no_infra,Insurance (PV),238732.13487815383
 BEV006,MB eActros 600,BEV,no_infra,Taxes & Fees (PV),89329.01003837708
-BEV006,MB eActros 600,BEV,no_infra,Payload/Charging Penalties (NPV),1693877.6735496689
-BEV006,MB eActros 600,BEV,no_infra,Final TCO (NPV),3051931.025574657
+BEV006,MB eActros 600,BEV,no_infra,Payload/Charging Penalties (NPV),628644.5080653094
+BEV006,MB eActros 600,BEV,no_infra,Final TCO (NPV),2062315.5099196665
 BEV006,MB eActros 600,BEV,with_infra,Asset Cost,618000.0
 BEV006,MB eActros 600,BEV,with_infra,Residual Value (PV),-57124.630936417896
-BEV006,MB eActros 600,BEV,with_infra,Fuel (NPV),290963.5656477889
+BEV006,MB eActros 600,BEV,with_infra,Fuel (NPV),366581.2154771577
 BEV006,MB eActros 600,BEV,with_infra,Maintenance (NPV),178153.27239708614
 BEV006,MB eActros 600,BEV,with_infra,Insurance (PV),238732.13487815383
 BEV006,MB eActros 600,BEV,with_infra,Taxes & Fees (PV),89329.01003837708
-BEV006,MB eActros 600,BEV,with_infra,Payload/Charging Penalties (NPV),1693877.6735496689
+BEV006,MB eActros 600,BEV,with_infra,Payload/Charging Penalties (NPV),628644.5080653094
 BEV006,MB eActros 600,BEV,with_infra,Infrastructure,300000.0
-BEV006,MB eActros 600,BEV,with_infra,Final TCO (NPV),3351931.0255746567
+BEV006,MB eActros 600,BEV,with_infra,Final TCO (NPV),2362315.5099196667
 BEV007,Volvo FH,BEV,no_infra,Asset Cost,463500.0
 BEV007,Volvo FH,BEV,no_infra,Residual Value (PV),-42843.47320231341
-BEV007,Volvo FH,BEV,no_infra,Fuel (NPV),290963.5656477889
+BEV007,Volvo FH,BEV,no_infra,Fuel (NPV),366581.2154771577
 BEV007,Volvo FH,BEV,no_infra,Maintenance (NPV),178153.27239708614
 BEV007,Volvo FH,BEV,no_infra,Insurance (PV),184238.93017770562
 BEV007,Volvo FH,BEV,no_infra,Taxes & Fees (PV),84829.01003837708
-BEV007,Volvo FH,BEV,no_infra,Payload/Charging Penalties (NPV),1744076.8137197215
-BEV007,Volvo FH,BEV,no_infra,Final TCO (NPV),2902918.1187783657
+BEV007,Volvo FH,BEV,no_infra,Payload/Charging Penalties (NPV),628644.5080653094
+BEV007,Volvo FH,BEV,no_infra,Final TCO (NPV),1863103.4629533226
 BEV007,Volvo FH,BEV,with_infra,Asset Cost,463500.0
 BEV007,Volvo FH,BEV,with_infra,Residual Value (PV),-42843.47320231341
-BEV007,Volvo FH,BEV,with_infra,Fuel (NPV),290963.5656477889
+BEV007,Volvo FH,BEV,with_infra,Fuel (NPV),366581.2154771577
 BEV007,Volvo FH,BEV,with_infra,Maintenance (NPV),178153.27239708614
 BEV007,Volvo FH,BEV,with_infra,Insurance (PV),184238.93017770562
 BEV007,Volvo FH,BEV,with_infra,Taxes & Fees (PV),84829.01003837708
-BEV007,Volvo FH,BEV,with_infra,Payload/Charging Penalties (NPV),1744076.8137197215
+BEV007,Volvo FH,BEV,with_infra,Payload/Charging Penalties (NPV),628644.5080653094
 BEV007,Volvo FH,BEV,with_infra,Infrastructure,300000.0
-BEV007,Volvo FH,BEV,with_infra,Final TCO (NPV),3202918.1187783657
+BEV007,Volvo FH,BEV,with_infra,Final TCO (NPV),2163103.4629533226
 BEV008,Scania 45R,BEV,no_infra,Asset Cost,329600.0
 BEV008,Scania 45R,BEV,no_infra,Residual Value (PV),-30466.469832756204
-BEV008,Scania 45R,BEV,no_infra,Fuel (NPV),290963.5656477889
+BEV008,Scania 45R,BEV,no_infra,Fuel (NPV),366581.2154771577
 BEV008,Scania 45R,BEV,no_infra,Maintenance (NPV),178153.27239708614
 BEV008,Scania 45R,BEV,no_infra,Insurance (PV),137011.48610398392
 BEV008,Scania 45R,BEV,no_infra,Taxes & Fees (PV),80929.01003837708
-BEV008,Scania 45R,BEV,no_infra,Payload/Charging Penalties (NPV),1715115.771313922
-BEV008,Scania 45R,BEV,no_infra,Final TCO (NPV),2701306.6356684016
+BEV008,Scania 45R,BEV,no_infra,Payload/Charging Penalties (NPV),628644.5080653094
+BEV008,Scania 45R,BEV,no_infra,Final TCO (NPV),1690453.022249158
 BEV008,Scania 45R,BEV,with_infra,Asset Cost,329600.0
 BEV008,Scania 45R,BEV,with_infra,Residual Value (PV),-30466.469832756204
-BEV008,Scania 45R,BEV,with_infra,Fuel (NPV),290963.5656477889
+BEV008,Scania 45R,BEV,with_infra,Fuel (NPV),366581.2154771577
 BEV008,Scania 45R,BEV,with_infra,Maintenance (NPV),178153.27239708614
 BEV008,Scania 45R,BEV,with_infra,Insurance (PV),137011.48610398392
 BEV008,Scania 45R,BEV,with_infra,Taxes & Fees (PV),80929.01003837708
-BEV008,Scania 45R,BEV,with_infra,Payload/Charging Penalties (NPV),1715115.771313922
+BEV008,Scania 45R,BEV,with_infra,Payload/Charging Penalties (NPV),628644.5080653094
 BEV008,Scania 45R,BEV,with_infra,Infrastructure,300000.0
-BEV008,Scania 45R,BEV,with_infra,Final TCO (NPV),3001306.6356684016
+BEV008,Scania 45R,BEV,with_infra,Final TCO (NPV),1990453.022249158
 DSL001,Hino 300,Diesel,diesel,Asset Cost,82400.0
 DSL001,Hino 300,Diesel,diesel,Residual Value (PV),-7616.617458189051
 DSL001,Hino 300,Diesel,diesel,Fuel (NPV),162623.27558076047

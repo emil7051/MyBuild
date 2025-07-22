@@ -47,6 +47,16 @@ STORAGE_MAINTENANCE = 0.025 # % (AEMO/NREL rule - percentage of CAPEX/year)
 INFRASTRUCTURE_LIFE = 15 # Years
 CHARGER_COST = 300000 # AUD (CCS high-power DC fast charger, includes cabinet, dispenser, cooling, and typical electrical work - Smart Freight Media Centre)GRID_UPGRADE = 1000000  # AUD 
 
+# Charging Time Parameters
+
+BATTERY_USABLE_RANGE_FACTOR = 0.6  # Usable range factor (typically charge at 20% remaining)
+
+CHARGING_TIME_HOURS = {
+    'Articulated': 1.0,    # 60 minutes for articulated trucks (more public fast charging needed)
+    'Medium Rigid': 0.75,  # 45 minutes for medium rigid trucks
+    'Light Rigid': 0.6     # 30 minutes for light rigid trucks
+}
+
 # Fuel Costs
 
 DIESEL_PRICE = 2.05 # $/litre (average diesel retail price from the Australian Institute of Petroleum, 2c per litre added for AdBlue)
@@ -68,6 +78,7 @@ DIESEL_EMISSIONS = 2.68 # kgCO2e/litre
 VEHICLE_LIFE = 15  # Years
 RIGID_ANNUAL_KMS = 23000 # kms/year (SMVU Data)
 ART_ANNUAL_KMS = 84000 # kms/year (SMVU Data)
+WORKING_DAYS = 255  # Number of working days per year (365 * 0.70)
 
 # Payload Penalty - Based on BITRE freight rates
 FREIGHT_RATE_PER_TONNE_KM = {
@@ -75,7 +86,11 @@ FREIGHT_RATE_PER_TONNE_KM = {
     'Medium Rigid': 0.25,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)
     'Articulated': 0.08  # $/tonne-km (BITRE 2017 rate for articulated truck freight transport)
 }
-PAYLOAD_UTILISATION_FACTOR = 0.85  # Trucks typically run at 85% payload capacity on average
+PAYLOAD_UTILISATION_FACTOR = {
+    'Light Rigid': 0.8,      # Light rigid trucks typically run at 80% payload capacity
+    'Medium Rigid': 0.8,     # Medium rigid trucks typically run at 80% payload capacity
+    'Articulated': 0.9       # Articulated trucks typically run at 90% payload capacity (more efficient operations)
+}
 
 # Insurance Costs
 
@@ -112,6 +127,7 @@ DOWN_PAYMENT_RATE = 0.20 # % (percentage of price paid upfront)
 BATTERY_REPLACEMENT_COST = 130 # $/kWh (cost to replace battery cells)
 BATTERY_RECYCLE_VALUE = 13 # $/kWh (value obtained from recycling old battery)
 BATTERY_DEGRADATION_RATE = 0.025 # %/year (annual capacity loss)
+BATTERY_LIFE_VARIATION_BASE = 2.0  # Base multiplier for battery life variation calculations
 
 # Government Fees, Taxes, Incentives
 

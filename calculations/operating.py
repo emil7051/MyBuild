@@ -3,6 +3,7 @@ Operating cost calculations for vehicle TCO analysis.
 Handles fuel, maintenance, insurance, and battery replacement costs.
 """
 
+import math
 from typing import Optional, Dict
 
 import data.constants as const
@@ -126,26 +127,29 @@ class ChargingTimeCostCalculator:
         if self.vehicle.drivetrain_type != 'BEV':
             return 0.0
             
+        # Working days
+        working_days = const.WORKING_DAYS
+
         # Calculate daily driving needs
-        daily_kms = self.vehicle.annual_kms / const.DAYS_IN_YEAR
+        daily_kms = self.vehicle.annual_kms / working_days
         
-        # Calculate charging sessions needed
+        # Calculate charging sessions needed during the day
         # Account for not fully depleting battery (typically charge at 20% remaining)
-        usable_range = self.vehicle.range_km * 0.8
-        daily_charging_sessions = daily_kms / usable_range
+        usable_range = self.vehicle.range_km * const.BATTERY_USABLE_RANGE_FACTOR
+        
+        # If daily driving is within usable range, no charging during day is needed
+        # Vehicle can charge overnight and complete the day's work
+        if daily_kms <= usable_range:
+            daily_charging_sessions = 0
+        else:
+            # Calculate how many additional charging sessions are needed during the day
+            # after the initial full charge
+            daily_charging_sessions = math.ceil((daily_kms - usable_range) / usable_range)
         
         # Charging time varies by weight class and charging type
-        if self.vehicle.weight_class == 'Articulated':
-            # More public fast charging needed
-            avg_charging_hours = 1.0  # 60 minutes for articulated
-        elif self.vehicle.weight_class == 'Medium Rigid':
-            avg_charging_hours = 0.75  # 45 minutes
-        else:  # Light Rigid
-            avg_charging_hours = 0.5  # 30 minutes
+        avg_charging_hours = const.CHARGING_TIME_HOURS[self.vehicle.weight_class]
             
         # Calculate annual charging hours
-        # Assume working days only (not all 365 days)
-        working_days = const.DAYS_IN_YEAR * 0.7  # ~250 working days
         annual_charging_hours = daily_charging_sessions * avg_charging_hours * working_days
         
         # Return labour cost
@@ -223,7 +227,7 @@ class BatteryReplacementCalculator:
             # Apply battery life variation if present
             if overrides and 'battery_life_variation' in overrides:
                 # Shorter battery life increases replacement cost, longer life reduces it
-                multiplier = 2.0 - overrides['battery_life_variation']  # If life is 0.7x, cost is 1.3x
+                multiplier = const.BATTERY_LIFE_VARIATION_BASE - overrides['battery_life_variation']  # If life is 0.7x, cost is 1.3x
                 base_cost *= multiplier
                 
             return base_cost
@@ -280,4 +284,5 @@ class PayloadPenaltyCalculator:
         # Annual cost = payload difference × freight rate × annual kilometres × utilisation factor
         # This represents the lost revenue from being unable to carry as much freight
         # Apply utilisation factor as trucks rarely run at 100% capacity
-        return payload_difference * freight_rate * self.vehicle.annual_kms * const.PAYLOAD_UTILISATION_FACTOR
+        utilisation_factor = const.PAYLOAD_UTILISATION_FACTOR[self.vehicle.weight_class]
+        return payload_difference * freight_rate * self.vehicle.annual_kms * utilisation_factor
