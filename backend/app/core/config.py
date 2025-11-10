@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = Field(default="/api/v1")
     environment: str = Field(default="development")
     backend_cors_origins: List[AnyHttpUrl] | List[str] = Field(
-        default_factory=lambda: ["http://localhost:3000"]
+        default_factory=lambda: ["http://localhost:5000"]
     )
     cache_results: bool = Field(
         default=True, description="Toggle for caching calculation runs in memory."
