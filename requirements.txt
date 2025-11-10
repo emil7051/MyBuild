@@ -60,3 +60,15 @@ rich>=13.5.0  # Rich text and beautiful formatting
 click>=8.1.0  # Command line interface creation
 python-dotenv>=1.0.0  # Environment variable management
 loguru>=0.7.0  # Enhanced logging 
+aiosqlite
+asyncpg
+fastapi
+numpy
+numpy-financial
+orjson
+pydantic
+pydantic-settings
+python-dotenv
+redis
+sqlalchemy
+uvicorn

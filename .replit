@@ -1,5 +1,5 @@
-modules = ["web", "python-3.12", "python-base-3.13"]
+modules = ["web", "python-3.11", "nodejs-20"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["glibcLocales", "libxcrypt"]
+packages = ["glibcLocales", "libiconv", "libxcrypt", "postgresql"]
