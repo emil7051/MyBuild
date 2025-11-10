@@ -3,18 +3,18 @@
 
 from __future__ import annotations
 
-import json
-import sys
 from dataclasses import asdict
+import json
 from pathlib import Path
+import sys
 from typing import Any, Dict, List
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import data.constants as const  # noqa: E402
 from data import policies  # noqa: E402
+import data.constants as const  # noqa: E402
 from data.scenarios import SCENARIOS  # noqa: E402
 from data.vehicles import ALL_MODELS  # noqa: E402
 

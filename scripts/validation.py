@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass
 from pathlib import Path
+import sys
 from typing import Dict, List, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

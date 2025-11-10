@@ -7,8 +7,8 @@ from typing import Optional
 
 import numpy_financial as npf
 
-import data.constants as const
 from data import policies
+import data.constants as const
 from data.scenarios import EconomicScenario
 
 
