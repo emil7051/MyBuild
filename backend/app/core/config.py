@@ -1,5 +1,6 @@
 """Application configuration via environment variables."""
 
+import os
 from functools import lru_cache
 from typing import List, Optional
 from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
@@ -57,11 +58,23 @@ class Settings(BaseSettings):
         # Convert scheme to async driver
         scheme = "postgresql+asyncpg"
         
-        # Parse query parameters and remove SSL-related ones
+        # Parse query parameters
         query_params = parse_qs(parts.query, keep_blank_values=True)
-        # Remove sslmode and ssl parameters
-        query_params.pop("sslmode", None)
-        query_params.pop("ssl", None)
+        
+        # Handle SSL mode for asyncpg compatibility
+        # Neon requires sslmode=require, but asyncpg expects different format
+        # For production (sslmode=require), keep it; for dev (sslmode=disable), remove it
+        if "sslmode" in query_params:
+            ssl_mode = query_params["sslmode"][0]
+            if ssl_mode == "disable":
+                # Remove both sslmode and ssl for local development
+                query_params.pop("sslmode")
+                query_params.pop("ssl", None)
+            # For require/prefer modes, keep sslmode for Neon
+        else:
+            # Remove any standalone ssl=disable parameter
+            if query_params.get("ssl") == ["disable"]:
+                query_params.pop("ssl")
         
         # Rebuild query string
         new_query = urlencode(query_params, doseq=True) if query_params else ""
@@ -70,7 +83,8 @@ class Settings(BaseSettings):
         return urlunsplit((scheme, parts.netloc, parts.path, new_query, parts.fragment))
 
     class Config:
-        env_file = "backend/.env"
+        # Only load .env in development to avoid overriding production secrets
+        env_file = "backend/.env" if os.getenv("ENVIRONMENT", "development") == "development" else None
         env_file_encoding = "utf-8"
         case_sensitive = False
 

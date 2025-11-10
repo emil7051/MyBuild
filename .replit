@@ -65,10 +65,10 @@ localPort = 8000
 externalPort = 8000
 
 [[ports]]
-localPort = 37907
+localPort = 43163
 externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "uvicorn backend.app.main:app --host 0.0.0.0 --port 8000"]
+run = ["sh", "-c", "PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80"]
 build = ["sh", "-c", "cd frontend && npm install && npm run build"]

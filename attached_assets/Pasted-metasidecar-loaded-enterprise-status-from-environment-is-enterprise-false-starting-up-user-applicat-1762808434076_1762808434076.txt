@@ -1,0 +1,65 @@
+metasidecar: loaded enterprise status from environment is_enterprise=false
+starting up user application
+    await self._router.startup()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/starlette/routing.py", line 671, in startup
+    await init_db()
+    return await loop.getaddrinfo(host, port, family=family, type=type,
+    return await self.run_in_executor(
+    result = context.throw(*sys.exc_info())
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3277, in connect
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    async with self.lifespan_context(app) as maybe_state:
+    return await anext(self.gen)
+    return self.pool.connect()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 899, in __connect
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
+    conn = await _connect_addr(
+    return await anext(self.gen)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/contextlib.py", line 210, in __aenter__
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/starlette/routing.py", line 694, in lifespan
+INFO:     Started server process [76]
+    await handler()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/fastapi/routing.py", line 211, in merged_lifespan
+    async with engine.begin() as connection:
+  File "/home/runner/workspace/backend/app/db/session.py", line 19, in init_db
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/starlette/routing.py", line 671, in startup
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/asyncpg/connect_utils.py", line 802, in _create_ssl_connection
+    async with conn:
+command finished with error [sh -c uvicorn backend.app.main:app --host 0.0.0.0 --port 8000]: exit status 3
+    return await anext(self.gen)
+    await handler()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/starlette/routing.py", line 571, in __aenter__
+INFO:     Waiting for application startup.
+    async with self.lifespan_context(app) as maybe_state:
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/engine.py", line 1068, in begin
+INFO:     Started server process [98]
+    async with original_context(app) as maybe_original_state:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/engine.py", line 275, in start
+  File "/home/runner/workspace/backend/app/main.py", line 33, in _startup
+    result = context.throw(*sys.exc_info())
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 143, in __init__
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3301, in raw_connection
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/fastapi/routing.py", line 211, in merged_lifespan
+    async with self.lifespan_context(app) as maybe_state:
+    return await anext(self.gen)
+    async with original_context(app) as maybe_original_state:
+    result = context.throw(*sys.exc_info())
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/socket.py", line 974, in getaddrinfo
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+ERROR:    Application startup failed. Exiting.
+    async with engine.begin() as connection:
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/engine.py", line 1068, in begin
+    async with original_context(app) as maybe_original_state:
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/starlette/routing.py", line 671, in startup
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    self._dbapi_connection = engine.raw_connection()
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 1046, in create_connection
