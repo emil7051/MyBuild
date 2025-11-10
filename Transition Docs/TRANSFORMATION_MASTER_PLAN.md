@@ -4,7 +4,7 @@ This single source of truth replaces the prior transition documents. It captures
 
 ## 0. Executive Summary & Live Context
 
-The program modernises the proven Python calculation engine into a React + FastAPI platform so TWU members get five-minute TCO insights while analysts continue to trust the existing datasets. This master plan now rolls up everything that previously lived in `Step_one.md` and `TCO_WEB_IMPLEMENTATION_PLAN.md`; the execution log records the detailed chronology. Refer to `Transition Docs/Old_Architecture_Documentation.md` when you need to understand how the legacy engine works under the hood.
+The program modernises the proven Python calculation engine into a React + FastAPI platform so TWU members get five-minute TCO insights while analysts continue to trust the existing datasets. This master plan now rolls up everything that previously lived in `Step_one.md` and `TCO_WEB_IMPLEMENTATION_PLAN.md`; the execution log records the detailed chronology. Refer to `Transition Docs/Old_Architecture_Documentation.md` or `TCO - Tech Specification 150725.md` when you need to understand how the legacy engine works under the hood.
 
 ### Live Implementation Snapshot (Updated 2025-11-10 18:45 UTC)
 
