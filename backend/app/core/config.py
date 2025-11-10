@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = Field(default="/api/v1")
     environment: str = Field(default="development")
     backend_cors_origins: List[AnyHttpUrl] | List[str] = Field(
-        default_factory=lambda: ["http://localhost:5000"]
+        default_factory=lambda: ["http://localhost:5000", "http://127.0.0.1:5000"]
     )
     cache_results: bool = Field(
         default=True, description="Toggle for caching calculation runs in memory."
@@ -62,19 +62,14 @@ class Settings(BaseSettings):
         query_params = parse_qs(parts.query, keep_blank_values=True)
         
         # Handle SSL mode for asyncpg compatibility
-        # Neon requires sslmode=require, but asyncpg expects different format
-        # For production (sslmode=require), keep it; for dev (sslmode=disable), remove it
+        # asyncpg doesn't support sslmode parameter - remove it from the connection string
+        # asyncpg will handle SSL automatically with Neon's connection string
         if "sslmode" in query_params:
-            ssl_mode = query_params["sslmode"][0]
-            if ssl_mode == "disable":
-                # Remove both sslmode and ssl for local development
-                query_params.pop("sslmode")
-                query_params.pop("ssl", None)
-            # For require/prefer modes, keep sslmode for Neon
-        else:
-            # Remove any standalone ssl=disable parameter
-            if query_params.get("ssl") == ["disable"]:
-                query_params.pop("ssl")
+            query_params.pop("sslmode")
+        
+        # Also remove any ssl parameter if present
+        if "ssl" in query_params:
+            query_params.pop("ssl")
         
         # Rebuild query string
         new_query = urlencode(query_params, doseq=True) if query_params else ""
