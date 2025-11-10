@@ -5,11 +5,6 @@ from __future__ import annotations
 from hashlib import sha1
 from typing import Dict, Iterable, Tuple
 
-from calculations.calculations import TCOResult, calculate_tco_from_inputs
-from calculations.inputs import VehicleInputs
-from data.scenarios import SCENARIOS
-from data.vehicles import BY_ID, VehicleModel
-
 from backend.app.core.config import settings
 from backend.app.models import (
     CalculationRequest,
@@ -17,6 +12,10 @@ from backend.app.models import (
     ComparisonRequest,
     CostBreakdown,
 )
+from calculations.calculations import TCOResult, calculate_tco_from_inputs
+from calculations.inputs import VehicleInputs
+from data.scenarios import SCENARIOS
+from data.vehicles import BY_ID, VehicleModel
 
 
 class CalculationService:
@@ -45,7 +44,9 @@ class CalculationService:
             scenario=scenario,
             purchase_method=request.purchase_method,
         )
-        overrides = request.overrides.to_engine_overrides() if request.overrides else None
+        overrides = (
+            request.overrides.to_engine_overrides() if request.overrides else None
+        )
         tco_result = calculate_tco_from_inputs(inputs, overrides)
         parsed = self._map_result(tco_result, scenario.name)
 
@@ -114,6 +115,8 @@ class CalculationService:
     ) -> str:
         """Return a deterministic cache key for a calculation request."""
 
-        override_items: Tuple[Tuple[str, float], ...] = tuple(sorted((overrides or {}).items()))
+        override_items: Tuple[Tuple[str, float], ...] = tuple(
+            sorted((overrides or {}).items())
+        )
         key_raw = f"{vehicle_id}:{scenario_name}:{purchase_method}:{override_items}"
         return sha1(key_raw.encode("utf-8")).hexdigest()

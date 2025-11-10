@@ -33,7 +33,9 @@ from data.vehicles import BY_ID
 class SessionService:
     """Handles creation, updates, and analytics for calculation sessions."""
 
-    async def create_session(self, db: AsyncSession, payload: SessionCreate) -> SessionResponse:
+    async def create_session(
+        self, db: AsyncSession, payload: SessionCreate
+    ) -> SessionResponse:
         now = datetime.now(timezone.utc)
 
         record = SessionRecord(
@@ -47,7 +49,9 @@ class SessionService:
 
         await self._replace_inputs(db, record.id, payload.wizard_data)
         if payload.results:
-            await self._replace_results(db, record.id, payload.results, payload.wizard_data)
+            await self._replace_results(
+                db, record.id, payload.results, payload.wizard_data
+            )
         if payload.operator_profile:
             await self._upsert_operator_profile(db, record.id, payload.operator_profile)
         if payload.feedback:
@@ -80,14 +84,18 @@ class SessionService:
             if payload.results:
                 record.status = "completed"
                 record.last_calculated_at = datetime.now(timezone.utc)
-                await self._replace_results(db, session_id, payload.results, resolved_wizard)
+                await self._replace_results(
+                    db, session_id, payload.results, resolved_wizard
+                )
             else:
                 record.status = "draft"
                 record.last_calculated_at = None
                 await self._clear_results(db, session_id)
 
         if payload.operator_profile is not None:
-            await self._upsert_operator_profile(db, session_id, payload.operator_profile)
+            await self._upsert_operator_profile(
+                db, session_id, payload.operator_profile
+            )
 
         if payload.feedback:
             await self._insert_feedback(db, session_id, payload.feedback)
@@ -115,7 +123,9 @@ class SessionService:
         total_sessions = await db.scalar(select(func.count(SessionRecord.id))) or 0
         completed_sessions = (
             await db.scalar(
-                select(func.count(SessionRecord.id)).where(SessionRecord.status == "completed")
+                select(func.count(SessionRecord.id)).where(
+                    SessionRecord.status == "completed"
+                )
             )
         ) or 0
 
@@ -191,20 +201,23 @@ class SessionService:
                 annual_savings = diesel_record.annual_cost - bev_record.annual_cost
                 bev_breakdown = bev_record.result_payload.get("breakdown", {})
                 diesel_breakdown = diesel_record.result_payload.get("breakdown", {})
-                initial_gap = (
-                    bev_breakdown.get("purchase_cost", 0)
-                    - diesel_breakdown.get("purchase_cost", 0)
-                )
+                initial_gap = bev_breakdown.get(
+                    "purchase_cost", 0
+                ) - diesel_breakdown.get("purchase_cost", 0)
                 if annual_savings > 0:
                     payback = max(initial_gap / annual_savings, 0)
                     payback_values.append(payback)
 
         bev_win_rate = (bev_wins / comparisons) if comparisons else None
-        avg_payback = sum(payback_values) / len(payback_values) if payback_values else None
+        avg_payback = (
+            sum(payback_values) / len(payback_values) if payback_values else None
+        )
         avg_cost_delta = sum(cost_deltas) / len(cost_deltas) if cost_deltas else None
         return bev_win_rate, avg_payback, avg_cost_delta
 
-    async def _build_response(self, db: AsyncSession, session_id: str) -> SessionResponse:
+    async def _build_response(
+        self, db: AsyncSession, session_id: str
+    ) -> SessionResponse:
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
@@ -216,7 +229,9 @@ class SessionService:
         ]
 
         operator_profile_record = await db.scalar(
-            select(OperatorProfileRecord).where(OperatorProfileRecord.session_id == session_id)
+            select(OperatorProfileRecord).where(
+                OperatorProfileRecord.session_id == session_id
+            )
         )
         feedback_record = await db.scalars(
             select(FeedbackRecord)
@@ -227,7 +242,9 @@ class SessionService:
         feedback = feedback_record.first()
 
         operator_profile = (
-            self._map_operator_profile(operator_profile_record) if operator_profile_record else None
+            self._map_operator_profile(operator_profile_record)
+            if operator_profile_record
+            else None
         )
         feedback_payload = self._map_feedback(feedback) if feedback else None
 
@@ -251,7 +268,9 @@ class SessionService:
 
         vehicle_ids = self._unique_vehicle_ids(wizard_data)
         overrides = (
-            wizard_data.overrides.model_dump(exclude_none=True) if wizard_data.overrides else None
+            wizard_data.overrides.model_dump(exclude_none=True)
+            if wizard_data.overrides
+            else None
         )
         for vehicle_id in vehicle_ids:
             db.add(
@@ -301,7 +320,9 @@ class SessionService:
         self, db: AsyncSession, session_id: str, payload: OperatorProfilePayload
     ) -> None:
         await db.execute(
-            delete(OperatorProfileRecord).where(OperatorProfileRecord.session_id == session_id)
+            delete(OperatorProfileRecord).where(
+                OperatorProfileRecord.session_id == session_id
+            )
         )
         db.add(
             OperatorProfileRecord(

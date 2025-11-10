@@ -60,7 +60,9 @@ class CostOverride(BaseModel):
         if self.battery_life_variation is not None:
             payload["battery_life_variation"] = self.battery_life_variation
         if self.charging_efficiency_variation is not None:
-            payload["charging_efficiency_variation"] = self.charging_efficiency_variation
+            payload["charging_efficiency_variation"] = (
+                self.charging_efficiency_variation
+            )
         return payload
 
 
@@ -68,7 +70,9 @@ class CalculationRequest(BaseModel):
     """Request payload for a single TCO calculation."""
 
     vehicle_id: str = Field(..., description="Vehicle identifier, e.g. BEV001.")
-    scenario_name: str = Field(default="baseline", description="Scenario key from data.scenarios.")
+    scenario_name: str = Field(
+        default="baseline", description="Scenario key from data.scenarios."
+    )
     purchase_method: Literal["financed", "outright"] = Field(default="financed")
     overrides: Optional[CostOverride] = None
 

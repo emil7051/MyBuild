@@ -11,9 +11,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from data.constants import VEHICLE_LIFE
-from data.scenarios import EconomicScenario, SCENARIOS
-from data.vehicles import ALL_MODELS, BY_ID, VehicleModel
+from data.constants import (
+    VEHICLE_LIFE,
+)  # noqa: E402  # Requires repo root on sys.path for CLI execution
+from data.scenarios import (  # noqa: E402  # Requires repo root on sys.path for CLI execution
+    SCENARIOS,
+    EconomicScenario,
+)
+from data.vehicles import (  # noqa: E402  # Requires repo root on sys.path for CLI execution
+    ALL_MODELS,
+    BY_ID,
+    VehicleModel,
+)
 
 
 @dataclass
@@ -80,7 +89,9 @@ class DataValidator:
             if len(values) < VEHICLE_LIFE:
                 issues.append(f"{scenario.name}: {label} shorter than vehicle life.")
             if any(value < 0 for value in values):
-                issues.append(f"{scenario.name}: {label} contains negative multipliers.")
+                issues.append(
+                    f"{scenario.name}: {label} contains negative multipliers."
+                )
 
         return issues
 
@@ -91,7 +102,9 @@ class DataValidator:
             pair_id = vehicle.comparison_pair
             counterpart = BY_ID.get(pair_id)
             if not counterpart:
-                issues.append(f"{vehicle.vehicle_id}: Comparison pair '{pair_id}' missing.")
+                issues.append(
+                    f"{vehicle.vehicle_id}: Comparison pair '{pair_id}' missing."
+                )
                 continue
             if counterpart.comparison_pair != vehicle.vehicle_id:
                 issues.append(

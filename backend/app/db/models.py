@@ -5,7 +5,17 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, JSON, DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.db.base import Base
@@ -91,12 +101,17 @@ class OperatorProfileRecord(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     session_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("sessions.id", ondelete="CASCADE"), unique=True, nullable=False
+        String(36),
+        ForeignKey("sessions.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
     )
     operator_type: Mapped[str | None] = mapped_column(String(64))
     fleet_size: Mapped[str | None] = mapped_column(String(32))
     contact_email: Mapped[str | None] = mapped_column(String(255))
-    consent_to_contact: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    consent_to_contact: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

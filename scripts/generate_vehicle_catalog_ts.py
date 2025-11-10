@@ -13,10 +13,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import data.constants as const
-from data import policies
-from data.scenarios import SCENARIOS
-from data.vehicles import ALL_MODELS
+import data.constants as const  # noqa: E402
+from data import policies  # noqa: E402
+from data.scenarios import SCENARIOS  # noqa: E402
+from data.vehicles import ALL_MODELS  # noqa: E402
 
 VEHICLE_OUTPUT = Path("shared/data/vehicleCatalog.ts")
 CONSTANTS_OUTPUT = Path("shared/data/constants.ts")
@@ -148,7 +148,9 @@ def main() -> None:
     scenarios = build_scenarios_payload()
     SCENARIOS_OUTPUT.write_text(render_scenarios_ts(scenarios) + "\n", encoding="utf-8")
     policy_payload = build_policies_payload()
-    POLICIES_OUTPUT.write_text(render_policies_ts(policy_payload) + "\n", encoding="utf-8")
+    POLICIES_OUTPUT.write_text(
+        render_policies_ts(policy_payload) + "\n", encoding="utf-8"
+    )
 
 
 if __name__ == "__main__":

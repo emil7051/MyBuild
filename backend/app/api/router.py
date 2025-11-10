@@ -16,7 +16,12 @@ from backend.app.models import (
     VehicleDetail,
     VehicleSummary,
 )
-from backend.app.models.session import AnalyticsSummary, SessionCreate, SessionResponse, SessionUpdate
+from backend.app.models.session import (
+    AnalyticsSummary,
+    SessionCreate,
+    SessionResponse,
+    SessionUpdate,
+)
 from backend.app.services import CalculationService, VehicleCatalogService
 from backend.app.services.sessions import SessionService
 
@@ -37,7 +42,9 @@ def list_vehicles() -> List[VehicleSummary]:
     return _vehicle_service.list_summaries()
 
 
-@api_router.get("/vehicles/{vehicle_id}", response_model=VehicleDetail, tags=["vehicles"])
+@api_router.get(
+    "/vehicles/{vehicle_id}", response_model=VehicleDetail, tags=["vehicles"]
+)
 def get_vehicle(vehicle_id: str) -> VehicleDetail:
     try:
         return _vehicle_service.get(vehicle_id)
@@ -45,7 +52,9 @@ def get_vehicle(vehicle_id: str) -> VehicleDetail:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@api_router.post("/calculations", response_model=CalculationResponse, tags=["calculations"])
+@api_router.post(
+    "/calculations", response_model=CalculationResponse, tags=["calculations"]
+)
 def run_calculation(request: CalculationRequest) -> CalculationResponse:
     try:
         return _calculation_service.calculate(request)
@@ -117,5 +126,7 @@ async def get_session(
     response_model=AnalyticsSummary,
     tags=["analytics"],
 )
-async def analytics_summary(db: AsyncSession = Depends(get_db_session)) -> AnalyticsSummary:
+async def analytics_summary(
+    db: AsyncSession = Depends(get_db_session),
+) -> AnalyticsSummary:
     return await _session_service.analytics_summary(db)

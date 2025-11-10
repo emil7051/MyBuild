@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from typing import Dict, List
 
-from data.vehicles import ALL_MODELS, BY_ID, VehicleModel
-
 from backend.app.models import VehicleDetail, VehicleSummary
+from data.vehicles import ALL_MODELS, BY_ID, VehicleModel
 
 
 class VehicleCatalogService:

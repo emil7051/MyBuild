@@ -1,1 +1,1 @@
-"""Data package for TCO calculator.""" 
+"""Data package for TCO calculator."""

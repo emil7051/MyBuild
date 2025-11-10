@@ -31,7 +31,9 @@ class DutyCyclePayload(BaseModel):
 
 class WizardDataPayload(BaseModel):
     current_vehicle: Optional[str] = Field(default=None, alias="currentVehicle")
-    comparison_vehicles: List[str] = Field(default_factory=list, alias="comparisonVehicles")
+    comparison_vehicles: List[str] = Field(
+        default_factory=list, alias="comparisonVehicles"
+    )
     scenario: str
     purchase_method: Literal["financed", "outright"] = Field(alias="purchaseMethod")
     duty_cycle: DutyCyclePayload = Field(alias="dutyCycle")
@@ -105,7 +107,9 @@ class SessionResponse(BaseModel):
     )
     feedback: Optional[FeedbackPayload] = None
     updated_at: datetime = Field(alias="updatedAt")
-    last_calculated_at: Optional[datetime] = Field(default=None, alias="lastCalculatedAt")
+    last_calculated_at: Optional[datetime] = Field(
+        default=None, alias="lastCalculatedAt"
+    )
 
     model_config = {
         "populate_by_name": True,
@@ -117,6 +121,8 @@ class AnalyticsSummary(BaseModel):
     completed_sessions: int = Field(alias="completedSessions")
     calculations_last_24h: int = Field(alias="calculationsLast24h")
     bev_win_rate: Optional[float] = Field(default=None, alias="bevWinRate")
-    average_payback_years: Optional[float] = Field(default=None, alias="averagePaybackYears")
+    average_payback_years: Optional[float] = Field(
+        default=None, alias="averagePaybackYears"
+    )
     average_cost_delta: Optional[float] = Field(default=None, alias="averageCostDelta")
     top_vehicles: Dict[str, int] = Field(default_factory=dict, alias="topVehicles")

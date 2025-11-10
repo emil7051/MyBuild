@@ -1,13 +1,13 @@
 """Pydantic schemas shared across API layers."""
 
 from .calculation import (
-    CostOverride,
     CalculationRequest,
     CalculationResponse,
     ComparisonRequest,
     CostBreakdown,
+    CostOverride,
 )
-from .vehicle import VehicleSummary, VehicleDetail
+from .vehicle import VehicleDetail, VehicleSummary
 
 __all__ = [
     "CalculationRequest",

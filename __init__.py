@@ -1,1 +1,1 @@
-"""MyBuild TCO Calculator package.""" 
+"""MyBuild TCO Calculator package."""
