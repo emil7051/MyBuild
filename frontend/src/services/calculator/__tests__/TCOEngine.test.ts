@@ -11,11 +11,13 @@ import type {
   CostOverrides,
   PurchaseMethod,
   ScenarioKey,
+  VehicleParamOverrides,
 } from '@shared/types/tco.types';
 
 interface SnapshotCase {
   results: Record<PurchaseMethod, Record<string, Record<string, CalculationResponsePayload>>>;
   overrides: Record<string, CostOverrides>;
+  vehicle_overrides?: Record<string, VehicleParamOverrides>;
 }
 
 interface SnapshotPayload {
@@ -83,12 +85,14 @@ describe('TypeScript TCO calculator parity', () => {
                 const pythonResult = scenarioResults[vehicle.vehicle_id];
                 expect(pythonResult).toBeDefined();
                 const overrides = caseData.overrides[vehicle.vehicle_id];
+                const vehicleOverrides = caseData.vehicle_overrides?.[vehicle.vehicle_id];
 
                 const tsResult = calculateTco({
                   vehicle_id: vehicle.vehicle_id,
                   scenario_name: scenarioKey,
                   purchase_method: purchaseMethod,
                   overrides,
+                  vehicle_overrides: vehicleOverrides,
                 });
 
                 KEY_FIELDS.forEach((field) => {

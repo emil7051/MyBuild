@@ -50,11 +50,24 @@ export interface CostOverrides {
   charging_efficiency_variation?: number;
 }
 
+export interface VehicleParamOverrides {
+  msrp_override?: number;
+  payload_override?: number;
+  range_km_override?: number;
+  battery_capacity_kwh_override?: number;
+  kwh_per_km_override?: number;
+  litres_per_km_override?: number;
+  annual_registration_override?: number;
+  interest_rate_override?: number;
+  charging_time_hours_override?: number;
+}
+
 export interface CalculationRequestPayload {
   vehicle_id: string;
   scenario_name: ScenarioKey;
   purchase_method: PurchaseMethod;
   overrides?: CostOverrides;
+  vehicle_overrides?: VehicleParamOverrides;
 }
 
 export interface CostBreakdown {
@@ -87,6 +100,7 @@ export interface ComparisonRequestPayload {
   scenario_name: ScenarioKey;
   purchase_method: PurchaseMethod;
   overrides?: CostOverrides;
+  vehicle_param_overrides?: Record<string, VehicleParamOverrides>;
 }
 
 export interface VehicleSummary {
@@ -122,6 +136,7 @@ export interface WizardData {
   purchaseMethod: PurchaseMethod;
   dutyCycle: DutyCycle;
   overrides?: CostOverrides;
+  vehicleParamOverrides?: Record<string, VehicleParamOverrides>;
 }
 
 export interface OperatorProfilePayload {

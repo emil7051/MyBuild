@@ -7,7 +7,11 @@ from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator, validator
 
-from backend.app.models.calculation import CalculationResponse, CostOverride
+from backend.app.models.calculation import (
+    CalculationResponse,
+    CostOverride,
+    VehicleParamOverride,
+)
 
 
 class DutyCyclePayload(BaseModel):
@@ -38,6 +42,9 @@ class WizardDataPayload(BaseModel):
     purchase_method: Literal["financed", "outright"] = Field(alias="purchaseMethod")
     duty_cycle: DutyCyclePayload = Field(alias="dutyCycle")
     overrides: Optional[CostOverride] = None
+    vehicle_param_overrides: Optional[Dict[str, VehicleParamOverride]] = Field(
+        default=None, alias="vehicleParamOverrides"
+    )
 
     model_config = {
         "populate_by_name": True,

@@ -8,9 +8,10 @@ export interface WizardStep {
 interface WizardStepperProps {
   steps: WizardStep[];
   activeIndex: number;
+  onStepClick?: (index: number) => void;
 }
 
-const WizardStepper = ({ steps, activeIndex }: WizardStepperProps) => (
+const WizardStepper = ({ steps, activeIndex, onStepClick }: WizardStepperProps) => (
   <ol className="flex flex-col gap-4 md:flex-row md:items-stretch md:gap-6">
     {steps.map((step, index) => (
       <li
@@ -21,6 +22,19 @@ const WizardStepper = ({ steps, activeIndex }: WizardStepperProps) => (
             ? 'border-brand-200 bg-white'
             : 'border-transparent bg-slate-100 text-slate-500'
         )}
+        role={onStepClick ? 'button' : undefined}
+        tabIndex={onStepClick ? 0 : -1}
+        aria-current={index === activeIndex}
+        onClick={() => onStepClick?.(index)}
+        onKeyDown={(event) => {
+          if (!onStepClick) {
+            return;
+          }
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onStepClick(index);
+          }
+        }}
       >
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
           Step {index + 1}

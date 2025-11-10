@@ -3,36 +3,37 @@ import { FormProvider, type FieldPath, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Card from '@components/shared/Card';
 import Button from '@components/shared/Button';
-import WizardCostStep from '@components/wizard/WizardCostStep';
-import WizardOperatingStep from '@components/wizard/WizardOperatingStep';
-import WizardVehicleStep from '@components/wizard/WizardVehicleStep';
+import WizardDieselStep from '@components/wizard/WizardDieselStep';
+import WizardElectricStep from '@components/wizard/WizardElectricStep';
+import WizardCompareStep from '@components/wizard/WizardCompareStep';
 import SelectedVehiclesSummary from '@components/wizard/SelectedVehiclesSummary';
 import WizardStepper, { type WizardStep } from '@components/wizard/WizardStepper';
 import { useCalculationRunner } from '@hooks/useCalculations';
+import { useWizardAutosave } from '@hooks/useWizardAutosave';
 import { useTCOStore } from '@state/tcoStore';
-import { compactOverrides } from '@utils/payload';
+import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
 import type { ComparisonRequestPayload, DutyCycle } from '@shared/types/tco.types';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { wizardFormSchema } from '@forms/wizardForm';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 
 const steps: WizardStep[] = [
   {
-    title: 'Vehicle selection',
-    description: 'Choose the current truck and optional comparators.',
+    title: 'Your diesel truck',
+    description: 'Choose the baseline vehicle you operate today.',
   },
   {
-    title: 'Operating profile',
-    description: 'Define scenario, kms, and purchase assumptions.',
+    title: 'Electric alternatives',
+    description: 'Pick BEVs in the same class and edit their specs.',
   },
   {
-    title: 'Cost inputs',
-    description: 'Apply optional multipliers for stress testing.',
+    title: 'Configure & compare',
+    description: 'View results inline and adjust shared assumptions.',
   },
 ];
 
 const stepFieldMap: FieldPath<WizardFormValues>[][] = [
+  [],
   [],
   [
     'scenario',
@@ -43,8 +44,6 @@ const stepFieldMap: FieldPath<WizardFormValues>[][] = [
     'overrides.annual_kms_variation',
     'overrides.residual_value_variation',
     'overrides.maintenance_cost_variation',
-  ],
-  [
     'overrides.fuel_price_variation',
     'overrides.electricity_price_variation',
     'overrides.battery_life_variation',
@@ -53,13 +52,13 @@ const stepFieldMap: FieldPath<WizardFormValues>[][] = [
 ];
 
 const WizardPage = () => {
-  const navigate = useNavigate();
   const stepIndex = useTCOStore((state) => state.stepIndex);
   const setStepIndex = useTCOStore((state) => state.setStepIndex);
   const wizardData = useTCOStore((state) => state.wizardData);
   const isCalculating = useTCOStore((state) => state.isCalculating);
   const updateWizard = useTCOStore((state) => state.updateWizard);
   const { runComparison } = useCalculationRunner();
+  useWizardAutosave();
   const formMethods = useForm<WizardFormValues>({
     resolver: zodResolver(wizardFormSchema),
     mode: 'onTouched',
@@ -74,9 +73,9 @@ const WizardPage = () => {
   const isLastStep = stepIndex === steps.length - 1;
   const baselineSelected = Boolean(wizardData.currentVehicle);
   const stepComponents = [
-    <WizardVehicleStep key="vehicles" />,
-    <WizardOperatingStep key="operating" />,
-    <WizardCostStep key="cost" />,
+    <WizardDieselStep key="diesel" />,
+    <WizardElectricStep key="electric" />,
+    <WizardCompareStep key="compare" />,
   ];
   const activeComponent = stepComponents[stepIndex];
 
@@ -124,20 +123,42 @@ const WizardPage = () => {
     return () => subscription.unsubscribe();
   }, [formMethods, updateWizard, wizardData.dutyCycle]);
 
-  const goNext = async () => {
-    if (!isLastStep) {
-      const fieldsToValidate = stepFieldMap[stepIndex];
-      if (fieldsToValidate?.length) {
-        const isValid = await formMethods.trigger(fieldsToValidate);
-        if (!isValid) {
-          return;
-        }
-      }
-      setStepIndex(Math.min(stepIndex + 1, steps.length - 1));
+  const validateCurrentStep = async () => {
+    const fieldsToValidate = stepFieldMap[stepIndex];
+    if (fieldsToValidate?.length) {
+      return formMethods.trigger(fieldsToValidate);
     }
+    return true;
+  };
+
+  const goNext = async () => {
+    if (isLastStep || !baselineSelected) {
+      return;
+    }
+    const isValid = await validateCurrentStep();
+    if (!isValid) {
+      return;
+    }
+    setStepIndex(Math.min(stepIndex + 1, steps.length - 1));
   };
 
   const goPrev = () => setStepIndex(Math.max(stepIndex - 1, 0));
+
+  const handleStepClick = async (targetIndex: number) => {
+    if (targetIndex === stepIndex) {
+      return;
+    }
+    if (targetIndex > stepIndex && !baselineSelected) {
+      return;
+    }
+    if (targetIndex > stepIndex) {
+      const isValid = await validateCurrentStep();
+      if (!isValid) {
+        return;
+      }
+    }
+    setStepIndex(Math.max(0, Math.min(targetIndex, steps.length - 1)));
+  };
 
   const handleCalculate = async () => {
     if (!wizardData.currentVehicle) {
@@ -159,6 +180,12 @@ const WizardPage = () => {
     if (Object.keys(overrides).length) {
       payload.overrides = overrides;
     }
+    const vehicleOverrides = compactVehicleParamOverrides(
+      wizardData.vehicleParamOverrides ?? {}
+    );
+    if (Object.keys(vehicleOverrides).length) {
+      payload.vehicle_param_overrides = vehicleOverrides;
+    }
 
     try {
       const isValid = await formMethods.trigger();
@@ -167,8 +194,7 @@ const WizardPage = () => {
         return;
       }
       await runComparison(payload);
-      toast.success('Comparison ready. Redirecting to results.');
-      navigate('/results');
+      toast.success('Comparison saved to your session.');
     } catch (error) {
       console.error('Calculation failed', error);
       toast.error('Calculation failed. Please try again.');
@@ -178,7 +204,7 @@ const WizardPage = () => {
   return (
     <FormProvider {...formMethods}>
       <div className="flex flex-col gap-6">
-        <WizardStepper steps={steps} activeIndex={stepIndex} />
+        <WizardStepper steps={steps} activeIndex={stepIndex} onStepClick={handleStepClick} />
 
         {activeComponent}
         <SelectedVehiclesSummary />

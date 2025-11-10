@@ -151,8 +151,11 @@ class FuelCostCalculator:
 class ChargingTimeCostCalculator:
     """Calculate labour cost impact of charging time for BEVs."""
 
-    def __init__(self, vehicle: VehicleModel):
+    def __init__(
+        self, vehicle: VehicleModel, override_hours: Optional[float] = None
+    ):
         self.vehicle = vehicle
+        self._override_hours = override_hours
 
     def calculate_annual_charging_labour_cost(self) -> float:
         """Calculate annual labour cost during charging stops."""
@@ -181,7 +184,11 @@ class ChargingTimeCostCalculator:
             )
 
         # Charging time varies by weight class and charging type
-        avg_charging_hours = const.CHARGING_TIME_HOURS[self.vehicle.weight_class]
+        avg_charging_hours = (
+            self._override_hours
+            if self._override_hours is not None
+            else const.CHARGING_TIME_HOURS[self.vehicle.weight_class]
+        )
 
         # Calculate annual charging hours
         annual_charging_hours = (

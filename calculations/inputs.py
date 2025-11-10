@@ -41,6 +41,9 @@ class VehicleInputs:
 
     # Purchase method
     purchase_method: Literal["outright", "financed"] = "financed"
+    # Optional structural overrides
+    interest_rate_override: Optional[float] = field(default=None)
+    charging_time_hours_override: Optional[float] = field(default=None)
 
     # Purchase-related calculations
     stamp_duty: float = field(init=False)
@@ -95,7 +98,9 @@ class VehicleInputs:
             self.vehicle, self.scenario
         )
         self._financing_calculator = FinancingCalculator()
-        self._charging_calculator = ChargingTimeCostCalculator(self.vehicle)
+        self._charging_calculator = ChargingTimeCostCalculator(
+            self.vehicle, self.charging_time_hours_override
+        )
         self._payload_calculator = PayloadPenaltyCalculator(self.vehicle)
 
         # Purchase calculations
@@ -127,8 +132,12 @@ class VehicleInputs:
                 self.initial_cost, self.down_payment
             )
 
-            interest_rate = self._financing_calculator.calculate_interest_rate(
-                self.vehicle.drivetrain_type
+            interest_rate = (
+                self.interest_rate_override
+                if self.interest_rate_override is not None
+                else self._financing_calculator.calculate_interest_rate(
+                    self.vehicle.drivetrain_type
+                )
             )
             self.monthly_payment = self._financing_calculator.calculate_monthly_payment(
                 self.loan_amount, interest_rate

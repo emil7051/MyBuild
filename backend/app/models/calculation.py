@@ -66,6 +66,24 @@ class CostOverride(BaseModel):
         return payload
 
 
+class VehicleParamOverride(BaseModel):
+    """Optional per-vehicle structural overrides."""
+
+    msrp_override: Optional[float] = Field(default=None)
+    payload_override: Optional[float] = Field(default=None)
+    range_km_override: Optional[float] = Field(default=None)
+    battery_capacity_kwh_override: Optional[float] = Field(default=None)
+    kwh_per_km_override: Optional[float] = Field(default=None)
+    litres_per_km_override: Optional[float] = Field(default=None)
+    annual_registration_override: Optional[float] = Field(default=None)
+    interest_rate_override: Optional[float] = Field(default=None)
+    charging_time_hours_override: Optional[float] = Field(default=None)
+
+    model_config = {
+        "extra": "forbid",
+    }
+
+
 class CalculationRequest(BaseModel):
     """Request payload for a single TCO calculation."""
 
@@ -75,6 +93,9 @@ class CalculationRequest(BaseModel):
     )
     purchase_method: Literal["financed", "outright"] = Field(default="financed")
     overrides: Optional[CostOverride] = None
+    vehicle_overrides: Optional[VehicleParamOverride] = Field(
+        default=None, description="Optional structural overrides for this vehicle."
+    )
 
 
 class ComparisonRequest(BaseModel):
@@ -84,6 +105,10 @@ class ComparisonRequest(BaseModel):
     scenario_name: str = Field(default="baseline")
     purchase_method: Literal["financed", "outright"] = Field(default="financed")
     overrides: Optional[CostOverride] = None
+    vehicle_param_overrides: Optional[Dict[str, VehicleParamOverride]] = Field(
+        default=None,
+        description="Map of vehicle_id -> overrides applied when present.",
+    )
 
 
 class CostBreakdown(BaseModel):

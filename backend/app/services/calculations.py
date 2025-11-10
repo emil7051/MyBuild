@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from hashlib import sha1
 from typing import Dict, Iterable, Tuple
 
@@ -11,6 +12,7 @@ from backend.app.models import (
     CalculationResponse,
     ComparisonRequest,
     CostBreakdown,
+    VehicleParamOverride,
 )
 from calculations.calculations import TCOResult, calculate_tco_from_inputs
 from calculations.inputs import VehicleInputs
@@ -27,22 +29,42 @@ class CalculationService:
     def calculate(self, request: CalculationRequest) -> CalculationResponse:
         """Run a single calculation and map it to an API-ready payload."""
 
+        structural_overrides = (
+            request.vehicle_overrides.model_dump(exclude_none=True)
+            if request.vehicle_overrides
+            else None
+        )
         cache_key = self._build_cache_key(
             request.vehicle_id,
             request.scenario_name,
             request.purchase_method,
             request.overrides.to_engine_overrides() if request.overrides else None,
+            structural_overrides,
         )
 
         if settings.cache_results and cache_key in self._result_cache:
             return self._result_cache[cache_key]
 
         vehicle = self._get_vehicle(request.vehicle_id)
+        if request.vehicle_overrides:
+            vehicle = self._apply_vehicle_overrides(
+                vehicle, request.vehicle_overrides
+            )
         scenario = self._get_scenario(request.scenario_name)
         inputs = VehicleInputs(
             vehicle=vehicle,
             scenario=scenario,
             purchase_method=request.purchase_method,
+            interest_rate_override=(
+                request.vehicle_overrides.interest_rate_override
+                if request.vehicle_overrides
+                else None
+            ),
+            charging_time_hours_override=(
+                request.vehicle_overrides.charging_time_hours_override
+                if request.vehicle_overrides
+                else None
+            ),
         )
         overrides = (
             request.overrides.to_engine_overrides() if request.overrides else None
@@ -63,6 +85,9 @@ class CalculationService:
                 scenario_name=request.scenario_name,
                 purchase_method=request.purchase_method,
                 overrides=request.overrides,
+                vehicle_overrides=(
+                    (request.vehicle_param_overrides or {}).get(vehicle_id)
+                ),
             )
             yield self.calculate(single_request)
 
@@ -112,11 +137,42 @@ class CalculationService:
         scenario_name: str,
         purchase_method: str,
         overrides: Dict[str, float] | None,
+        vehicle_overrides: Dict[str, float] | None,
     ) -> str:
         """Return a deterministic cache key for a calculation request."""
 
         override_items: Tuple[Tuple[str, float], ...] = tuple(
             sorted((overrides or {}).items())
         )
-        key_raw = f"{vehicle_id}:{scenario_name}:{purchase_method}:{override_items}"
+        structural_items: Tuple[Tuple[str, float], ...] = tuple(
+            sorted((vehicle_overrides or {}).items())
+        )
+        key_raw = (
+            f"{vehicle_id}:{scenario_name}:{purchase_method}:{override_items}:"
+            f"{structural_items}"
+        )
         return sha1(key_raw.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def _apply_vehicle_overrides(
+        base: VehicleModel, overrides: VehicleParamOverride
+    ) -> VehicleModel:
+        payload: Dict[str, float] = {}
+        if overrides.msrp_override is not None:
+            payload["msrp"] = overrides.msrp_override
+        if overrides.payload_override is not None:
+            payload["payload"] = overrides.payload_override
+        if overrides.range_km_override is not None:
+            payload["range_km"] = overrides.range_km_override
+        if overrides.battery_capacity_kwh_override is not None:
+            payload["battery_capacity_kwh"] = overrides.battery_capacity_kwh_override
+        if overrides.kwh_per_km_override is not None:
+            payload["kwh_per_km"] = overrides.kwh_per_km_override
+        if overrides.litres_per_km_override is not None:
+            payload["litres_per_km"] = overrides.litres_per_km_override
+        if overrides.annual_registration_override is not None:
+            payload["annual_registration"] = overrides.annual_registration_override
+
+        if not payload:
+            return base
+        return replace(base, **payload)

@@ -267,19 +267,34 @@ class SessionService:
         )
 
         vehicle_ids = self._unique_vehicle_ids(wizard_data)
-        overrides = (
+        shared_cost_overrides = (
             wizard_data.overrides.model_dump(exclude_none=True)
             if wizard_data.overrides
             else None
         )
+        per_vehicle_overrides = {
+            vehicle_id: override.model_dump(exclude_none=True)
+            for vehicle_id, override in (wizard_data.vehicle_param_overrides or {}).items()
+        }
+
         for vehicle_id in vehicle_ids:
+            vehicle_specific = per_vehicle_overrides.get(vehicle_id)
+            combined_overrides: Optional[dict] = None
+            if vehicle_specific:
+                combined_overrides = {}
+                if shared_cost_overrides:
+                    combined_overrides["cost"] = shared_cost_overrides
+                combined_overrides["vehicle"] = vehicle_specific
+            elif shared_cost_overrides:
+                combined_overrides = shared_cost_overrides
+
             db.add(
                 UserInputRecord(
                     session_id=session_id,
                     vehicle_id=vehicle_id,
                     scenario_name=wizard_data.scenario,
                     purchase_method=wizard_data.purchase_method,
-                    overrides=overrides,
+                    overrides=combined_overrides,
                 )
             )
 

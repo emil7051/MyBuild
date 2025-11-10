@@ -6,7 +6,12 @@ import type {
   CalculationResponsePayload,
   ComparisonRequestPayload,
 } from '@shared/types/tco.types';
-import { runCalculation, runComparison, createSession, updateSession } from '@services/api';
+import {
+  runCalculation,
+  runComparison as runComparisonRequest,
+  createSession,
+  updateSession,
+} from '@services/api';
 import { useTCOStore } from '@state/tcoStore';
 import { buildSessionPayload } from '@utils/payload';
 
@@ -41,7 +46,7 @@ export const useCalculationRunner = () => {
         return calculateComparison(payload);
       } catch (error) {
         console.warn('Local comparison failed — falling back to API.', error);
-        return runComparison(payload);
+        return runComparisonRequest(payload);
       }
     },
     onMutate: () => setIsCalculating(true),
@@ -69,8 +74,33 @@ export const useCalculationRunner = () => {
     onSettled: () => setIsCalculating(false),
   });
 
+  const runPreviewComparison = useCallback(
+    async (payload: ComparisonRequestPayload) => {
+      if (!payload.vehicle_ids.length) {
+        return;
+      }
+      setIsCalculating(true);
+      try {
+        let data: CalculationResponsePayload[];
+        try {
+          data = calculateComparison(payload);
+        } catch (error) {
+          console.warn('Local preview failed — requesting API preview.', error);
+          data = await runComparisonRequest(payload);
+        }
+        setResults(data);
+      } catch (error) {
+        console.warn('Preview comparison failed', error);
+      } finally {
+        setIsCalculating(false);
+      }
+    },
+    [setIsCalculating, setResults]
+  );
+
   return {
     runComparison: comparisonMutation.mutateAsync,
+    runPreviewComparison,
     runSingle: singleMutation.mutateAsync,
     comparisonStatus: comparisonMutation.status,
     singleStatus: singleMutation.status,

@@ -33,6 +33,7 @@ const defaultWizardData: WizardData = {
     longHaul: 15,
   },
   overrides: {},
+  vehicleParamOverrides: {},
 };
 
 const initialVehicleDetails: Record<string, VehicleDetail> = { ...VEHICLE_BY_ID };

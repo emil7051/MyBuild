@@ -8,6 +8,7 @@ import type {
   PurchaseMethod,
   ScenarioKey,
   VehicleDetail,
+  VehicleParamOverrides,
 } from '../types/tco.types';
 import { VEHICLE_BY_ID, VEHICLE_DETAILS } from '../data/vehicleCatalog';
 import { CONSTANTS } from '../data/constants';
@@ -85,6 +86,39 @@ const getVehicle = (vehicleId: string): VehicleDetail => {
     throw new Error(`Vehicle '${vehicleId}' not found.`);
   }
   return vehicle;
+};
+
+const applyVehicleOverrides = (
+  vehicle: VehicleDetail,
+  overrides?: VehicleParamOverrides
+): VehicleDetail => {
+  if (!overrides) {
+    return vehicle;
+  }
+
+  const next: VehicleDetail = { ...vehicle };
+  if (overrides.msrp_override !== undefined) {
+    next.msrp = overrides.msrp_override;
+  }
+  if (overrides.payload_override !== undefined) {
+    next.payload = overrides.payload_override;
+  }
+  if (overrides.range_km_override !== undefined) {
+    next.range_km = overrides.range_km_override;
+  }
+  if (overrides.battery_capacity_kwh_override !== undefined) {
+    next.battery_capacity_kwh = overrides.battery_capacity_kwh_override;
+  }
+  if (overrides.kwh_per_km_override !== undefined) {
+    next.kwh_per_km = overrides.kwh_per_km_override;
+  }
+  if (overrides.litres_per_km_override !== undefined) {
+    next.litres_per_km = overrides.litres_per_km_override;
+  }
+  if (overrides.annual_registration_override !== undefined) {
+    next.annual_registration = overrides.annual_registration_override;
+  }
+  return next;
 };
 
 const getSeriesValue = (series: number[] | undefined, year: number, fallback: number): number => {
@@ -193,14 +227,17 @@ const calculateMaintenanceCostYear = (
   return getMaintenanceBaseCost(vehicle) * multiplier;
 };
 
-const calculateChargingLabourCost = (vehicle: VehicleDetail): number => {
+const calculateChargingLabourCost = (
+  vehicle: VehicleDetail,
+  chargingTimeOverride?: number
+): number => {
   if (vehicle.drivetrain_type !== 'BEV') {
     return 0;
   }
   const dailyKms = vehicle.annual_kms / WORKING_DAYS;
   const usableRange = vehicle.range_km * BATTERY_USABLE_RANGE_FACTOR;
   const sessionsPerDay = dailyKms <= usableRange ? 0 : Math.ceil((dailyKms - usableRange) / usableRange);
-  const hoursPerDay = CHARGING_TIME_HOURS[vehicle.weight_class] ?? 0;
+  const hoursPerDay = chargingTimeOverride ?? CHARGING_TIME_HOURS[vehicle.weight_class] ?? 0;
   return sessionsPerDay * hoursPerDay * WORKING_DAYS * HOURLY_WAGE;
 };
 
@@ -262,7 +299,8 @@ const calculateInitialCost = (vehicle: VehicleDetail) => {
 const buildFinancingSnapshot = (
   initialCost: number,
   isBev: boolean,
-  purchaseMethod: PurchaseMethod
+  purchaseMethod: PurchaseMethod,
+  interestRateOverride?: number
 ) => {
   if (purchaseMethod === 'outright') {
     return {
@@ -280,7 +318,9 @@ const buildFinancingSnapshot = (
   if (isBev && loanPolicy?.enabled) {
     interestRate = Math.max(0, interestRate - (loanPolicy.rate_reduction ?? 0));
   }
-  const monthlyRate = interestRate / 12;
+  const effectiveRate =
+    typeof interestRateOverride === 'number' ? interestRateOverride : interestRate;
+  const monthlyRate = effectiveRate / 12;
   const numPayments = FINANCING_TERM * 12;
   const monthlyPayment =
     monthlyRate === 0
@@ -334,15 +374,24 @@ const getAnnualKms = (vehicle: VehicleDetail, overrides?: CostOverrides): number
 };
 
 export const calculateTco = (payload: CalculationRequestPayload): CalculationResponsePayload => {
-  const vehicle = getVehicle(payload.vehicle_id);
+  const baseVehicle = getVehicle(payload.vehicle_id);
+  const vehicle = applyVehicleOverrides(baseVehicle, payload.vehicle_overrides);
   const scenario = getScenario(payload.scenario_name);
   const overrides = payload.overrides;
   const isBev = vehicle.drivetrain_type === 'BEV';
 
   const { stampDuty, initialCost } = calculateInitialCost(vehicle);
-  const financing = buildFinancingSnapshot(initialCost, isBev, payload.purchase_method);
+  const financing = buildFinancingSnapshot(
+    initialCost,
+    isBev,
+    payload.purchase_method,
+    payload.vehicle_overrides?.interest_rate_override
+  );
   const annualInsuranceCost = getAnnualInsuranceCost(vehicle);
-  const annualChargingLabourCost = calculateChargingLabourCost(vehicle);
+  const annualChargingLabourCost = calculateChargingLabourCost(
+    vehicle,
+    payload.vehicle_overrides?.charging_time_hours_override
+  );
   const annualPayloadPenalty = calculatePayloadPenalty(vehicle);
 
   const annualFuelCosts = Array.from({ length: VEHICLE_LIFE }, (_, idx) =>
@@ -431,6 +480,7 @@ export const calculateComparison = (
       scenario_name: payload.scenario_name,
       purchase_method: payload.purchase_method,
       overrides: payload.overrides,
+      vehicle_overrides: payload.vehicle_param_overrides?.[vehicleId],
     })
   );
 };
