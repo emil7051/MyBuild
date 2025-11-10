@@ -1,0 +1,693 @@
+metasidecar: loaded enterprise status from environment is_enterprise=false
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+Traceback (most recent call last):
+         ^^^^^^^^^^^^^^^^
+             ^^^^^^
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    sys.exit(main())
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+    rv = self.invoke(ctx)
+    run(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    server.run()
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+    return callback(*args, **kwargs)
+    return self.main(*args, **kwargs)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+           ^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+    return runner.run(main)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+           ^^^^^^^^^^^^^^^
+    return future.result()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+    self.loaded_app = import_from_string(self.app)
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+    module = importlib.import_module(module_str)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+    from .router import api_router
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+    config.load()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    return ctx.invoke(self.callback, **ctx.params)
+Traceback (most recent call last):
+    from backend.app.api import api_router
+    from .calculations import CalculationService
+    await self._serve(sockets)
+    from .main import app
+    from backend.app.services import CalculationService, VehicleCatalogService
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+    run(
+    sys.exit(main())
+    return self._loop.run_until_complete(task)
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+    return self.main(*args, **kwargs)
+    return runner.run(main)
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         ^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+    return callback(*args, **kwargs)
+    rv = self.invoke(ctx)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+    return future.result()
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+    from backend.app.models import (
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+           ^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+    await self._serve(sockets)
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+           ^^^^^^^^^^^^^^^^
+             ^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    self.loaded_app = import_from_string(self.app)
+    from .calculations import CalculationService
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    from backend.app.services import CalculationService, VehicleCatalogService
+    from .main import app
+             ^^^^^^
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+    from backend.app.api import api_router
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+    sys.exit(main())
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+    config.load()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+    server.run()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+    from backend.app.models import (
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+    module = importlib.import_module(module_str)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+Traceback (most recent call last):
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+    from .router import api_router
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return callback(*args, **kwargs)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+    rv = self.invoke(ctx)
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    run(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+    return self._loop.run_until_complete(task)
+    return future.result()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+         ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+    return runner.run(main)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+    server.run()
+           ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    self.loaded_app = import_from_string(self.app)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    await self._serve(sockets)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+    module = importlib.import_module(module_str)
+           ^^^^^^^^^^^^^^^^
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+    from backend.app.models import (
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+Traceback (most recent call last):
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+             ^^^^^^
+    return ctx.invoke(self.callback, **ctx.params)
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+    config.load()
+    config.load()
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+    from .router import api_router
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+           ^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+    from backend.app.api import api_router
+         ^^^^^^^^^^^^^^^^
+    await self._serve(sockets)
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+    self.loaded_app = import_from_string(self.app)
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    sys.exit(main())
+    from backend.app.api import api_router
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+    return ctx.invoke(self.callback, **ctx.params)
+    from backend.app.services import CalculationService, VehicleCatalogService
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+    return self._loop.run_until_complete(task)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+    from .main import app
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+           ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+    from .calculations import CalculationService
+    from .main import app
+    return future.result()
+    from .calculations import CalculationService
+    server.run()
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return callback(*args, **kwargs)
+    from backend.app.services import CalculationService, VehicleCatalogService
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+    run(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    from .router import api_router
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+    module = importlib.import_module(module_str)
+    return self.main(*args, **kwargs)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+    rv = self.invoke(ctx)
+    return _bootstrap._gcd_import(name[level:], package, level)
+    from backend.app.models import (
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+    rv = self.invoke(ctx)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+         ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+    sys.exit(main())
+    return callback(*args, **kwargs)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+             ^^^^^^
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self.main(*args, **kwargs)
+    return runner.run(main)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+    return ctx.invoke(self.callback, **ctx.params)
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    server.run()
+    return future.result()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^
+    run(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return self._loop.run_until_complete(task)
+    self.loaded_app = import_from_string(self.app)
+    await self._serve(sockets)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+    config.load()
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             ^^^^^^
+    rv = self.invoke(ctx)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+    from backend.app.services import CalculationService, VehicleCatalogService
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    from .router import api_router
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+    from .main import app
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+    module = importlib.import_module(module_str)
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+    run(
+    server.run()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    sys.exit(main())
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+    config.load()
+    return self._loop.run_until_complete(task)
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+    from backend.app.models import (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+    return ctx.invoke(self.callback, **ctx.params)
+    from .main import app
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+    from .router import api_router
+    from backend.app.api import api_router
+    from .calculations import CalculationService
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+           ^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+Traceback (most recent call last):
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+    await self._serve(sockets)
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+         ^^^^^^^^^^^^^^^^
+    return self.main(*args, **kwargs)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return future.result()
+    module = importlib.import_module(module_str)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+    from backend.app.models import (
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+    from backend.app.services import CalculationService, VehicleCatalogService
+    return runner.run(main)
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+    from backend.app.api import api_router
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+    self.loaded_app = import_from_string(self.app)
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+           ^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+    from .calculations import CalculationService
+Traceback (most recent call last):
+    sys.exit(main())
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+             ^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+         ^^^^^^^^^^^^^^^^
+    return future.result()
+    server.run()
+    return self.main(*args, **kwargs)
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    rv = self.invoke(ctx)
+    from .main import app
+    return callback(*args, **kwargs)
+    return runner.run(main)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+    return _bootstrap._gcd_import(name[level:], package, level)
+    await self._serve(sockets)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+    module = importlib.import_module(module_str)
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+           ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+    run(
+    self.loaded_app = import_from_string(self.app)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+    config.load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+           ^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+    return self._loop.run_until_complete(task)
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+    from .router import api_router
+    from backend.app.api import api_router
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+    from backend.app.models import (
+    from backend.app.services import CalculationService, VehicleCatalogService
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+    from .calculations import CalculationService
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+    rv = self.invoke(ctx)
+    sys.exit(main())
+Traceback (most recent call last):
+             ^^^^^^
+         ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+    return self.main(*args, **kwargs)
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+    return callback(*args, **kwargs)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+    run(
+    server.run()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    module = importlib.import_module(module_str)
+           ^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    await self._serve(sockets)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+    return self._loop.run_until_complete(task)
+    config.load()
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+Traceback (most recent call last):
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+    from backend.app.models import (
+    return ctx.invoke(self.callback, **ctx.params)
+    from backend.app.services import CalculationService, VehicleCatalogService
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+    run(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+             ^^^^^^
+    rv = self.invoke(ctx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    self.loaded_app = import_from_string(self.app)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+    from .main import app
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    return future.result()
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    from backend.app.api import api_router
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+    server.run()
+         ^^^^^^^^^^^^^^^^
+    return runner.run(main)
+    from .calculations import CalculationService
+    self.loaded_app = import_from_string(self.app)
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+    return runner.run(main)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    from .router import api_router
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+    sys.exit(main())
+    from backend.app.api import api_router
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return callback(*args, **kwargs)
+    return self.main(*args, **kwargs)
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+    await self._serve(sockets)
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+    from backend.app.services import CalculationService, VehicleCatalogService
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+    from .main import app
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+    from .calculations import CalculationService
+    from .router import api_router
+    from backend.app.models import (
+    module = importlib.import_module(module_str)
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+    config.load()
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+  File "/home/runner/workspace/.pythonlibs/bin/uvicorn", line 8, in <module>
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1246, in invoke
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    rv = self.invoke(ctx)
+Traceback (most recent call last):
+    sys.exit(main())
+    return self.main(*args, **kwargs)
+         ^^^^^^^^^^^^^^^^
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 814, in invoke
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1383, in main
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/_compat.py", line 30, in asyncio_run
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 423, in main
+             ^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/main.py", line 593, in run
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/runners.py", line 118, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    run(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 67, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/click/core.py", line 1462, in __call__
+    return self._loop.run_until_complete(task)
+    server.run()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 71, in serve
+    await self._serve(sockets)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    config.load()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return future.result()
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    self.loaded_app = import_from_string(self.app)
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/config.py", line 439, in load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/uvicorn/server.py", line 78, in _serve
+    from backend.app.services import CalculationService, VehicleCatalogService
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "/home/runner/workspace/backend/app/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/runner/workspace/backend/app/api/__init__.py", line 3, in <module>
+    return _bootstrap._gcd_import(name[level:], package, level)
+command finished with error [sh -c PORT=80 uvicorn backend.app.main:app --host 0.0.0.0 --port 80]: exit status 1
+    from backend.app.api import api_router
+    from .main import app
+    module = importlib.import_module(module_str)
+  File "/home/runner/workspace/backend/app/services/__init__.py", line 3, in <module>
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "/home/runner/workspace/backend/app/api/router.py", line 25, in <module>
+    from .router import api_router
+    from backend.app.models import (
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+ImportError: cannot import name 'VehicleParamOverride' from 'backend.app.models' (/home/runner/workspace/backend/app/models/__init__.py)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "/home/runner/workspace/backend/app/services/calculations.py", line 10, in <module>
+  File "/home/runner/workspace/backend/app/main.py", line 13, in <module>
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    from .calculations import CalculationService
+crash loop detected
+2025-11-10T23:35:06Z error: The deployment is crash looping. This can happen if the run command fails or exits immediately after starting. Check the logs for more information.
