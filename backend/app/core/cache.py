@@ -13,8 +13,15 @@ from backend.app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-def _create_client() -> redis.Redis:
-    return redis.from_url(settings.redis_url, decode_responses=True)
+def _create_client() -> Optional[redis.Redis]:
+    """Create Redis client if URL is configured."""
+    if settings.redis_url:
+        try:
+            return redis.from_url(settings.redis_url, decode_responses=True)
+        except Exception as exc:
+            logger.warning("Failed to create Redis client: %s", exc)
+            return None
+    return None
 
 
 redis_client = _create_client()
@@ -22,6 +29,10 @@ redis_client = _create_client()
 
 async def cache_session(session_id: str, payload: dict[str, Any]) -> None:
     """Persist wizard session snapshots in Redis for quick resume."""
+    
+    if not redis_client:
+        logger.debug("Redis not available, skipping cache for session %s", session_id)
+        return
 
     try:
         await redis_client.setex(
@@ -35,6 +46,10 @@ async def cache_session(session_id: str, payload: dict[str, Any]) -> None:
 
 async def get_cached_session(session_id: str) -> Optional[dict[str, Any]]:
     """Return a cached session snapshot if present."""
+    
+    if not redis_client:
+        logger.debug("Redis not available, returning None for session %s", session_id)
+        return None
 
     try:
         raw = await redis_client.get(f"session:{session_id}")
