@@ -31,7 +31,7 @@ from calculations.operating import (
     ChargingTimeCostCalculator
 )
 from calculations.utils import calculate_present_value, discount_to_present, calculate_npv_of_payments
-from scripts.validation import DataValidator
+from scripts.validation import DataValidator, ValidationReport
 from calculations.simulation import (
     MonteCarloSimulation, 
     UncertaintyParameter,
@@ -124,8 +124,8 @@ class TestOperatingCalculations:
     
     def test_fuel_cost_calculations(self):
         """Test fuel cost calculations for BEV and Diesel."""
-        # BEV test
-        bev = BY_ID['BEV001']
+        # BEV test – pick a model whose daily kms exceed usable range so labour cost > 0
+        bev = BY_ID['BEV006']
         bev_calc = FuelCostCalculator(bev)
         bev_base_cost = bev_calc.get_annual_base_cost()
         assert bev_base_cost > 0
@@ -153,7 +153,7 @@ class TestOperatingCalculations:
         
     def test_charging_time_cost(self):
         """Test charging time labour cost calculation."""
-        bev = BY_ID['BEV001']
+        bev = BY_ID['BEV006']
         calc = ChargingTimeCostCalculator(bev)
         annual_cost = calc.calculate_annual_charging_labour_cost()
         assert annual_cost > 0
@@ -501,11 +501,11 @@ class TestDataValidation:
     def test_validate_all(self):
         """Test comprehensive validation."""
         all_issues = DataValidator.validate_all()
-        
-        assert isinstance(all_issues, dict)
-        assert 'vehicles' in all_issues
-        assert 'scenarios' in all_issues
-        assert 'comparison_pairs' in all_issues
+        assert isinstance(all_issues, ValidationReport)
+        assert isinstance(all_issues.vehicles, dict)
+        assert isinstance(all_issues.scenarios, dict)
+        assert isinstance(all_issues.comparison_pairs, list)
+        assert isinstance(all_issues.is_valid, bool)
 
 
 class TestMonteCarloSimulation:
