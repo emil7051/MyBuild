@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    environment:
+      - PYTHONPATH=/app
+      - DATABASE_URL=postgresql+asyncpg://tco_user:tco_pass@postgres:5432/tco_db
+      - REDIS_URL=redis://redis:6379/0
+      - SESSION_TTL_SECONDS=1800
+    env_file:
+      - backend/.env
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/web
+      - /web/node_modules
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=tco_user
+      - POSTGRES_PASSWORD=tco_pass
+      - POSTGRES_DB=tco_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
