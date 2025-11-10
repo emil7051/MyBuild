@@ -5,6 +5,7 @@ from .calculation import (
     CalculationRequest,
     CalculationResponse,
     ComparisonRequest,
+    CostBreakdown,
 )
 from .vehicle import VehicleSummary, VehicleDetail
 
@@ -13,6 +14,7 @@ __all__ = [
     "CalculationResponse",
     "ComparisonRequest",
     "CostOverride",
+    "CostBreakdown",
     "VehicleSummary",
     "VehicleDetail",
 ]

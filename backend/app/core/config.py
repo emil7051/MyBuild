@@ -3,7 +3,8 @@
 from functools import lru_cache
 from typing import List
 
-from pydantic import AnyHttpUrl, BaseSettings, Field, field_validator
+from pydantic import AnyHttpUrl, Field, field_validator
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
