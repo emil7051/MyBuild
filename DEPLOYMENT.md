@@ -96,22 +96,41 @@ pip install -r requirements.txt
 
 ### Option 1: Replit Deployments (Recommended)
 
-The easiest deployment path is using Replit's built-in deployment:
+The easiest deployment path is using Replit's built-in autoscale deployment:
 
-1. Click the "Deploy" button in your Replit workspace
-2. Configure environment variables in the Secrets panel
-3. Replit will automatically:
-   - Build the frontend
-   - Set up the backend with the production database
+1. **Verify deployment configuration** - The project is configured with:
+   - **Run command**: `uvicorn backend.app.main:app --host 0.0.0.0 --port 8000`
+   - **Build command**: `cd frontend && npm install && npm run build`
+   - **Port mapping**: Internal port 8000 → External port 80
+
+2. **Configure environment variables** in the Secrets panel (see below)
+
+3. **Click "Deploy"** in your Replit workspace
+
+4. Replit will automatically:
+   - Build the frontend static files
+   - Start the backend on port 8000
+   - Serve both API and frontend from a single port (required for autoscale)
    - Configure SSL and domain
+
+**Important Note**: The FastAPI backend is configured to serve both:
+- API endpoints at `/api/v1/*`
+- Frontend static files (SPA) from `/`
+
+This single-port architecture is required for Replit's Autoscale Deployments.
 
 **Production Environment Variables in Replit:**
 
 Add these in the Secrets panel:
-- `DATABASE_URL` - Your production PostgreSQL URL
+- `DATABASE_URL` - Your production PostgreSQL URL (use `postgresql+asyncpg://` scheme)
 - `REDIS_URL` - Your production Redis URL
 - `BACKEND_CORS_ORIGINS` - Your production domain(s)
 - `ENVIRONMENT=production`
+
+**Port Configuration Requirements:**
+- Autoscale deployments only support **one external port**
+- The backend runs on internal port 8000 and maps to external port 80
+- If you see port configuration errors, ensure only one port mapping exists in the `.replit` file
 
 ### Option 2: Docker Deployment
 
