@@ -46,6 +46,7 @@ outputType = "webview"
 
 [agent]
 expertMode = true
+integrations = ["python_database:1.0.0"]
 
 [[ports]]
 localPort = 5000
@@ -62,6 +63,10 @@ externalPort = 80
 [[ports]]
 localPort = 8000
 externalPort = 8000
+
+[[ports]]
+localPort = 39185
+externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
