@@ -1,0 +1,67 @@
+2025-11-10T20:50:33Z info: Deployment: 505321b8-81bf-41ba-81e4-88fea07592f1
+2025-11-10T20:50:33Z info: Build: 2ef060a5-b9d3-441a-b328-086a206d2d38
+2025-11-10T20:50:33Z info: Running Security Scan
+2025-11-10T20:50:42Z info: Security Scan Complete
+2025-11-10T20:50:42Z info: Connecting to builder
+2025-11-10T20:50:42Z info: Builder connected
+2025-11-10T20:50:43Z info: Installing packages
+2025-11-10T20:50:43Z info: Starting Build
+
+up to date, audited 381 packages in 3s
+
+87 packages are looking for funding
+  run `npm fund` for details
+
+
+5 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.6.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
+npm notice To update run: npm install -g npm@11.6.2
+npm notice
+
+
+> tco-web-frontend@0.1.0 build
+> tsc && vite build
+
+
+vite v5.4.21 building for production...
+
+transforming...
+
+✓ 988 modules transformed.
+
+rendering chunks...
+
+computing gzip size...
+
+dist/index.html                   0.48 kB │ gzip:   0.32 kB
+
+✓ built in 6.75s
+
+2025-11-10T20:51:00Z info: Pushing pid1 binary layer...
+2025-11-10T20:51:02Z info: Created pid1 binary layer
+2025-11-10T20:51:02Z info: Pushing Repl layer...
+2025-11-10T20:51:02Z info: Pushing hosting layer...
+2025-11-10T20:51:02Z info: Retrieved cached nix layer
+2025-11-10T20:51:02Z info: Created hosting layer
+2025-11-10T20:51:48Z info: Created Repl layer
+2025-11-10T20:51:48Z info: Pushing Repl (cache) layer...
+2025-11-10T20:51:48Z info: Created Repl (cache) layer
+2025-11-10T20:51:51Z info: Pushed image manifest
+2025-11-10T20:51:53Z info: Pushed soci index manifest
+2025-11-10T20:51:56Z info: Creating Autoscale service
+starting up user application
+metasidecar: loaded enterprise status from environment is_enterprise=false
+INFO:     Waiting for application startup.
+INFO:     Started server process [19]
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Application startup complete.
+a port configuration was specified but the required port was never opened
+2025-11-10T20:54:04Z error: The deployment failed because the application failed to open a port in time. This can happen because the application takes to long to open a server, or doesn't open one at all on the expected port. Note that this doesn't mean that the application is crashing, only that it's not opening a port in time. The application must serve traffic on the first port specified as 'localPort' in the port configuration specified in the .replit file. Make sure that the application opens a port quickly and that there are no operations taking too long on startup. Check the logs for more information.
