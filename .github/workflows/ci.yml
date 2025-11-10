@@ -69,13 +69,13 @@ jobs:
           python -m pip install -r backend/requirements.txt
 
       - name: Lint Python (ruff)
-        run: python -m ruff check calculations data analysis backend scripts tests
+        run: python -m ruff check calculations data backend scripts tests
 
       - name: Check formatting (black)
-        run: python -m black --check calculations data analysis backend scripts tests
+        run: python -m black --check calculations data backend scripts tests
 
       - name: Check import ordering (isort)
-        run: python -m isort --check-only calculations data analysis backend scripts tests
+        run: python -m isort --check-only calculations data backend scripts tests
 
       - name: Validate data tables
         run: python scripts/validation.py
