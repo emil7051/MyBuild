@@ -6,6 +6,7 @@ from .calculation import (
     ComparisonRequest,
     CostBreakdown,
     CostOverride,
+    VehicleParamOverride,
 )
 from .vehicle import VehicleDetail, VehicleSummary
 
@@ -15,6 +16,7 @@ __all__ = [
     "ComparisonRequest",
     "CostOverride",
     "CostBreakdown",
+    "VehicleParamOverride",
     "VehicleSummary",
     "VehicleDetail",
 ]
