@@ -119,7 +119,6 @@ venv.bak/
 
 # mkdocs documentation
 /site
-scripts/
 diagrams/
 
 # mypy
@@ -162,4 +161,11 @@ Thumbs.db
 .DS_Store
 
 # venv
-venv/ 
+venv/
+
+# Node / frontend artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.eslintcache
+backend/.env
