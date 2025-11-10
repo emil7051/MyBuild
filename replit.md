@@ -4,6 +4,23 @@ The MyBuild TCO (Total Cost of Ownership) Calculator is a web platform designed 
 
 The system comprises a Python calculation engine, a modern React + TypeScript frontend wizard, and a FastAPI backend. A shared TypeScript calculator mirrors the Python engine for client-side calculations with API fallback, ensuring high accuracy.
 
+# Recent Changes
+
+**Production Release: November 10, 2025**
+
+The application has been successfully deployed to production with the following features:
+
+- **Complete**: All four development phases (Step 1-4) have been implemented and tested
+- **Features Delivered**:
+  - Interactive three-step wizard for vehicle selection, operating profile, and cost inputs
+  - Real-time TCO calculations with client-side and server-side engines (±1% parity validated)
+  - Session persistence with PostgreSQL and Redis caching
+  - Analytics dashboard with aggregated insights
+  - Results visualization with cost breakdowns, comparison highlights, and charts
+- **Code Cleanup**: Legacy code and transition documentation moved to `archive/` folder
+- **Documentation**: Comprehensive production documentation added (README.md, API.md, DEPLOYMENT.md, TROUBLESHOOTING.md)
+- **Production-Ready**: Database schema finalized, caching optimized, error handling implemented
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
