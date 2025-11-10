@@ -173,9 +173,9 @@ This ensures frontend and backend consume identical datasets without manual sync
 ## Environment Configuration
 
 **Backend** (`.env` file, loaded via `pydantic-settings`):
-- `DATABASE_URL`: SQLAlchemy connection string
+- `DATABASE_URL`: SQLAlchemy connection string (use `postgresql+asyncpg://` for async PostgreSQL)
 - `REDIS_URL`: Redis connection string
-- `BACKEND_CORS_ORIGINS`: Comma-separated allowed origins
+- `BACKEND_CORS_ORIGINS`: Comma-separated allowed origins (default: `http://localhost:5000`)
 - `CACHE_RESULTS`: Boolean toggle for in-memory caching
 - `SESSION_TTL_SECONDS`: Redis session TTL (default 1800)
 
@@ -183,3 +183,34 @@ This ensures frontend and backend consume identical datasets without manual sync
 - `VITE_API_URL`: Backend API base URL (default `http://localhost:8000/api/v1`)
 
 All secrets managed via `.env.example` template; actual `.env` files are gitignored.
+
+# Development Setup (Replit)
+
+## Running the Application
+
+The application is configured to run in Replit with two workflows:
+
+1. **Backend** (Port 8000): FastAPI server with async PostgreSQL and Redis
+   - Command: `DATABASE_URL=postgresql+asyncpg://postgres:password@helium/heliumdb?ssl=disable uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload`
+   - Provides REST API endpoints for calculations and session management
+
+2. **Frontend** (Port 5000): Vite dev server with React
+   - Command: `cd frontend && npm run dev`
+   - Serves the wizard interface on port 5000 (required for Replit webview)
+
+## Key Configuration Changes for Replit
+
+1. **Frontend Port**: Changed from 3000 to 5000 in `frontend/vite.config.ts` to match Replit's webview requirements
+2. **AllowedHosts**: Added `allowedHosts: true` in Vite config to allow Replit's dynamic host system
+3. **CORS**: Updated default CORS origin to `http://localhost:5000` in `backend/app/core/config.py`
+4. **Database Driver**: Using `postgresql+asyncpg://` driver for async PostgreSQL support
+5. **Redis**: Running on default port 6379 for session caching
+
+## Recent Changes (November 10, 2025)
+
+- Installed Python 3.11 and Node.js 20 toolchains
+- Configured backend to use async PostgreSQL driver (asyncpg)
+- Set up Redis server for session caching
+- Updated frontend to run on port 5000 with allowedHosts enabled
+- Created backend/.env with proper database configuration
+- Both workflows running successfully
