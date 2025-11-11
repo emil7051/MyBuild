@@ -88,6 +88,7 @@ const WizardDieselStep = () => {
       <VehicleParamsForm
         vehicleId={wizardData.currentVehicle}
         title="Diesel assumptions & overrides"
+        showElectricFields={false}
       />
     </div>
   );

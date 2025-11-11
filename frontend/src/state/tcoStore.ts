@@ -52,7 +52,20 @@ export const useTCOStore = create<TCOStore>()(
           wizardData: { ...state.wizardData, ...data },
         })),
       setStepIndex: (index) => set({ stepIndex: index }),
-      setResults: (results) => set({ results }),
+      setResults: (results) =>
+        set((state) => {
+          const orderedIds = [
+            state.wizardData.currentVehicle,
+            ...state.wizardData.comparisonVehicles,
+          ].filter(Boolean) as string[];
+          const prioritized = orderedIds
+            .map((vehicleId) => results.find((result) => result.vehicle_id === vehicleId))
+            .filter(Boolean) as CalculationResponsePayload[];
+          const remainder = results.filter(
+            (result) => !orderedIds.includes(result.vehicle_id)
+          );
+          return { results: [...prioritized, ...remainder] };
+        }),
       resetResults: () => set({ results: [] }),
       setIsCalculating: (state) => set({ isCalculating: state }),
       setSessionId: (sessionId) => set({ sessionId }),

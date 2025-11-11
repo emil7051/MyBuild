@@ -7,9 +7,14 @@ import { formatCurrency } from '@utils/format';
 interface VehicleParamsFormProps {
   vehicleId?: string;
   title: string;
+  showElectricFields?: boolean;
 }
 
-const VehicleParamsForm = ({ vehicleId, title }: VehicleParamsFormProps) => {
+const VehicleParamsForm = ({
+  vehicleId,
+  title,
+  showElectricFields = true,
+}: VehicleParamsFormProps) => {
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
   const wizardData = useTCOStore((state) => state.wizardData);
   const updateWizard = useTCOStore((state) => state.updateWizard);
@@ -59,7 +64,7 @@ const VehicleParamsForm = ({ vehicleId, title }: VehicleParamsFormProps) => {
     );
   }
 
-  const isBev = detail.drivetrain_type === 'BEV';
+  const isBev = detail.drivetrain_type === 'BEV' && showElectricFields;
 
   const numberOrEmpty = (value?: number) => (value ?? '');
 

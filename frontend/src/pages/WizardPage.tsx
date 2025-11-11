@@ -6,7 +6,6 @@ import Button from '@components/shared/Button';
 import WizardDieselStep from '@components/wizard/WizardDieselStep';
 import WizardElectricStep from '@components/wizard/WizardElectricStep';
 import WizardCompareStep from '@components/wizard/WizardCompareStep';
-import SelectedVehiclesSummary from '@components/wizard/SelectedVehiclesSummary';
 import WizardStepper, { type WizardStep } from '@components/wizard/WizardStepper';
 import { useCalculationRunner } from '@hooks/useCalculations';
 import { useWizardAutosave } from '@hooks/useWizardAutosave';
@@ -207,7 +206,6 @@ const WizardPage = () => {
         <WizardStepper steps={steps} activeIndex={stepIndex} onStepClick={handleStepClick} />
 
         {activeComponent}
-        <SelectedVehiclesSummary />
 
         <Card className="flex flex-wrap items-center justify-between gap-4">
           <div>
