@@ -50,12 +50,12 @@ const SelectedVehiclesSummary = () => {
   const sessionId = useTCOStore((state) => state.sessionId);
   const selectedIds = Array.from(
     new Set(
-      [wizardData.currentVehicle, ...wizardData.comparisonVehicles].filter(
-        Boolean
-      ) as string[]
+      [wizardData.currentVehicle, ...wizardData.comparisonVehicles].filter(Boolean) as string[]
     )
   );
-  const selectedDetails = selectedIds.map((id) => vehicleDetails[id]).filter(Boolean) as VehicleDetail[];
+  const selectedDetails = selectedIds
+    .map((id) => vehicleDetails[id])
+    .filter(Boolean) as VehicleDetail[];
 
   if (!selectedIds.length) {
     return null;
@@ -64,7 +64,7 @@ const SelectedVehiclesSummary = () => {
   return (
     <Card
       title="Selected vehicle specs"
-      subtitle="Specs are cached locally for quick reference and parity with backend assumptions."
+      subtitle="Quick reference for your selecte vehicle assumptions."
     >
       {sessionId && (
         <p className="mb-4 text-xs text-slate-500">
