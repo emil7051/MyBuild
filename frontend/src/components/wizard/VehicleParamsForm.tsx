@@ -105,7 +105,7 @@ const VehicleParamsForm = ({
         <Field
           type="number"
           min={0}
-          label="Annual registration (A$)"
+          label="Annual Rego (A$)"
           placeholder={formatCurrency(detail.annual_registration)}
           value={numberOrEmpty(overrides.annual_registration_override)}
           onChange={(event) =>
@@ -120,7 +120,7 @@ const VehicleParamsForm = ({
           min={0}
           max={0.2}
           step="0.005"
-          label="Finance rate (%)"
+          label="Interest Rate (%)"
           hint="Absolute annual rate — e.g. 0.06 for 6%."
           placeholder="0.06"
           value={numberOrEmpty(overrides.interest_rate_override)}
