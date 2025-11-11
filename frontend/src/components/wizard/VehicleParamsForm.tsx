@@ -16,7 +16,7 @@ const VehicleParamsForm = ({
   vehicleId,
   title,
   showElectricFields = true,
-  subtitle = 'Overrides are optional — leave blank to use the catalog defaults.',
+  subtitle = 'Overrides are optional — leave blank to use defaults.',
 }: VehicleParamsFormProps) => {
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
   const wizardData = useTCOStore((state) => state.wizardData);
@@ -126,7 +126,7 @@ const VehicleParamsForm = ({
           min={0}
           max={0.2}
           step="0.005"
-          label="Financing interest rate"
+          label="Finance rate "
           hint="Absolute annual rate — e.g. 0.06 for 6%."
           placeholder="0.06"
           value={numberOrEmpty(overrides.interest_rate_override)}
