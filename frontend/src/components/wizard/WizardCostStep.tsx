@@ -15,7 +15,7 @@ const WizardCostStep = () => {
         <div className="grid gap-4 md:grid-cols-2 md:gap-6">
           <Field
             type="number"
-            label="Diesel price multiplier"
+            label="Diesel $ multiplier"
             step="0.05"
             placeholder="1.00"
             hint="1.12 represents a 12% diesel price increase across the life of the vehicle."
@@ -26,7 +26,7 @@ const WizardCostStep = () => {
           />
           <Field
             type="number"
-            label="Electricity price multiplier"
+            label="Electricity $ multiplier"
             step="0.05"
             placeholder="1.00"
             hint="Apply shocks or savings to the energy price trajectory."
@@ -39,7 +39,7 @@ const WizardCostStep = () => {
         <div className="grid gap-4 md:grid-cols-2 md:gap-6">
           <Field
             type="number"
-            label="Battery life multiplier"
+            label="Battery multiplier"
             step="0.05"
             placeholder="1.00"
             hint="0.7 shortens life (higher replacement cost), 1.2 extends it."
