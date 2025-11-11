@@ -31,6 +31,7 @@ type BreakdownKey = keyof CalculationResponsePayload['breakdown'];
 
 const CostBreakdownChart = () => {
   const results = useTCOStore((state) => state.results);
+  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
 
   if (!results.length) {
     return null;
@@ -38,7 +39,7 @@ const CostBreakdownChart = () => {
 
   const data = results.map((result) => {
     const entry: Record<string, number | string> = {
-      vehicle: result.vehicle_id,
+      vehicle: vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id,
     };
 
     breakdownSeries.forEach(({ key }) => {

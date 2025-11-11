@@ -8,7 +8,7 @@ interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Field = ({ label, hint, error, className, ...props }: FieldProps) => (
-  <label className="flex flex-col gap-1 text-sm text-slate-700">
+  <label className="flex h-full flex-col gap-2 text-sm text-slate-700">
     <span className="font-medium text-slate-900">{label}</span>
     <input
       className={clsx(
@@ -22,9 +22,11 @@ const Field = ({ label, hint, error, className, ...props }: FieldProps) => (
       {...props}
     />
     {error ? (
-      <span className="text-xs text-rose-600">{error}</span>
+      <span className="block min-h-[1.25rem] text-xs text-rose-600">{error}</span>
+    ) : hint ? (
+      <span className="block min-h-[1.25rem] text-xs text-slate-500">{hint}</span>
     ) : (
-      hint && <span className="text-xs text-slate-500">{hint}</span>
+      <span className="block min-h-[1.25rem]" aria-hidden="true" />
     )}
   </label>
 );

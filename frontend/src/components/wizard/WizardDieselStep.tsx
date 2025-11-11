@@ -51,8 +51,12 @@ const WizardDieselStep = () => {
           >
             <option value="">Select…</option>
             {dieselOptions.map((vehicle) => (
-              <option key={vehicle.vehicle_id} value={vehicle.vehicle_id}>
-                {vehicle.vehicle_id} — {vehicle.model_name} ({vehicle.weight_class})
+              <option
+                key={vehicle.vehicle_id}
+                value={vehicle.vehicle_id}
+                title={`${vehicle.model_name} (${vehicle.vehicle_id})`}
+              >
+                {vehicle.model_name} ({vehicle.weight_class})
               </option>
             ))}
           </select>

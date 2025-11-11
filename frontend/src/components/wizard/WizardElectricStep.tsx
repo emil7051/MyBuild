@@ -90,8 +90,12 @@ const WizardElectricStep = () => {
               >
                 <option value="">Select…</option>
                 {bevOptions.map((vehicle) => (
-                  <option key={vehicle.vehicle_id} value={vehicle.vehicle_id}>
-                    {vehicle.vehicle_id} — {vehicle.model_name}
+                  <option
+                    key={vehicle.vehicle_id}
+                    value={vehicle.vehicle_id}
+                    title={`${vehicle.model_name} (${vehicle.vehicle_id})`}
+                  >
+                    {vehicle.model_name}
                   </option>
                 ))}
               </select>
@@ -106,7 +110,7 @@ const WizardElectricStep = () => {
                 className="mt-3 text-sm font-medium text-brand-600 underline"
                 onClick={() => addComparator(suggestion)}
               >
-                Add suggested pair: {suggestionDetail.model_name} ({suggestion})
+                Add suggested pair: {suggestionDetail.model_name}
               </button>
             )}
 
@@ -121,6 +125,7 @@ const WizardElectricStep = () => {
                   {wizardData.comparisonVehicles.map((vehicleId) => {
                     const detail = vehicleDetails[vehicleId];
                     const isActive = vehicleId === activeComparison;
+                    const displayName = detail?.model_name ?? vehicleId;
                     return (
                       <div
                         key={vehicleId}
@@ -139,7 +144,7 @@ const WizardElectricStep = () => {
                           }
                         }}
                       >
-                        <span>{vehicleId}</span>
+                        <span>{displayName}</span>
                         {detail && (
                           <span className="text-xs text-slate-400">
                             {formatCurrency(detail.msrp)}
@@ -148,7 +153,7 @@ const WizardElectricStep = () => {
                         <button
                           type="button"
                           className="text-xs text-slate-400"
-                          aria-label={`Remove ${vehicleId}`}
+                          aria-label={`Remove ${displayName}`}
                           onClick={(event) => {
                             event.stopPropagation();
                             removeComparator(vehicleId);

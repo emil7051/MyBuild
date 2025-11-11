@@ -37,13 +37,14 @@ const CostTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => 
 
 const CostPerKmChart = () => {
   const results = useTCOStore((state) => state.results);
+  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
 
   if (!results.length) {
     return null;
   }
 
   const data = results.map((result) => ({
-    vehicle: result.vehicle_id,
+    vehicle: vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id,
     costPerKm: Number(result.cost_per_km.toFixed(4)),
     annualCost: result.annual_cost,
     totalCost: result.total_cost,

@@ -54,12 +54,14 @@ const WizardOperatingStep = () => {
         </label>
       </div>
 
-      <div className="mt-6">
-        <p className="text-sm font-semibold text-slate-900">Duty-cycle mix</p>
-        <p className="text-xs text-slate-500">
-          Percent of annual kilometres by route type. Must add up to 100%.
-        </p>
-        <div className="mt-3 grid gap-6 md:grid-cols-3">
+      <div className="mt-6 flex flex-col gap-4 md:grid md:grid-cols-[220px,minmax(0,1fr)] md:items-start md:gap-6">
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Duty-cycle mix</p>
+          <p className="text-xs text-slate-500">
+            Percent of annual kilometres by route type. Must add up to 100%.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
           <Field
             type="number"
             label="Urban (%)"
@@ -96,7 +98,7 @@ const WizardOperatingStep = () => {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-3">
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
         <Field
           type="number"
           label="Annual kilometres"

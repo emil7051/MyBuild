@@ -5,6 +5,7 @@ import { formatCurrency, formatCurrencyCompact, formatPerKilometre } from '@util
 const ComparisonHighlights = () => {
   const results = useTCOStore((state) => state.results);
   const baselineId = useTCOStore((state) => state.wizardData.currentVehicle);
+  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
 
   if (!results.length) {
     return null;
@@ -23,6 +24,13 @@ const ComparisonHighlights = () => {
   const annualDelta = baselineIsLeader ? 0 : baseline.annual_cost - leader.annual_cost;
   const runnerDelta = runnerUp ? runnerUp.total_cost - leader.total_cost : undefined;
 
+  const getDisplayName = (vehicleId: string) =>
+    vehicleDetails[vehicleId]?.model_name ?? vehicleId;
+
+  const leaderName = getDisplayName(leader.vehicle_id);
+  const baselineName = getDisplayName(baseline.vehicle_id);
+  const runnerName = runnerUp ? getDisplayName(runnerUp.vehicle_id) : undefined;
+
   return (
     <Card title="Highlights" subtitle="Key takeaways from the latest comparison run.">
       <div className="grid gap-4 md:grid-cols-3">
@@ -30,7 +38,7 @@ const ComparisonHighlights = () => {
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Best option
           </p>
-          <p className="text-xl font-semibold text-slate-900">{leader.vehicle_id}</p>
+          <p className="text-xl font-semibold text-slate-900">{leaderName}</p>
           <p className="text-sm text-slate-500">
             {formatPerKilometre(leader.cost_per_km)} · {leader.scenario_name}
           </p>
@@ -49,9 +57,7 @@ const ComparisonHighlights = () => {
           <p className="text-sm text-slate-500">
             {baselineIsLeader
               ? 'Your current truck already leads this scenario.'
-              : `${lifetimeDelta >= 0 ? 'Savings' : 'Additional cost'} compared to ${
-                  baseline.vehicle_id
-                }.`}
+              : `${lifetimeDelta >= 0 ? 'Savings' : 'Additional cost'} compared to ${baselineName}.`}
           </p>
           {!baselineIsLeader && (
             <p className="text-xs text-slate-500">
@@ -70,7 +76,7 @@ const ComparisonHighlights = () => {
           </p>
           <p className="text-sm text-slate-500">
             {runnerUp
-              ? `${runnerUp.vehicle_id} is ${
+              ? `${runnerName} is ${
                   (runnerDelta ?? 0) >= 0 ? 'higher' : 'lower'
                 } over the horizon.`
               : 'Select at least one comparator to quantify the gap.'}

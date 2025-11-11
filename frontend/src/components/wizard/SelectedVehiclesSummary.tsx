@@ -84,8 +84,12 @@ const SelectedVehiclesSummary = () => {
                   <th
                     key={detail.vehicle_id}
                     className="py-2 text-right font-semibold text-slate-500"
+                    title={`${detail.model_name} (${detail.vehicle_id})`}
                   >
-                    {detail.vehicle_id}
+                    <span className="block text-base text-slate-900">{detail.model_name}</span>
+                    <span className="block text-xs font-normal text-slate-400">
+                      {detail.weight_class}
+                    </span>
                   </th>
                 ))}
               </tr>

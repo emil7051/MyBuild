@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import Button from '@components/shared/Button';
 import ResultsPanel from '@components/results/ResultsPanel';
-import AnalyticsSummaryCard from '@components/results/AnalyticsSummaryCard';
 import { useTCOStore } from '@state/tcoStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -41,7 +40,6 @@ const ResultsPage = () => {
         <Button variant="secondary" onClick={() => navigate('/')}>Return to wizard</Button>
       </div>
 
-      <AnalyticsSummaryCard />
       <ResultsPanel />
     </div>
   );

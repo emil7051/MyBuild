@@ -7,6 +7,7 @@ import { formatCurrency } from '@utils/format';
 
 const ResultsPanel = () => {
   const results = useTCOStore((state) => state.results);
+  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
 
   if (!results.length) {
     return (
@@ -25,25 +26,29 @@ const ResultsPanel = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-3">
-        {results.map((result) => (
-          <Card
-            key={result.vehicle_id}
-            title={`${result.vehicle_id} – ${result.scenario_name}`}
-            subtitle="Cost per kilometre"
-          >
-            <p className="text-3xl font-semibold text-brand-700">
-              {new Intl.NumberFormat('en-AU', {
-                style: 'currency',
-                currency: 'AUD',
-                minimumFractionDigits: 2,
-              }).format(result.cost_per_km)}
-              <span className="text-base font-normal text-slate-500"> / km</span>
-            </p>
-            <p className="mt-2 text-sm text-slate-500">
-              Annual: {formatCurrency(result.annual_cost)} | Lifetime PV: {formatCurrency(result.total_cost)}
-            </p>
-          </Card>
-        ))}
+        {results.map((result) => {
+          const modelName = vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id;
+          return (
+            <Card
+              key={result.vehicle_id}
+              title={`${modelName} – ${result.scenario_name}`}
+              subtitle="Cost per kilometre"
+            >
+              <p className="text-3xl font-semibold text-brand-700">
+                {new Intl.NumberFormat('en-AU', {
+                  style: 'currency',
+                  currency: 'AUD',
+                  minimumFractionDigits: 2,
+                }).format(result.cost_per_km)}
+                <span className="text-base font-normal text-slate-500"> / km</span>
+              </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Annual: {formatCurrency(result.annual_cost)} | Lifetime PV:{' '}
+                {formatCurrency(result.total_cost)}
+              </p>
+            </Card>
+          );
+        })}
       </div>
 
       <ComparisonHighlights />
