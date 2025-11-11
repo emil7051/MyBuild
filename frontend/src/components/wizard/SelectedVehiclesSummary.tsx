@@ -64,7 +64,7 @@ const SelectedVehiclesSummary = () => {
   return (
     <Card
       title="Selected vehicle specs"
-      subtitle="Quick reference for your selecte vehicle assumptions."
+      subtitle="Quick reference for your selected vehicle assumptions."
     >
       {sessionId && (
         <p className="mb-4 text-xs text-slate-500">

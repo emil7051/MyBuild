@@ -16,7 +16,7 @@ const WizardOperatingStep = () => {
   return (
     <Card
       title="Operating profile"
-      subtitle="Scenario selection and duty-cycle assumptions drive the calculation context."
+      subtitle="Scenarios and duty-cycle assumptions that drive the lifetime cost calculation."
     >
       <div className="grid gap-6 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-sm font-medium text-slate-900">
@@ -34,7 +34,7 @@ const WizardOperatingStep = () => {
           <span className="text-xs text-slate-500">
             {scenarioMeta
               ? scenarioMeta.description
-              : 'Pulls trajectories from the data/scenarios module for parity with Python outputs.'}
+              : 'Pulls trajectories from the pre-configured scenarios.'}
           </span>
         </label>
 
@@ -50,7 +50,7 @@ const WizardOperatingStep = () => {
               </option>
             ))}
           </select>
-          <span className="text-xs text-slate-500">Matches financing logic inside calculations/inputs.py.</span>
+          <span className="text-xs text-slate-500">Detemines pricing approach.</span>
         </label>
       </div>
 
