@@ -68,7 +68,7 @@ const WizardOperatingStep = () => {
             max={100}
             error={errors.dutyCycle?.urban?.message}
             {...register('dutyCycle.urban', {
-              setValueAs: (value) => (value === '' ? undefined : Number(value)),
+              valueAsNumber: true,
             })}
           />
           <Field
@@ -79,7 +79,7 @@ const WizardOperatingStep = () => {
             max={100}
             error={errors.dutyCycle?.regional?.message}
             {...register('dutyCycle.regional', {
-              setValueAs: (value) => (value === '' ? undefined : Number(value)),
+              valueAsNumber: true,
             })}
           />
           <Field
@@ -90,7 +90,7 @@ const WizardOperatingStep = () => {
             max={100}
             error={errors.dutyCycle?.longHaul?.message}
             {...register('dutyCycle.longHaul', {
-              setValueAs: (value) => (value === '' ? undefined : Number(value)),
+              valueAsNumber: true,
             })}
           />
         </div>
