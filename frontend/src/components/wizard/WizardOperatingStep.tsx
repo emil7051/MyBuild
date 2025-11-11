@@ -54,14 +54,12 @@ const WizardOperatingStep = () => {
         </label>
       </div>
 
-      <div className="mt-5 flex flex-col gap-4 md:grid md:grid-cols-[260px,minmax(0,1fr)] md:items-start md:gap-6">
-        <div>
-          <p className="text-sm font-semibold text-slate-900">Duty-cycle mix</p>
-          <p className="text-xs text-slate-500">
-            Percent of annual kilometres by route type. Must add up to 100%.
-          </p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5">
+        <p className="text-sm font-semibold text-slate-900">Duty-cycle mix</p>
+        <p className="text-xs text-slate-500">
+          Percent of annual kilometres by route type. Must add up to 100%.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <Field
             type="number"
             label="Urban (%)"
