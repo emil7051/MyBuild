@@ -64,7 +64,7 @@ const WizardElectricStep = () => {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
       <Card
-        title="Step 2 — Electric candidates"
+        title="Step 2 — Electric Alternatives"
         subtitle={
           baseline
             ? `Filtered to ${baseline.weight_class} BEVs so you can compare like-for-like.`
@@ -173,7 +173,7 @@ const WizardElectricStep = () => {
 
       <VehicleParamsForm
         vehicleId={activeComparison}
-        title="BEV assumptions & overrides"
+        title="Override default assumptions"
       />
     </div>
   );

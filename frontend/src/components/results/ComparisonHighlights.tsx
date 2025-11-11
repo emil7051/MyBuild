@@ -49,7 +49,7 @@ const ComparisonHighlights = () => {
 
         <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {baselineIsLeader ? 'Baseline is optimal' : 'Delta vs baseline'}
+            {baselineIsLeader ? 'Diesel is still optimal' : 'Cost gap to baseline'}
           </p>
           <p className="text-xl font-semibold text-slate-900">
             {baselineIsLeader ? '—' : formatCurrency(Math.abs(lifetimeDelta))}
@@ -69,7 +69,7 @@ const ComparisonHighlights = () => {
 
         <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {runnerUp ? 'Gap to next best' : 'Add another vehicle'}
+            {runnerUp ? 'Cost gap' : 'Add another vehicle'}
           </p>
           <p className="text-xl font-semibold text-slate-900">
             {runnerUp && runnerDelta !== undefined ? formatCurrency(Math.abs(runnerDelta)) : '—'}

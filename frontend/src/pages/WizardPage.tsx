@@ -27,7 +27,7 @@ const steps: WizardStep[] = [
   },
   {
     title: 'Configure & compare',
-    description: 'View results inline and adjust shared assumptions.',
+    description: 'View results and explore scenarios.',
   },
 ];
 

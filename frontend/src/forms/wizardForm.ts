@@ -11,23 +11,26 @@ export const scenarioOptions: ScenarioOption[] = [
   {
     value: 'baseline',
     label: 'Baseline',
-    description: 'Steady 2-3% fuel escalators, moderate maintenance curve, current battery pricing.',
+    description:
+      'Steady 2-3% fuel escalators, moderate maintenance curve, current battery pricing.',
   },
   {
     value: 'technology_breakthrough',
     label: 'Technology breakthrough',
-    description: 'Faster battery cost decline, improved BEV efficiency, maintenance advantage extends.',
+    description:
+      'Faster battery cost decline, improved BEV efficiency, maintenance advantage extends.',
   },
   {
     value: 'oil_crisis',
     label: 'Oil crisis',
-    description: 'Diesel price spike in year 3 and beyond, higher volatility, electricity steady at +3%/yr.',
+    description:
+      'Diesel price spike in year 3 and beyond, higher volatility, electricity steady at +3% per year.',
   },
 ];
 
 export const purchaseOptions: { value: PurchaseMethod; label: string }[] = [
-  { value: 'financed', label: 'Financed (default)' },
-  { value: 'outright', label: 'Outright purchase' },
+  { value: 'financed', label: 'Financed' },
+  { value: 'outright', label: 'Outright' },
 ];
 
 const dutyCycleSchema = z

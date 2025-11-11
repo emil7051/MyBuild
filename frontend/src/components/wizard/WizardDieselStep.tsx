@@ -40,7 +40,7 @@ const WizardDieselStep = () => {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
       <Card
         title="Step 1 — Current diesel"
-        subtitle="Pick the diesel you operate today."
+        subtitle="Pick the diesel truck you operate today, or the closest alternative."
       >
         <label className="flex flex-col gap-2 text-sm font-medium text-slate-900">
           Diesel model
