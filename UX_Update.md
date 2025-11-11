@@ -2118,7 +2118,7 @@
 +          />\
 +          <Field\
 +            type="number"\
-+            label="Annual registration (A$)"\
++            label="Annual Rego (A$)"\
 +            min=\{0\}\
 +            placeholder=\{formatCurrency(base.annual_registration)\}\
 +            value=\{current.annual_registration ?? ''\}\

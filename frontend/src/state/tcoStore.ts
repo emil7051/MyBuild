@@ -78,6 +78,18 @@ export const useTCOStore = create<TCOStore>()(
         vehicleDetails: state.vehicleDetails,
         sessionId: state.sessionId,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state && state.wizardData.dutyCycle) {
+          const { urban, regional, longHaul } = state.wizardData.dutyCycle;
+          const hasInvalidDutyCycle =
+            typeof urban !== 'number' || isNaN(urban) ||
+            typeof regional !== 'number' || isNaN(regional) ||
+            typeof longHaul !== 'number' || isNaN(longHaul);
+          if (hasInvalidDutyCycle) {
+            state.wizardData.dutyCycle = defaultWizardData.dutyCycle;
+          }
+        }
+      },
     }
   )
 );

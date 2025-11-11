@@ -16,7 +16,7 @@ const VehicleParamsForm = ({
   vehicleId,
   title,
   showElectricFields = true,
-  subtitle = 'Overrides are optional — leave blank to use the catalog defaults.',
+  subtitle = 'Overrides are optional — leave blank to use defaults.',
 }: VehicleParamsFormProps) => {
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
   const wizardData = useTCOStore((state) => state.wizardData);
@@ -69,7 +69,7 @@ const VehicleParamsForm = ({
 
   const isBev = detail.drivetrain_type === 'BEV' && showElectricFields;
 
-  const numberOrEmpty = (value?: number) => (value ?? '');
+  const numberOrEmpty = (value?: number) => value ?? '';
 
   return (
     <Card title={title} subtitle={subtitle}>
@@ -84,9 +84,7 @@ const VehicleParamsForm = ({
           onChange={(event) =>
             setOverride({
               msrp_override:
-                event.currentTarget.value === ''
-                  ? undefined
-                  : Number(event.currentTarget.value),
+                event.currentTarget.value === '' ? undefined : Number(event.currentTarget.value),
             })
           }
         />
@@ -100,24 +98,20 @@ const VehicleParamsForm = ({
           onChange={(event) =>
             setOverride({
               payload_override:
-                event.currentTarget.value === ''
-                  ? undefined
-                  : Number(event.currentTarget.value),
+                event.currentTarget.value === '' ? undefined : Number(event.currentTarget.value),
             })
           }
         />
         <Field
           type="number"
           min={0}
-          label="Annual registration (A$)"
+          label="Annual Rego (A$)"
           placeholder={formatCurrency(detail.annual_registration)}
           value={numberOrEmpty(overrides.annual_registration_override)}
           onChange={(event) =>
             setOverride({
               annual_registration_override:
-                event.currentTarget.value === ''
-                  ? undefined
-                  : Number(event.currentTarget.value),
+                event.currentTarget.value === '' ? undefined : Number(event.currentTarget.value),
             })
           }
         />
@@ -126,16 +120,14 @@ const VehicleParamsForm = ({
           min={0}
           max={0.2}
           step="0.005"
-          label="Financing interest rate"
+          label="Interest Rate (%)"
           hint="Absolute annual rate — e.g. 0.06 for 6%."
           placeholder="0.06"
           value={numberOrEmpty(overrides.interest_rate_override)}
           onChange={(event) =>
             setOverride({
               interest_rate_override:
-                event.currentTarget.value === ''
-                  ? undefined
-                  : Number(event.currentTarget.value),
+                event.currentTarget.value === '' ? undefined : Number(event.currentTarget.value),
             })
           }
         />
@@ -149,9 +141,7 @@ const VehicleParamsForm = ({
           onChange={(event) =>
             setOverride({
               range_km_override:
-                event.currentTarget.value === ''
-                  ? undefined
-                  : Number(event.currentTarget.value),
+                event.currentTarget.value === '' ? undefined : Number(event.currentTarget.value),
             })
           }
         />
@@ -166,9 +156,7 @@ const VehicleParamsForm = ({
             onChange={(event) =>
               setOverride({
                 litres_per_km_override:
-                  event.currentTarget.value === ''
-                    ? undefined
-                    : Number(event.currentTarget.value),
+                  event.currentTarget.value === '' ? undefined : Number(event.currentTarget.value),
               })
             }
           />
