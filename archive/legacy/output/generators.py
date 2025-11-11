@@ -5,9 +5,9 @@ Report generation functions for TCO analysis.
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple
 
+from analysis.analysis import analyse_purchase_timing, calculate_payback_analysis
 import numpy as np
 import pandas as pd
-from analysis.analysis import analyse_purchase_timing, calculate_payback_analysis
 
 from calculations.calculations import TCOResult, calculate_tco_from_inputs
 from calculations.inputs import vehicle_data

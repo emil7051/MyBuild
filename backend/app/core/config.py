@@ -1,7 +1,7 @@
 """Application configuration via environment variables."""
 
-import os
 from functools import lru_cache
+import os
 from typing import List, Optional
 from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
@@ -47,39 +47,43 @@ class Settings(BaseSettings):
         """Convert standard postgres URLs to async postgresql+asyncpg URLs."""
         if not isinstance(value, str):
             return value
-            
+
         # Only process postgres/postgresql URLs
         if not (value.startswith("postgres://") or value.startswith("postgresql://")):
             return value
-        
+
         # Parse the URL
         parts = urlsplit(value)
-        
+
         # Convert scheme to async driver
         scheme = "postgresql+asyncpg"
-        
+
         # Parse query parameters
         query_params = parse_qs(parts.query, keep_blank_values=True)
-        
+
         # Handle SSL mode for asyncpg compatibility
         # asyncpg doesn't support sslmode parameter - remove it from the connection string
         # asyncpg will handle SSL automatically with Neon's connection string
         if "sslmode" in query_params:
             query_params.pop("sslmode")
-        
+
         # Also remove any ssl parameter if present
         if "ssl" in query_params:
             query_params.pop("ssl")
-        
+
         # Rebuild query string
         new_query = urlencode(query_params, doseq=True) if query_params else ""
-        
+
         # Reconstruct URL
         return urlunsplit((scheme, parts.netloc, parts.path, new_query, parts.fragment))
 
     class Config:
         # Only load .env in development to avoid overriding production secrets
-        env_file = "backend/.env" if os.getenv("ENVIRONMENT", "development") == "development" else None
+        env_file = (
+            "backend/.env"
+            if os.getenv("ENVIRONMENT", "development") == "development"
+            else None
+        )
         env_file_encoding = "utf-8"
         case_sensitive = False
 

@@ -13,7 +13,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from output.visualisations import TCOVisualiser
 
-import data.constants as const
 from calculations.calculations import calculate_tco_from_inputs
 from calculations.inputs import VehicleInputs, vehicle_data
 from calculations.utils import (
@@ -21,6 +20,7 @@ from calculations.utils import (
     calculate_npv_of_payments,
     calculate_present_value,
 )
+import data.constants as const
 from data.vehicles import BY_ID
 
 # Create output directory if it doesn't exist

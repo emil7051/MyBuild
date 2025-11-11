@@ -4,11 +4,11 @@ Visualisation functions for TCO analysis reports.
 
 from typing import Dict, List, Optional
 
+from analysis.analysis import PaybackAnalysis, PolicyImpactAnalysis
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from analysis.analysis import PaybackAnalysis, PolicyImpactAnalysis
 from plotly.subplots import make_subplots
 
 from calculations.calculations import TCOResult

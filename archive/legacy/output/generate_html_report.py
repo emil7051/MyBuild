@@ -7,14 +7,11 @@ from the simulation module and report generators.
 """
 
 import argparse
-import json
 from datetime import datetime
+import json
 from typing import Dict, List, Tuple
 
 import numpy as np
-import pandas as pd
-import plotly.graph_objects as go
-import plotly.io as pio
 from output.analysis import (
     PolicyImpactAnalysis,
     analyse_policy_combinations,
@@ -26,6 +23,9 @@ from output.generators import (
     generate_policy_recommendations,
 )
 from output.visualisations import TCOVisualiser
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.io as pio
 from plotly.subplots import make_subplots
 
 from calculations.calculations import calculate_tco_from_inputs, compare_vehicle_pairs

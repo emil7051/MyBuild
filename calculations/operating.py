@@ -151,9 +151,7 @@ class FuelCostCalculator:
 class ChargingTimeCostCalculator:
     """Calculate labour cost impact of charging time for BEVs."""
 
-    def __init__(
-        self, vehicle: VehicleModel, override_hours: Optional[float] = None
-    ):
+    def __init__(self, vehicle: VehicleModel, override_hours: Optional[float] = None):
         self.vehicle = vehicle
         self._override_hours = override_hours
 

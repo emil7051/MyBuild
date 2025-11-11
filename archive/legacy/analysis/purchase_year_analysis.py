@@ -9,10 +9,10 @@ This analysis shows:
 3. The changing economics between BEV and diesel over time
 """
 
+from datetime import datetime
 import json
 import os
 import sys
-from datetime import datetime
 from typing import Dict, List, Tuple
 
 # Add parent directory to path to import app modules

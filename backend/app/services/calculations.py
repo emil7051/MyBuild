@@ -47,9 +47,7 @@ class CalculationService:
 
         vehicle = self._get_vehicle(request.vehicle_id)
         if request.vehicle_overrides:
-            vehicle = self._apply_vehicle_overrides(
-                vehicle, request.vehicle_overrides
-            )
+            vehicle = self._apply_vehicle_overrides(vehicle, request.vehicle_overrides)
         scenario = self._get_scenario(request.scenario_name)
         inputs = VehicleInputs(
             vehicle=vehicle,

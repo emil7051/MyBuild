@@ -2,8 +2,8 @@
 Core analysis functions for TCO reporting.
 """
 
-import copy
 from collections import defaultdict
+import copy
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 

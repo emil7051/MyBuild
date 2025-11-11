@@ -12,6 +12,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from dataclasses import replace  # noqa: E402
+
 from calculations.calculations import (  # noqa: E402  # Needs repo root on sys.path
     TCOResult,
     calculate_tco_from_inputs,
@@ -19,7 +21,6 @@ from calculations.calculations import (  # noqa: E402  # Needs repo root on sys.
 from calculations.inputs import VehicleInputs  # noqa: E402
 from data.scenarios import SCENARIOS  # noqa: E402
 from data.vehicles import ALL_MODELS, BY_ID, VehicleModel  # noqa: E402
-from dataclasses import replace  # noqa: E402
 
 PurchaseMethod = str  # Literal['financed', 'outright'] but kept simple here
 OverrideBuilder = Callable[[VehicleModel], Optional[Dict[str, float]]]
@@ -64,9 +65,7 @@ def structural_override(vehicle: VehicleModel) -> Optional[Dict[str, float]]:
     }
 
 
-OVERRIDE_CASES: Dict[
-    str, Tuple[OverrideBuilder, VehicleOverrideBuilder]
-] = {
+OVERRIDE_CASES: Dict[str, Tuple[OverrideBuilder, VehicleOverrideBuilder]] = {
     "baseline": (base_override, base_vehicle_override),
     "stress_test": (stress_override, base_vehicle_override),
     "vehicle_adjustments": (base_override, structural_override),
@@ -156,7 +155,7 @@ def build_case_snapshot(
 
 
 def build_override_map(
-    builder: Callable[[VehicleModel], Optional[Dict[str, float]]]
+    builder: Callable[[VehicleModel], Optional[Dict[str, float]]],
 ) -> Dict[str, Dict[str, float]]:
     overrides: Dict[str, Dict[str, float]] = {}
     for vehicle in ALL_MODELS:

@@ -29,7 +29,7 @@ redis_client = _create_client()
 
 async def cache_session(session_id: str, payload: dict[str, Any]) -> None:
     """Persist wizard session snapshots in Redis for quick resume."""
-    
+
     if not redis_client:
         logger.debug("Redis not available, skipping cache for session %s", session_id)
         return
@@ -46,7 +46,7 @@ async def cache_session(session_id: str, payload: dict[str, Any]) -> None:
 
 async def get_cached_session(session_id: str) -> Optional[dict[str, Any]]:
     """Return a cached session snapshot if present."""
-    
+
     if not redis_client:
         logger.debug("Redis not available, returning None for session %s", session_id)
         return None

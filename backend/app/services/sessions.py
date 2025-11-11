@@ -274,7 +274,9 @@ class SessionService:
         )
         per_vehicle_overrides = {
             vehicle_id: override.model_dump(exclude_none=True)
-            for vehicle_id, override in (wizard_data.vehicle_param_overrides or {}).items()
+            for vehicle_id, override in (
+                wizard_data.vehicle_param_overrides or {}
+            ).items()
         }
 
         for vehicle_id in vehicle_ids:

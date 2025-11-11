@@ -9,10 +9,10 @@ This script produces:
 3. Complete readout of all variables, inputs, policies, and scenario parameters
 """
 
+from datetime import datetime
 import json
 import os
 import sys
-from datetime import datetime
 from typing import Dict, List
 
 # Add parent directory to path to import app modules
