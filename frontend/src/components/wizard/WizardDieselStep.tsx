@@ -40,7 +40,7 @@ const WizardDieselStep = () => {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
       <Card
         title="Step 1 — Current diesel"
-        subtitle="Pick the diesel you operate today. Specs come straight from the shared catalog."
+        subtitle="Pick the diesel you operate today."
       >
         <label className="flex flex-col gap-2 text-sm font-medium text-slate-900">
           Diesel model
@@ -93,6 +93,7 @@ const WizardDieselStep = () => {
         vehicleId={wizardData.currentVehicle}
         title="Diesel assumptions & overrides"
         showElectricFields={false}
+        subtitle={null}
       />
     </div>
   );

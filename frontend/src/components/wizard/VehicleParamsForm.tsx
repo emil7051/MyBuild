@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Card from '@components/shared/Card';
 import Field from '@components/shared/Field';
 import { useTCOStore } from '@state/tcoStore';
@@ -8,12 +9,14 @@ interface VehicleParamsFormProps {
   vehicleId?: string;
   title: string;
   showElectricFields?: boolean;
+  subtitle?: ReactNode;
 }
 
 const VehicleParamsForm = ({
   vehicleId,
   title,
   showElectricFields = true,
+  subtitle = 'Overrides are optional — leave blank to use the catalog defaults.',
 }: VehicleParamsFormProps) => {
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
   const wizardData = useTCOStore((state) => state.wizardData);
@@ -69,11 +72,8 @@ const VehicleParamsForm = ({
   const numberOrEmpty = (value?: number) => (value ?? '');
 
   return (
-    <Card
-      title={title}
-      subtitle="Overrides are optional — leave blank to use the catalog defaults."
-    >
-      <div className="grid gap-4 md:grid-cols-2">
+    <Card title={title} subtitle={subtitle}>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
         <Field
           type="number"
           min={10000}
@@ -210,7 +210,7 @@ const VehicleParamsForm = ({
               min={0.1}
               max={8}
               step="0.1"
-              label="Charging time to ~80% (hours)"
+              label="Charging Time (hours)"
               hint="Overrides the class-average charging duration."
               placeholder="1.5"
               value={numberOrEmpty(overrides.charging_time_hours_override)}

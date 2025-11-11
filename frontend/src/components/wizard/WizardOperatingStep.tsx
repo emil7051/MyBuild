@@ -61,7 +61,7 @@ const WizardOperatingStep = () => {
             Percent of annual kilometres by route type. Must add up to 100%.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field
             type="number"
             label="Urban (%)"
@@ -98,7 +98,7 @@ const WizardOperatingStep = () => {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Field
           type="number"
           label="Annual kilometres"

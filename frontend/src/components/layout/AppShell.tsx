@@ -6,8 +6,10 @@ const AppShell = ({ children }: PropsWithChildren) => (
     <header className="bg-white shadow-sm border-b border-slate-200">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">TWU Platform</p>
-          <h1 className="text-xl font-semibold text-slate-900">Total Cost of Ownership</h1>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Energy Futures Foundation</p>
+          <h1 className="text-xl font-semibold text-slate-900">
+            Total Cost of Ownership Comparison Tool
+          </h1>
         </div>
         <nav className="flex gap-4 text-sm">
           <NavLink
