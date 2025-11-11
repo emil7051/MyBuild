@@ -114,7 +114,7 @@ const WizardElectricStep = () => {
               </button>
             )}
 
-            <div className="mt-6">
+            <div className="mt-5">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                 Selected BEVs
               </p>

@@ -66,7 +66,7 @@ const WizardDieselStep = () => {
         </label>
 
         {selected ? (
-          <dl className="mt-6 grid gap-4 md:grid-cols-2">
+          <dl className="mt-5 grid gap-4 md:grid-cols-2">
             <div>
               <dt className="text-xs uppercase tracking-wide text-slate-500">Model</dt>
               <dd className="text-base font-semibold text-slate-900">{selected.model_name}</dd>
@@ -85,7 +85,7 @@ const WizardDieselStep = () => {
             </div>
           </dl>
         ) : (
-          <p className="mt-6 text-sm text-slate-500">Select a diesel to continue.</p>
+          <p className="mt-5 text-sm text-slate-500">Select a diesel to continue.</p>
         )}
       </Card>
 

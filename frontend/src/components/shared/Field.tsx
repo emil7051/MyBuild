@@ -12,7 +12,7 @@ const Field = ({ label, hint, error, className, ...props }: FieldProps) => (
     <span className="font-medium text-slate-900">{label}</span>
     <input
       className={clsx(
-        'rounded-lg border bg-white px-3 py-2 text-base text-slate-900 shadow-sm focus:outline-none focus:ring-2',
+        'w-full rounded-lg border bg-white px-3 py-2 text-base text-slate-900 shadow-sm focus:outline-none focus:ring-2',
         error
           ? 'border-rose-400 focus:border-rose-400 focus:ring-rose-100'
           : 'border-slate-200 focus:border-brand-400 focus:ring-brand-100',

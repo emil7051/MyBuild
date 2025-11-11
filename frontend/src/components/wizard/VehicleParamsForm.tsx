@@ -73,7 +73,7 @@ const VehicleParamsForm = ({
 
   return (
     <Card title={title} subtitle={subtitle}>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
+      <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
         <Field
           type="number"
           min={10000}
