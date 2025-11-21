@@ -31,6 +31,7 @@ const WizardCompareStep = () => {
       vehicle_ids: vehicleIds,
       scenario_name: wizardData.scenario,
       purchase_method: wizardData.purchaseMethod,
+      duty_cycle: wizardData.dutyCycle,
     };
 
     if (Object.keys(overrides).length) {

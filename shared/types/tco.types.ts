@@ -66,6 +66,7 @@ export interface CalculationRequestPayload {
   vehicle_id: string;
   scenario_name: ScenarioKey;
   purchase_method: PurchaseMethod;
+  duty_cycle?: DutyCycle;
   overrides?: CostOverrides;
   vehicle_overrides?: VehicleParamOverrides;
 }
@@ -99,6 +100,7 @@ export interface ComparisonRequestPayload {
   vehicle_ids: string[];
   scenario_name: ScenarioKey;
   purchase_method: PurchaseMethod;
+  duty_cycle?: DutyCycle;
   overrides?: CostOverrides;
   vehicle_param_overrides?: Record<string, VehicleParamOverrides>;
 }

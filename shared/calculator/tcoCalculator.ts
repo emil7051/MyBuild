@@ -5,6 +5,7 @@ import type {
   CostBreakdown,
   CostOverrides,
   EconomicScenarioDefinition,
+  DutyCycle,
   PurchaseMethod,
   ScenarioKey,
   VehicleDetail,
@@ -24,6 +25,8 @@ import {
 
 type WeightClass = VehicleDetail['weight_class'];
 type ChargingMix = Record<'retail' | 'offpeak' | 'public' | 'solar', number>;
+
+const DEFAULT_DUTY_CYCLE: DutyCycle = { urban: 60, regional: 25, longHaul: 15 };
 
 const asNumber = (value: unknown, name: string): number => {
   if (typeof value !== 'number') {
@@ -71,6 +74,10 @@ const RETAIL_PRICE = asNumber(CONSTANTS.RETAIL_CHARGING_PRICE, 'RETAIL_CHARGING_
 const OFFPEAK_PRICE = asNumber(CONSTANTS.OFFPEAK_CHARGING_PRICE, 'OFFPEAK_CHARGING_PRICE');
 const SOLAR_PRICE = asNumber(CONSTANTS.SOLAR_CHARGING_PRICE, 'SOLAR_CHARGING_PRICE');
 const PUBLIC_PRICE = asNumber(CONSTANTS.PUBLIC_CHARGING_PRICE, 'PUBLIC_CHARGING_PRICE');
+const RETAIL_EMISSIONS = asNumber(CONSTANTS.RETAIL_CHARGING_EMISSIONS, 'RETAIL_CHARGING_EMISSIONS');
+const OFFPEAK_EMISSIONS = asNumber(CONSTANTS.OFFPEAK_CHARGING_EMISSIONS, 'OFFPEAK_CHARGING_EMISSIONS');
+const SOLAR_EMISSIONS = asNumber(CONSTANTS.SOLAR_CHARGING_EMISSIONS, 'SOLAR_CHARGING_EMISSIONS');
+const PUBLIC_EMISSIONS = asNumber(CONSTANTS.PUBLIC_CHARGING_EMISSIONS, 'PUBLIC_CHARGING_EMISSIONS');
 
 const getScenario = (scenarioKey: ScenarioKey): EconomicScenarioDefinition => {
   const scenario = SCENARIO_DEFINITIONS[scenarioKey];
@@ -128,16 +135,117 @@ const getSeriesValue = (series: number[] | undefined, year: number, fallback: nu
   return series[year - 1];
 };
 
-const getChargingBlendRate = (vehicle: VehicleDetail): number => {
-  const mix = CHARGING_MIX[vehicle.weight_class];
-  if (!mix) {
+const dutyCycleToProfile = (dutyCycle?: DutyCycle): ChargingMix => {
+  const current = dutyCycle ?? DEFAULT_DUTY_CYCLE;
+  const total = current.urban + current.regional + current.longHaul;
+  const share = total > 0 ? total : 100;
+
+  const normalized: DutyCycle = {
+    urban: (current.urban / share) * 100,
+    regional: (current.regional / share) * 100,
+    longHaul: (current.longHaul / share) * 100,
+  };
+
+  // Route-type profiles. Urban leans on depot/off-peak, long haul leans on public DC.
+  const profiles: Record<'urban' | 'regional' | 'longHaul', ChargingMix> = {
+    urban: { retail: 0, offpeak: 0.9, public: 0.1, solar: 0 },
+    regional: { retail: 0, offpeak: 0.75, public: 0.25, solar: 0 },
+    longHaul: { retail: 0, offpeak: 0.35, public: 0.65, solar: 0 },
+  };
+
+  const dutyWeighted: ChargingMix = {
+    retail:
+      (normalized.urban * profiles.urban.retail +
+        normalized.regional * profiles.regional.retail +
+        normalized.longHaul * profiles.longHaul.retail) /
+      100,
+    offpeak:
+      (normalized.urban * profiles.urban.offpeak +
+        normalized.regional * profiles.regional.offpeak +
+        normalized.longHaul * profiles.longHaul.offpeak) /
+      100,
+    public:
+      (normalized.urban * profiles.urban.public +
+        normalized.regional * profiles.regional.public +
+        normalized.longHaul * profiles.longHaul.public) /
+      100,
+    solar:
+      (normalized.urban * profiles.urban.solar +
+        normalized.regional * profiles.regional.solar +
+        normalized.longHaul * profiles.longHaul.solar) /
+      100,
+  };
+
+  const totalWeight =
+    dutyWeighted.retail + dutyWeighted.offpeak + dutyWeighted.public + dutyWeighted.solar || 1;
+  return {
+    retail: dutyWeighted.retail / totalWeight,
+    offpeak: dutyWeighted.offpeak / totalWeight,
+    public: dutyWeighted.public / totalWeight,
+    solar: dutyWeighted.solar / totalWeight,
+  };
+};
+
+const getDutyAdjustedChargingMix = (vehicle: VehicleDetail, dutyCycle?: DutyCycle): ChargingMix => {
+  const baseMix = CHARGING_MIX[vehicle.weight_class];
+  if (!baseMix) {
     throw new Error(`Missing charging mix for ${vehicle.weight_class}`);
   }
+
+  const dutyProfile = dutyCycleToProfile(dutyCycle);
+  const defaultProfile = dutyCycleToProfile(DEFAULT_DUTY_CYCLE);
+
+  const isDefaultDutyCycle =
+    Math.abs(dutyProfile.retail - defaultProfile.retail) < 0.0001 &&
+    Math.abs(dutyProfile.offpeak - defaultProfile.offpeak) < 0.0001 &&
+    Math.abs(dutyProfile.public - defaultProfile.public) < 0.0001 &&
+    Math.abs(dutyProfile.solar - defaultProfile.solar) < 0.0001;
+
+  if (isDefaultDutyCycle) {
+    return baseMix;
+  }
+
+  // Preserve base mix when duty cycle matches the default; otherwise bias toward the duty-driven mix.
+  const adjusted: ChargingMix = {
+    retail:
+      baseMix.retail === 0 || defaultProfile.retail === 0
+        ? baseMix.retail
+        : baseMix.retail * (dutyProfile.retail / defaultProfile.retail),
+    offpeak:
+      baseMix.offpeak === 0 || defaultProfile.offpeak === 0
+        ? baseMix.offpeak
+        : baseMix.offpeak * (dutyProfile.offpeak / defaultProfile.offpeak),
+    public:
+      baseMix.public === 0 || defaultProfile.public === 0
+        ? baseMix.public
+        : baseMix.public * (dutyProfile.public / defaultProfile.public),
+    solar:
+      baseMix.solar === 0 || defaultProfile.solar === 0
+        ? baseMix.solar
+        : baseMix.solar * (dutyProfile.solar / defaultProfile.solar),
+  };
+
+  const total =
+    adjusted.retail + adjusted.offpeak + adjusted.public + adjusted.solar || 1;
+
+  return {
+    retail: adjusted.retail / total,
+    offpeak: adjusted.offpeak / total,
+    public: adjusted.public / total,
+    solar: adjusted.solar / total,
+  };
+};
+
+const getChargingBlendRate = (mix: ChargingMix): number => {
+  return mix.retail * RETAIL_PRICE + mix.offpeak * OFFPEAK_PRICE + mix.solar * SOLAR_PRICE + mix.public * PUBLIC_PRICE;
+};
+
+const getChargingBlendEmissions = (mix: ChargingMix): number => {
   return (
-    mix.retail * RETAIL_PRICE +
-    mix.offpeak * OFFPEAK_PRICE +
-    mix.solar * SOLAR_PRICE +
-    mix.public * PUBLIC_PRICE
+    mix.retail * RETAIL_EMISSIONS +
+    mix.offpeak * OFFPEAK_EMISSIONS +
+    mix.solar * SOLAR_EMISSIONS +
+    mix.public * PUBLIC_EMISSIONS
   );
 };
 
@@ -154,7 +262,8 @@ const calculateFuelCostYear = (
   vehicle: VehicleDetail,
   scenario: EconomicScenarioDefinition,
   year: number,
-  overrides?: CostOverrides
+  overrides?: CostOverrides,
+  dutyCycle?: DutyCycle
 ): number => {
   if (vehicle.drivetrain_type === 'BEV') {
     let efficiencyMultiplier = getSeriesValue(scenario.bev_efficiency_improvement, year, 1);
@@ -162,7 +271,8 @@ const calculateFuelCostYear = (
       efficiencyMultiplier *= overrides.charging_efficiency_variation;
     }
     const adjustedKwhPerKm = vehicle.kwh_per_km * efficiencyMultiplier;
-    const baseCost = adjustedKwhPerKm * vehicle.annual_kms * getChargingBlendRate(vehicle);
+    const chargingMix = getDutyAdjustedChargingMix(vehicle, dutyCycle);
+    const baseCost = adjustedKwhPerKm * vehicle.annual_kms * getChargingBlendRate(chargingMix);
     let priceMultiplier = getSeriesValue(scenario.electricity_price_trajectory, year, 1);
     if (overrides?.electricity_price_variation) {
       priceMultiplier *= overrides.electricity_price_variation;
@@ -201,15 +311,26 @@ const calculateBatteryReplacementYear = (
 const calculateCarbonCostYear = (
   vehicle: VehicleDetail,
   scenario: EconomicScenarioDefinition,
-  year: number
+  year: number,
+  dutyCycle?: DutyCycle,
+  overrides?: CostOverrides
 ): number => {
-  if (vehicle.drivetrain_type === 'BEV') {
-    return 0;
-  }
   const carbonPrice = getSeriesValue(scenario.carbon_price_trajectory, year, 0);
   if (carbonPrice === 0) {
     return 0;
   }
+  if (vehicle.drivetrain_type === 'BEV') {
+    let efficiencyMultiplier = getSeriesValue(scenario.bev_efficiency_improvement, year, 1);
+    if (overrides?.charging_efficiency_variation) {
+      efficiencyMultiplier *= overrides.charging_efficiency_variation;
+    }
+    const adjustedKwhPerKm = vehicle.kwh_per_km * efficiencyMultiplier;
+    const chargingMix = getDutyAdjustedChargingMix(vehicle, dutyCycle);
+    const emissionsRate = getChargingBlendEmissions(chargingMix); // kg CO2e/kWh
+    const emissionsTonnes = (adjustedKwhPerKm * vehicle.annual_kms * emissionsRate) / 1000;
+    return emissionsTonnes * carbonPrice;
+  }
+
   const emissionsTonnes = (vehicle.litres_per_km * vehicle.annual_kms * DIESEL_EMISSIONS) / 1000;
   return emissionsTonnes * carbonPrice;
 };
@@ -366,18 +487,23 @@ const getAnnualInsuranceCost = (vehicle: VehicleDetail): number => {
   return vehicle.msrp * rate + OTHER_INSURANCE;
 };
 
-const getAnnualKms = (vehicle: VehicleDetail, overrides?: CostOverrides): number => {
-  if (overrides?.annual_kms_variation && overrides.annual_kms_variation > 0) {
-    return overrides.annual_kms_variation;
-  }
-  return vehicle.annual_kms;
-};
-
 export const calculateTco = (payload: CalculationRequestPayload): CalculationResponsePayload => {
   const baseVehicle = getVehicle(payload.vehicle_id);
-  const vehicle = applyVehicleOverrides(baseVehicle, payload.vehicle_overrides);
   const scenario = getScenario(payload.scenario_name);
   const overrides = payload.overrides;
+  const dutyCycle = payload.duty_cycle ?? DEFAULT_DUTY_CYCLE;
+  const vehicleWithStructuralOverrides = applyVehicleOverrides(
+    baseVehicle,
+    payload.vehicle_overrides
+  );
+  const annualKms =
+    overrides?.annual_kms_variation && overrides.annual_kms_variation > 0
+      ? overrides.annual_kms_variation
+      : vehicleWithStructuralOverrides.annual_kms;
+  const vehicle: VehicleDetail = {
+    ...vehicleWithStructuralOverrides,
+    annual_kms: annualKms,
+  };
   const isBev = vehicle.drivetrain_type === 'BEV';
 
   const { stampDuty, initialCost } = calculateInitialCost(vehicle);
@@ -395,13 +521,13 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
   const annualPayloadPenalty = calculatePayloadPenalty(vehicle);
 
   const annualFuelCosts = Array.from({ length: VEHICLE_LIFE }, (_, idx) =>
-    calculateFuelCostYear(vehicle, scenario, idx + 1, overrides)
+    calculateFuelCostYear(vehicle, scenario, idx + 1, overrides, dutyCycle)
   );
   const annualBatteryCosts = Array.from({ length: VEHICLE_LIFE }, (_, idx) =>
     calculateBatteryReplacementYear(vehicle, scenario, idx + 1, overrides)
   );
   const annualCarbonCosts = Array.from({ length: VEHICLE_LIFE }, (_, idx) =>
-    calculateCarbonCostYear(vehicle, scenario, idx + 1)
+    calculateCarbonCostYear(vehicle, scenario, idx + 1, dutyCycle, overrides)
   );
   const annualMaintenanceCosts = Array.from({ length: VEHICLE_LIFE }, (_, idx) =>
     calculateMaintenanceCostYear(vehicle, scenario, idx + 1, overrides)
@@ -440,8 +566,7 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
     residualValuePv;
 
   const annualCost = calculateAnnualisedCost(totalCost, VEHICLE_LIFE, DISCOUNT_RATE);
-  const annualKms = getAnnualKms(vehicle, overrides);
-  const costPerKm = annualKms > 0 ? annualCost / annualKms : 0;
+  const costPerKm = vehicle.annual_kms > 0 ? annualCost / vehicle.annual_kms : 0;
 
   const taxesAndFees = stampDuty + vehicle.annual_registration * VEHICLE_LIFE;
 
@@ -479,6 +604,7 @@ export const calculateComparison = (
       vehicle_id: vehicleId,
       scenario_name: payload.scenario_name,
       purchase_method: payload.purchase_method,
+      duty_cycle: payload.duty_cycle,
       overrides: payload.overrides,
       vehicle_overrides: payload.vehicle_param_overrides?.[vehicleId],
     })

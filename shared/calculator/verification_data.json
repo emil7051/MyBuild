@@ -973,20 +973,20 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 335092.2349928484,
-      "annual_cost": 32283.552479305486,
-      "cost_per_km": 0.6456710495861098,
+      "total_cost": 495461.07456025644,
+      "annual_cost": 47733.85334446947,
+      "cost_per_km": 0.9546770668893894,
       "breakdown": {
         "purchase_cost": 36359.0,
-        "fuel_cost": 19108.460083865913,
-        "maintenance_cost": 25673.717200081337,
+        "fuel_cost": 41540.130617099814,
+        "maintenance_cost": 55812.428695829,
         "insurance_cost": 122662.50000000001,
         "registration_cost": 9795.0,
         "battery_replacement_cost": 4635.14274666076,
         "financing_cost": 23265.119394035806,
         "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 25066.874162206124,
+        "charging_labour_cost": 78372.12700018445,
+        "payload_penalty_cost": 54493.2047004481,
         "residual_value": 16804.162267129595,
         "depreciation": 148523.9081252029,
         "taxes_and_fees": 15090.0

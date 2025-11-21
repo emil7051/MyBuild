@@ -173,6 +173,7 @@ const WizardPage = () => {
       vehicle_ids: vehicleIds,
       scenario_name: formValues.scenario,
       purchase_method: formValues.purchaseMethod,
+      duty_cycle: formValues.dutyCycle,
     };
 
     const overrides = compactOverrides(formValues.overrides ?? {});
