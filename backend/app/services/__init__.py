@@ -1,4 +1,4 @@
-"""Domain services that wrap the legacy calculation engine."""
+"""Domain services for the FastAPI layer (vehicles, sessions, analytics)."""
 
 
 from .vehicles import VehicleCatalogService

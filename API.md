@@ -104,140 +104,7 @@ Retrieve detailed specifications for a specific vehicle.
 
 ---
 
-### Calculations
-
-#### Calculate Single Vehicle TCO
-
-```http
-POST /api/v1/calculations
-```
-
-Calculate Total Cost of Ownership for a single vehicle.
-
-**Request Body:**
-```json
-{
-  "vehicle_id": "BEV001",
-  "scenario": "baseline",
-  "purchase_method": "financed",
-  "annual_kms": 50000,
-  "duty_cycle": {
-    "urban": 0.6,
-    "regional": 0.3,
-    "long_haul": 0.1
-  },
-  "overrides": {
-    "fuel_price_variation": 1.0,
-    "electricity_price_variation": 1.0,
-    "annual_kms_variation": 1.0,
-    "residual_value_variation": 1.0,
-    "maintenance_cost_variation": 1.0,
-    "battery_life_variation": 1.0,
-    "charging_efficiency_variation": 1.0
-  }
-}
-```
-
-**Request Schema:**
-- `vehicle_id` (string, required): Vehicle identifier
-- `scenario` (string, required): Economic scenario - "baseline", "tech_breakthrough", or "oil_crisis"
-- `purchase_method` (string, required): "outright" or "financed"
-- `annual_kms` (number, optional): Annual kilometers driven (default: vehicle's default)
-- `duty_cycle` (object, optional): Distribution across duty types (must sum to 1.0)
-  - `urban` (number): 0.0-1.0
-  - `regional` (number): 0.0-1.0
-  - `long_haul` (number): 0.0-1.0
-- `overrides` (object, optional): Multipliers for sensitivity analysis (all default to 1.0)
-
-**Response:**
-```json
-{
-  "vehicle_id": "BEV001",
-  "vehicle_name": "Jac N75",
-  "scenario": "baseline",
-  "purchase_method": "financed",
-  "total_cost_npv": 523750.25,
-  "cost_per_km": 0.62,
-  "annual_cost": 31000.50,
-  "breakdown": {
-    "purchase_cost": 145000,
-    "financing_cost": 18500,
-    "depreciation": 87000,
-    "taxes_and_fees": 5800,
-    "fuel_cost": 0,
-    "electricity_cost": 78450,
-    "maintenance_cost": 67500,
-    "insurance_cost": 48750,
-    "registration_cost": 12000,
-    "battery_replacement_cost": 32500,
-    "carbon_cost": 0,
-    "charging_labour_cost": 15250,
-    "payload_penalty_cost": 8500,
-    "residual_value": -43500
-  },
-  "metadata": {
-    "vehicle_life_years": 15,
-    "discount_rate": 0.05,
-    "annual_kms": 50000
-  }
-}
-```
-
-**Error Responses:**
-- `400 Bad Request` - Invalid request parameters
-- `404 Not Found` - Vehicle ID does not exist
-
-#### Compare Multiple Vehicles
-
-```http
-POST /api/v1/calculations/compare
-```
-
-Calculate and compare TCO for multiple vehicles with the same operating profile.
-
-**Request Body:**
-```json
-{
-  "vehicle_ids": ["BEV001", "DSL001", "BEV002"],
-  "scenario": "baseline",
-  "purchase_method": "financed",
-  "annual_kms": 50000,
-  "duty_cycle": {
-    "urban": 0.6,
-    "regional": 0.3,
-    "long_haul": 0.1
-  },
-  "overrides": {}
-}
-```
-
-**Request Schema:**
-- `vehicle_ids` (array, required): Array of vehicle identifiers (2-8 vehicles)
-- Other fields same as single calculation
-
-**Response:**
-```json
-[
-  {
-    "vehicle_id": "BEV001",
-    "total_cost_npv": 523750.25,
-    "cost_per_km": 0.62,
-    ...
-  },
-  {
-    "vehicle_id": "DSL001",
-    "total_cost_npv": 612300.75,
-    "cost_per_km": 0.73,
-    ...
-  }
-]
-```
-
-**Error Responses:**
-- `400 Bad Request` - Invalid parameters or too many vehicles
-- `404 Not Found` - One or more vehicle IDs do not exist
-
----
+> Note: TCO calculations now execute in the shared TypeScript engine on the frontend. Backend endpoints currently cover vehicles, sessions, and analytics only.
 
 ### Sessions
 
@@ -442,21 +309,12 @@ import requests
 BASE_URL = "http://localhost:8000/api/v1"
 
 # Get all vehicles
-response = requests.get(f"{BASE_URL}/vehicles")
-vehicles = response.json()
+vehicles = requests.get(f"{BASE_URL}/vehicles").json()
+print(f"Loaded {len(vehicles)} vehicles")
 
-# Calculate TCO
-payload = {
-    "vehicle_id": "BEV001",
-    "scenario": "baseline",
-    "purchase_method": "financed",
-    "annual_kms": 50000
-}
-response = requests.post(f"{BASE_URL}/calculations", json=payload)
-result = response.json()
-
-print(f"Total Cost: ${result['total_cost_npv']:,.2f}")
-print(f"Cost per km: ${result['cost_per_km']:.2f}")
+# Get analytics summary
+analytics = requests.get(f"{BASE_URL}/analytics/summary").json()
+print(f"Total sessions: {analytics['totalSessions']}")
 ```
 
 ### JavaScript Example
@@ -464,26 +322,17 @@ print(f"Cost per km: ${result['cost_per_km']:.2f}")
 ```javascript
 const BASE_URL = 'http://localhost:8000/api/v1';
 
-// Compare vehicles
-async function compareVehicles() {
-  const response = await fetch(`${BASE_URL}/calculations/compare`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      vehicle_ids: ['BEV001', 'DSL001'],
-      scenario: 'baseline',
-      purchase_method: 'financed',
-      annual_kms: 50000,
-    }),
-  });
-  
-  const results = await response.json();
-  
-  results.forEach(result => {
-    console.log(`${result.vehicle_name}: $${result.cost_per_km}/km`);
-  });
+async function loadCatalogAndAnalytics() {
+  const [vehiclesRes, analyticsRes] = await Promise.all([
+    fetch(`${BASE_URL}/vehicles`),
+    fetch(`${BASE_URL}/analytics/summary`),
+  ]);
+
+  const vehicles = await vehiclesRes.json();
+  const analytics = await analyticsRes.json();
+
+  console.log(`Loaded ${vehicles.length} vehicles`);
+  console.log(`Total sessions: ${analytics.totalSessions}`);
 }
 ```
 

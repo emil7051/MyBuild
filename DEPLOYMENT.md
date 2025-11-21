@@ -73,7 +73,6 @@ Ensure the TypeScript frontend has the latest data from Python sources:
 
 ```bash
 python scripts/generate_vehicle_catalog_ts.py
-python scripts/export_tco_snapshot.py
 ```
 
 ### 2. Build Frontend
@@ -352,15 +351,8 @@ curl https://yourdomain.com/api/v1/health
 # Test vehicle list
 curl https://yourdomain.com/api/v1/vehicles
 
-# Test calculation (POST request)
-curl -X POST https://yourdomain.com/api/v1/calculations \
-  -H "Content-Type: application/json" \
-  -d '{
-    "vehicle_id": "BEV001",
-    "scenario": "baseline",
-    "purchase_method": "financed",
-    "annual_kms": 50000
-  }'
+# Test analytics summary
+curl https://yourdomain.com/api/v1/analytics/summary
 ```
 
 ## Monitoring and Maintenance

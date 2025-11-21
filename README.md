@@ -16,7 +16,7 @@ The TCO Web Platform helps truck operators get five-minute TCO insights through:
 ### Key Features
 
 - 16 pre-configured vehicles (8 BEV, 8 diesel) across light, medium, and articulated truck classes
-- Client-side and server-side calculation engines with ±1% parity validation
+- Shared TypeScript calculation engine with ±1% parity validation against committed fixtures
 - Offline-capable progressive web app
 - PostgreSQL session persistence with Redis caching
 - RESTful API for integrations and analytics
@@ -80,14 +80,11 @@ npm run dev
 
 #### Generate Shared Data Layer
 
-The TypeScript frontend uses data generated from the Python source:
+The TypeScript calculator consumes generated data from the Python sources:
 
 ```bash
 # Generate vehicle catalog and constants
 python scripts/generate_vehicle_catalog_ts.py
-
-# Generate TCO calculation snapshots for testing
-python scripts/export_tco_snapshot.py
 ```
 
 ## Project Structure
@@ -111,22 +108,17 @@ python scripts/export_tco_snapshot.py
 │   │   └── state/        # Zustand store
 │   └── package.json
 ├── shared/               # Shared TypeScript code
-│   ├── calculator/       # Client-side TCO engine
+│   ├── calculator/       # Shared TCO engine
 │   ├── data/             # Generated from Python (vehicles, constants, scenarios)
 │   └── types/            # TypeScript type definitions
-├── calculations/         # Python TCO calculation engine
-│   ├── financial.py      # Purchase, financing, depreciation
-│   ├── operating.py      # Fuel, maintenance, insurance costs
-│   ├── simulation.py     # Monte Carlo and sensitivity analysis
-│   └── calculations.py   # Core TCO aggregation
 ├── data/                 # Authoritative data layer
 │   ├── constants.py      # Global constants
 │   ├── policies.py       # Policy definitions (rebates, carbon pricing)
 │   ├── scenarios.py      # Economic scenarios
 │   └── vehicles.py       # Vehicle specifications
 ├── scripts/              # Code generation and utilities
-├── tests/                # Python test suite
-├── archive/              # Historical documentation and legacy code
+├── tests/                # Backend test suite
+├── archive/              # Historical documentation and legacy Python engine
 └── docker-compose.yml    # Local development orchestration
 ```
 
@@ -151,9 +143,8 @@ python scripts/export_tco_snapshot.py
 - **Uvicorn** - ASGI server
 
 ### Calculation Engine
-- **NumPy** - Numerical computing
-- **Pandas** - Data manipulation
-- **NumPy Financial** - Financial calculations
+- **TypeScript** - Shared calculator logic under `shared/calculator`
+- **Vitest** - Calculator regression tests against committed verification fixtures
 
 ## Development Workflow
 
@@ -167,9 +158,9 @@ pytest tests/ --cov
 cd frontend
 npm run test
 
-# Parity tests (validates TypeScript matches Python)
+# Calculator parity (Vitest fixtures)
 cd frontend
-npm run test -- TCOEngine.test.ts
+npm run test -- verification.test.ts
 ```
 
 ### Code Quality
@@ -194,7 +185,6 @@ Whenever you modify data in `data/` (vehicles, scenarios, policies, constants):
 ```bash
 # Regenerate TypeScript types and data
 python scripts/generate_vehicle_catalog_ts.py
-python scripts/export_tco_snapshot.py
 
 # Run parity tests to ensure consistency
 cd frontend

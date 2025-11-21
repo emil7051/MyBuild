@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 
 class CostOverride(BaseModel):
-    """Optional override hooks that map to the legacy engine's inputs."""
+    """Optional override hooks that align with the shared TypeScript calculator inputs."""
 
     annual_kms_variation: Optional[float] = Field(
         default=None,
@@ -128,7 +128,7 @@ class CostBreakdown(BaseModel):
 
 
 class CalculationResponse(BaseModel):
-    """Response payload summarising key metrics from the legacy engine."""
+    """Response payload summarising key metrics from the shared calculator."""
 
     vehicle_id: str
     scenario_name: str

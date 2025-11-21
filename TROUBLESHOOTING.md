@@ -107,7 +107,6 @@ nvm use 20
 ```bash
 # Regenerate shared data files
 python scripts/generate_vehicle_catalog_ts.py
-python scripts/export_tco_snapshot.py
 
 # Check types
 npm run typecheck
@@ -160,7 +159,7 @@ VITE_API_BASE_URL=http://localhost:8000/api/v1
 1. **Check Network Requests:**
 ```
 F12 → Network tab → Filter by XHR
-Look for failed API calls to /calculations
+Look for failed API calls to /sessions or console errors thrown during calculation
 ```
 
 2. **Verify Form Data:**
@@ -427,32 +426,27 @@ See all registered routes
 ### Parity Test Failures
 
 **Symptoms:**
-- Vitest tests fail showing TypeScript ≠ Python results
+- Vitest fixtures (`verification.test.ts`) report differences against expected values
 - Calculation differences > 1%
 
 **Solutions:**
 
-1. **Regenerate Snapshots:**
-```bash
-python scripts/export_tco_snapshot.py
-cd frontend
-npm run test
-```
-
-2. **Check Data Sync:**
+1. **Regenerate shared data:**
 ```bash
 python scripts/generate_vehicle_catalog_ts.py
-# Verify shared/data/ files are up to date
+cd frontend
+npm run test -- verification.test.ts
 ```
 
-3. **Debug Specific Calculation:**
+2. **Inspect failing cases:**
 ```bash
-# Compare outputs directly
-python -c "
-from calculations.calculations import calculate_tco
-# ... run calculation
-"
+# Add a focused test or log the failing vehicle/scenario inside the calculator
+npm run test -- verification.test.ts --runInBand
 ```
+
+3. **Update fixtures intentionally (only when business logic changes):**
+   - Confirm the new outputs are correct and stable.
+   - Update `shared/calculator/verification_data.json` with the new expected values.
 
 ---
 
@@ -481,7 +475,7 @@ CACHE_RESULTS=true
 3. **Profile Python Code:**
 ```bash
 pip install line-profiler
-python -m line_profiler calculations/calculations.py
+python -m line_profiler backend/app/services/sessions.py
 ```
 
 ### High Memory Usage

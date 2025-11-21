@@ -2,7 +2,7 @@
 
 The MyBuild TCO (Total Cost of Ownership) Calculator is a web platform designed to help truck operators and fleet managers compare the economics of battery-electric vehicles (BEV) versus diesel trucks over a 15-year lifecycle. It performs detailed financial modeling across 14 cost components, including purchase, operating expenses, financing, maintenance, battery replacement, and residual value. The platform supports scenario analysis (baseline, technology breakthrough, oil crisis) and provides individual calculations and fleet-wide comparisons across light rigid, medium rigid, and articulated truck classes.
 
-The system comprises a Python calculation engine, a modern React + TypeScript frontend wizard, and a FastAPI backend. A shared TypeScript calculator mirrors the Python engine for client-side calculations with API fallback, ensuring high accuracy.
+The system comprises a shared TypeScript calculation engine, a modern React + TypeScript frontend wizard, and a FastAPI backend. The legacy Python engine now lives in `archive/` for historical reference; the TypeScript calculator is the active source of truth.
 
 # Recent Changes
 
@@ -13,7 +13,7 @@ The application has been successfully deployed to production with the following 
 - **Complete**: All four development phases (Step 1-4) have been implemented and tested
 - **Features Delivered**:
   - Interactive three-step wizard for vehicle selection, operating profile, and cost inputs
-  - Real-time TCO calculations with client-side and server-side engines (±1% parity validated)
+  - Real-time TCO calculations with the shared TypeScript engine (±1% parity validated)
   - Session persistence with PostgreSQL and Redis caching
   - Analytics dashboard with aggregated insights
   - Results visualization with cost breakdowns, comparison highlights, and charts
@@ -31,7 +31,7 @@ Preferred communication style: Simple, everyday language.
 
 **Monorepo Structure with Shared Data Layer**: The project uses a monorepo containing frontend, backend, and shared modules. Python scripts generate TypeScript data files from authoritative Python sources, ensuring identical vehicle specifications, constants, scenarios, and policy definitions are shared between frontend and backend.
 
-**Dual Calculator Pattern**: The system maintains two calculation engines for parity: a Python engine (source of truth for backend API and legacy tools) and a TypeScript engine (client-side for instant feedback). Both implement a 15-year discounted cash flow model with 14 cost components, validated for ±1% parity.
+**Shared Calculator Pattern**: The system uses a single TypeScript calculator (shared across frontend and backend contexts) that implements a 15-year discounted cash flow model with 14 cost components, validated for ±1% parity against committed fixtures. The legacy Python engine is archived and no longer called at runtime.
 
 ## Data Flow Architecture
 
@@ -43,13 +43,13 @@ Preferred communication style: Simple, everyday language.
 
 **Progressive Wizard Pattern**: A three-step wizard (vehicle selection → operating profile → cost overrides) with validation, smart defaults, and inline help. Built with React 18, Vite, Tailwind CSS, and React Router.
 
-**Optimistic Calculation Strategy**: Client-side calculations using the shared TypeScript calculator are prioritized, falling back to FastAPI for server-side policy logic. Results are cached locally and persisted to the backend.
+**Optimistic Calculation Strategy**: Calculations run in the shared TypeScript calculator on the client; the backend handles policy data exposure, session persistence, and analytics. Results are cached locally and persisted to the backend.
 
 ## Backend Architecture
 
-**FastAPI Service Layer**: The backend wraps the Python engine, exposing REST endpoints for TCO calculations, vehicle catalog access, session management, and analytics.
+**FastAPI Service Layer**: The backend exposes REST endpoints for vehicle catalog access, session management, and analytics; calculation endpoints now rely on the shared TypeScript engine rather than the archived Python implementation.
 
-**Service Pattern**: Domain logic is organized into service classes that translate HTTP requests to Python engine calls and marshal responses using Pydantic schemas.
+**Service Pattern**: Domain logic is organized into service classes that translate HTTP requests to calculator calls and marshal responses using Pydantic schemas.
 
 **Caching Strategy**: In-memory result caching and Redis session snapshots (30-minute TTL) are used to improve performance.
 
@@ -59,7 +59,7 @@ SQLAlchemy Async Models define the database schema, including `SessionRecord`, `
 
 ## Calculation Engine Design
 
-**Modular Calculator Architecture**: The `calculations/` directory contains modules for financial modeling, operating costs, utilities, and simulation.
+**Modular Calculator Architecture**: The `shared/calculator/` directory contains modules for financial modeling, operating costs, utilities, and simulation (mirroring the archived Python layout in `archive/calculations_legacy/`).
 
 **Scenario System**: `EconomicScenario` dataclasses define time-varying parameters (e.g., fuel prices, battery costs) across predefined and custom scenarios.
 
@@ -69,7 +69,7 @@ SQLAlchemy Async Models define the database schema, including `SessionRecord`, `
 
 **Shared Data SDK**: A Python script generates TypeScript files (`vehicleCatalog.ts`, `constants.ts`, `scenarios.ts`, `policies.ts`) from Python dataclasses, ensuring data consistency between frontend and backend.
 
-**Parity Validation**: A script generates JSON snapshots of Python engine results, which frontend Vitest tests use to verify TypeScript calculator output parity.
+**Parity Validation**: Vitest uses committed fixtures in `shared/calculator/verification_data.json` to keep the TypeScript calculator stable; the old Python snapshot generator has been retired.
 
 # External Dependencies
 
@@ -83,7 +83,7 @@ SQLAlchemy Async Models define the database schema, including `SessionRecord`, `
 
 ## Key Python Libraries
 
-**Core Calculation**: `numpy`, `numpy-financial`, `pandas`, `plotly`.
+**Core Calculation (legacy)**: `numpy`, `numpy-financial`, `pandas`, `plotly`.
 **Backend Framework**: `fastapi`, `uvicorn`, `pydantic`, `pydantic-settings`, `sqlalchemy`, `redis[asyncio]`.
 **Testing & Quality**: `pytest` and related plugins, `black`, `isort`, `ruff`, `mypy`.
 
