@@ -1,8 +1,6 @@
 import axios from 'axios';
 import type {
-  CalculationRequestPayload,
-  CalculationResponsePayload,
-  ComparisonRequestPayload,
+
   VehicleDetail,
   VehicleSummary,
   SessionCreatePayload,
@@ -26,15 +24,7 @@ export const fetchVehicle = async (vehicleId: string) => {
   return data;
 };
 
-export const runCalculation = async (payload: CalculationRequestPayload) => {
-  const { data } = await api.post<CalculationResponsePayload>('/calculations', payload);
-  return data;
-};
 
-export const runComparison = async (payload: ComparisonRequestPayload) => {
-  const { data } = await api.post<CalculationResponsePayload[]>('/calculations/compare', payload);
-  return data;
-};
 
 export const createSession = async (payload: SessionCreatePayload) => {
   const { data } = await api.post<SessionResponsePayload>('/sessions', payload);

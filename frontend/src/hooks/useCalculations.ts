@@ -7,8 +7,6 @@ import type {
   ComparisonRequestPayload,
 } from '@shared/types/tco.types';
 import {
-  runCalculation,
-  runComparison as runComparisonRequest,
   createSession,
   updateSession,
 } from '@services/api';
@@ -42,12 +40,7 @@ export const useCalculationRunner = () => {
 
   const comparisonMutation = useMutation({
     mutationFn: async (payload: ComparisonRequestPayload) => {
-      try {
-        return calculateComparison(payload);
-      } catch (error) {
-        console.warn('Local comparison failed — falling back to API.', error);
-        return runComparisonRequest(payload);
-      }
+      return calculateComparison(payload);
     },
     onMutate: () => setIsCalculating(true),
     onSuccess: (data) => {
@@ -59,12 +52,7 @@ export const useCalculationRunner = () => {
 
   const singleMutation = useMutation({
     mutationFn: async (payload: CalculationRequestPayload) => {
-      try {
-        return calculateTco(payload);
-      } catch (error) {
-        console.warn('Local calculation failed — falling back to API.', error);
-        return runCalculation(payload);
-      }
+      return calculateTco(payload);
     },
     onMutate: () => setIsCalculating(true),
     onSuccess: (data) => {
@@ -81,13 +69,7 @@ export const useCalculationRunner = () => {
       }
       setIsCalculating(true);
       try {
-        let data: CalculationResponsePayload[];
-        try {
-          data = calculateComparison(payload);
-        } catch (error) {
-          console.warn('Local preview failed — requesting API preview.', error);
-          data = await runComparisonRequest(payload);
-        }
+        const data = calculateComparison(payload);
         setResults(data);
       } catch (error) {
         console.warn('Preview comparison failed', error);

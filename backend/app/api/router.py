@@ -10,9 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.config import settings
 from backend.app.db.session import get_db_session
 from backend.app.models import (
-    CalculationRequest,
-    CalculationResponse,
-    ComparisonRequest,
+
     VehicleDetail,
     VehicleSummary,
 )
@@ -22,12 +20,12 @@ from backend.app.models.session import (
     SessionResponse,
     SessionUpdate,
 )
-from backend.app.services import CalculationService, VehicleCatalogService
+from backend.app.services import VehicleCatalogService
 from backend.app.services.sessions import SessionService
 
 api_router = APIRouter(prefix=settings.api_v1_prefix)
 
-_calculation_service = CalculationService()
+
 _vehicle_service = VehicleCatalogService()
 _session_service = SessionService()
 
@@ -52,28 +50,7 @@ def get_vehicle(vehicle_id: str) -> VehicleDetail:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@api_router.post(
-    "/calculations", response_model=CalculationResponse, tags=["calculations"]
-)
-def run_calculation(request: CalculationRequest) -> CalculationResponse:
-    try:
-        return _calculation_service.calculate(request)
-    except (KeyError, ValueError) as exc:  # pragma: no cover
-        status_code = 404 if isinstance(exc, KeyError) else 400
-        raise HTTPException(status_code=status_code, detail=str(exc)) from exc
 
-
-@api_router.post(
-    "/calculations/compare",
-    response_model=List[CalculationResponse],
-    tags=["calculations"],
-)
-def compare_calculations(request: ComparisonRequest) -> List[CalculationResponse]:
-    try:
-        return list(_calculation_service.compare(request))
-    except (KeyError, ValueError) as exc:  # pragma: no cover
-        status_code = 404 if isinstance(exc, KeyError) else 400
-        raise HTTPException(status_code=status_code, detail=str(exc)) from exc
 
 
 @api_router.post(
