@@ -2,6 +2,9 @@
 
 import type { VehicleDetail, VehicleSummary } from '../types/tco.types';
 
+// Update this version when vehicle data changes to invalidate stale cache
+export const VEHICLE_CATALOG_VERSION = '2026-01-07-v1';
+
 export const VEHICLE_DETAILS: VehicleDetail[] = [
   {
     "vehicle_id": "BEV001",

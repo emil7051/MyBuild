@@ -26,7 +26,7 @@ The TCO Web Platform helps truck operators get five-minute TCO insights through:
 ### Prerequisites
 
 - Python 3.11+
-- Node.js 20+
+- Node.js 20+ and Bun 1.0+
 - PostgreSQL 15+ (or use included Docker setup)
 - Redis 7+ (or use included Docker setup)
 
@@ -69,13 +69,13 @@ uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 cd frontend
 
 # Install dependencies
-npm install
+bun install
 
 # Set up environment (if needed)
 cp .env.example .env
 
 # Start development server
-npm run dev
+bun run dev
 ```
 
 #### Generate Shared Data Layer
@@ -146,6 +146,36 @@ python scripts/generate_vehicle_catalog_ts.py
 - **TypeScript** - Shared calculator logic under `shared/calculator`
 - **Vitest** - Calculator regression tests against committed verification fixtures
 
+## Stability & Robustness
+
+The calculator engine and frontend include multiple layers of defensive programming:
+
+### Input Validation
+- **Runtime sanitization** - All calculation inputs are sanitized at the calculator entry point to prevent NaN propagation
+- **Zod schemas** - Form inputs validated with comprehensive Zod schemas including vehicle parameter overrides
+- **Duty cycle validation** - Real-time sum validation (must equal 100%) with visual feedback
+- **Store validation** - Runtime validation in Zustand store prevents invalid state
+
+### State Management
+- **Race condition prevention** - Session creation uses mutex pattern to prevent duplicate sessions
+- **Stale closure protection** - Generation counter pattern prevents outdated calculation results from overwriting newer ones
+- **Cache versioning** - Vehicle catalog includes version tracking to invalidate stale localStorage cache on updates
+- **Autosave feedback** - Toast notifications inform users when autosave fails
+
+### Test Coverage
+The test suite includes:
+- **Calculator parity tests** - Validates TypeScript results match Python reference implementation (±1 cent tolerance)
+- **Math utility tests** - Unit tests for NPV, annuity, and discounting functions
+- **Scenario tests** - All three economic scenarios (baseline, technology_breakthrough, oil_crisis)
+- **Edge case tests** - Zero values, NaN handling, boundary conditions, all 16 vehicles
+- **Override tests** - Vehicle parameter and cost override combinations
+- **State management tests** - Zustand store validation and race condition handling
+
+Run all tests:
+```bash
+cd frontend && bun test
+```
+
 ## Development Workflow
 
 ### Running Tests
@@ -154,13 +184,17 @@ python scripts/generate_vehicle_catalog_ts.py
 # Backend tests
 pytest tests/ --cov
 
-# Frontend tests
+# Frontend tests (all)
 cd frontend
-npm run test
+bun test
 
-# Calculator parity (Vitest fixtures)
+# Calculator parity tests only
 cd frontend
-npm run test -- verification.test.ts
+bun test verification.test.ts
+
+# Run with coverage
+cd frontend
+bun test --coverage
 ```
 
 ### Code Quality
@@ -174,8 +208,8 @@ mypy .
 
 # TypeScript linting and type checking
 cd frontend
-npm run lint
-npm run typecheck
+bun run lint
+bun run typecheck
 ```
 
 ### Data Generation
@@ -188,7 +222,7 @@ python scripts/generate_vehicle_catalog_ts.py
 
 # Run parity tests to ensure consistency
 cd frontend
-npm run test
+bun test
 ```
 
 ## API Documentation

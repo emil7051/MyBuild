@@ -1,8 +1,22 @@
+/**
+ * @file TCO Store - Application State Management
+ * @module frontend/state/tcoStore
+ *
+ * Zustand store for managing wizard state, calculation results,
+ * and session persistence.
+ *
+ * State is persisted to localStorage under key 'tco-wizard-store'.
+ *
+ * @see frontend/hooks/useCalculations.ts for calculation triggers
+ * @see frontend/pages/WizardPage.tsx for main consumer
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { VEHICLE_BY_ID } from '@shared/data/vehicleCatalog';
+import { VEHICLE_BY_ID, VEHICLE_CATALOG_VERSION } from '@shared/data/vehicleCatalog';
 import type {
   CalculationResponsePayload,
+  DutyCycle,
   VehicleDetail,
   WizardData,
 } from '@shared/types/tco.types';
@@ -38,6 +52,33 @@ const defaultWizardData: WizardData = {
 
 const initialVehicleDetails: Record<string, VehicleDetail> = { ...VEHICLE_BY_ID };
 
+/**
+ * Validates duty cycle values, returning defaults or clamped values if invalid
+ */
+const validateDutyCycle = (dutyCycle?: DutyCycle): DutyCycle | undefined => {
+  if (!dutyCycle) return undefined;
+
+  const { urban, regional, longHaul } = dutyCycle;
+
+  // Check for NaN or non-numeric values
+  if ([urban, regional, longHaul].some(v => typeof v !== 'number' || isNaN(v))) {
+    console.warn('Invalid duty cycle values detected, using defaults');
+    return defaultWizardData.dutyCycle;
+  }
+
+  // Check for negative values
+  if ([urban, regional, longHaul].some(v => v < 0)) {
+    console.warn('Negative duty cycle values detected, clamping to 0');
+    return {
+      urban: Math.max(0, urban),
+      regional: Math.max(0, regional),
+      longHaul: Math.max(0, longHaul),
+    };
+  }
+
+  return dutyCycle;
+};
+
 export const useTCOStore = create<TCOStore>()(
   persist(
     (set) => ({
@@ -48,9 +89,17 @@ export const useTCOStore = create<TCOStore>()(
       vehicleDetails: initialVehicleDetails,
       sessionId: undefined,
       updateWizard: (data) =>
-        set((state) => ({
-          wizardData: { ...state.wizardData, ...data },
-        })),
+        set((state) => {
+          const validatedData = { ...data };
+
+          if (data.dutyCycle) {
+            validatedData.dutyCycle = validateDutyCycle(data.dutyCycle);
+          }
+
+          return {
+            wizardData: { ...state.wizardData, ...validatedData },
+          };
+        }),
       setStepIndex: (index) => set({ stepIndex: index }),
       setResults: (results) =>
         set((state) => {
@@ -73,13 +122,29 @@ export const useTCOStore = create<TCOStore>()(
     {
       name: 'tco-wizard-store',
       partialize: (state) => ({
+        _vehicleCatalogVersion: VEHICLE_CATALOG_VERSION,
         wizardData: state.wizardData,
         results: state.results,
         vehicleDetails: state.vehicleDetails,
         sessionId: state.sessionId,
       }),
-      onRehydrateStorage: () => (state) => {
-        if (state && state.wizardData.dutyCycle) {
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.warn('Failed to rehydrate store:', error);
+          return;
+        }
+
+        if (!state) return;
+
+        // Check vehicle catalog version and refresh if outdated
+        const storedVersion = (state as { _vehicleCatalogVersion?: string })._vehicleCatalogVersion;
+        if (storedVersion !== VEHICLE_CATALOG_VERSION) {
+          console.info('Vehicle catalog updated, refreshing cache');
+          state.vehicleDetails = { ...VEHICLE_BY_ID };
+        }
+
+        // Validate duty cycle values
+        if (state.wizardData.dutyCycle) {
           const { urban, regional, longHaul } = state.wizardData.dutyCycle;
           const hasInvalidDutyCycle =
             typeof urban !== 'number' || isNaN(urban) ||

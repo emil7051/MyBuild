@@ -1,17 +1,31 @@
-import { useFormContext } from 'react-hook-form';
+import { useMemo } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
+import clsx from 'clsx';
 import Card from '@components/shared/Card';
 import Field from '@components/shared/Field';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { purchaseOptions, scenarioOptions } from '@forms/wizardForm';
 
+const numberOrUndefined = (value: string) =>
+  value === '' ? undefined : Number(value);
+
 const WizardOperatingStep = () => {
   const {
     register,
     watch,
+    control,
     formState: { errors },
   } = useFormContext<WizardFormValues>();
   const scenario = watch('scenario');
   const scenarioMeta = scenarioOptions.find((option) => option.value === scenario);
+
+  // Real-time duty cycle validation
+  const dutyCycle = useWatch({ control, name: 'dutyCycle' });
+  const dutyCycleSum = useMemo(() => {
+    const { urban = 0, regional = 0, longHaul = 0 } = dutyCycle || {};
+    return (Number(urban) || 0) + (Number(regional) || 0) + (Number(longHaul) || 0);
+  }, [dutyCycle]);
+  const isDutyCycleValid = Math.abs(dutyCycleSum - 100) < 0.01;
 
   return (
     <Card
@@ -68,7 +82,7 @@ const WizardOperatingStep = () => {
             max={100}
             error={errors.dutyCycle?.urban?.message}
             {...register('dutyCycle.urban', {
-              valueAsNumber: true,
+              setValueAs: numberOrUndefined,
             })}
           />
           <Field
@@ -79,7 +93,7 @@ const WizardOperatingStep = () => {
             max={100}
             error={errors.dutyCycle?.regional?.message}
             {...register('dutyCycle.regional', {
-              valueAsNumber: true,
+              setValueAs: numberOrUndefined,
             })}
           />
           <Field
@@ -90,9 +104,20 @@ const WizardOperatingStep = () => {
             max={100}
             error={errors.dutyCycle?.longHaul?.message}
             {...register('dutyCycle.longHaul', {
-              valueAsNumber: true,
+              setValueAs: numberOrUndefined,
             })}
           />
+        </div>
+        <div
+          className={clsx(
+            'mt-3 text-sm font-medium',
+            isDutyCycleValid ? 'text-green-600' : 'text-red-600'
+          )}
+        >
+          Total: {dutyCycleSum.toFixed(0)}%
+          {!isDutyCycleValid && (
+            <span className="ml-2 text-xs font-normal">(Must equal 100%)</span>
+          )}
         </div>
       </div>
 

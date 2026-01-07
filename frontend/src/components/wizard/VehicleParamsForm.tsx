@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import Card from '@components/shared/Card';
 import Field from '@components/shared/Field';
 import { useTCOStore } from '@state/tcoStore';
 import type { VehicleParamOverrides } from '@shared/types/tco.types';
+import { vehicleParamOverridesSchema } from '@forms/wizardForm';
 import { formatCurrency } from '@utils/format';
 
 interface VehicleParamsFormProps {
@@ -22,14 +24,22 @@ const VehicleParamsForm = ({
   const wizardData = useTCOStore((state) => state.wizardData);
   const updateWizard = useTCOStore((state) => state.updateWizard);
 
-  const setOverride = (patch: Partial<VehicleParamOverrides>) => {
+  const setOverrideImmediate = (patch: Partial<VehicleParamOverrides>) => {
     if (!vehicleId) {
       return;
     }
+
+    // Validate the patch before applying
+    const result = vehicleParamOverridesSchema.partial().safeParse(patch);
+    if (!result.success) {
+      console.warn('Invalid vehicle param override:', result.error.flatten());
+      return;
+    }
+
     const existing = { ...(wizardData.vehicleParamOverrides ?? {}) };
     const current = { ...(existing[vehicleId] ?? {}) } as VehicleParamOverrides;
 
-    Object.entries(patch).forEach(([key, value]) => {
+    Object.entries(result.data).forEach(([key, value]) => {
       if (value === undefined || value === null) {
         delete current[key as keyof VehicleParamOverrides];
       } else {
@@ -45,6 +55,8 @@ const VehicleParamsForm = ({
 
     updateWizard({ vehicleParamOverrides: existing });
   };
+
+  const setOverride = useDebouncedCallback(setOverrideImmediate, 150);
 
   if (!vehicleId) {
     return (

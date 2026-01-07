@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { useTCOStore } from '@state/tcoStore';
 import { updateSession } from '@services/api';
 import type { WizardData } from '@shared/types/tco.types';
@@ -39,6 +40,12 @@ export const useWizardAutosave = () => {
       lastSnapshot.current = serialized;
       updateSession(sessionId, { wizardData: payload }).catch((error) => {
         console.warn('Autosave failed', error);
+        toast.error('Auto-save failed. Your changes may not be saved.', {
+          id: 'autosave-error', // Prevent duplicate toasts
+          duration: 5000,
+        });
+        // Reset snapshot so it retries on next change
+        lastSnapshot.current = '';
       });
     }, 800);
 

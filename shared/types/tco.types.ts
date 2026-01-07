@@ -1,3 +1,12 @@
+/**
+ * @file TCO Type Definitions
+ * @module shared/types/tco.types
+ *
+ * TypeScript interfaces and types for the TCO calculator.
+ * Defines vehicle specifications, scenarios, calculation inputs/outputs,
+ * and wizard state structures.
+ */
+
 export type ScenarioKey = 'baseline' | 'technology_breakthrough' | 'oil_crisis';
 export type PurchaseMethod = 'financed' | 'outright';
 
@@ -71,6 +80,17 @@ export interface CalculationRequestPayload {
   vehicle_overrides?: VehicleParamOverrides;
 }
 
+/**
+ * Cost breakdown for a vehicle over its lifetime.
+ *
+ * NOTE: Value types are MIXED for different cost categories:
+ * - NPV-adjusted: fuel_cost, maintenance_cost, battery_replacement_cost,
+ *   carbon_cost, charging_labour_cost, payload_penalty_cost, residual_value
+ * - Nominal lifetime totals: insurance_cost, registration_cost, depreciation
+ * - Upfront values: purchase_cost, financing_cost, taxes_and_fees
+ *
+ * The total_cost in CalculationResponsePayload IS NPV-adjusted.
+ */
 export interface CostBreakdown {
   purchase_cost: number;
   fuel_cost: number;

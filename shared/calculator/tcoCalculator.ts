@@ -1,3 +1,30 @@
+/**
+ * @file TCO Calculator - Core Calculation Engine
+ * @module shared/calculator/tcoCalculator
+ *
+ * This module contains the main TCO (Total Cost of Ownership) calculation
+ * logic for comparing BEV and Diesel vehicles over a 15-year lifecycle.
+ *
+ * Key functions:
+ * - calculateTco(): Calculate TCO for a single vehicle
+ * - calculateComparison(): Calculate TCO for multiple vehicles
+ *
+ * Cost components calculated:
+ * - Purchase cost (including stamp duty, rebates)
+ * - Fuel/energy costs (with scenario trajectories)
+ * - Maintenance costs
+ * - Insurance and registration
+ * - Battery replacement (BEV only, year 8)
+ * - Carbon costs (if scenario includes carbon pricing)
+ * - Charging labor costs (BEV only)
+ * - Payload penalty (lost revenue from reduced capacity)
+ * - Residual value (end-of-life)
+ *
+ * @see shared/calculator/math.ts for financial utilities
+ * @see shared/data/constants.ts for configuration values
+ * @see shared/types/tco.types.ts for type definitions
+ */
+
 import type {
   CalculationRequestPayload,
   CalculationResponsePayload,
@@ -26,7 +53,86 @@ import {
 type WeightClass = VehicleDetail['weight_class'];
 type ChargingMix = Record<'retail' | 'offpeak' | 'public' | 'solar', number>;
 
+/**
+ * Validates that a value is a Record with expected keys.
+ * Throws descriptive error if validation fails.
+ */
+const assertRecord = <K extends string, V>(
+  value: unknown,
+  name: string,
+  expectedKeys?: K[]
+): Record<K, V> => {
+  if (!value || typeof value !== 'object') {
+    throw new Error(`${name} must be an object, got ${typeof value}`);
+  }
+  if (expectedKeys) {
+    for (const key of expectedKeys) {
+      if (!(key in value)) {
+        throw new Error(`${name} is missing required key: ${key}`);
+      }
+    }
+  }
+  return value as Record<K, V>;
+};
+
+/**
+ * Validates nested Record structure for maintenance costs.
+ */
+const assertMaintenanceCosts = (
+  value: unknown
+): Record<'BEV' | 'Diesel', Record<WeightClass, number>> => {
+  const record = assertRecord<'BEV' | 'Diesel', unknown>(
+    value,
+    'MAINTENANCE_COST_PER_KM',
+    ['BEV', 'Diesel']
+  );
+  assertRecord<WeightClass, number>(record.BEV, 'MAINTENANCE_COST_PER_KM.BEV');
+  assertRecord<WeightClass, number>(record.Diesel, 'MAINTENANCE_COST_PER_KM.Diesel');
+  return record as Record<'BEV' | 'Diesel', Record<WeightClass, number>>;
+};
+
 const DEFAULT_DUTY_CYCLE: DutyCycle = { urban: 60, regional: 25, longHaul: 15 };
+
+/**
+ * Sanitizes calculation payload to prevent NaN and invalid values from reaching calculations.
+ * This is a defensive layer - frontend validation should catch most issues.
+ */
+const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequestPayload => {
+  const sanitized = { ...payload };
+
+  // Sanitize duty cycle - ensure all values are valid positive numbers
+  if (sanitized.duty_cycle) {
+    sanitized.duty_cycle = {
+      urban: Math.max(0, Number(sanitized.duty_cycle.urban) || 0),
+      regional: Math.max(0, Number(sanitized.duty_cycle.regional) || 0),
+      longHaul: Math.max(0, Number(sanitized.duty_cycle.longHaul) || 0),
+    };
+  }
+
+  // Sanitize cost overrides - ensure they're positive numbers or undefined
+  if (sanitized.overrides) {
+    const cleanOverrides: CostOverrides = {};
+    for (const [key, value] of Object.entries(sanitized.overrides)) {
+      if (typeof value === 'number' && !isNaN(value) && value >= 0) {
+        cleanOverrides[key as keyof CostOverrides] = value;
+      }
+    }
+    sanitized.overrides = cleanOverrides;
+  }
+
+  // Sanitize vehicle param overrides - ensure they're positive numbers or undefined
+  if (sanitized.vehicle_overrides) {
+    const cleanVehicleOverrides: VehicleParamOverrides = {};
+    for (const [key, value] of Object.entries(sanitized.vehicle_overrides)) {
+      if (typeof value === 'number' && !isNaN(value) && value >= 0) {
+        cleanVehicleOverrides[key as keyof VehicleParamOverrides] = value;
+      }
+    }
+    sanitized.vehicle_overrides = cleanVehicleOverrides;
+  }
+
+  return sanitized;
+};
 
 const asNumber = (value: unknown, name: string): number => {
   if (typeof value !== 'number') {
@@ -46,6 +152,7 @@ const HOURLY_WAGE = asNumber(CONSTANTS.HOURLY_WAGE, 'HOURLY_WAGE');
 const BATTERY_REPLACEMENT_COST = asNumber(CONSTANTS.BATTERY_REPLACEMENT_COST, 'BATTERY_REPLACEMENT_COST');
 const BATTERY_RECYCLE_VALUE = asNumber(CONSTANTS.BATTERY_RECYCLE_VALUE, 'BATTERY_RECYCLE_VALUE');
 const BATTERY_LIFE_VARIATION_BASE = asNumber(CONSTANTS.BATTERY_LIFE_VARIATION_BASE, 'BATTERY_LIFE_VARIATION_BASE');
+const BATTERY_REPLACEMENT_YEAR = CONSTANTS.BATTERY_REPLACEMENT_YEAR ?? 8;
 const DIESEL_PRICE = asNumber(CONSTANTS.DIESEL_PRICE, 'DIESEL_PRICE');
 const DIESEL_EMISSIONS = asNumber(CONSTANTS.DIESEL_EMISSIONS, 'DIESEL_EMISSIONS');
 const INSURANCE_RATE_BEV = asNumber(CONSTANTS.INSURANCE_RATE_BEV, 'INSURANCE_RATE_BEV');
@@ -61,13 +168,19 @@ const DEPRECIATION_RATE_ONGOING = asNumber(
   'DEPRECIATION_RATE_ONGOING'
 );
 
-const MAINTENANCE_COST_PER_KM = CONSTANTS.MAINTENANCE_COST_PER_KM as Record<
-  'BEV' | 'Diesel',
-  Record<WeightClass, number>
->;
-const FREIGHT_RATE_PER_TONNE_KM = CONSTANTS.FREIGHT_RATE_PER_TONNE_KM as Record<WeightClass, number>;
-const PAYLOAD_UTILISATION_FACTOR = CONSTANTS.PAYLOAD_UTILISATION_FACTOR as Record<WeightClass, number>;
-const CHARGING_TIME_HOURS = CONSTANTS.CHARGING_TIME_HOURS as Record<WeightClass, number>;
+const MAINTENANCE_COST_PER_KM = assertMaintenanceCosts(CONSTANTS.MAINTENANCE_COST_PER_KM);
+const FREIGHT_RATE_PER_TONNE_KM = assertRecord<WeightClass, number>(
+  CONSTANTS.FREIGHT_RATE_PER_TONNE_KM,
+  'FREIGHT_RATE_PER_TONNE_KM'
+);
+const PAYLOAD_UTILISATION_FACTOR = assertRecord<WeightClass, number>(
+  CONSTANTS.PAYLOAD_UTILISATION_FACTOR,
+  'PAYLOAD_UTILISATION_FACTOR'
+);
+const CHARGING_TIME_HOURS = assertRecord<WeightClass, number>(
+  CONSTANTS.CHARGING_TIME_HOURS,
+  'CHARGING_TIME_HOURS'
+);
 const CHARGING_MIX = (CONSTANTS.CHARGING_MIX_PROPORTIONS as { BEV: Record<WeightClass, ChargingMix> }).BEV;
 
 const RETAIL_PRICE = asNumber(CONSTANTS.RETAIL_CHARGING_PRICE, 'RETAIL_CHARGING_PRICE');
@@ -90,7 +203,10 @@ const getScenario = (scenarioKey: ScenarioKey): EconomicScenarioDefinition => {
 const getVehicle = (vehicleId: string): VehicleDetail => {
   const vehicle = VEHICLE_BY_ID[vehicleId];
   if (!vehicle) {
-    throw new Error(`Vehicle '${vehicleId}' not found.`);
+    throw new Error(
+      `Vehicle '${vehicleId}' not found in catalog. ` +
+      `Available vehicles: ${Object.keys(VEHICLE_BY_ID).join(', ')}`
+    );
   }
   return vehicle;
 };
@@ -136,14 +252,29 @@ const getSeriesValue = (series: number[] | undefined, year: number, fallback: nu
 };
 
 const dutyCycleToProfile = (dutyCycle?: DutyCycle): ChargingMix => {
-  const current = dutyCycle ?? DEFAULT_DUTY_CYCLE;
-  const total = current.urban + current.regional + current.longHaul;
-  const share = total > 0 ? total : 100;
+  const raw = dutyCycle ?? DEFAULT_DUTY_CYCLE;
+
+  let urban = Number(raw.urban) || 0;
+  let regional = Number(raw.regional) || 0;
+  let longHaul = Number(raw.longHaul) || 0;
+
+  if (urban < 0) urban = 0;
+  if (regional < 0) regional = 0;
+  if (longHaul < 0) longHaul = 0;
+
+  let total = urban + regional + longHaul;
+
+  if (total === 0) {
+    urban = DEFAULT_DUTY_CYCLE.urban;
+    regional = DEFAULT_DUTY_CYCLE.regional;
+    longHaul = DEFAULT_DUTY_CYCLE.longHaul;
+    total = urban + regional + longHaul;
+  }
 
   const normalized: DutyCycle = {
-    urban: (current.urban / share) * 100,
-    regional: (current.regional / share) * 100,
-    longHaul: (current.longHaul / share) * 100,
+    urban: (urban / total) * 100,
+    regional: (regional / total) * 100,
+    longHaul: (longHaul / total) * 100,
   };
 
   // Route-type profiles. Urban leans on depot/off-peak, long haul leans on public DC.
@@ -296,7 +427,7 @@ const calculateBatteryReplacementYear = (
   year: number,
   overrides?: CostOverrides
 ): number => {
-  if (vehicle.drivetrain_type !== 'BEV' || vehicle.battery_capacity_kwh <= 0 || year !== 8) {
+  if (vehicle.drivetrain_type !== 'BEV' || vehicle.battery_capacity_kwh <= 0 || year !== BATTERY_REPLACEMENT_YEAR) {
     return 0;
   }
   const multiplier = getSeriesValue(scenario.battery_price_trajectory, year, 1);
@@ -488,13 +619,16 @@ const getAnnualInsuranceCost = (vehicle: VehicleDetail): number => {
 };
 
 export const calculateTco = (payload: CalculationRequestPayload): CalculationResponsePayload => {
-  const baseVehicle = getVehicle(payload.vehicle_id);
-  const scenario = getScenario(payload.scenario_name);
-  const overrides = payload.overrides;
-  const dutyCycle = payload.duty_cycle ?? DEFAULT_DUTY_CYCLE;
+  // Sanitize payload to prevent NaN and invalid values
+  const sanitizedPayload = sanitizePayload(payload);
+
+  const baseVehicle = getVehicle(sanitizedPayload.vehicle_id);
+  const scenario = getScenario(sanitizedPayload.scenario_name);
+  const overrides = sanitizedPayload.overrides;
+  const dutyCycle = sanitizedPayload.duty_cycle ?? DEFAULT_DUTY_CYCLE;
   const vehicleWithStructuralOverrides = applyVehicleOverrides(
     baseVehicle,
-    payload.vehicle_overrides
+    sanitizedPayload.vehicle_overrides
   );
   const annualKms =
     overrides?.annual_kms_variation && overrides.annual_kms_variation > 0
@@ -510,13 +644,13 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
   const financing = buildFinancingSnapshot(
     initialCost,
     isBev,
-    payload.purchase_method,
-    payload.vehicle_overrides?.interest_rate_override
+    sanitizedPayload.purchase_method,
+    sanitizedPayload.vehicle_overrides?.interest_rate_override
   );
   const annualInsuranceCost = getAnnualInsuranceCost(vehicle);
   const annualChargingLabourCost = calculateChargingLabourCost(
     vehicle,
-    payload.vehicle_overrides?.charging_time_hours_override
+    sanitizedPayload.vehicle_overrides?.charging_time_hours_override
   );
   const annualPayloadPenalty = calculatePayloadPenalty(vehicle);
 

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { calculateComparison, calculateTco } from '@shared/calculator';
 import type {
   CalculationRequestPayload,
@@ -20,19 +20,37 @@ export const useCalculationRunner = () => {
   const sessionId = useTCOStore((state) => state.sessionId);
   const setSessionId = useTCOStore((state) => state.setSessionId);
 
+  // Mutex refs to prevent duplicate session creation race condition
+  const isCreatingSession = useRef(false);
+  const pendingSessionId = useRef<string | null>(null);
+
   const persistSession = useCallback(
     async (data: CalculationResponsePayload[]) => {
       if (!wizardData.currentVehicle || !data.length) {
         return;
       }
+
+      // If we're already creating a session, skip this call
+      if (isCreatingSession.current) {
+        return;
+      }
+
       const payload = buildSessionPayload(wizardData, data);
+      const currentSessionId = sessionId || pendingSessionId.current;
+
       try {
-        const response = sessionId
-          ? await updateSession(sessionId, payload)
-          : await createSession(payload);
-        setSessionId(response.sessionId);
+        if (currentSessionId) {
+          await updateSession(currentSessionId, payload);
+        } else {
+          isCreatingSession.current = true;
+          const response = await createSession(payload);
+          pendingSessionId.current = response.sessionId;
+          setSessionId(response.sessionId);
+        }
       } catch (error) {
         console.warn('Failed to persist session', error);
+      } finally {
+        isCreatingSession.current = false;
       }
     },
     [sessionId, setSessionId, wizardData]

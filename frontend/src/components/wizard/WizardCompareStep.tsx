@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import ResultsPanel from '@components/results/ResultsPanel';
 import ComparisonConfigPanel from './ComparisonConfigPanel';
 import SelectedVehiclesSummary from './SelectedVehiclesSummary';
@@ -6,10 +6,16 @@ import { useTCOStore } from '@state/tcoStore';
 import { useCalculationRunner } from '@hooks/useCalculations';
 import type { ComparisonRequestPayload } from '@shared/types/tco.types';
 import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
+import { calculateComparison } from '@shared/calculator';
 
 const WizardCompareStep = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
+  const setResults = useTCOStore((state) => state.setResults);
+  const setIsCalculating = useTCOStore((state) => state.setIsCalculating);
   const { runPreviewComparison } = useCalculationRunner();
+
+  // Generation counter to prevent stale results from overwriting newer ones
+  const generationRef = useRef(0);
 
   const payload = useMemo<ComparisonRequestPayload | null>(() => {
     if (!wizardData.currentVehicle) {
@@ -48,17 +54,41 @@ const WizardCompareStep = () => {
     wizardData.purchaseMethod,
     wizardData.scenario,
     wizardData.vehicleParamOverrides,
+    wizardData.dutyCycle,
   ]);
 
   useEffect(() => {
     if (!payload) {
       return;
     }
+
+    const currentGeneration = ++generationRef.current;
+
     const timer = setTimeout(() => {
-      void runPreviewComparison(payload);
+      // Skip if payload has no vehicles
+      if (!payload.vehicle_ids.length) {
+        return;
+      }
+
+      setIsCalculating(true);
+      try {
+        const results = calculateComparison(payload);
+
+        // Only apply results if this is still the latest generation
+        if (currentGeneration === generationRef.current) {
+          setResults(results);
+        }
+      } catch (error) {
+        console.warn('Preview calculation failed:', error);
+      } finally {
+        if (currentGeneration === generationRef.current) {
+          setIsCalculating(false);
+        }
+      }
     }, 350);
+
     return () => clearTimeout(timer);
-  }, [payload, runPreviewComparison]);
+  }, [payload, setIsCalculating, setResults]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">

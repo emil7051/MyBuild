@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { FormProvider, type FieldPath, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Card from '@components/shared/Card';
@@ -71,6 +71,7 @@ const WizardPage = () => {
 
   const isLastStep = stepIndex === steps.length - 1;
   const baselineSelected = Boolean(wizardData.currentVehicle);
+  const isUpdatingFromForm = useRef(false);
   const stepComponents = [
     <WizardDieselStep key="diesel" />,
     <WizardElectricStep key="electric" />,
@@ -79,6 +80,11 @@ const WizardPage = () => {
   const activeComponent = stepComponents[stepIndex];
 
   useEffect(() => {
+    // Skip if we just updated the store from form (prevents circular update)
+    if (isUpdatingFromForm.current) {
+      isUpdatingFromForm.current = false;
+      return;
+    }
     const currentValues = formMethods.getValues();
     const overridesMatch =
       JSON.stringify(currentValues.overrides ?? {}) === JSON.stringify(wizardData.overrides ?? {});
@@ -101,7 +107,7 @@ const WizardPage = () => {
     }
   }, [
     formMethods,
-      wizardData.overrides,
+    wizardData.overrides,
     wizardData.dutyCycle.longHaul,
     wizardData.dutyCycle.regional,
     wizardData.dutyCycle.urban,
@@ -112,15 +118,16 @@ const WizardPage = () => {
   useEffect(() => {
     const subscription = formMethods.watch((values) => {
       const dutyCycle = values.dutyCycle as DutyCycle | undefined;
+      isUpdatingFromForm.current = true;
       updateWizard({
         scenario: values.scenario,
         purchaseMethod: values.purchaseMethod,
-        dutyCycle: dutyCycle ?? wizardData.dutyCycle,
+        dutyCycle: dutyCycle ?? { urban: 40, regional: 35, longHaul: 25 },
         overrides: values.overrides ?? {},
       });
     });
     return () => subscription.unsubscribe();
-  }, [formMethods, updateWizard, wizardData.dutyCycle]);
+  }, [formMethods, updateWizard]);
 
   const validateCurrentStep = async () => {
     const fieldsToValidate = stepFieldMap[stepIndex];
