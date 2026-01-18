@@ -6,8 +6,6 @@ The project includes comprehensive documentation:
 
 - **[README.md](./README.md)** - Quick start guide and project overview
 - **[API.md](./API.md)** - Complete REST API documentation with examples
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment instructions
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues and solutions
 - **[replit.md](./replit.md)** - Detailed architecture and design patterns
 - **[AGENTS.md](./AGENTS.md)** (this file) - Development guidelines and conventions
 
@@ -26,17 +24,17 @@ The project follows a monorepo structure: the TypeScript calculator in `shared/c
 - Visit `http://localhost:5000` for frontend, `http://localhost:8000/docs` for API docs
 
 **Python Setup:**
-- `python -m pip install -r requirements.txt && pre-commit install` primes Python tooling
+- `python -m pip install -r requirements.txt -r requirements-dev.txt && pre-commit install` primes Python tooling
 - `python scripts/generate_vehicle_catalog_ts.py` refreshes the shared SDK before frontend or API work
 - `uvicorn backend.app.main:app --reload` boots FastAPI standalone
 
 **Frontend Setup:**
-- `cd frontend && npm install && npm run dev` starts the wizard
-- `npm run build|lint|typecheck` satisfy CI gates
+- `cd frontend && bun install && bun run dev` starts the wizard
+- `bun run build|lint|typecheck` satisfy CI gates
 
 **Testing:**
 - `python -m pytest tests --cov` runs backend tests
-- `cd frontend && npm run test` runs frontend tests and enforces the ±1% parity budget using the TypeScript calculator fixtures
+- `cd frontend && bun run test` runs frontend tests and enforces the ±1% parity budget using the TypeScript calculator fixtures
 
 See [README.md](./README.md) for complete development setup instructions.
 
@@ -54,4 +52,4 @@ Commits stay concise and imperative ("Add web app backend, frontend, and shared 
 
 ## Security & Configuration Tips
 
-Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI, scripts, and Docker read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit`, `npm audit`, and `bandit` whenever dependencies move, regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.
+Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI, scripts, and Docker read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit`, `bun audit`, and `bandit` whenever dependencies move, regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.

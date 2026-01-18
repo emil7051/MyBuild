@@ -16,9 +16,7 @@ def validate_backend_imports():
         return False
 
     model_names = [
-        "CalculationRequest",
         "CalculationResponse",
-        "ComparisonRequest",
         "CostBreakdown",
         "CostOverride",
         "VehicleDetail",
@@ -62,7 +60,7 @@ def validate_frontend_build():
         print(f"✓ Frontend build exists ({len(files)} files)")
         return True
     else:
-        print("⚠ Frontend build not found (run 'cd frontend && npm run build')")
+        print("⚠ Frontend build not found (run 'cd frontend && bun run build')")
         return False
 
 

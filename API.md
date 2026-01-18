@@ -121,43 +121,77 @@ Create a new calculation session with inputs and results.
 **Request Body:**
 ```json
 {
-  "wizard_data": {
-    "selected_vehicles": ["BEV001", "DSL001"],
+  "wizardData": {
+    "currentVehicle": "BEV001",
+    "comparisonVehicles": ["DSL001"],
     "scenario": "baseline",
-    "purchase_method": "financed",
-    "annual_kms": 50000,
-    "duty_cycle": {
-      "urban": 0.6,
-      "regional": 0.3,
-      "long_haul": 0.1
+    "purchaseMethod": "financed",
+    "dutyCycle": {
+      "urban": 60,
+      "regional": 30,
+      "longHaul": 10
     },
-    "overrides": {}
+    "overrides": {
+      "annual_kms_variation": 5000,
+      "fuel_price_variation": 1.05
+    },
+    "vehicleParamOverrides": {
+      "BEV001": {
+        "msrp_override": 180000
+      }
+    }
   },
   "results": [
     {
       "vehicle_id": "BEV001",
-      "total_cost_npv": 523750.25,
+      "scenario_name": "baseline",
+      "total_cost": 523750.25,
+      "annual_cost": 34916.68,
       "cost_per_km": 0.62,
-      "breakdown": {...}
+      "breakdown": {
+        "purchase_cost": 176500,
+        "fuel_cost": 0,
+        "maintenance_cost": 11250,
+        "insurance_cost": 9260,
+        "registration_cost": 4200,
+        "battery_replacement_cost": 0,
+        "financing_cost": 14600,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 45000,
+        "depreciation": 120000,
+        "taxes_and_fees": 6000
+      }
     }
   ],
-  "operator_profile": {
-    "operator_type": "owner_driver",
-    "fleet_size": 1,
-    "industry": "construction"
+  "operatorProfile": {
+    "operatorType": "owner_driver",
+    "fleetSize": "1",
+    "contactEmail": "operator@example.com",
+    "consentToContact": true,
+    "notes": "Prefers email follow-up"
+  },
+  "feedback": {
+    "rating": 4,
+    "comment": "Useful comparison."
   }
 }
 ```
 
+Duty cycle values are percentages (0-100) and must sum to ~100.
+
 **Response:**
 ```json
 {
-  "session_id": "550e8400-e29b-41d4-a716-446655440000",
-  "wizard_data": {...},
+  "sessionId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "completed",
+  "wizardData": {...},
   "results": [...],
-  "operator_profile": {...},
-  "created_at": "2025-11-10T21:30:00Z",
-  "updated_at": "2025-11-10T21:30:00Z"
+  "operatorProfile": {...},
+  "feedback": {...},
+  "updatedAt": "2025-11-10T21:30:00Z",
+  "lastCalculatedAt": "2025-11-10T21:30:00Z"
 }
 ```
 
@@ -177,12 +211,14 @@ Retrieve a saved session by ID.
 **Response:**
 ```json
 {
-  "session_id": "550e8400-e29b-41d4-a716-446655440000",
-  "wizard_data": {...},
+  "sessionId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "completed",
+  "wizardData": {...},
   "results": [...],
-  "operator_profile": {...},
-  "created_at": "2025-11-10T21:30:00Z",
-  "updated_at": "2025-11-10T21:30:00Z"
+  "operatorProfile": {...},
+  "feedback": {...},
+  "updatedAt": "2025-11-10T21:30:00Z",
+  "lastCalculatedAt": "2025-11-10T21:30:00Z"
 }
 ```
 
@@ -203,21 +239,24 @@ Update an existing session with new data.
 **Request Body:**
 ```json
 {
-  "wizard_data": {...},
+  "wizardData": {...},
   "results": [...],
-  "operator_profile": {...}
+  "operatorProfile": {...},
+  "feedback": {...}
 }
 ```
 
 **Response:**
 ```json
 {
-  "session_id": "550e8400-e29b-41d4-a716-446655440000",
-  "wizard_data": {...},
+  "sessionId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "completed",
+  "wizardData": {...},
   "results": [...],
-  "operator_profile": {...},
-  "created_at": "2025-11-10T21:30:00Z",
-  "updated_at": "2025-11-10T21:45:00Z"
+  "operatorProfile": {...},
+  "feedback": {...},
+  "updatedAt": "2025-11-10T21:45:00Z",
+  "lastCalculatedAt": "2025-11-10T21:45:00Z"
 }
 ```
 
@@ -239,24 +278,15 @@ Retrieve aggregated analytics across all sessions.
 **Response:**
 ```json
 {
-  "total_sessions": 1250,
-  "total_calculations": 3875,
-  "bev_win_rate": 0.68,
-  "average_payback_years": 4.2,
-  "top_vehicles": [
-    {
-      "vehicle_id": "BEV001",
-      "count": 450
-    },
-    {
-      "vehicle_id": "BEV003",
-      "count": 380
-    }
-  ],
-  "scenario_distribution": {
-    "baseline": 0.65,
-    "tech_breakthrough": 0.25,
-    "oil_crisis": 0.10
+  "totalSessions": 1250,
+  "completedSessions": 980,
+  "calculationsLast24h": 42,
+  "bevWinRate": 0.68,
+  "averagePaybackYears": 4.2,
+  "averageCostDelta": 18500.5,
+  "topVehicles": {
+    "BEV001": 450,
+    "BEV003": 380
   }
 }
 ```

@@ -122,12 +122,6 @@ export const FUTURE_CONSTANTS = {
   /** Expected lifespan of charging infrastructure */
   INFRASTRUCTURE_LIFE: 15,
 
-  /** Legacy proportion constants - superseded by CHARGING_MIX_PROPORTIONS */
-  OFFPEAK_PROPORTION: 0.86,
-  PUBLIC_PROPORTION: 0.14,
-  RETAIL_PROPORTION: 0.0,
-  SOLAR_PROPORTION: 0.0,
-
   /** Solar PV and battery storage installation costs */
   SOLAR_MAINTENANCE: 0.15,
   SOLAR_PANEL_INSTALLATION: 1285,

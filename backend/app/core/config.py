@@ -19,9 +19,6 @@ class Settings(BaseSettings):
     backend_cors_origins: List[AnyHttpUrl] | List[str] = Field(
         default_factory=lambda: ["http://localhost:5000", "http://127.0.0.1:5000"]
     )
-    cache_results: bool = Field(
-        default=True, description="Toggle for caching calculation runs in memory."
-    )
     database_url: str = Field(
         default="sqlite+aiosqlite:///./tco.db",
         description="SQLAlchemy-compatible database URL.",

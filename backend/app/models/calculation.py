@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Literal, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -43,28 +43,6 @@ class CostOverride(BaseModel):
         "extra": "forbid",
     }
 
-    def to_engine_overrides(self) -> Dict[str, float]:
-        """Return the overrides dictionary understood by the Python engine."""
-
-        payload: Dict[str, float] = {}
-        if self.annual_kms_variation is not None:
-            payload["annual_kms_variation"] = self.annual_kms_variation
-        if self.residual_value_variation is not None:
-            payload["residual_value_variation"] = self.residual_value_variation
-        if self.fuel_price_variation is not None:
-            payload["fuel_price_variation"] = self.fuel_price_variation
-        if self.electricity_price_variation is not None:
-            payload["electricity_price_variation"] = self.electricity_price_variation
-        if self.maintenance_cost_variation is not None:
-            payload["maintenance_cost_variation"] = self.maintenance_cost_variation
-        if self.battery_life_variation is not None:
-            payload["battery_life_variation"] = self.battery_life_variation
-        if self.charging_efficiency_variation is not None:
-            payload["charging_efficiency_variation"] = (
-                self.charging_efficiency_variation
-            )
-        return payload
-
 
 class VehicleParamOverride(BaseModel):
     """Optional per-vehicle structural overrides."""
@@ -82,33 +60,6 @@ class VehicleParamOverride(BaseModel):
     model_config = {
         "extra": "forbid",
     }
-
-
-class CalculationRequest(BaseModel):
-    """Request payload for a single TCO calculation."""
-
-    vehicle_id: str = Field(..., description="Vehicle identifier, e.g. BEV001.")
-    scenario_name: str = Field(
-        default="baseline", description="Scenario key from data.scenarios."
-    )
-    purchase_method: Literal["financed", "outright"] = Field(default="financed")
-    overrides: Optional[CostOverride] = None
-    vehicle_overrides: Optional[VehicleParamOverride] = Field(
-        default=None, description="Optional structural overrides for this vehicle."
-    )
-
-
-class ComparisonRequest(BaseModel):
-    """Request payload for comparing a list of vehicles under the same scenario."""
-
-    vehicle_ids: List[str] = Field(..., min_length=1)
-    scenario_name: str = Field(default="baseline")
-    purchase_method: Literal["financed", "outright"] = Field(default="financed")
-    overrides: Optional[CostOverride] = None
-    vehicle_param_overrides: Optional[Dict[str, VehicleParamOverride]] = Field(
-        default=None,
-        description="Map of vehicle_id -> overrides applied when present.",
-    )
 
 
 class CostBreakdown(BaseModel):

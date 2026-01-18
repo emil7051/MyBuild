@@ -49,7 +49,7 @@ docker compose up --build
 
 ```bash
 # Install Python dependencies
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt
 
 # Set up environment variables
 cp backend/.env.example backend/.env
@@ -233,24 +233,10 @@ See [API.md](./API.md) for complete API documentation including:
 - Authentication (if applicable)
 - Usage examples
 
-## Deployment
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment instructions.
-
-## Troubleshooting
-
-Having issues? Check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for solutions to common problems including:
-- Docker and environment setup
-- Frontend build and runtime errors
-- Backend API and database connection issues
-- Deployment and production problems
-
 ## Documentation
 
 - **README.md** (this file) - Quick start and overview
 - **[API.md](./API.md)** - REST API documentation
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment guide
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues and fixes
 - **[AGENTS.md](./AGENTS.md)** - Development guidelines and conventions
 - **[replit.md](./replit.md)** - Detailed architecture and design patterns
 

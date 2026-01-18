@@ -18,7 +18,7 @@ The application has been successfully deployed to production with the following 
   - Analytics dashboard with aggregated insights
   - Results visualization with cost breakdowns, comparison highlights, and charts
 - **Code Cleanup**: Legacy code and transition documentation moved to `archive/` folder
-- **Documentation**: Comprehensive production documentation added (README.md, API.md, DEPLOYMENT.md, TROUBLESHOOTING.md)
+- **Documentation**: Comprehensive documentation added (README.md, API.md)
 - **Production-Ready**: Database schema finalized, caching optimized, error handling implemented
 
 # User Preferences

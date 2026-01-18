@@ -7,13 +7,6 @@ OFFPEAK_CHARGING_PRICE = 0.15  # $/kWh
 SOLAR_CHARGING_PRICE = 0.04  # $/kWh
 PUBLIC_CHARGING_PRICE = 0.50  # $/kWh
 
-# Electricity Mix
-
-RETAIL_PROPORTION = 0.0  # % (Proportion of charging done at workplace AC chargers)
-OFFPEAK_PROPORTION = 0.86  # % (Proportion of charging done at workplace AC chargers during offpeak hours)
-PUBLIC_PROPORTION = 0.14  # % (Proportion of charging done at public DC fast chargers)
-SOLAR_PROPORTION = 0.0  # % (Proportion of charging done at home via solar and storage)
-
 # Charging Mix Proportions by Vehicle Type
 CHARGING_MIX_PROPORTIONS = {
     "BEV": {
