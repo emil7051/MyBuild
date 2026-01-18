@@ -32,53 +32,55 @@ const ComparisonHighlights = () => {
   const runnerName = runnerUp ? getDisplayName(runnerUp.vehicle_id) : undefined;
 
   return (
-    <Card title="Highlights" subtitle="Key takeaways from the latest comparison run.">
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <Card title="Key findings" subtitle="Key takeaways from the latest comparison.">
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="border-4 border-brand-primary bg-white px-6 py-5 relative">
+          <div className="absolute top-0 right-0 bg-brand-primary text-black text-xs font-bold px-2 py-1">
+            Lowest cost
+          </div>
+          <p className="text-xs font-bold text-slate-500 mb-1">
             Best option
           </p>
-          <p className="text-xl font-semibold text-slate-900">{leaderName}</p>
-          <p className="text-sm text-slate-500">
+          <p className="text-2xl font-heading font-bold text-black">{leaderName}</p>
+          <p className="text-sm font-medium text-slate-800 mt-2">
             {formatPerKilometre(leader.cost_per_km)} · {leader.scenario_name}
           </p>
-          <p className="text-xs text-slate-500">
-            Lifetime PV {formatCurrencyCompact(leader.total_cost)}
+          <p className="text-xs text-slate-500 mt-1">
+            Total cost {formatCurrencyCompact(leader.total_cost)}
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {baselineIsLeader ? 'Diesel is still optimal' : 'Cost gap to baseline'}
+        <div className="border border-slate-200 bg-white px-6 py-5">
+          <p className="text-xs font-bold text-slate-500 mb-1">
+            {baselineIsLeader ? 'Diesel is still optimal' : 'Savings vs your current truck'}
           </p>
-          <p className="text-xl font-semibold text-slate-900">
+          <p className="text-2xl font-heading font-bold text-black">
             {baselineIsLeader ? '—' : formatCurrency(Math.abs(lifetimeDelta))}
           </p>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600 mt-2">
             {baselineIsLeader
               ? 'Your current truck already leads this scenario.'
               : `${lifetimeDelta >= 0 ? 'Savings' : 'Additional cost'} compared to ${baselineName}.`}
           </p>
           {!baselineIsLeader && (
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 mt-1">
               Annual delta {formatCurrency(Math.abs(annualDelta))}{' '}
               {annualDelta >= 0 ? 'saved each year.' : 'extra each year.'}
             </p>
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div className="border border-slate-200 bg-white px-6 py-5">
+          <p className="text-xs font-bold text-slate-500 mb-1">
             {runnerUp ? 'Cost gap' : 'Add another vehicle'}
           </p>
-          <p className="text-xl font-semibold text-slate-900">
+          <p className="text-2xl font-heading font-bold text-black">
             {runnerUp && runnerDelta !== undefined ? formatCurrency(Math.abs(runnerDelta)) : '—'}
           </p>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600 mt-2">
             {runnerUp
-              ? `${runnerName} is ${
-                  (runnerDelta ?? 0) >= 0 ? 'higher' : 'lower'
-                } over the horizon.`
+              ? `${runnerName} is ${(runnerDelta ?? 0) >= 0 ? 'higher' : 'lower'
+              } over the horizon.`
               : 'Select at least one comparator to quantify the gap.'}
           </p>
         </div>

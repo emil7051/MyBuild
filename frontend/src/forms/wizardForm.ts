@@ -10,21 +10,21 @@ export interface ScenarioOption {
 export const scenarioOptions: ScenarioOption[] = [
   {
     value: 'baseline',
-    label: 'Baseline',
+    label: 'Current trends',
     description:
-      'Steady 2-3% fuel escalators, moderate maintenance curve, current battery pricing.',
+      'Fuel prices rise 2-3% per year, maintenance costs follow typical patterns, battery prices stay similar.',
   },
   {
     value: 'technology_breakthrough',
-    label: 'Technology breakthrough',
+    label: 'Fast EV progress',
     description:
-      'Faster battery cost decline, improved BEV efficiency, maintenance advantage extends.',
+      'Battery costs drop faster, electric trucks become more efficient, maintenance savings grow.',
   },
   {
     value: 'oil_crisis',
-    label: 'Oil crisis',
+    label: 'High fuel prices',
     description:
-      'Diesel price spike in year 3 and beyond, higher volatility, electricity steady at +3% per year.',
+      'Diesel prices spike from year 3, more price swings, electricity costs rise steadily at 3% per year.',
   },
 ];
 

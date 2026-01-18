@@ -18,7 +18,7 @@ const VehicleParamsForm = ({
   vehicleId,
   title,
   showElectricFields = true,
-  subtitle = 'Overrides are optional — leave blank to use defaults.',
+  subtitle = 'Adjustments are optional - leave blank to use defaults.',
 }: VehicleParamsFormProps) => {
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
   const wizardData = useTCOStore((state) => state.wizardData);
@@ -60,8 +60,8 @@ const VehicleParamsForm = ({
 
   if (!vehicleId) {
     return (
-      <Card title={title} subtitle="Select a vehicle to unlock parameter edits.">
-        <p className="text-sm text-slate-500">No vehicle selected yet.</p>
+      <Card title={title} subtitle="Select a truck to adjust its specifications.">
+        <p className="text-sm text-slate-500">No truck selected yet.</p>
       </Card>
     );
   }
@@ -71,9 +71,9 @@ const VehicleParamsForm = ({
 
   if (!detail) {
     return (
-      <Card title={title} subtitle="Select a vehicle to edit its assumptions.">
+      <Card title={title} subtitle="Select a truck to adjust its specifications.">
         <p className="text-sm text-slate-500">
-          Spec sheet missing for <span className="font-semibold">{vehicleId}</span>.
+          Details missing for <span className="font-semibold">{vehicleId}</span>.
         </p>
       </Card>
     );
@@ -83,14 +83,36 @@ const VehicleParamsForm = ({
 
   const numberOrEmpty = (value?: number) => value ?? '';
 
+  const hasOverrides = Object.keys(overrides).length > 0;
+
+  const handleReset = () => {
+    const existing = { ...(wizardData.vehicleParamOverrides ?? {}) };
+    delete existing[vehicleId];
+    updateWizard({ vehicleParamOverrides: existing });
+  };
+
   return (
-    <Card title={title} subtitle={subtitle}>
-      <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+    <Card
+      title={title}
+      subtitle={subtitle}
+      headerAction={
+        hasOverrides && (
+          <button
+            onClick={handleReset}
+            className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline"
+            title="Reset all overrides to default values"
+          >
+            Reset to defaults
+          </button>
+        )
+      }
+    >
+      <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
         <Field
           type="number"
           min={10000}
           max={2000000}
-          label="MSRP (A$)"
+          label="Purchase price ($)"
           placeholder={formatCurrency(detail.msrp)}
           value={numberOrEmpty(overrides.msrp_override)}
           onChange={(event) =>
@@ -104,7 +126,7 @@ const VehicleParamsForm = ({
           type="number"
           min={0.1}
           step="0.1"
-          label="Payload (t)"
+          label="Payload capacity (tonnes)"
           placeholder={detail.payload.toFixed(1)}
           value={numberOrEmpty(overrides.payload_override)}
           onChange={(event) =>
@@ -117,7 +139,7 @@ const VehicleParamsForm = ({
         <Field
           type="number"
           min={0}
-          label="Annual Rego (A$)"
+          label="Registration cost ($/year)"
           placeholder={formatCurrency(detail.annual_registration)}
           value={numberOrEmpty(overrides.annual_registration_override)}
           onChange={(event) =>
@@ -132,8 +154,8 @@ const VehicleParamsForm = ({
           min={0}
           max={0.2}
           step="0.005"
-          label="Interest Rate (%)"
-          hint="Absolute annual rate — e.g. 0.06 for 6%."
+          label="Interest rate"
+          hint="Annual rate as a decimal - e.g. 0.06 for 6%."
           placeholder="0.06"
           value={numberOrEmpty(overrides.interest_rate_override)}
           onChange={(event) =>
@@ -147,7 +169,7 @@ const VehicleParamsForm = ({
           type="number"
           min={50}
           max={2500}
-          label="Range (km)"
+          label="Range (kilometres)"
           placeholder={detail.range_km ? detail.range_km.toString() : 'N/A'}
           value={numberOrEmpty(overrides.range_km_override)}
           onChange={(event) =>
@@ -162,7 +184,7 @@ const VehicleParamsForm = ({
             type="number"
             min={0.05}
             step="0.01"
-            label="Litres per km"
+            label="Fuel consumption (L/km)"
             placeholder={detail.litres_per_km.toFixed(2)}
             value={numberOrEmpty(overrides.litres_per_km_override)}
             onChange={(event) =>
@@ -177,7 +199,7 @@ const VehicleParamsForm = ({
             <Field
               type="number"
               min={0}
-              label="Battery capacity (kWh)"
+              label="Battery size (kWh)"
               placeholder={detail.battery_capacity_kwh.toString()}
               value={numberOrEmpty(overrides.battery_capacity_kwh_override)}
               onChange={(event) =>
@@ -193,7 +215,7 @@ const VehicleParamsForm = ({
               type="number"
               min={0.1}
               step="0.01"
-              label="kWh per km"
+              label="Energy use (kWh/km)"
               placeholder={detail.kwh_per_km.toString()}
               value={numberOrEmpty(overrides.kwh_per_km_override)}
               onChange={(event) =>
@@ -210,8 +232,8 @@ const VehicleParamsForm = ({
               min={0.1}
               max={8}
               step="0.1"
-              label="Charging Time (hours)"
-              hint="Overrides the class-average charging duration."
+              label="Charging time (hours)"
+              hint="Custom charging duration for this truck."
               placeholder="1.5"
               value={numberOrEmpty(overrides.charging_time_hours_override)}
               onChange={(event) =>

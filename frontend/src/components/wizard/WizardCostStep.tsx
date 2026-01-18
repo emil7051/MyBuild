@@ -10,15 +10,15 @@ const WizardCostStep = () => {
   } = useFormContext<WizardFormValues>();
 
   return (
-    <Card title="Cost sensitivity" subtitle="Optional multipliers for quick scenario exploration.">
+    <Card title="Price adjustments" subtitle="Optional adjustments for quick scenario exploration.">
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2 md:gap-6">
           <Field
             type="number"
-            label="Diesel $ multiplier"
+            label="Diesel price adjustment"
             step="0.05"
             placeholder="1.00"
-            hint="1.12 represents a 12% diesel price increase across the life of the vehicle."
+            hint="Enter 1.10 for 10% higher prices, 0.90 for 10% lower."
             error={errors.overrides?.fuel_price_variation?.message}
             {...register('overrides.fuel_price_variation', {
               setValueAs: (value) => (value === '' ? undefined : Number(value)),
@@ -26,10 +26,10 @@ const WizardCostStep = () => {
           />
           <Field
             type="number"
-            label="Electricity $ multiplier"
+            label="Electricity price adjustment"
             step="0.05"
             placeholder="1.00"
-            hint="Apply shocks or savings to the energy price trajectory."
+            hint="Enter 1.10 for 10% higher prices, 0.90 for 10% lower."
             error={errors.overrides?.electricity_price_variation?.message}
             {...register('overrides.electricity_price_variation', {
               setValueAs: (value) => (value === '' ? undefined : Number(value)),
@@ -39,10 +39,10 @@ const WizardCostStep = () => {
         <div className="grid gap-4 md:grid-cols-2 md:gap-6">
           <Field
             type="number"
-            label="Battery multiplier"
+            label="Battery life adjustment"
             step="0.05"
             placeholder="1.00"
-            hint="0.7 shortens life (higher replacement cost), 1.2 extends it."
+            hint="Enter 0.70 for shorter battery life (higher replacement cost), 1.20 for longer life."
             error={errors.overrides?.battery_life_variation?.message}
             {...register('overrides.battery_life_variation', {
               setValueAs: (value) => (value === '' ? undefined : Number(value)),
@@ -50,10 +50,10 @@ const WizardCostStep = () => {
           />
           <Field
             type="number"
-            label="Charging efficiency multiplier"
+            label="Charging efficiency adjustment"
             step="0.05"
             placeholder="1.00"
-            hint="Impacts BEV charging energy required per kilometre."
+            hint="Affects energy required per kilometre for electric trucks."
             error={errors.overrides?.charging_efficiency_variation?.message}
             {...register('overrides.charging_efficiency_variation', {
               setValueAs: (value) => (value === '' ? undefined : Number(value)),

@@ -21,14 +21,14 @@ const ResultsPage = () => {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Results</p>
+          <p className="text-xs font-bold text-slate-500">Results</p>
           <h2 className="text-2xl font-semibold text-slate-900">Cost comparison outputs</h2>
           <p className="text-sm text-slate-500">
             {isCalculating
               ? 'Running calculations…'
               : lastRunCount
-              ? `Showing ${lastRunCount} vehicle${lastRunCount > 1 ? 's' : ''}.`
-              : 'No data yet — run the wizard to populate this view.'}
+                ? `Showing ${lastRunCount} vehicle${lastRunCount > 1 ? 's' : ''}.`
+                : 'No data yet — run the wizard to populate this view.'}
           </p>
           {sessionId && (
             <p className="text-xs text-slate-500">

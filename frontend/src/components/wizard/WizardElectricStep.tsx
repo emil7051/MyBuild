@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Card from '@components/shared/Card';
+import Select from '@components/shared/Select';
 import { useVehicleCatalog } from '@hooks/useVehicleCatalog';
 import { useTCOStore } from '@state/tcoStore';
 import VehicleParamsForm from './VehicleParamsForm';
@@ -64,64 +65,59 @@ const WizardElectricStep = () => {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
       <Card
-        title="Step 2 — Electric Alternatives"
+        title="Electric trucks to compare"
         subtitle={
           baseline
-            ? `Filtered to ${baseline.weight_class} BEVs so you can compare like-for-like.`
-            : 'Select a diesel first to unlock the filtered BEV list.'
+            ? `Showing ${baseline.weight_class} electric trucks so you can compare like-for-like.`
+            : 'Select a diesel truck first to see available electric options.'
         }
       >
         {!baseline ? (
-          <p className="text-sm text-slate-500">Choose a diesel in Step 1 first.</p>
+          <p className="text-sm text-slate-500">Choose a diesel truck in step 1 first.</p>
         ) : (
           <>
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-900">
-              Add BEV alternative
-              <select
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-base shadow-sm"
-                defaultValue=""
-                onChange={(event) => {
-                  const id = event.currentTarget.value;
-                  if (id) {
-                    addComparator(id);
-                    event.currentTarget.value = '';
-                  }
-                }}
-              >
-                <option value="">Select…</option>
-                {bevOptions.map((vehicle) => (
-                  <option
-                    key={vehicle.vehicle_id}
-                    value={vehicle.vehicle_id}
-                    title={`${vehicle.model_name} (${vehicle.vehicle_id})`}
-                  >
-                    {vehicle.model_name}
-                  </option>
-                ))}
-              </select>
-              <span className="text-xs text-slate-500">
-                You can add multiple BEVs — each will show up as a chip below.
-              </span>
-            </label>
+            <Select
+              label="Add an electric truck"
+              hint="You can add multiple electric trucks - each will show up as a chip below."
+              defaultValue=""
+              onChange={(event) => {
+                const id = event.currentTarget.value;
+                if (id) {
+                  addComparator(id);
+                  event.currentTarget.value = '';
+                }
+              }}
+            >
+              <option value="">Select…</option>
+              {bevOptions.map((vehicle) => (
+                <option
+                  key={vehicle.vehicle_id}
+                  value={vehicle.vehicle_id}
+                  title={`${vehicle.model_name} (${vehicle.vehicle_id})`}
+                >
+                  {vehicle.model_name}
+                </option>
+              ))}
+            </Select>
 
             {suggestion && suggestionDetail && !wizardData.comparisonVehicles.includes(suggestion) && (
               <button
                 type="button"
-                className="mt-3 text-sm font-medium text-brand-600 underline"
+                className="mt-3 text-sm font-medium text-brand-blue hover:underline"
                 onClick={() => addComparator(suggestion)}
               >
-                Add suggested pair: {suggestionDetail.model_name}
+                + Add suggested pair: {suggestionDetail.model_name}
               </button>
             )}
 
-            <div className="mt-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Selected BEVs
+            <div className="mt-8">
+              <p className="text-xs font-bold text-slate-500 mb-3">
+                Trucks you're comparing
               </p>
               {!wizardData.comparisonVehicles.length ? (
-                <p className="mt-3 text-sm text-slate-500">No BEVs selected yet.</p>
+                <p className="text-sm text-slate-400 italic">No electric trucks selected yet.</p>
               ) : (
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {wizardData.comparisonVehicles.map((vehicleId) => {
                     const detail = vehicleDetails[vehicleId];
                     const isActive = vehicleId === activeComparison;
@@ -129,11 +125,10 @@ const WizardElectricStep = () => {
                     return (
                       <div
                         key={vehicleId}
-                        className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm ${
-                          isActive
-                            ? 'border-brand-500 bg-brand-50 text-brand-700'
-                            : 'border-slate-200 bg-white text-slate-600'
-                        }`}
+                        className={`flex items-center gap-3 rounded-md border px-4 py-2 text-sm transition-all shadow-sm cursor-pointer ${isActive
+                          ? 'border-brand-primary bg-brand-primary/10 text-black shadow-md ring-1 ring-brand-primary'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-brand-primary/50'
+                          }`}
                         role="button"
                         tabIndex={0}
                         onClick={() => setActiveComparison(vehicleId)}
@@ -144,15 +139,17 @@ const WizardElectricStep = () => {
                           }
                         }}
                       >
-                        <span>{displayName}</span>
-                        {detail && (
-                          <span className="text-xs text-slate-400">
-                            {formatCurrency(detail.msrp)}
-                          </span>
-                        )}
+                        <div className="flex flex-col">
+                          <span className="font-bold leading-tight">{displayName}</span>
+                          {detail && (
+                            <span className="text-xs text-slate-500">
+                              {formatCurrency(detail.msrp)}
+                            </span>
+                          )}
+                        </div>
                         <button
                           type="button"
-                          className="text-xs text-slate-400"
+                          className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors"
                           aria-label={`Remove ${displayName}`}
                           onClick={(event) => {
                             event.stopPropagation();
@@ -173,7 +170,7 @@ const WizardElectricStep = () => {
 
       <VehicleParamsForm
         vehicleId={activeComparison}
-        title="Override default assumptions"
+        title="Adjust specifications"
       />
     </div>
   );

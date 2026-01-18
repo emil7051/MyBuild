@@ -5,6 +5,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,6 +13,11 @@ import {
 } from 'recharts';
 import type { TooltipProps } from 'recharts';
 import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+
+// Brand colors
+const DIESEL_COLOR = '#EA5300';
+const ELECTRIC_COLOR = '#00FFC7';
+const WINNER_COLOR = '#FFC700';
 
 const CostTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
   if (!active || !payload?.length) {
@@ -30,7 +36,7 @@ const CostTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => 
       <p className="text-sm font-semibold text-slate-900">{entry.vehicle}</p>
       <p>{formatPerKilometre(entry.costPerKm)}</p>
       <p>Annual {formatCurrency(entry.annualCost)}</p>
-      <p>Lifetime {formatCurrency(entry.totalCost)}</p>
+      <p>Total cost {formatCurrency(entry.totalCost)}</p>
     </div>
   );
 };
@@ -40,15 +46,40 @@ const CostPerKmChart = () => {
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
 
   if (!results.length) {
-    return null;
+    return (
+      <Card
+        title="Cost per kilometre"
+        subtitle="Lower bars indicate cheaper ownership under the selected scenario."
+      >
+        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
+          <p className="text-sm text-slate-500">No results to display</p>
+        </div>
+      </Card>
+    );
   }
 
-  const data = results.map((result) => ({
-    vehicle: vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id,
-    costPerKm: Number(result.cost_per_km.toFixed(4)),
-    annualCost: result.annual_cost,
-    totalCost: result.total_cost,
-  }));
+  // Determine the winner (lowest cost per km)
+  const minCostPerKm = Math.min(...results.map((r) => r.cost_per_km));
+
+  const data = results.map((result) => {
+    const detail = vehicleDetails[result.vehicle_id];
+    const drivetrainType = detail?.drivetrain_type ?? 'Diesel';
+    const isWinner = result.cost_per_km === minCostPerKm;
+
+    return {
+      vehicle: detail?.model_name ?? result.vehicle_id,
+      costPerKm: Number(result.cost_per_km.toFixed(4)),
+      annualCost: result.annual_cost,
+      totalCost: result.total_cost,
+      drivetrainType,
+      isWinner,
+    };
+  });
+
+  const getBarColor = (entry: (typeof data)[number]) => {
+    if (entry.isWinner) return WINNER_COLOR;
+    return entry.drivetrainType === 'BEV' ? ELECTRIC_COLOR : DIESEL_COLOR;
+  };
 
   return (
     <Card
@@ -65,8 +96,8 @@ const CostPerKmChart = () => {
             bottom: 0,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="vehicle" tick={{ fontSize: 12 }} />
+          <CartesianGrid stroke="#E5E5E5" vertical={false} />
+          <XAxis dataKey="vehicle" tick={{ fontSize: 12, fill: '#000000' }} />
           <YAxis
             tickFormatter={(value) =>
               formatCurrency(value as number, {
@@ -74,16 +105,19 @@ const CostPerKmChart = () => {
                 maximumFractionDigits: 2,
               })
             }
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 12, fill: '#000000' }}
           />
           <Tooltip content={<CostTooltip />} />
-          <Bar
-            dataKey="costPerKm"
-            name="Cost per km"
-            fill="#124df0"
-            radius={[8, 8, 0, 0]}
-            maxBarSize={64}
-          />
+          <Bar dataKey="costPerKm" name="Cost per km" radius={[6, 6, 0, 0]} maxBarSize={64}>
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={getBarColor(entry)}
+                stroke={entry.isWinner ? '#000000' : undefined}
+                strokeWidth={entry.isWinner ? 2 : 0}
+              />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </Card>

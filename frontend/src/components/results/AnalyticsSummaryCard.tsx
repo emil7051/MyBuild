@@ -51,24 +51,24 @@ const AnalyticsSummaryCard = () => {
       {data && (
         <div className="grid gap-4 md:grid-cols-3">
           {metrics.map((metric) => (
-            <div key={metric.label} className="rounded-lg border border-slate-100 p-3">
-              <p className="text-xs uppercase tracking-widest text-slate-500">{metric.label}</p>
-              <p className="text-lg font-semibold text-slate-900">{metric.value}</p>
+            <div key={metric.label} className="border border-slate-200 p-4 bg-slate-50">
+              <p className="text-xs font-bold text-slate-500 mb-1">{metric.label}</p>
+              <p className="text-xl font-heading font-bold text-black">{metric.value}</p>
             </div>
           ))}
         </div>
       )}
       {data && (
-        <div className="mt-4">
-          <p className="text-xs uppercase tracking-widest text-slate-500">Top vehicles</p>
+        <div className="mt-6 pt-6 border-t border-slate-100">
+          <p className="text-xs font-bold text-slate-500 mb-3">Top vehicles</p>
           {Object.keys(data.topVehicles).length === 0 ? (
             <p className="text-sm text-slate-500">No runs yet.</p>
           ) : (
-            <ul className="mt-2 space-y-1 text-sm text-slate-700">
+            <ul className="grid gap-y-2 text-sm text-slate-800">
               {Object.entries(data.topVehicles).map(([vehicleId, count]) => (
-                <li key={vehicleId} className="flex justify-between">
-                  <span className="font-mono">{vehicleId}</span>
-                  <span>{count} runs</span>
+                <li key={vehicleId} className="flex justify-between items-center bg-white p-2 border border-slate-100">
+                  <span className="font-bold">{vehicleId}</span>
+                  <span className="text-xs bg-brand-primary text-black font-bold px-2 py-0.5 rounded-full">{count} runs</span>
                 </li>
               ))}
             </ul>

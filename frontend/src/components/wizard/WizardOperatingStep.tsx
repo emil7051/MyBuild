@@ -3,6 +3,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import clsx from 'clsx';
 import Card from '@components/shared/Card';
 import Field from '@components/shared/Field';
+import Select from '@components/shared/Select';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { purchaseOptions, scenarioOptions } from '@forms/wizardForm';
 
@@ -29,54 +30,48 @@ const WizardOperatingStep = () => {
 
   return (
     <Card
-      title="Operating profile"
-      subtitle="Scenarios and duty-cycle assumptions that drive the lifetime cost calculation."
+      title="How you use your trucks"
+      subtitle="Settings that affect your lifetime cost calculation."
     >
       <div className="grid gap-6 md:grid-cols-2">
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-900">
-          Scenario trajectory
-          <select
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-base shadow-sm"
-            {...register('scenario')}
-          >
-            {scenarioOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <span className="text-xs text-slate-500">
-            {scenarioMeta
+        <Select
+          label="Market scenario"
+          hint={
+            scenarioMeta
               ? scenarioMeta.description
-              : 'Pulls trajectories from the pre-configured scenarios.'}
-          </span>
-        </label>
+              : 'Choose a scenario to see how costs might change over time.'
+          }
+          {...register('scenario')}
+        >
+          {scenarioOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
 
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-900">
-          Purchase method
-          <select
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-base shadow-sm"
-            {...register('purchaseMethod')}
-          >
-            {purchaseOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <span className="text-xs text-slate-500">Detemines pricing approach.</span>
-        </label>
+        <Select
+          label="How will you buy?"
+          hint="Determines pricing approach."
+          {...register('purchaseMethod')}
+        >
+          {purchaseOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
       </div>
 
       <div className="mt-5">
-        <p className="text-sm font-semibold text-slate-900">Duty-cycle mix</p>
+        <p className="text-sm font-semibold text-slate-900">Your typical routes</p>
         <p className="text-xs text-slate-500">
           Percent of annual kilometres by route type. Must add up to 100%.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <Field
             type="number"
-            label="Urban (%)"
+            label="City/metro (%)"
             placeholder="60"
             min={0}
             max={100}
@@ -87,7 +82,7 @@ const WizardOperatingStep = () => {
           />
           <Field
             type="number"
-            label="Regional (%)"
+            label="Regional roads (%)"
             placeholder="25"
             min={0}
             max={100}
@@ -98,7 +93,7 @@ const WizardOperatingStep = () => {
           />
           <Field
             type="number"
-            label="Long haul (%)"
+            label="Highway/long distance (%)"
             placeholder="15"
             min={0}
             max={100}
@@ -124,10 +119,10 @@ const WizardOperatingStep = () => {
       <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Field
           type="number"
-          label="Annual kilometres"
+          label="Kilometres per year"
           placeholder="23000"
           min={1000}
-          hint="Override default kms for the selected vehicles."
+          hint="Custom annual distance for your trucks."
           error={errors.overrides?.annual_kms_variation?.message}
           {...register('overrides.annual_kms_variation', {
             setValueAs: (value) => (value === '' ? undefined : Number(value)),
@@ -135,10 +130,10 @@ const WizardOperatingStep = () => {
         />
         <Field
           type="number"
-          label="Residual value multiplier"
+          label="Resale value adjustment"
           step="0.05"
           placeholder="1.0"
-          hint="0.9 reduces resale expectations by 10%."
+          hint="Enter 0.90 for 10% lower resale, 1.10 for 10% higher."
           error={errors.overrides?.residual_value_variation?.message}
           {...register('overrides.residual_value_variation', {
             setValueAs: (value) => (value === '' ? undefined : Number(value)),
@@ -146,10 +141,10 @@ const WizardOperatingStep = () => {
         />
         <Field
           type="number"
-          label="Maintenance multiplier"
+          label="Maintenance cost adjustment"
           step="0.05"
           placeholder="1.0"
-          hint="Increase/decrease maintenance costs globally."
+          hint="Enter 1.10 for 10% higher costs, 0.90 for 10% lower."
           error={errors.overrides?.maintenance_cost_variation?.message}
           {...register('overrides.maintenance_cost_variation', {
             setValueAs: (value) => (value === '' ? undefined : Number(value)),

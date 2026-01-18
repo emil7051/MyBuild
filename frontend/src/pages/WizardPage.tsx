@@ -18,15 +18,15 @@ import { toast } from 'react-hot-toast';
 
 const steps: WizardStep[] = [
   {
-    title: 'Your diesel truck',
-    description: 'Choose the baseline vehicle you operate today.',
+    title: 'Your current truck',
+    description: 'Select the diesel truck you operate today.',
   },
   {
-    title: 'Electric alternatives',
-    description: 'Pick BEVs in the same class and edit their specs.',
+    title: 'Electric options',
+    description: 'Choose electric trucks to compare.',
   },
   {
-    title: 'Configure & compare',
+    title: 'See your results',
     description: 'View results and explore scenarios.',
   },
 ];
@@ -221,7 +221,7 @@ const WizardPage = () => {
               Step {stepIndex + 1} of {steps.length}
             </p>
             {!baselineSelected && (
-              <p className="text-xs text-rose-500">Select at least one vehicle to continue.</p>
+              <p className="text-xs text-rose-500">Select at least one truck to continue.</p>
             )}
           </div>
           <div className="flex gap-3">

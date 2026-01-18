@@ -13,18 +13,33 @@ import {
   YAxis,
 } from 'recharts';
 
+// Brand-aligned cost colors
+const COST_COLORS = {
+  purchase_cost: '#3040B9',
+  fuel_cost: '#3B52FF',
+  maintenance_cost: '#7080FF',
+  insurance_cost: '#B9C2FF',
+  registration_cost: '#844A34',
+  battery_replacement_cost: '#005A46',
+  financing_cost: '#EA5300',
+  carbon_cost: '#F2AE95',
+  charging_labour_cost: '#00FFC7',
+  payload_penalty_cost: '#C5FFF3',
+  taxes_and_fees: '#000000',
+} as const;
+
 const breakdownSeries = [
-  { key: 'purchase_cost', label: 'Purchase', color: '#0f31a1' },
-  { key: 'fuel_cost', label: 'Fuel / Energy', color: '#2563eb' },
-  { key: 'maintenance_cost', label: 'Maintenance', color: '#38bdf8' },
-  { key: 'insurance_cost', label: 'Insurance', color: '#0ea5e9' },
-  { key: 'registration_cost', label: 'Registration', color: '#06b6d4' },
-  { key: 'battery_replacement_cost', label: 'Battery replacement', color: '#14b8a6' },
-  { key: 'financing_cost', label: 'Financing', color: '#f97316' },
-  { key: 'carbon_cost', label: 'Carbon', color: '#facc15' },
-  { key: 'charging_labour_cost', label: 'Charging labour', color: '#84cc16' },
-  { key: 'payload_penalty_cost', label: 'Payload penalty', color: '#a855f7' },
-  { key: 'taxes_and_fees', label: 'Taxes & fees', color: '#f43f5e' },
+  { key: 'purchase_cost', label: 'Purchase', color: COST_COLORS.purchase_cost },
+  { key: 'fuel_cost', label: 'Fuel / Energy', color: COST_COLORS.fuel_cost },
+  { key: 'maintenance_cost', label: 'Maintenance', color: COST_COLORS.maintenance_cost },
+  { key: 'insurance_cost', label: 'Insurance', color: COST_COLORS.insurance_cost },
+  { key: 'registration_cost', label: 'Registration', color: COST_COLORS.registration_cost },
+  { key: 'battery_replacement_cost', label: 'Battery replacement', color: COST_COLORS.battery_replacement_cost },
+  { key: 'financing_cost', label: 'Financing', color: COST_COLORS.financing_cost },
+  { key: 'carbon_cost', label: 'Carbon', color: COST_COLORS.carbon_cost },
+  { key: 'charging_labour_cost', label: 'Charging labour', color: COST_COLORS.charging_labour_cost },
+  { key: 'payload_penalty_cost', label: 'Payload penalty', color: COST_COLORS.payload_penalty_cost },
+  { key: 'taxes_and_fees', label: 'Taxes & fees', color: COST_COLORS.taxes_and_fees },
 ] as const;
 
 type BreakdownKey = keyof CalculationResponsePayload['breakdown'];
@@ -34,7 +49,16 @@ const CostBreakdownChart = () => {
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
 
   if (!results.length) {
-    return null;
+    return (
+      <Card
+        title="Cost components"
+        subtitle="Stacked view of the present value cost drivers for each vehicle."
+      >
+        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
+          <p className="text-sm text-slate-500">No results to display</p>
+        </div>
+      </Card>
+    );
   }
 
   const data = results.map((result) => {
@@ -57,13 +81,13 @@ const CostBreakdownChart = () => {
     >
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="vehicle" tick={{ fontSize: 12 }} />
+          <CartesianGrid stroke="#E5E5E5" vertical={false} />
+          <XAxis dataKey="vehicle" tick={{ fontSize: 12, fill: '#000000' }} />
           <YAxis
             tickFormatter={(value) =>
               formatCurrency(value as number, { maximumFractionDigits: 0 })
             }
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 12, fill: '#000000' }}
           />
           <Tooltip
             formatter={(value, name) => {
