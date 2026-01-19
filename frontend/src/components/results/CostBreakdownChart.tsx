@@ -44,6 +44,41 @@ const breakdownSeries = [
 
 type BreakdownKey = keyof CalculationResponsePayload['breakdown'];
 
+// Info tooltip explaining mixed value bases in the breakdown chart
+const MixedBasesInfo = () => (
+  <span className="inline-flex items-center gap-1">
+    Stacked view of lifetime cost components for each vehicle.
+    <span className="group relative cursor-help">
+      <svg
+        className="h-4 w-4 text-slate-400 hover:text-slate-600 transition-colors"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      <span className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 top-6 z-10 w-72 rounded-md bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+        <span className="font-semibold block mb-1">Values have mixed bases:</span>
+        <span className="block mb-1">
+          <span className="text-emerald-300">NPV-adjusted:</span> Fuel, Maintenance, Battery replacement, Carbon, Charging labour, Payload penalty, Residual value
+        </span>
+        <span className="block mb-1">
+          <span className="text-amber-300">Nominal lifetime:</span> Insurance, Registration, Depreciation
+        </span>
+        <span className="block">
+          <span className="text-sky-300">Upfront:</span> Purchase, Taxes &amp; fees
+        </span>
+        <span className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800" />
+      </span>
+    </span>
+  </span>
+);
+
 const CostBreakdownChart = () => {
   const results = useTCOStore((state) => state.results);
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
@@ -52,7 +87,7 @@ const CostBreakdownChart = () => {
     return (
       <Card
         title="Cost components"
-        subtitle="Stacked view of lifetime cost components for each vehicle."
+        subtitle={<MixedBasesInfo />}
       >
         <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
           <p className="text-sm text-slate-500">No results to display</p>
@@ -77,7 +112,7 @@ const CostBreakdownChart = () => {
   return (
     <Card
       title="Cost components"
-      subtitle="Stacked view of lifetime cost components for each vehicle."
+      subtitle={<MixedBasesInfo />}
     >
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>

@@ -2,7 +2,7 @@
 
 API-002: UUID validation for session_id path parameters.
 SEC-007: Analytics endpoint restricted to backend-only access via API key.
-SEC-008: Rate limiting for session and analytics endpoints.
+SEC-008: Rate limiting for session, analytics, and vehicle catalog endpoints.
 """
 
 from typing import List, Optional
@@ -17,6 +17,7 @@ from backend.app.core.security import (
     get_client_ip,
     get_rate_limit_analytics,
     get_rate_limit_sessions,
+    get_rate_limit_vehicles,
     verify_analytics_api_key,
 )
 from backend.app.db.session import get_db_session
@@ -61,14 +62,16 @@ def healthcheck():
 
 
 @api_router.get("/vehicles", response_model=List[VehicleSummary], tags=["vehicles"])
-def list_vehicles() -> List[VehicleSummary]:
+@limiter.limit(get_rate_limit_vehicles)
+def list_vehicles(request: Request) -> List[VehicleSummary]:
     return _vehicle_service.list_summaries()
 
 
 @api_router.get(
     "/vehicles/{vehicle_id}", response_model=VehicleDetail, tags=["vehicles"]
 )
-def get_vehicle(vehicle_id: str) -> VehicleDetail:
+@limiter.limit(get_rate_limit_vehicles)
+def get_vehicle(request: Request, vehicle_id: str) -> VehicleDetail:
     try:
         return _vehicle_service.get(vehicle_id)
     except KeyError as exc:  # pragma: no cover
