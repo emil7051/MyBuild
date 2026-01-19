@@ -6,8 +6,8 @@ SEC-008: Rate limiting configuration for session and analytics endpoints.
 
 from __future__ import annotations
 
-import secrets
 from ipaddress import ip_address, ip_network
+import secrets
 from typing import Optional
 
 import bcrypt
