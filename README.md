@@ -188,7 +188,7 @@ pytest tests/ --cov
 cd frontend
 bun test
 
-# Calculator parity tests only
+# Calculator verification tests only
 cd frontend
 bun test verification.test.ts
 
@@ -220,7 +220,7 @@ Whenever you modify data in `data/` (vehicles, scenarios, policies, constants):
 # Regenerate TypeScript types and data
 python scripts/generate_vehicle_catalog_ts.py
 
-# Run parity tests to ensure consistency
+# Run verification tests to ensure consistency
 cd frontend
 bun test
 ```
