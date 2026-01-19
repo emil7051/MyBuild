@@ -53,7 +53,7 @@ const defaultWizardData: WizardData = {
 const initialVehicleDetails: Record<string, VehicleDetail> = { ...VEHICLE_BY_ID };
 
 const memoryStorage = (() => {
-  let store = new Map<string, string>();
+  const store = new Map<string, string>();
   return {
     getItem: (name: string) => (store.has(name) ? store.get(name)! : null),
     setItem: (name: string, value: string) => {
