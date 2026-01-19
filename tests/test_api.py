@@ -96,8 +96,14 @@ async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
     created = create_response.json()
     assert created["status"] == "completed"
 
+    # SEC-005: Session now requires secret for GET
     session_id = created["sessionId"]
-    get_response = await client.get(f"/api/v1/sessions/{session_id}")
+    session_secret = created["sessionSecret"]
+
+    get_response = await client.get(
+        f"/api/v1/sessions/{session_id}",
+        headers={"X-Session-Secret": session_secret},
+    )
     assert get_response.status_code == 200
     assert get_response.json()["sessionId"] == session_id
 
@@ -107,11 +113,16 @@ async def test_session_update_clears_results(client: httpx.AsyncClient) -> None:
     create_response = await client.post(
         "/api/v1/sessions", json=make_session_payload_dict()
     )
-    session_id = create_response.json()["sessionId"]
+    created = create_response.json()
+    session_id = created["sessionId"]
+    session_secret = created["sessionSecret"]
 
     update_payload = make_session_update_payload_dict(results=[])
+    # SEC-005: Session now requires secret for PUT
     update_response = await client.put(
-        f"/api/v1/sessions/{session_id}", json=update_payload
+        f"/api/v1/sessions/{session_id}",
+        json=update_payload,
+        headers={"X-Session-Secret": session_secret},
     )
     assert update_response.status_code == 200
     assert update_response.json()["status"] == "draft"

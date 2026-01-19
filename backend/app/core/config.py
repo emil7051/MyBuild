@@ -31,6 +31,27 @@ class Settings(BaseSettings):
         default=1800, ge=60, description="TTL for cached wizard sessions in Redis."
     )
 
+    # Security settings (Phase 4 / SEC-004, SEC-007, SEC-008)
+    max_request_body_size: int = Field(
+        default=1_048_576,  # 1 MB
+        ge=1024,
+        description="Maximum request body size in bytes.",
+    )
+    rate_limit_sessions_per_minute: int = Field(
+        default=30,
+        ge=1,
+        description="Max session create/update requests per IP per minute.",
+    )
+    rate_limit_analytics_per_minute: int = Field(
+        default=10,
+        ge=1,
+        description="Max analytics requests per IP per minute.",
+    )
+    analytics_api_key: Optional[str] = Field(
+        default=None,
+        description="API key for analytics endpoint. If None, unrestricted.",
+    )
+
     @field_validator("backend_cors_origins", mode="before")
     @classmethod
     def _split_cors_origins(cls, value):

@@ -1,4 +1,8 @@
-"""FastAPI entrypoint for the TCO web platform backend."""
+"""FastAPI entrypoint for the TCO web platform backend.
+
+SEC-004: Request body size limits via middleware.
+SEC-008: Rate limiting via slowapi.
+"""
 
 from __future__ import annotations
 
@@ -9,9 +13,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from backend.app.api import api_router
+from backend.app.api.router import limiter
 from backend.app.core.config import settings
+from backend.app.core.middleware import RequestSizeLimitMiddleware
 from backend.app.db.session import init_db
 
 
@@ -27,12 +35,19 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # Add rate limiter state (SEC-008)
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+    # Add request size limit middleware (SEC-004)
+    app.add_middleware(RequestSizeLimitMiddleware)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[str(origin) for origin in settings.backend_cors_origins],
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "OPTIONS"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "X-Session-Secret", "X-Analytics-Key"],
     )
 
     app.include_router(api_router)
