@@ -25,6 +25,7 @@ export const useWizardAutosave = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const sessionId = useTCOStore((state) => state.sessionId);
   const setSessionId = useTCOStore((state) => state.setSessionId);
+  const hasHydrated = useTCOStore((state) => state._hasHydrated);
   const lastSnapshot = useRef<string>('');
   const abortControllerRef = useRef<AbortController | null>(null);
   const isCreatingSessionRef = useRef(false);
@@ -32,6 +33,13 @@ export const useWizardAutosave = () => {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'error'>('idle');
 
   useEffect(() => {
+    // Wait for store to hydrate before attempting any session operations
+    // This prevents race conditions where we try to create a session
+    // before the persisted sessionId is loaded from localStorage
+    if (!hasHydrated) {
+      return;
+    }
+
     const payload = sanitizeWizardData(wizardData);
     const serialized = JSON.stringify(payload);
     if (serialized === lastSnapshot.current) {
@@ -125,7 +133,7 @@ export const useWizardAutosave = () => {
     return () => {
       clearTimeout(timer);
     };
-  }, [sessionId, setSessionId, wizardData]);
+  }, [hasHydrated, sessionId, setSessionId, wizardData]);
 
   // Cleanup AbortController on unmount
   useEffect(() => {

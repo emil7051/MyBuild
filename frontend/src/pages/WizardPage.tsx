@@ -116,8 +116,23 @@ const WizardPage = () => {
   ]);
 
   useEffect(() => {
+    // Skip initial callback - fields may not be registered yet
+    let isInitialMount = true;
     const subscription = formMethods.watch((values) => {
+      if (isInitialMount) {
+        isInitialMount = false;
+        return;
+      }
       const dutyCycle = values.dutyCycle as DutyCycle | undefined;
+      // Skip if nested duty cycle values are undefined (fields not yet registered)
+      if (
+        dutyCycle &&
+        (dutyCycle.urban === undefined ||
+          dutyCycle.regional === undefined ||
+          dutyCycle.longHaul === undefined)
+      ) {
+        return;
+      }
       isUpdatingFromForm.current = true;
       updateWizard({
         scenario: values.scenario,

@@ -29,6 +29,7 @@ interface TCOStore {
   vehicleDetails: Record<string, VehicleDetail>;
   sessionId?: string;
   latestRequestId: number;
+  _hasHydrated: boolean;
   updateWizard: (data: Partial<WizardData>) => void;
   setStepIndex: (index: number) => void;
   setResults: (
@@ -40,6 +41,7 @@ interface TCOStore {
   setIsCalculating: (state: boolean) => void;
   setSessionId: (sessionId?: string) => void;
   getNextRequestId: () => number;
+  setHasHydrated: (state: boolean) => void;
 }
 
 const defaultWizardData: WizardData = {
@@ -140,6 +142,7 @@ export const useTCOStore = create<TCOStore>()(
       vehicleDetails: initialVehicleDetails,
       sessionId: undefined,
       latestRequestId: 0,
+      _hasHydrated: false,
       updateWizard: (data) =>
         set((state) => {
           const validatedData = { ...data };
@@ -176,6 +179,7 @@ export const useTCOStore = create<TCOStore>()(
       resetResults: () => set({ results: [] }),
       setIsCalculating: (state) => set({ isCalculating: state }),
       setSessionId: (sessionId) => set({ sessionId }),
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
       name: 'tco-wizard-store',
@@ -251,3 +255,11 @@ export const useTCOStore = create<TCOStore>()(
     }
   )
 );
+
+// Set hydrated flag after store is created using the persist API
+// This ensures components don't read stale state before hydration completes
+if (typeof window !== 'undefined') {
+  useTCOStore.persist.onFinishHydration(() => {
+    useTCOStore.getState().setHasHydrated(true);
+  });
+}

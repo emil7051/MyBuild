@@ -7,8 +7,11 @@ import Select from '@components/shared/Select';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { purchaseOptions, scenarioOptions } from '@forms/wizardForm';
 
-const numberOrUndefined = (value: string) =>
-  value === '' ? undefined : Number(value);
+const numberOrUndefined = (value: unknown): number | undefined => {
+  if (value === '' || value === undefined || value === null) return undefined;
+  const num = Number(value);
+  return Number.isNaN(num) ? undefined : num;
+};
 
 const WizardOperatingStep = () => {
   const {
