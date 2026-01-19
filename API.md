@@ -56,7 +56,7 @@ Retrieve a list of all available vehicles with summary information.
   {
     "vehicle_id": "DSL001",
     "model_name": "Hino 300",
-    "drivetrain_type": "DSL",
+    "drivetrain_type": "Diesel",
     "weight_class": "Light Rigid",
     "comparison_pair": "BEV001"
   }
