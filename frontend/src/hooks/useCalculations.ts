@@ -70,18 +70,39 @@ export const useCalculationRunner = () => {
 
   const comparisonMutation = useMutation({
     mutationFn: async (payload: ComparisonRequestPayload) => {
+      console.log('[comparisonMutation] Starting calculation with payload:', {
+        vehicle_ids: payload.vehicle_ids,
+        duty_cycle: payload.duty_cycle,
+        scenario_name: payload.scenario_name,
+        purchase_method: payload.purchase_method,
+      });
+
       // Capture request context before starting calculation
       const requestId = getNextRequestId();
       const vehicleOrder = payload.vehicle_ids;
       const data = await calculateComparison(payload);
+
+      console.log('[comparisonMutation] Calculation complete, results:', data.map(r => ({
+        vehicle_id: r.vehicle_id,
+        total_cost: r.total_cost,
+        cost_per_km: r.cost_per_km,
+      })));
+
       return { data, requestId, vehicleOrder };
     },
-    onMutate: () => setIsCalculating(true),
+    onMutate: () => {
+      console.log('[comparisonMutation] onMutate - setting isCalculating=true');
+      setIsCalculating(true);
+    },
     onSuccess: ({ data, requestId, vehicleOrder }) => {
+      console.log('[comparisonMutation] onSuccess - setting results, requestId:', requestId);
       setResults(data, requestId, vehicleOrder);
       void persistSession(data);
     },
-    onSettled: () => setIsCalculating(false),
+    onSettled: () => {
+      console.log('[comparisonMutation] onSettled - setting isCalculating=false');
+      setIsCalculating(false);
+    },
   });
 
   const singleMutation = useMutation({

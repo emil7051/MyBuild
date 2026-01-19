@@ -137,15 +137,24 @@ export const useTCOStore = create<TCOStore>()(
       _hasHydrated: false,
       updateWizard: (data) =>
         set((state) => {
+          console.log('[Store updateWizard] Received:', {
+            dutyCycle: data.dutyCycle,
+            scenario: data.scenario,
+          });
+
           const validatedData = { ...data };
 
           if (data.dutyCycle) {
             validatedData.dutyCycle = validateDutyCycle(data.dutyCycle);
+            console.log('[Store updateWizard] Validated duty cycle:', validatedData.dutyCycle);
           }
 
-          return {
+          const newState = {
             wizardData: { ...state.wizardData, ...validatedData },
           };
+          console.log('[Store updateWizard] New wizardData.dutyCycle:', newState.wizardData.dutyCycle);
+
+          return newState;
         }),
       setStepIndex: (index) => set({ stepIndex: index }),
       getNextRequestId: () => {

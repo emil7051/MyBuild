@@ -18,7 +18,7 @@ const WizardOperatingStep = () => {
     register,
     watch,
     control,
-    formState: { errors },
+    formState: { errors, dirtyFields, touchedFields },
   } = useFormContext<WizardFormValues>();
   const scenario = watch('scenario');
   const scenarioMeta = scenarioOptions.find((option) => option.value === scenario);
@@ -29,11 +29,13 @@ const WizardOperatingStep = () => {
   const regional = useWatch({ control, name: 'dutyCycle.regional', defaultValue: 25 });
   const longHaul = useWatch({ control, name: 'dutyCycle.longHaul', defaultValue: 15 });
 
-  // Debug logging
-  console.log('[WizardOperatingStep]', {
+  // Comprehensive debug logging
+  console.log('[WizardOperatingStep] Render', {
     watchedValues: { urban, regional, longHaul },
     errors: errors.dutyCycle,
-    formValues: control._formValues,
+    dirtyFields: dirtyFields.dutyCycle,
+    touchedFields: touchedFields.dutyCycle,
+    formValues: control._formValues?.dutyCycle,
   });
 
   // Calculate sum with safe number conversion
@@ -92,6 +94,7 @@ const WizardOperatingStep = () => {
             error={errors.dutyCycle?.urban?.message}
             {...register('dutyCycle.urban', {
               setValueAs: numberOrUndefined,
+              onChange: (e) => console.log('[Field onChange] urban:', e.target.value, '→', numberOrUndefined(e.target.value)),
             })}
           />
           <Field
@@ -103,6 +106,7 @@ const WizardOperatingStep = () => {
             error={errors.dutyCycle?.regional?.message}
             {...register('dutyCycle.regional', {
               setValueAs: numberOrUndefined,
+              onChange: (e) => console.log('[Field onChange] regional:', e.target.value, '→', numberOrUndefined(e.target.value)),
             })}
           />
           <Field
@@ -114,6 +118,7 @@ const WizardOperatingStep = () => {
             error={errors.dutyCycle?.longHaul?.message}
             {...register('dutyCycle.longHaul', {
               setValueAs: numberOrUndefined,
+              onChange: (e) => console.log('[Field onChange] longHaul:', e.target.value, '→', numberOrUndefined(e.target.value)),
             })}
           />
         </div>

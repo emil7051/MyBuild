@@ -97,6 +97,11 @@ const WizardPage = () => {
   // Only syncs user changes back to store, with debounce to avoid rapid updates
   const syncToStore = useCallback(
     (values: WizardFormValues) => {
+      console.log('[syncToStore] Updating store with:', {
+        dutyCycle: values.dutyCycle,
+        scenario: values.scenario,
+        purchaseMethod: values.purchaseMethod,
+      });
       updateWizard({
         scenario: values.scenario,
         purchaseMethod: values.purchaseMethod,
@@ -177,7 +182,11 @@ const WizardPage = () => {
   };
 
   const handleCalculate = async () => {
+    console.log('[handleCalculate] Starting calculation...');
+    console.log('[handleCalculate] wizardData.dutyCycle:', wizardData.dutyCycle);
+
     if (!wizardData.currentVehicle) {
+      console.log('[handleCalculate] No current vehicle selected, aborting');
       return;
     }
 
@@ -186,12 +195,19 @@ const WizardPage = () => {
     );
 
     const formValues = formMethods.getValues();
+    console.log('[handleCalculate] Form values:', {
+      dutyCycle: formValues.dutyCycle,
+      scenario: formValues.scenario,
+      purchaseMethod: formValues.purchaseMethod,
+    });
+
     const payload: ComparisonRequestPayload = {
       vehicle_ids: vehicleIds,
       scenario_name: formValues.scenario,
       purchase_method: formValues.purchaseMethod,
       duty_cycle: formValues.dutyCycle,
     };
+    console.log('[handleCalculate] Final payload:', JSON.stringify(payload, null, 2));
 
     const overrides = compactOverrides(formValues.overrides ?? {});
     if (Object.keys(overrides).length) {
