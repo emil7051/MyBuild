@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -36,6 +36,7 @@
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
+    "baseline-browser-mapping": "^2.9.15",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
@@ -45,5 +46,8 @@
     "typescript": "^5.3.3",
     "vite": "^5.1.4",
     "vitest": "^2.1.3"
+  },
+  "overrides": {
+    "baseline-browser-mapping": "2.9.15"
   }
 }
