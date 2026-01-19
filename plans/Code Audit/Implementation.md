@@ -182,23 +182,30 @@ Work packages should be **sequential within the stream** because many tasks touc
 - carbon-cost.test.ts and override-sanitization.test.ts added
 - Verification fixtures regenerated to match new conventions
 
-#### Stream D — Frontend charts (depends on calculator milestones)
+#### Stream D — Frontend charts (depends on calculator milestones) ✅ COMPLETE
 
-**WP-D1 (Viz): VIZ-001**
+**WP-D1 (Viz): VIZ-001** ✅
 
 * Payback chart slope correctness.
 
-**WP-D2 (Viz): VIZ-002**
+**WP-D2 (Viz): VIZ-002** ✅
 
 * Cost breakdown chart: align categories/labels with corrected breakdown values (depends on CALC-002).
 
-**WP-D3 (Viz): VIZ-003**
+**WP-D3 (Viz): VIZ-003** ✅
 
 * Make waterfall stable/deterministic across render order.
 
-**WP-D4 (Docs+Viz+Calc): DOC-006**
+**WP-D4 (Docs+Viz+Calc): DOC-006** ✅
 
 * Clarify discounting convention and cost breakdown units in code + UI copy (depends on CALC-003 + VIZ-002).
+
+**Stream D completion notes (2026-01-19):**
+- VIZ-001: Removed financing_cost from upfront, added slope guard, clarified subtitle
+- VIZ-002: Changed misleading "present value" subtitle to "lifetime cost components"
+- VIZ-003: BEV selection now deterministic (lowest total_cost), removed financing from breakdown
+- DOC-006: Enhanced CostBreakdown interface with detailed JSDoc documenting NPV/nominal/upfront fields
+- All changes via PR #12
 
 #### Stream E — Data integrity (generator + source-of-truth)
 
