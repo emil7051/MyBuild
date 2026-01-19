@@ -9,7 +9,7 @@ import asyncio
 from pathlib import Path
 import sys
 
-from fastapi.testclient import TestClient
+import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -89,7 +89,11 @@ def app(async_session_factory: async_sessionmaker[AsyncSession], monkeypatch):
 
 
 @pytest.fixture()
-def client(app) -> TestClient:
-    """Synchronous test client for API tests."""
+async def client(app) -> httpx.AsyncClient:
+    """Async test client for API tests."""
 
-    return TestClient(app)
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(
+        transport=transport, base_url="http://testserver"
+    ) as async_client:
+        yield async_client

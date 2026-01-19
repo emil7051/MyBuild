@@ -70,6 +70,7 @@ class SessionService:
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
+        await db.refresh(record)
 
         if payload.wizard_data:
             record.wizard_state = self._wizard_to_json(payload.wizard_data)

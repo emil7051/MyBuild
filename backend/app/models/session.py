@@ -133,3 +133,7 @@ class AnalyticsSummary(BaseModel):
     )
     average_cost_delta: Optional[float] = Field(default=None, alias="averageCostDelta")
     top_vehicles: Dict[str, int] = Field(default_factory=dict, alias="topVehicles")
+
+    model_config = {
+        "populate_by_name": True,
+    }
