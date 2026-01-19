@@ -20,7 +20,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.0",
     "react-hot-toast": "^2.4.1",
-    "react-router-dom": "^6.22.3",
+    "react-router-dom": "^6.30.3",
     "recharts": "^2.10.3",
     "tailwind-merge": "^2.2.1",
     "use-debounce": "^10.0.6",
@@ -48,6 +48,6 @@
     "vitest": "^2.1.3"
   },
   "overrides": {
-    "baseline-browser-mapping": "2.9.15"
+    "glob": "^10.5.0"
   }
 }

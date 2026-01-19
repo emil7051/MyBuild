@@ -37,6 +37,13 @@ class Settings(BaseSettings):
         ge=1024,
         description="Maximum request body size in bytes.",
     )
+    trusted_proxies: List[str] = Field(
+        default_factory=list,
+        description=(
+            "List of trusted proxy IPs or CIDRs. X-Forwarded-For header is only "
+            "trusted when request comes from these addresses. Empty = trust no proxies."
+        ),
+    )
     rate_limit_sessions_per_minute: int = Field(
         default=30,
         ge=1,
@@ -52,11 +59,11 @@ class Settings(BaseSettings):
         description="API key for analytics endpoint. If None, unrestricted.",
     )
 
-    @field_validator("backend_cors_origins", mode="before")
+    @field_validator("backend_cors_origins", "trusted_proxies", mode="before")
     @classmethod
-    def _split_cors_origins(cls, value):
+    def _split_comma_list(cls, value):
         if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
+            return [item.strip() for item in value.split(",") if item.strip()]
         return value
 
     @field_validator("backend_cors_origins")

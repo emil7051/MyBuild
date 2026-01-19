@@ -350,19 +350,34 @@ This phase addresses audit items about missing migrations and adds protections a
 
 * Enforce bounds checking on overrides at backend with Pydantic constraints aligned to FE ranges and engine clamping (depends on FE-002 + CALC-005).
 
-#### Stream F — CI security scanning
+#### Stream F — CI security scanning COMPLETE
 
 **WP-F1: SEC-006**
 
 * Add dependency vulnerability scanning in CI (e.g., `npm audit`, `pip-audit`) and documented fail policy.
 
+**Stream F completion notes (2026-01-19):**
+- SEC-006: Added `.github/workflows/dependency-audit.yml`
+  - Python dependencies: `pip-audit` with strict mode (any vulnerability fails)
+  - Frontend dependencies: `npm audit` with high/critical threshold
+  - Scheduled weekly scans (Mondays 9am UTC) for newly disclosed vulnerabilities
+  - Manual workflow dispatch enabled for ad-hoc scanning
+  - SBOM generation (CycloneDX) on main branch pushes
+  - Comprehensive summary job with resolution guidance
+- Created `SECURITY.md` documenting:
+  - Fail policy by severity and stack
+  - Resolution process and vulnerability ignore procedures
+  - Security reporting guidelines
+  - Security best practices implemented in the codebase
+- Updated `README.md` with Security section and audit instructions
+
 **Phase 4 acceptance criteria**
 
-* [ ] Schema changes can roll out safely without “drop DB” workflows (migration mechanism is real and documented).
-* [ ] Sessions containing PII cannot be accessed by sessionId alone; secret is required and only hashed server-side.
-* [ ] Analytics endpoint is not publicly scrapeable; access is restricted as intended.
-* [ ] Backend rejects malformed IDs/payloads deterministically (422 rather than 500).
-* [ ] CI includes dependency vulnerability scanning with a clear policy.
+* [x] Schema changes can roll out safely without "drop DB" workflows (migration mechanism is real and documented). *(Completed Stream A2)*
+* [ ] Sessions containing PII cannot be accessed by sessionId alone; secret is required and only hashed server-side. *(Stream A1 - pending)*
+* [ ] Analytics endpoint is not publicly scrapeable; access is restricted as intended. *(Stream A1 - pending)*
+* [ ] Backend rejects malformed IDs/payloads deterministically (422 rather than 500). *(Stream A1 - pending)*
+* [x] CI includes dependency vulnerability scanning with a clear policy. *(Completed Stream F)*
 
 ---
 
