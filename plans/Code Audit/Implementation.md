@@ -150,30 +150,37 @@ This phase directly addresses the "serious" audit items around **inconsistent de
 
 This phase follows the backlog’s parallel stream intent (Calculator, Charts, Data, FE robustness).
 
-#### Stream B — Calculator correctness (single-agent hotspot)
+#### Stream B — Calculator correctness (single-agent hotspot) ✅ COMPLETE
 
 Work packages should be **sequential within the stream** because many tasks touch `shared/calculator/tcoCalculator.ts` (not parallel-safe).
 
-**WP-B1 (Calculator): CALC-001 + TEST-001**
+**WP-B1 (Calculator): CALC-001 + TEST-001** ✅
 
 * Diesel carbon-cost path applies diesel efficiency improvements; regression test asserts behavior.
 
-**WP-B2 (Calculator): CALC-002 → enables VIZ-002**
+**WP-B2 (Calculator): CALC-002 → enables VIZ-002** ✅
 
 * Remove registration double-count from breakdown bucket. (Downstream impact: cost breakdown chart correctness.)
 
-**WP-B3 (Calculator): CALC-003 + TEST-002 + DOC-006 (prep notes)**
+**WP-B3 (Calculator): CALC-003 + TEST-002 + DOC-006 (prep notes)** ✅
 
-* Choose and enforce a single PV/discounting convention; update tests accordingly; leave doc notes for docs/viz agent to finalize copy. 
+* Choose and enforce a single PV/discounting convention; update tests accordingly; leave doc notes for docs/viz agent to finalize copy.
 
-**WP-B4 (Calculator): CALC-004 + CALC-005 + TEST-003**
+**WP-B4 (Calculator): CALC-004 + CALC-005 + TEST-003** ✅
 
 * Harden override sanitization; enforce expected ranges to avoid NaN/Infinity; add edge-case tests.
 
-**WP-B5 (Calculator): CALC-008 + CALC-009**
+**WP-B5 (Calculator): CALC-008 + CALC-009** ✅
 
 * Residual value depreciation based on MSRP (pre-rebate).
 * Correct rebate stacking order (fixed before percentage).
+
+**Stream B completion notes (2026-01-19):**
+- All CALC items implemented via PR #9
+- math.ts updated: `calculatePresentValue` now uses annuity-due formula
+- Override sanitization uses helper functions (`clampOverrideValue`, `clampOverrideAboveMin`)
+- carbon-cost.test.ts and override-sanitization.test.ts added
+- Verification fixtures regenerated to match new conventions
 
 #### Stream D — Frontend charts (depends on calculator milestones)
 
