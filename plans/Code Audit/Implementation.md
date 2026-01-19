@@ -110,34 +110,39 @@ This matches the backlog's **critical path**: **SEC-001 → API-001 → TEST-004
 
 ---
 
-### Phase 2 — Developer experience alignment + doc reality check
+### Phase 2 — Developer experience alignment + doc reality check ✅ COMPLETE
 
-This phase directly addresses the “serious” audit items around **inconsistent dev guidance**, missing docs, and doc drift.
+This phase directly addresses the "serious" audit items around **inconsistent dev guidance**, missing docs, and doc drift.
 
 #### Parallel workstreams (can run concurrently after Phase 1)
 
 **Stream E (Docs/DX): DOC-001, DOC-002, DOC-004**
 
-* DOC-001: bring `API.md` in sync with Pydantic schemas and actual casing (camelCase).
-* DOC-002: create or remove references to missing DEPLOYMENT/TROUBLESHOOTING docs.
-* DOC-004: remove misleading README parity/verification claims when referenced artifacts don’t exist.
+* [x] DOC-001: bring `API.md` in sync with Pydantic schemas and actual casing (camelCase). *(Fixed 2026-01-19: Updated vehicle endpoint field names to match actual Pydantic models)*
+* [x] DOC-002: create or remove references to missing DEPLOYMENT/TROUBLESHOOTING docs. *(Verified 2026-01-19: Dead links already removed from README.md and AGENTS.md)*
+* [x] DOC-004: remove misleading README parity/verification claims when referenced artifacts don't exist. *(Fixed 2026-01-19: Clarified tolerance values in README.md)*
 
 **Stream A (Backend + Docs joint hotspot): DEV ports, CORS**
 
-* DOC-003: standardize dev ports across Vite/docker-compose/CORS/README.
-* SEC-002: tighten CORS defaults to avoid permissive wildcard/credential combos and align with chosen port(s).
-* TEST-007: align Playwright baseURL with chosen port (avoids dead E2E config).
+* [x] DOC-003: standardize dev ports across Vite/docker-compose/CORS/README. *(Verified 2026-01-19: Already consistent - port 5000 frontend, 8000 backend across all configs)*
+* [x] SEC-002: tighten CORS defaults to avoid permissive wildcard/credential combos and align with chosen port(s). *(Verified 2026-01-19: CORS validator guard in config.py prevents wildcard+credentials)*
+* [x] TEST-007: align Playwright baseURL with chosen port (avoids dead E2E config). *(Verified 2026-01-19: Playwright baseURL correctly set to localhost:5000)*
 
 **Stream F (Repo hygiene): REPO-001**
 
-* Update `.gitignore` to exclude Playwright reports/test-results (audit flagged risk).
+* [x] Update `.gitignore` to exclude Playwright reports/test-results (audit flagged risk).
 
 **Phase 2 acceptance criteria**
 
-* [ ] A single chosen frontend dev port works in **Vite config + docker-compose + backend CORS + README**, and `docker compose up` works without manual edits.
-* [ ] `API.md` examples match actual schemas/casing so integrators won’t build against a false contract.
-* [ ] Missing operational docs are either created minimally or references removed (no dead links).
-* [ ] Playwright baseURL no longer points to an inconsistent port and can run against the standard dev setup.
+* [x] A single chosen frontend dev port works in **Vite config + docker-compose + backend CORS + README**, and `docker compose up` works without manual edits. *(Verified 2026-01-19)*
+* [x] `API.md` examples match actual schemas/casing so integrators won't build against a false contract. *(Fixed 2026-01-19)*
+* [x] Missing operational docs are either created minimally or references removed (no dead links). *(Verified 2026-01-19)*
+* [x] Playwright baseURL no longer points to an inconsistent port and can run against the standard dev setup. *(Verified 2026-01-19)*
+
+**Phase 2 completion notes (2026-01-19):**
+- All DOC items completed: API.md synced with Pydantic models, dead links removed, README parity claims clarified
+- Port/CORS alignment verified across 5 config files (vite.config.ts, docker-compose.yml, config.py, playwright.config.ts, README.md)
+- CORS security hardened with validator preventing wildcard+credentials combination
 
 ---
 

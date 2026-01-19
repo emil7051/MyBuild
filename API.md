@@ -81,16 +81,16 @@ Retrieve detailed specifications for a specific vehicle.
   "model_name": "Jac N75",
   "drivetrain_type": "BEV",
   "weight_class": "Light Rigid",
-  "payload": 2650,
-  "msrp": 145000,
-  "range_km": 300,
+  "comparison_pair": "DSL001",
+  "payload": 2650.0,
+  "msrp": 145000.0,
+  "range_km": 300.0,
   "battery_capacity_kwh": 89.0,
   "kwh_per_km": 0.6,
   "litres_per_km": 0.0,
   "maintenance_cost_per_km": 0.18,
-  "annual_registration": 800,
-  "annual_kms": 50000,
-  "comparison_pair": "DSL001"
+  "annual_registration": 800.0,
+  "annual_kms": 50000.0
 }
 ```
 
