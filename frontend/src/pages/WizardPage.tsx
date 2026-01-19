@@ -122,7 +122,7 @@ const WizardPage = () => {
       updateWizard({
         scenario: values.scenario,
         purchaseMethod: values.purchaseMethod,
-        dutyCycle: dutyCycle ?? { urban: 40, regional: 35, longHaul: 25 },
+        dutyCycle: dutyCycle ?? { urban: 60, regional: 25, longHaul: 15 },
         overrides: values.overrides ?? {},
       });
     });

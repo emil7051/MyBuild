@@ -38,7 +38,7 @@ import type {
   VehicleDetail,
   VehicleParamOverrides,
 } from '../types/tco.types';
-import { VEHICLE_BY_ID, VEHICLE_DETAILS } from '../data/vehicleCatalog';
+import { VEHICLE_BY_ID, VEHICLE_CATALOG_VERSION, VEHICLE_DETAILS } from '../data/vehicleCatalog';
 import { CONSTANTS } from '../data/constants';
 import { SCENARIO_DEFINITIONS } from '../data/scenarios';
 import { POLICY_CONFIG } from '../data/policies';
@@ -887,4 +887,11 @@ export const calculateComparison = (
   );
 };
 
-export const getVehicleCatalogSnapshot = () => VEHICLE_DETAILS;
+/**
+ * Returns a snapshot of the vehicle catalog including version for cache invalidation.
+ * @returns Object with version string and vehicles array
+ */
+export const getVehicleCatalogSnapshot = () => ({
+  version: VEHICLE_CATALOG_VERSION,
+  vehicles: VEHICLE_DETAILS,
+});
