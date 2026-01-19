@@ -11,6 +11,8 @@ to read or update session data containing PII.
 
 The column is nullable to support existing sessions created before this
 security enhancement. New sessions will have a secret generated on creation.
+
+This migration is IDEMPOTENT: skips if column already exists.
 """
 
 from __future__ import annotations
@@ -28,16 +30,21 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Add session_secret_hash column to sessions table."""
-    with op.batch_alter_table("sessions", schema=None) as batch_op:
-        batch_op.add_column(
-            sa.Column(
-                "session_secret_hash",
-                sa.String(128),
-                nullable=True,
-                comment="Bcrypt hash of session access secret for PII protection",
+    """Add session_secret_hash column to sessions table if it doesn't exist."""
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    columns = [col["name"] for col in inspector.get_columns("sessions")]
+
+    if "session_secret_hash" not in columns:
+        with op.batch_alter_table("sessions", schema=None) as batch_op:
+            batch_op.add_column(
+                sa.Column(
+                    "session_secret_hash",
+                    sa.String(128),
+                    nullable=True,
+                    comment="Bcrypt hash of session access secret for PII protection",
+                )
             )
-        )
 
 
 def downgrade() -> None:
