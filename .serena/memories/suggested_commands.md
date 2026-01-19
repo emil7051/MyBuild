@@ -1,3 +1,9 @@
+# Suggested Commands
+
+**Note**: Use `bun` instead of `npm` per project conventions.
+
+---
+
 # Suggested commands
 
 Quick start:
@@ -9,14 +15,14 @@ Backend:
 - uvicorn backend.app.main:app --reload
 
 Frontend:
-- cd frontend && npm install && npm run dev
-- npm run build
-- npm run lint
-- npm run typecheck
+- cd frontend && bun install && bun run dev
+- bun run build
+- bun run lint
+- bun run typecheck
 
 Testing:
 - python -m pytest tests --cov
-- cd frontend && npm run test
+- cd frontend && bun run test
 
 Lint/format (Python):
 - ruff check .
