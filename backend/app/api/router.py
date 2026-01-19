@@ -9,15 +9,14 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
-from slowapi import Limiter
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.config import settings
 from backend.app.core.security import (
-    get_client_ip,
     get_rate_limit_analytics,
     get_rate_limit_sessions,
     get_rate_limit_vehicles,
+    limiter,
     verify_analytics_api_key,
 )
 from backend.app.db.session import get_db_session
@@ -33,9 +32,6 @@ from backend.app.services import VehicleCatalogService
 from backend.app.services.sessions import SessionService
 
 api_router = APIRouter(prefix=settings.api_v1_prefix)
-
-# Rate limiter instance
-limiter = Limiter(key_func=get_client_ip)
 
 _vehicle_service = VehicleCatalogService()
 _session_service = SessionService()

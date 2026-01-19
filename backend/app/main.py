@@ -13,8 +13,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from slowapi import _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
+try:
+    from slowapi import _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+except ModuleNotFoundError:  # pragma: no cover - optional dependency at runtime
+    _rate_limit_exceeded_handler = None
+    RateLimitExceeded = None
 
 from backend.app.api import api_router
 from backend.app.api.router import limiter
@@ -36,8 +40,9 @@ def create_app() -> FastAPI:
     )
 
     # Add rate limiter state (SEC-008)
-    app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    if _rate_limit_exceeded_handler and RateLimitExceeded:
+        app.state.limiter = limiter
+        app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     # Add request size limit middleware (SEC-004)
     app.add_middleware(RequestSizeLimitMiddleware)

@@ -12,8 +12,12 @@ from typing import Optional
 
 import bcrypt
 from fastapi import HTTPException, Request, status
-from slowapi import Limiter
-from slowapi.util import get_remote_address
+try:
+    from slowapi import Limiter
+    from slowapi.util import get_remote_address
+except ModuleNotFoundError:  # pragma: no cover - optional dependency at runtime
+    Limiter = None  # type: ignore[assignment]
+    get_remote_address = None  # type: ignore[assignment]
 
 from backend.app.core.config import settings
 
@@ -46,7 +50,10 @@ def get_client_ip(request: Request) -> str:
     in the trusted_proxies list. This prevents clients from spoofing the header
     to bypass rate limits.
     """
-    direct_ip = get_remote_address(request)
+    if get_remote_address:
+        direct_ip = get_remote_address(request)
+    else:
+        direct_ip = request.client.host if request.client else "unknown"
 
     # Only trust X-Forwarded-For if request came from a trusted proxy
     if _is_trusted_proxy(direct_ip):
@@ -58,8 +65,19 @@ def get_client_ip(request: Request) -> str:
     return direct_ip
 
 
-# Rate limiter instance using client IP
-limiter = Limiter(key_func=get_client_ip)
+class _NoopLimiter:
+    """Fallback limiter when slowapi is unavailable."""
+
+    @staticmethod
+    def limit(_limit: str):
+        def decorator(func):
+            return func
+
+        return decorator
+
+
+# Rate limiter instance using client IP (no-op if slowapi missing)
+limiter = Limiter(key_func=get_client_ip) if Limiter else _NoopLimiter()
 
 
 def generate_session_secret() -> str:
