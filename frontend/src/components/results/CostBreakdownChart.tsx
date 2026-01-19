@@ -52,7 +52,7 @@ const CostBreakdownChart = () => {
     return (
       <Card
         title="Cost components"
-        subtitle="Stacked view of the present value cost drivers for each vehicle."
+        subtitle="Stacked view of lifetime cost components for each vehicle."
       >
         <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
           <p className="text-sm text-slate-500">No results to display</p>
@@ -77,7 +77,7 @@ const CostBreakdownChart = () => {
   return (
     <Card
       title="Cost components"
-      subtitle="Stacked view of the present value cost drivers for each vehicle."
+      subtitle="Stacked view of lifetime cost components for each vehicle."
     >
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>

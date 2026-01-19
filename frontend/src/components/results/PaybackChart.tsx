@@ -90,9 +90,10 @@ const PaybackChart = () => {
   const dieselAnnualCost = dieselResult.annual_cost;
   const bevAnnualCost = bevResult.annual_cost;
 
-  // We'll estimate upfront costs from breakdown and add annual operating costs
-  const dieselUpfront = dieselResult.breakdown.purchase_cost + dieselResult.breakdown.financing_cost;
-  const bevUpfront = bevResult.breakdown.purchase_cost + bevResult.breakdown.financing_cost;
+  // Upfront costs are purchase_cost only (which includes stamp duty but excludes financing_cost).
+  // financing_cost is the total nominal interest over the loan term, NOT an upfront amount.
+  const dieselUpfront = dieselResult.breakdown.purchase_cost;
+  const bevUpfront = bevResult.breakdown.purchase_cost;
 
   // Calculate cumulative costs over the vehicle life
   const data: CumulativeCostData[] = [];
@@ -119,8 +120,17 @@ const PaybackChart = () => {
       // Linear interpolation for more accurate payback point
       const dieselSlope = curr.diesel - prev.diesel;
       const bevSlope = curr.bev - prev.bev;
-      const yearFraction = (prev.bev - prev.diesel) / (dieselSlope - bevSlope);
-      paybackYear = prev.year + yearFraction;
+      const slopeDiff = dieselSlope - bevSlope;
+
+      // Guard against equal slopes (parallel lines) which would cause division by zero
+      // This should be rare since we already detected a crossing, but guard defensively
+      if (Math.abs(slopeDiff) < 0.01) {
+        // Lines are nearly parallel - use the midpoint of the crossing year
+        paybackYear = prev.year + 0.5;
+      } else {
+        const yearFraction = (prev.bev - prev.diesel) / slopeDiff;
+        paybackYear = prev.year + yearFraction;
+      }
       break;
     }
   }
@@ -138,7 +148,7 @@ const PaybackChart = () => {
   return (
     <Card
       title="Payback timeline"
-      subtitle="When does switching to electric break even?"
+      subtitle="Cumulative cost comparison (upfront purchase + annual operating costs)"
     >
       <div className="mb-4">
         {paybackYear !== null ? (

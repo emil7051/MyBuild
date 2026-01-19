@@ -70,9 +70,17 @@ const SavingsWaterfallChart = () => {
     );
   }
 
-  // Find diesel and BEV results
-  const dieselResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'Diesel');
-  const bevResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'BEV');
+  // Find diesel and BEV results deterministically:
+  // - Diesel: use first diesel result (baseline)
+  // - BEV: use the BEV with the lowest total_cost (best option)
+  const dieselResults = results.filter((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'Diesel');
+  const bevResults = results.filter((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'BEV');
+
+  const dieselResult = dieselResults[0];
+  // Sort BEVs by total_cost ascending and take the best one
+  const bevResult = bevResults.length > 0
+    ? [...bevResults].sort((a, b) => a.total_cost - b.total_cost)[0]
+    : undefined;
 
   if (!dieselResult || !bevResult) {
     return (
@@ -90,6 +98,9 @@ const SavingsWaterfallChart = () => {
   }
 
   // Calculate savings for each cost category (positive = BEV saves money)
+  // NOTE: We exclude financing_cost from the breakdown because it's a nominal lifetime
+  // total (not NPV-adjusted), unlike most other categories. The total_cost comparison
+  // still correctly captures the full picture including financing effects.
   const categories = [
     {
       name: 'Fuel / Energy',
@@ -105,11 +116,6 @@ const SavingsWaterfallChart = () => {
       name: 'Purchase',
       diesel: dieselResult.breakdown.purchase_cost,
       bev: bevResult.breakdown.purchase_cost,
-    },
-    {
-      name: 'Financing',
-      diesel: dieselResult.breakdown.financing_cost,
-      bev: bevResult.breakdown.financing_cost,
     },
     {
       name: 'Carbon',
