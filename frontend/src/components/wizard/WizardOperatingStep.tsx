@@ -29,6 +29,13 @@ const WizardOperatingStep = () => {
   const regional = useWatch({ control, name: 'dutyCycle.regional', defaultValue: 25 });
   const longHaul = useWatch({ control, name: 'dutyCycle.longHaul', defaultValue: 15 });
 
+  // Debug logging
+  console.log('[WizardOperatingStep]', {
+    watchedValues: { urban, regional, longHaul },
+    errors: errors.dutyCycle,
+    formValues: control._formValues,
+  });
+
   // Calculate sum with safe number conversion
   const dutyCycleSum = useMemo(() => {
     return (Number(urban) || 0) + (Number(regional) || 0) + (Number(longHaul) || 0);

@@ -108,13 +108,16 @@ const WizardPage = () => {
   );
 
   useEffect(() => {
-    const subscription = formMethods.watch((values) => {
+    const subscription = formMethods.watch((values, { name, type }) => {
+      console.log('[Form Watch]', { name, type, dutyCycle: values.dutyCycle });
+
       // Skip if any duty cycle value is undefined (fields not yet registered)
       if (
         values.dutyCycle?.urban === undefined ||
         values.dutyCycle?.regional === undefined ||
         values.dutyCycle?.longHaul === undefined
       ) {
+        console.log('[Form Watch] Skipping - undefined duty cycle values');
         return;
       }
 
@@ -123,6 +126,7 @@ const WizardPage = () => {
         clearTimeout(debounceRef.current);
       }
       debounceRef.current = setTimeout(() => {
+        console.log('[Form Watch] Syncing to store:', values.dutyCycle);
         syncToStore(values as WizardFormValues);
       }, 150);
     });
