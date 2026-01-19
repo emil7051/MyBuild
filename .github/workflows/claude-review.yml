@@ -1,0 +1,53 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+    # Run on PR events or when someone comments @claude on a PR
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '@claude'))
+
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-sonnet-4-20250514
+          timeout_minutes: 10
+          trigger_phrase: "@claude"
+          direct_prompt: |
+            Review this pull request with a focus on:
+
+            1. **Code Quality**: Look for bugs, logic errors, and potential issues
+            2. **Security**: Check for security vulnerabilities (OWASP top 10)
+            3. **Performance**: Identify potential performance issues
+            4. **Best Practices**: Ensure code follows Python/TypeScript best practices
+            5. **Tests**: Check if changes have adequate test coverage
+
+            Be concise and actionable. Focus on significant issues rather than style nitpicks.
+
+            Format your review as:
+            - Summary of changes (1-2 sentences)
+            - Critical issues (if any)
+            - Suggestions for improvement
+            - Overall assessment (approve/request changes/comment)
