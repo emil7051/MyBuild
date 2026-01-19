@@ -243,30 +243,40 @@ Work packages should be **sequential within the stream** because many tasks touc
 - DATA-006: Documented carbon pricing policy (intentionally disabled, reflects current AU policy)
 - All changes via PR #13
 
-#### Stream C — Frontend state & autosave robustness (parallel)
+#### Stream C — Frontend state & autosave robustness (parallel) ✅ COMPLETE
 
-**WP-C1 (FE State): FE-008**
+**WP-C1 (FE State): FE-008** ✅
 
 * Guard results ordering against in-flight wizard changes (request IDs / captured vehicle order).
 
-**WP-C2 (FE State): FE-005 + FE-006 + FE-009**
+**WP-C2 (FE State): FE-005 + FE-006 + FE-009** ✅
 
-* Session creation queue/lock; cancel in-flight autosave; if no sessionId, retry/queue first autosave and surface “Not saved”.
+* Session creation queue/lock; cancel in-flight autosave; if no sessionId, retry/queue first autosave and surface "Not saved".
 
-**WP-C3 (FE Forms): FE-002 → FE-003**
+**WP-C3 (FE Forms): FE-002 → FE-003** ✅
 
 * Align Zod validation ranges with engine expectations; ensure duty cycle percent units are passed correctly (this also unlocks SEC-003 + VIZ-005 later).
 
-**WP-C4 (FE State): FE-004**
+**WP-C4 (FE State): FE-004** ✅
 
 * Duty cycle rehydrate fix.
+
+**Stream C completion notes (2026-01-19):**
+- FE-008: Added `latestRequestId` to tcoStore; `setResults()` now only applies results matching latest request; ordering uses captured vehicle order from request time
+- FE-005: Added `pendingPayload` ref to queue updates during session creation
+- FE-006: Added AbortController support to cancel in-flight autosave requests
+- FE-009: Auto-create session when autosaving without sessionId; queue data during creation; toast on failure
+- FE-002: Updated Zod schema minimums: range_km (50), charging_time_hours (0.1), kwh_per_km (0.1), litres_per_km (0.05)
+- FE-003: Added inline validation error display in VehicleParamsForm
+- FE-004: validateDutyCycle now resets to defaults for negative values and normalizes sum to 100
+- All changes via PR #14
 
 **Phase 3 acceptance criteria**
 
 * [x] Calculator regression suite passes and covers the corrected logic paths (diesel carbon-cost, PV convention, override hardening). *(Completed via PR #9)*
 * [x] Charts reflect corrected engine semantics and no longer present misleading mixes of upfront/nominal/PV values (DOC-006 + VIZ fixes). *(Completed via PR #12)*
 * [x] Data generator output is deterministic; generated TS is separated from manual constants; CI catches drift. *(Completed via PR #13)*
-* [ ] Frontend no longer reorders results incorrectly or overwrites server state out-of-order via autosave. *(Pending: Stream C)*
+* [x] Frontend no longer reorders results incorrectly or overwrites server state out-of-order via autosave. *(Completed via PR #14)*
 
 ---
 
