@@ -9,23 +9,25 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 339869.3500138149,
-      "annual_cost": 32743.790668597885,
-      "cost_per_km": 1.423643072547734,
+      "vehicle_id": "BEV001",
+      "scenario_name": "Baseline",
+      "total_cost": 344941.67014855356,
+      "annual_cost": 33232.46959386503,
+      "cost_per_km": 1.4448899823419579,
       "breakdown": {
-        "purchase_cost": 36359.0,
+        "purchase_cost": 36359,
         "fuel_cost": 23885.575104832387,
         "maintenance_cost": 25673.717200081337,
         "insurance_cost": 122662.50000000001,
-        "registration_cost": 9795.0,
+        "registration_cost": 9795,
         "battery_replacement_cost": 4635.14274666076,
-        "financing_cost": 23265.119394035806,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
+        "financing_cost": 23265.119394035835,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
         "payload_penalty_cost": 25066.874162206124,
-        "residual_value": 16804.162267129595,
-        "depreciation": 148523.9081252029,
-        "taxes_and_fees": 15090.0
+        "residual_value": 16314.72064769864,
+        "depreciation": 144197.96905359504,
+        "taxes_and_fees": 5295
       }
     }
   },
@@ -39,23 +41,25 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 335909.71725280484,
-      "annual_cost": 32362.310590309666,
-      "cost_per_km": 1.4070569821873768,
+      "vehicle_id": "BEV001",
+      "scenario_name": "Baseline",
+      "total_cost": 340982.0373875434,
+      "annual_cost": 32850.98951557681,
+      "cost_per_km": 1.4283038919816005,
       "breakdown": {
-        "purchase_cost": 181795.0,
+        "purchase_cost": 181795,
         "fuel_cost": 23885.575104832387,
         "maintenance_cost": 25673.717200081337,
         "insurance_cost": 122662.50000000001,
-        "registration_cost": 9795.0,
+        "registration_cost": 9795,
         "battery_replacement_cost": 4635.14274666076,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
+        "financing_cost": 0,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
         "payload_penalty_cost": 25066.874162206124,
-        "residual_value": 16804.162267129595,
-        "depreciation": 148523.9081252029,
-        "taxes_and_fees": 15090.0
+        "residual_value": 16314.72064769864,
+        "depreciation": 144197.96905359504,
+        "taxes_and_fees": 5295
       }
     }
   },
@@ -69,23 +73,25 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 279669.78750317125,
-      "annual_cost": 26944.027103246768,
-      "cost_per_km": 1.1714794392715986,
+      "vehicle_id": "BEV002",
+      "scenario_name": "Baseline",
+      "total_cost": 284187.2654274662,
+      "annual_cost": 27379.251260697605,
+      "cost_per_km": 1.1904022287259828,
       "breakdown": {
-        "purchase_cost": 30900.0,
+        "purchase_cost": 30900,
         "fuel_cost": 23885.575104832387,
         "maintenance_cost": 25673.717200081337,
         "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795.0,
+        "registration_cost": 9795,
         "battery_replacement_cost": 4496.088464260937,
-        "financing_cost": 19772.056142240035,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 14281.157734104474,
-        "depreciation": 126224.28452566819,
-        "taxes_and_fees": 14295.0
+        "financing_cost": 19772.056142240093,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 13865.201683596573,
+        "depreciation": 122547.84905404679,
+        "taxes_and_fees": 4500
       }
     }
   },
@@ -99,383 +105,25 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 276304.66051081143,
-      "annual_cost": 26619.823070707207,
-      "cost_per_km": 1.1573836117698786,
+      "vehicle_id": "BEV002",
+      "scenario_name": "Baseline",
+      "total_cost": 280822.1384351063,
+      "annual_cost": 27055.047228158037,
+      "cost_per_km": 1.1763064012242626,
       "breakdown": {
-        "purchase_cost": 154500.0,
+        "purchase_cost": 154500,
         "fuel_cost": 23885.575104832387,
         "maintenance_cost": 25673.717200081337,
         "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795.0,
+        "registration_cost": 9795,
         "battery_replacement_cost": 4496.088464260937,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 14281.157734104474,
-        "depreciation": 126224.28452566819,
-        "taxes_and_fees": 14295.0
-      }
-    }
-  },
-  {
-    "id": "BEV003-baseline-financed",
-    "input": {
-      "vehicle_id": "BEV003",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 336736.06002647505,
-      "annual_cost": 32441.92234347442,
-      "cost_per_km": 1.4105183627597573,
-      "breakdown": {
-        "purchase_cost": 30900.0,
-        "fuel_cost": 30354.585029057835,
-        "maintenance_cost": 25673.717200081337,
-        "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 4959.602738927013,
-        "financing_cost": 19772.056142240035,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 50133.74832441225,
-        "residual_value": 14281.157734104474,
-        "depreciation": 126224.28452566819,
-        "taxes_and_fees": 14295.0
-      }
-    }
-  },
-  {
-    "id": "BEV003-baseline-outright",
-    "input": {
-      "vehicle_id": "BEV003",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 333370.93303411524,
-      "annual_cost": 32117.71831093486,
-      "cost_per_km": 1.3964225352580373,
-      "breakdown": {
-        "purchase_cost": 154500.0,
-        "fuel_cost": 30354.585029057835,
-        "maintenance_cost": 25673.717200081337,
-        "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 4959.602738927013,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 50133.74832441225,
-        "residual_value": 14281.157734104474,
-        "depreciation": 126224.28452566819,
-        "taxes_and_fees": 14295.0
-      }
-    }
-  },
-  {
-    "id": "BEV004-baseline-financed",
-    "input": {
-      "vehicle_id": "BEV004",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 448541.46895030804,
-      "annual_cost": 43213.51120628351,
-      "cost_per_km": 1.8788483133166745,
-      "breakdown": {
-        "purchase_cost": 41200.0,
-        "fuel_cost": 43790.22102552606,
-        "maintenance_cost": 25673.717200081337,
-        "insurance_cost": 135000.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 12236.776851184404,
-        "financing_cost": 26362.741522986733,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 75200.62248661838,
-        "residual_value": 19041.543645472626,
-        "depreciation": 168299.04603422427,
-        "taxes_and_fees": 15795.0
-      }
-    }
-  },
-  {
-    "id": "BEV004-baseline-outright",
-    "input": {
-      "vehicle_id": "BEV004",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 444054.63296049484,
-      "annual_cost": 42781.23916289742,
-      "cost_per_km": 1.860053876647714,
-      "breakdown": {
-        "purchase_cost": 206000.0,
-        "fuel_cost": 43790.22102552606,
-        "maintenance_cost": 25673.717200081337,
-        "insurance_cost": 135000.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 12236.776851184404,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 75200.62248661838,
-        "residual_value": 19041.543645472626,
-        "depreciation": 168299.04603422427,
-        "taxes_and_fees": 15795.0
-      }
-    }
-  },
-  {
-    "id": "BEV005-baseline-financed",
-    "input": {
-      "vehicle_id": "BEV005",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 801632.2319344911,
-      "annual_cost": 77231.0830458732,
-      "cost_per_km": 3.35787317590753,
-      "breakdown": {
-        "purchase_cost": 82400.0,
-        "fuel_cost": 54240.16013389023,
-        "maintenance_cost": 25673.717200081337,
-        "insurance_cost": 240000.00000000003,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 15574.079628780151,
-        "financing_cost": 52725.483045973466,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 150401.24497323675,
-        "residual_value": 38083.08729094525,
-        "depreciation": 336598.09206844855,
-        "taxes_and_fees": 21795.0
-      }
-    }
-  },
-  {
-    "id": "BEV005-baseline-outright",
-    "input": {
-      "vehicle_id": "BEV005",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 792658.5599548647,
-      "annual_cost": 76366.538959101,
-      "cost_per_km": 3.320284302569609,
-      "breakdown": {
-        "purchase_cost": 412000.0,
-        "fuel_cost": 54240.16013389023,
-        "maintenance_cost": 25673.717200081337,
-        "insurance_cost": 240000.00000000003,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 15574.079628780151,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 150401.24497323675,
-        "residual_value": 38083.08729094525,
-        "depreciation": 336598.09206844855,
-        "taxes_and_fees": 21795.0
-      }
-    }
-  },
-  {
-    "id": "BEV006-baseline-financed",
-    "input": {
-      "vehicle_id": "BEV006",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 2115855.8011928294,
-      "annual_cost": 203846.38813820764,
-      "cost_per_km": 2.4267427159310433,
-      "breakdown": {
-        "purchase_cost": 123600.0,
-        "fuel_cost": 366581.2154771577,
-        "maintenance_cost": 178153.27239708614,
-        "insurance_cost": 345000.00000000006,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 28784.236456763316,
-        "financing_cost": 79088.22456896014,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 130620.2116669741,
-        "payload_penalty_cost": 527319.843245296,
-        "residual_value": 57124.630936417896,
-        "depreciation": 504897.13810267276,
-        "taxes_and_fees": 121080.0
-      }
-    }
-  },
-  {
-    "id": "BEV006-baseline-outright",
-    "input": {
-      "vehicle_id": "BEV006",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 2102395.2932233904,
-      "annual_cost": 202549.57200804944,
-      "cost_per_km": 2.4113044286672554,
-      "breakdown": {
-        "purchase_cost": 618000.0,
-        "fuel_cost": 366581.2154771577,
-        "maintenance_cost": 178153.27239708614,
-        "insurance_cost": 345000.00000000006,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 28784.236456763316,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 130620.2116669741,
-        "payload_penalty_cost": 527319.843245296,
-        "residual_value": 57124.630936417896,
-        "depreciation": 504897.13810267276,
-        "taxes_and_fees": 121080.0
-      }
-    }
-  },
-  {
-    "id": "BEV007-baseline-financed",
-    "input": {
-      "vehicle_id": "BEV007",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 2097314.76934791,
-      "annual_cost": 202060.10271563227,
-      "cost_per_km": 2.4054774132813366,
-      "breakdown": {
-        "purchase_cost": 92700.0,
-        "fuel_cost": 549871.8232157367,
-        "maintenance_cost": 178153.27239708614,
-        "insurance_cost": 266250.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 25029.7708319681,
-        "financing_cost": 59316.168426720134,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 130620.2116669741,
-        "payload_penalty_cost": 527319.843245296,
-        "residual_value": 42843.47320231341,
-        "depreciation": 378672.8535770046,
-        "taxes_and_fees": 116580.0
-      }
-    }
-  },
-  {
-    "id": "BEV007-baseline-outright",
-    "input": {
-      "vehicle_id": "BEV007",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 2087219.3883708306,
-      "annual_cost": 201087.4906180136,
-      "cost_per_km": 2.393898697833495,
-      "breakdown": {
-        "purchase_cost": 463500.0,
-        "fuel_cost": 549871.8232157367,
-        "maintenance_cost": 178153.27239708614,
-        "insurance_cost": 266250.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 25029.7708319681,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 130620.2116669741,
-        "payload_penalty_cost": 527319.843245296,
-        "residual_value": 42843.47320231341,
-        "depreciation": 378672.8535770046,
-        "taxes_and_fees": 116580.0
-      }
-    }
-  },
-  {
-    "id": "BEV008-baseline-financed",
-    "input": {
-      "vehicle_id": "BEV008",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1868444.535911369,
-      "annual_cost": 180010.22086069413,
-      "cost_per_km": 2.142978819770168,
-      "breakdown": {
-        "purchase_cost": 65920.0,
-        "fuel_cost": 488774.9539695438,
-        "maintenance_cost": 178153.27239708614,
-        "insurance_cost": 198000.00000000003,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 28923.290739163138,
-        "financing_cost": 42180.38643677882,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 130620.2116669741,
-        "payload_penalty_cost": 527319.843245296,
-        "residual_value": 30466.469832756204,
-        "depreciation": 269278.4736547588,
-        "taxes_and_fees": 112680.0
-      }
-    }
-  },
-  {
-    "id": "BEV008-baseline-outright",
-    "input": {
-      "vehicle_id": "BEV008",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1861265.598327668,
-      "annual_cost": 179318.5855912764,
-      "cost_per_km": 2.1347450665628145,
-      "breakdown": {
-        "purchase_cost": 329600.0,
-        "fuel_cost": 488774.9539695438,
-        "maintenance_cost": 178153.27239708614,
-        "insurance_cost": 198000.00000000003,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 28923.290739163138,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 130620.2116669741,
-        "payload_penalty_cost": 527319.843245296,
-        "residual_value": 30466.469832756204,
-        "depreciation": 269278.4736547588,
-        "taxes_and_fees": 112680.0
+        "financing_cost": 0,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 13865.201683596573,
+        "depreciation": 122547.84905404679,
+        "taxes_and_fees": 4500
       }
     }
   },
@@ -489,23 +137,25 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 339108.0545101513,
-      "annual_cost": 32670.4457182283,
-      "cost_per_km": 1.4204541616621,
+      "vehicle_id": "DSL001",
+      "scenario_name": "Baseline",
+      "total_cost": 342014.5962886643,
+      "annual_cost": 32950.46860220208,
+      "cost_per_km": 1.43262906966096,
       "breakdown": {
-        "purchase_cost": 16480.0,
+        "purchase_cost": 16480,
         "fuel_cost": 162623.27558076047,
         "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 67800.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
+        "insurance_cost": 67800,
+        "registration_cost": 9795,
+        "battery_replacement_cost": 0,
         "financing_cost": 10545.096609194705,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 7616.617458189051,
-        "depreciation": 67319.6184136897,
-        "taxes_and_fees": 12195.0
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 7394.774231251507,
+        "depreciation": 65358.85282882495,
+        "taxes_and_fees": 2400
       }
     }
   },
@@ -519,23 +169,25 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 337313.3201142261,
-      "annual_cost": 32497.536900873867,
-      "cost_per_km": 1.412936386994516,
+      "vehicle_id": "DSL001",
+      "scenario_name": "Baseline",
+      "total_cost": 340219.861892739,
+      "annual_cost": 32777.55978484765,
+      "cost_per_km": 1.425111294993376,
       "breakdown": {
-        "purchase_cost": 82400.0,
+        "purchase_cost": 82400,
         "fuel_cost": 162623.27558076047,
         "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 67800.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 7616.617458189051,
-        "depreciation": 67319.6184136897,
-        "taxes_and_fees": 12195.0
+        "insurance_cost": 67800,
+        "registration_cost": 9795,
+        "battery_replacement_cost": 0,
+        "financing_cost": 0,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 7394.774231251507,
+        "depreciation": 65358.85282882495,
+        "taxes_and_fees": 2400
       }
     }
   },
@@ -549,23 +201,25 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 332687.1260605294,
-      "annual_cost": 32051.838782816445,
-      "cost_per_km": 1.3935582079485411,
+      "vehicle_id": "DSL002",
+      "scenario_name": "Baseline",
+      "total_cost": 335498.06283030804,
+      "annual_cost": 32322.65086154186,
+      "cost_per_km": 1.405332646153994,
       "breakdown": {
-        "purchase_cost": 15450.0,
+        "purchase_cost": 15450,
         "fuel_cost": 162623.27558076047,
         "maintenance_cost": 46212.690960146414,
         "insurance_cost": 65437.5,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 9886.028071120018,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 7140.578867052237,
-        "depreciation": 63112.142262834095,
-        "taxes_and_fees": 12045.0
+        "registration_cost": 9795,
+        "battery_replacement_cost": 0,
+        "financing_cost": 9886.028071120047,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 6932.600841798287,
+        "depreciation": 61273.924527023395,
+        "taxes_and_fees": 2250
       }
     }
   },
@@ -579,417 +233,89 @@
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 331004.56256434944,
-      "annual_cost": 31889.736766546663,
-      "cost_per_km": 1.386510294197681,
+      "vehicle_id": "DSL002",
+      "scenario_name": "Baseline",
+      "total_cost": 333815.4993341281,
+      "annual_cost": 32160.54884527208,
+      "cost_per_km": 1.3982847324031338,
       "breakdown": {
-        "purchase_cost": 77250.0,
+        "purchase_cost": 77250,
         "fuel_cost": 162623.27558076047,
         "maintenance_cost": 46212.690960146414,
         "insurance_cost": 65437.5,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 7140.578867052237,
-        "depreciation": 63112.142262834095,
-        "taxes_and_fees": 12045.0
+        "registration_cost": 9795,
+        "battery_replacement_cost": 0,
+        "financing_cost": 0,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 6932.600841798287,
+        "depreciation": 61273.924527023395,
+        "taxes_and_fees": 2250
       }
     }
   },
   {
-    "id": "DSL003-baseline-financed",
-    "input": {
-      "vehicle_id": "DSL003",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 403317.339006371,
-      "annual_cost": 38856.51507234689,
-      "cost_per_km": 1.6894136987976909,
-      "breakdown": {
-        "purchase_cost": 26780.0,
-        "fuel_cost": 162623.27558076047,
-        "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 91425.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 17135.781989941403,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 12377.00336955721,
-        "depreciation": 109394.37992224577,
-        "taxes_and_fees": 13695.0
-      }
-    }
-  },
-  {
-    "id": "DSL003-baseline-outright",
-    "input": {
-      "vehicle_id": "DSL003",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 400400.89561299235,
-      "annual_cost": 38575.53824414592,
-      "cost_per_km": 1.6771973149628663,
-      "breakdown": {
-        "purchase_cost": 133900.0,
-        "fuel_cost": 162623.27558076047,
-        "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 91425.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 12377.00336955721,
-        "depreciation": 109394.37992224577,
-        "taxes_and_fees": 13695.0
-      }
-    }
-  },
-  {
-    "id": "DSL004-baseline-financed",
-    "input": {
-      "vehicle_id": "DSL004",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 542125.9476111033,
-      "annual_cost": 52229.65396518304,
-      "cost_per_km": 2.2708545202253494,
-      "breakdown": {
-        "purchase_cost": 45320.0,
-        "fuel_cost": 185855.17209229767,
-        "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 133950.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 28999.015675285424,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 20945.698010019896,
-        "depreciation": 185128.95063764666,
-        "taxes_and_fees": 16395.0
-      }
-    }
-  },
-  {
-    "id": "DSL004-baseline-outright",
-    "input": {
-      "vehicle_id": "DSL004",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 537190.428022309,
-      "annual_cost": 51754.154717458354,
-      "cost_per_km": 2.2501806398894937,
-      "breakdown": {
-        "purchase_cost": 226600.0,
-        "fuel_cost": 185855.17209229767,
-        "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 133950.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 20945.698010019896,
-        "depreciation": 185128.95063764666,
-        "taxes_and_fees": 16395.0
-      }
-    }
-  },
-  {
-    "id": "DSL005-baseline-financed",
-    "input": {
-      "vehicle_id": "DSL005",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 606335.232107323,
-      "annual_cost": 58415.72331930163,
-      "cost_per_km": 2.5398140573609402,
-      "breakdown": {
-        "purchase_cost": 55620.0,
-        "fuel_cost": 185855.17209229767,
-        "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 157575.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 35589.70105603212,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 25706.083921388054,
-        "depreciation": 227203.71214620274,
-        "taxes_and_fees": 17895.0
-      }
-    }
-  },
-  {
-    "id": "DSL005-baseline-outright",
-    "input": {
-      "vehicle_id": "DSL005",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 600278.0035210752,
-      "annual_cost": 57832.156060730405,
-      "cost_per_km": 2.5144415678578436,
-      "breakdown": {
-        "purchase_cost": 278100.0,
-        "fuel_cost": 185855.17209229767,
-        "maintenance_cost": 46212.690960146414,
-        "insurance_cost": 157575.0,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 25706.083921388054,
-        "depreciation": 227203.71214620274,
-        "taxes_and_fees": 17895.0
-      }
-    }
-  },
-  {
-    "id": "DSL006-baseline-financed",
-    "input": {
-      "vehicle_id": "DSL006",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1443770.7328916707,
-      "annual_cost": 139096.1751900588,
-      "cost_per_km": 1.6559068475007,
-      "breakdown": {
-        "purchase_cost": 55620.0,
-        "fuel_cost": 742410.6059121671,
-        "maintenance_cost": 262541.6645851796,
-        "insurance_cost": 157575.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 35589.70105603212,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 25706.083921388054,
-        "depreciation": 227203.71214620274,
-        "taxes_and_fees": 111180.0
-      }
-    }
-  },
-  {
-    "id": "DSL006-baseline-outright",
-    "input": {
-      "vehicle_id": "DSL006",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1437713.504305423,
-      "annual_cost": 138512.60793148758,
-      "cost_per_km": 1.648959618231995,
-      "breakdown": {
-        "purchase_cost": 278100.0,
-        "fuel_cost": 742410.6059121671,
-        "maintenance_cost": 262541.6645851796,
-        "insurance_cost": 157575.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 25706.083921388054,
-        "depreciation": 227203.71214620274,
-        "taxes_and_fees": 111180.0
-      }
-    }
-  },
-  {
-    "id": "DSL007-baseline-financed",
-    "input": {
-      "vehicle_id": "DSL007",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1456612.5897909144,
-      "annual_cost": 140333.3890608825,
-      "cost_per_km": 1.670635584058125,
-      "breakdown": {
-        "purchase_cost": 57680.0,
-        "fuel_cost": 742410.6059121671,
-        "maintenance_cost": 262541.6645851796,
-        "insurance_cost": 162300.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 36907.83813218144,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 26658.161103661685,
-        "depreciation": 235618.66444791396,
-        "taxes_and_fees": 111480.0
-      }
-    }
-  },
-  {
-    "id": "DSL007-baseline-outright",
-    "input": {
-      "vehicle_id": "DSL007",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1450331.0194051762,
-      "annual_cost": 139728.208200142,
-      "cost_per_km": 1.6634310500016904,
-      "breakdown": {
-        "purchase_cost": 288400.0,
-        "fuel_cost": 742410.6059121671,
-        "maintenance_cost": 262541.6645851796,
-        "insurance_cost": 162300.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 26658.161103661685,
-        "depreciation": 235618.66444791396,
-        "taxes_and_fees": 111480.0
-      }
-    }
-  },
-  {
-    "id": "DSL008-baseline-financed",
-    "input": {
-      "vehicle_id": "DSL008",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1482296.3035894022,
-      "annual_cost": 142807.81680252994,
-      "cost_per_km": 1.7000930571729755,
-      "breakdown": {
-        "purchase_cost": 61800.0,
-        "fuel_cost": 742410.6059121671,
-        "maintenance_cost": 262541.6645851796,
-        "insurance_cost": 171750.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 39544.11228448007,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 28562.315468208948,
-        "depreciation": 252448.56905133638,
-        "taxes_and_fees": 112080.0
-      }
-    }
-  },
-  {
-    "id": "DSL008-baseline-outright",
-    "input": {
-      "vehicle_id": "DSL008",
-      "scenario_name": "baseline",
-      "purchase_method": "outright",
-      "overrides": null,
-      "vehicle_overrides": null
-    },
-    "expected": {
-      "total_cost": 1475566.0496046827,
-      "annual_cost": 142159.4087374508,
-      "cost_per_km": 1.6923739135410811,
-      "breakdown": {
-        "purchase_cost": 309000.0,
-        "fuel_cost": 742410.6059121671,
-        "maintenance_cost": 262541.6645851796,
-        "insurance_cost": 171750.0,
-        "registration_cost": 103080.0,
-        "battery_replacement_cost": 0.0,
-        "financing_cost": 0.0,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 0.0,
-        "payload_penalty_cost": 0.0,
-        "residual_value": 28562.315468208948,
-        "depreciation": 252448.56905133638,
-        "taxes_and_fees": 112080.0
-      }
-    }
-  },
-  {
-    "id": "BEV001-overrides",
+    "id": "BEV001-technology_breakthrough-outright",
     "input": {
       "vehicle_id": "BEV001",
-      "scenario_name": "baseline",
-      "purchase_method": "financed",
-      "overrides": {
-        "annual_kms_variation": 50000.0,
-        "fuel_price_variation": 1.5,
-        "electricity_price_variation": 0.8
-      },
+      "scenario_name": "technology_breakthrough",
+      "purchase_method": "outright",
+      "overrides": null,
       "vehicle_overrides": null
     },
     "expected": {
-      "total_cost": 495461.07456025644,
-      "annual_cost": 47733.85334446947,
-      "cost_per_km": 0.9546770668893894,
+      "vehicle_id": "BEV001",
+      "scenario_name": "Technology Breakthrough",
+      "total_cost": 330747.18072044017,
+      "annual_cost": 31864.940010915358,
+      "cost_per_km": 1.3854321743876243,
       "breakdown": {
-        "purchase_cost": 36359.0,
-        "fuel_cost": 41540.130617099814,
-        "maintenance_cost": 55812.428695829,
+        "purchase_cost": 181795,
+        "fuel_cost": 21147.72877452736,
+        "maintenance_cost": 25673.717200081337,
         "insurance_cost": 122662.50000000001,
-        "registration_cost": 9795.0,
-        "battery_replacement_cost": 4635.14274666076,
-        "financing_cost": 23265.119394035806,
-        "carbon_cost": 0.0,
-        "charging_labour_cost": 78372.12700018445,
-        "payload_penalty_cost": 54493.2047004481,
-        "residual_value": 16804.162267129595,
-        "depreciation": 148523.9081252029,
-        "taxes_and_fees": 15090.0
+        "registration_cost": 9795,
+        "battery_replacement_cost": 2032.548604172147,
+        "financing_cost": 0,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 25066.874162206124,
+        "residual_value": 21209.13684200823,
+        "depreciation": 134507.35976967355,
+        "taxes_and_fees": 5295
+      }
+    }
+  },
+  {
+    "id": "DSL001-oil_crisis-outright",
+    "input": {
+      "vehicle_id": "DSL001",
+      "scenario_name": "oil_crisis",
+      "purchase_method": "outright",
+      "overrides": null,
+      "vehicle_overrides": null
+    },
+    "expected": {
+      "vehicle_id": "DSL001",
+      "scenario_name": "Oil Crisis",
+      "total_cost": 388921.76777527033,
+      "annual_cost": 37469.612808500824,
+      "cost_per_km": 1.629113600369601,
+      "breakdown": {
+        "purchase_cost": 82400,
+        "fuel_cost": 211325.18146329175,
+        "maintenance_cost": 46212.690960146414,
+        "insurance_cost": 67800,
+        "registration_cost": 9795,
+        "battery_replacement_cost": 0,
+        "financing_cost": 0,
+        "carbon_cost": 0,
+        "charging_labour_cost": 0,
+        "payload_penalty_cost": 0,
+        "residual_value": 7394.774231251507,
+        "depreciation": 65358.85282882495,
+        "taxes_and_fees": 2400
       }
     }
   }

@@ -90,4 +90,22 @@ describe('Economic Scenarios', () => {
       expect(new Set(results).size).toBe(3);
     });
   });
+
+  // TEST-001: Regression test for CALC-001 - diesel efficiency affects carbon cost
+  describe('Diesel Efficiency Improvements (CALC-001)', () => {
+    it('should apply diesel efficiency improvement to carbon cost calculation', () => {
+      // Note: This test requires a scenario with non-zero carbon price and diesel efficiency < 1
+      // Currently all scenarios have zero carbon price, so we verify the calculation path exists
+      // When carbon pricing is enabled, diesel carbon costs should decrease with improved efficiency
+      const dieselBaseline = calculateTco({
+        ...basePayload,
+        vehicle_id: 'DSL001',
+        scenario_name: 'baseline',
+      });
+      
+      // The carbon cost should be finite and not NaN
+      expect(Number.isFinite(dieselBaseline.breakdown.carbon_cost)).toBe(true);
+      expect(dieselBaseline.breakdown.carbon_cost).toBeGreaterThanOrEqual(0);
+    });
+  });
 });

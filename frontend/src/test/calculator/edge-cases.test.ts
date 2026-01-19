@@ -142,4 +142,60 @@ describe('Edge Cases', () => {
       expect(results).toHaveLength(0);
     });
   });
+
+  // TEST-003: Regression test for CALC-004 - invalid range override handling
+  describe('Override Sanitization (CALC-004)', () => {
+    it('should handle range_km_override = 0 without NaN/Infinity', () => {
+      const result = calculateTco({
+        ...basePayload,
+        vehicle_overrides: { range_km_override: 0 },
+      });
+
+      // All numeric outputs should be finite
+      expect(Number.isFinite(result.total_cost)).toBe(true);
+      expect(Number.isFinite(result.annual_cost)).toBe(true);
+      expect(Number.isFinite(result.cost_per_km)).toBe(true);
+      expect(result.total_cost).not.toBeNaN();
+      expect(result.annual_cost).not.toBeNaN();
+      expect(result.cost_per_km).not.toBeNaN();
+    });
+
+    it('should handle charging_time_hours_override = 0 without NaN/Infinity', () => {
+      const result = calculateTco({
+        ...basePayload,
+        vehicle_overrides: { charging_time_hours_override: 0 },
+      });
+
+      expect(Number.isFinite(result.total_cost)).toBe(true);
+      expect(result.total_cost).not.toBeNaN();
+    });
+
+    it('should clamp battery_life_variation to prevent negative multipliers', () => {
+      // CALC-005: battery_life_variation should be clamped to [0.5, 1.5]
+      const result = calculateTco({
+        ...basePayload,
+        overrides: { battery_life_variation: 2.5 }, // exceeds max
+      });
+
+      expect(Number.isFinite(result.total_cost)).toBe(true);
+      expect(result.breakdown.battery_replacement_cost).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should handle extreme override values gracefully', () => {
+      const result = calculateTco({
+        ...basePayload,
+        overrides: {
+          fuel_price_variation: 100, // should be clamped to max
+          electricity_price_variation: -5, // should be rejected/clamped
+        },
+        vehicle_overrides: {
+          range_km_override: 10000, // should be clamped to max
+          kwh_per_km_override: 0, // should be clamped to min
+        },
+      });
+
+      expect(Number.isFinite(result.total_cost)).toBe(true);
+      expect(result.total_cost).not.toBeNaN();
+    });
+  });
 });

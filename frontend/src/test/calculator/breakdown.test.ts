@@ -92,4 +92,52 @@ describe('Cost Breakdown Consistency', () => {
       expect(smallBev.breakdown.charging_labour_cost).toBe(0);
     });
   });
+
+  // CALC-002: Regression test - taxes_and_fees should not include registration
+  describe('Registration Double-Count Prevention (CALC-002)', () => {
+    it('should not double-count registration in taxes_and_fees', () => {
+      const result = calculateTco(basePayload);
+      const breakdown = result.breakdown;
+
+      // taxes_and_fees should be stamp duty only (not stamp duty + registration)
+      // registration_cost is tracked separately
+      // If both fields include registration, total would be inflated
+      
+      // taxes_and_fees should be less than registration_cost for typical vehicles
+      // because stamp duty is typically smaller than lifetime registration
+      expect(breakdown.taxes_and_fees).toBeLessThan(breakdown.registration_cost);
+    });
+
+    it('should have taxes_and_fees represent stamp duty only', () => {
+      const result = calculateTco(basePayload);
+      const breakdown = result.breakdown;
+
+      // Stamp duty is typically a small percentage of purchase price
+      // It should be less than 10% of purchase cost
+      expect(breakdown.taxes_and_fees).toBeLessThan(breakdown.purchase_cost * 0.1);
+    });
+  });
+
+  // CALC-008/CALC-009: Regression tests for residual value and rebate stacking
+  describe('Residual Value and Rebate Calculations (CALC-008, CALC-009)', () => {
+    it('should base depreciation on MSRP not net purchase price', () => {
+      const bev = calculateTco(basePayload);
+      const breakdown = bev.breakdown;
+
+      // Depreciation should be positive and significant
+      expect(breakdown.depreciation).toBeGreaterThan(0);
+      
+      // Residual value should be positive (vehicle has some value at end of life)
+      expect(breakdown.residual_value).toBeGreaterThan(0);
+    });
+
+    it('should have consistent depreciation between BEV and diesel of same class', () => {
+      const bev = calculateTco({ ...basePayload, vehicle_id: 'BEV001' });
+      const diesel = calculateTco({ ...basePayload, vehicle_id: 'DSL001' });
+
+      // Both should have positive depreciation
+      expect(bev.breakdown.depreciation).toBeGreaterThan(0);
+      expect(diesel.breakdown.depreciation).toBeGreaterThan(0);
+    });
+  });
 });

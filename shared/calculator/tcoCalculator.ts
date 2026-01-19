@@ -109,30 +109,72 @@ const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequest
     };
   }
 
-  // Sanitize cost overrides - ensure they're positive numbers or undefined
+  // CALC-005: Sanitize cost overrides with expected ranges to prevent unrealistic/negative effects
   if (sanitized.overrides) {
     const cleanOverrides: CostOverrides = {};
+    const overrideRanges: Record<keyof CostOverrides, [number, number]> = {
+      annual_kms_variation: [10000, 500000], // reasonable annual km range
+      residual_value_variation: [0.5, 2.0],
+      fuel_price_variation: [0.5, 2.0],
+      electricity_price_variation: [0.5, 2.0],
+      maintenance_cost_variation: [0.5, 2.0],
+      battery_life_variation: [0.5, 1.5], // prevents negative battery replacement multiplier
+      charging_efficiency_variation: [0.7, 1.3],
+    };
+
     for (const [key, value] of Object.entries(sanitized.overrides)) {
-      if (typeof value === 'number' && !isNaN(value) && value >= 0) {
-        cleanOverrides[key as keyof CostOverrides] = value;
+      const typedKey = key as keyof CostOverrides;
+      if (typeof value === 'number' && !isNaN(value)) {
+        const range = overrideRanges[typedKey];
+        if (range) {
+          // Clamp to expected range
+          cleanOverrides[typedKey] = Math.max(range[0], Math.min(range[1], value));
+        } else if (value >= 0) {
+          cleanOverrides[typedKey] = value;
+        }
       }
     }
     sanitized.overrides = cleanOverrides;
   }
 
-  // Sanitize vehicle param overrides - ensure they're positive numbers or undefined
+  // CALC-004: Sanitize vehicle param overrides with minimum thresholds for divisors
   if (sanitized.vehicle_overrides) {
     const cleanVehicleOverrides: VehicleParamOverrides = {};
+    // Minimum values for fields used as divisors to prevent NaN/Infinity
+    const minimums: Partial<Record<keyof VehicleParamOverrides, number>> = {
+      range_km_override: 50, // prevents division by zero in calculateChargingLabourCost
+      charging_time_hours_override: 0.1, // reasonable minimum charging time
+      kwh_per_km_override: 0.1, // prevents unrealistic energy efficiency
+      litres_per_km_override: 0.01, // prevents unrealistic fuel efficiency
+    };
+    const maximums: Partial<Record<keyof VehicleParamOverrides, number>> = {
+      range_km_override: 2500,
+      charging_time_hours_override: 24,
+      kwh_per_km_override: 10,
+      litres_per_km_override: 2,
+      interest_rate_override: 0.3, // max 30% interest
+    };
+
     for (const [key, value] of Object.entries(sanitized.vehicle_overrides)) {
+      const typedKey = key as keyof VehicleParamOverrides;
       if (typeof value === 'number' && !isNaN(value) && value >= 0) {
-        cleanVehicleOverrides[key as keyof VehicleParamOverrides] = value;
+        let clampedValue = value;
+        const min = minimums[typedKey];
+        const max = maximums[typedKey];
+        if (min !== undefined && clampedValue < min) {
+          clampedValue = min;
+        }
+        if (max !== undefined && clampedValue > max) {
+          clampedValue = max;
+        }
+        cleanVehicleOverrides[typedKey] = clampedValue;
       }
     }
     sanitized.vehicle_overrides = cleanVehicleOverrides;
   }
 
   return sanitized;
-};
+};;
 
 const asNumber = (value: unknown, name: string): number => {
   if (typeof value !== 'number') {
@@ -462,9 +504,12 @@ const calculateCarbonCostYear = (
     return emissionsTonnes * carbonPrice;
   }
 
-  const emissionsTonnes = (vehicle.litres_per_km * vehicle.annual_kms * DIESEL_EMISSIONS) / 1000;
+  // Apply diesel efficiency improvement to carbon cost calculation (CALC-001)
+  const dieselEfficiencyMultiplier = getSeriesValue(scenario.diesel_efficiency_improvement, year, 1);
+  const adjustedLitresPerKm = vehicle.litres_per_km * dieselEfficiencyMultiplier;
+  const emissionsTonnes = (adjustedLitresPerKm * vehicle.annual_kms * DIESEL_EMISSIONS) / 1000;
   return emissionsTonnes * carbonPrice;
-};
+};;
 
 const calculateMaintenanceCostYear = (
   vehicle: VehicleDetail,
@@ -488,10 +533,14 @@ const calculateChargingLabourCost = (
   }
   const dailyKms = vehicle.annual_kms / WORKING_DAYS;
   const usableRange = vehicle.range_km * BATTERY_USABLE_RANGE_FACTOR;
+  // CALC-004: Defensive check to prevent division by zero
+  if (usableRange <= 0) {
+    return 0;
+  }
   const sessionsPerDay = dailyKms <= usableRange ? 0 : Math.ceil((dailyKms - usableRange) / usableRange);
   const hoursPerDay = chargingTimeOverride ?? CHARGING_TIME_HOURS[vehicle.weight_class] ?? 0;
   return sessionsPerDay * hoursPerDay * WORKING_DAYS * HOURLY_WAGE;
-};
+};;
 
 const calculatePayloadPenalty = (vehicle: VehicleDetail): number => {
   if (!vehicle.comparison_pair) {
@@ -521,21 +570,32 @@ const calculateStampDuty = (msrp: number, isBev: boolean): number => {
 };
 
 const calculateBevPurchaseRebate = (msrp: number): number => {
-  let rebate = 0;
+  // CALC-009: Rebate stacking order - fixed rebates apply first, then percentage
+  // on remaining MSRP (not full MSRP)
+  let totalRebate = 0;
+  let remainingMsrp = msrp;
+
   const fixedPolicy = POLICY_CONFIG.purchase_rebate;
   const percentagePolicy = POLICY_CONFIG.percentage_rebate;
+
+  // Step 1: Apply fixed rebate first
   if (fixedPolicy?.enabled) {
-    rebate += fixedPolicy.amount ?? 0;
+    const fixedAmount = fixedPolicy.amount ?? 0;
+    totalRebate += fixedAmount;
+    remainingMsrp = Math.max(0, msrp - fixedAmount);
   }
+
+  // Step 2: Apply percentage rebate on remaining MSRP (after fixed rebate)
   if (percentagePolicy?.enabled) {
-    let percentage = msrp * (percentagePolicy.percentage ?? 0);
+    let percentageAmount = remainingMsrp * (percentagePolicy.percentage ?? 0);
     if (percentagePolicy.max_amount) {
-      percentage = Math.min(percentage, percentagePolicy.max_amount);
+      percentageAmount = Math.min(percentageAmount, percentagePolicy.max_amount);
     }
-    rebate += percentage;
+    totalRebate += percentageAmount;
   }
-  return rebate;
-};
+
+  return totalRebate;
+};;
 
 const calculateInitialCost = (vehicle: VehicleDetail) => {
   const isBev = vehicle.drivetrain_type === 'BEV';
@@ -591,13 +651,14 @@ const buildFinancingSnapshot = (
 };
 
 const calculateResidualValueAtLife = (
-  initialCost: number,
+  msrp: number, // CALC-008: Use MSRP as depreciation base (not initialCost with stamp duty/rebates)
   scenario: EconomicScenarioDefinition,
   isBev: boolean,
   overrides?: CostOverrides
 ) => {
-  const firstYearDep = initialCost * DEPRECIATION_RATE_FIRST_YEAR;
-  let residual = initialCost - firstYearDep;
+  // Depreciation is calculated on MSRP, not the net purchase price
+  const firstYearDep = msrp * DEPRECIATION_RATE_FIRST_YEAR;
+  let residual = msrp - firstYearDep;
   for (let year = 2; year <= VEHICLE_LIFE; year += 1) {
     residual *= 1 - DEPRECIATION_RATE_ONGOING;
   }
@@ -609,9 +670,9 @@ const calculateResidualValueAtLife = (
   }
   return {
     residualFuture: residual,
-    depreciation: initialCost - residual,
+    depreciation: msrp - residual,
   };
-};
+};;
 
 const getAnnualInsuranceCost = (vehicle: VehicleDetail): number => {
   const rate = vehicle.drivetrain_type === 'BEV' ? INSURANCE_RATE_BEV : INSURANCE_RATE_DSL;
@@ -676,11 +737,16 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
   const totalChargingLabourCost = calculateNpvOfAnnualCashflows(annualChargingLabourCosts, DISCOUNT_RATE);
   const totalPayloadPenalty = calculateNpvOfAnnualCashflows(annualPayloadPenalties, DISCOUNT_RATE);
 
-  const insurancePv = calculatePresentValue(annualInsuranceCost, VEHICLE_LIFE, DISCOUNT_RATE);
-  const registrationPv = calculatePresentValue(vehicle.annual_registration, VEHICLE_LIFE, DISCOUNT_RATE);
+  // CALC-003: Use consistent NPV calculation for insurance and registration
+  // to match other annual cashflows (year 1 = no discounting, per math.ts convention)
+  const annualInsuranceCosts = Array.from({ length: VEHICLE_LIFE }, () => annualInsuranceCost);
+  const annualRegistrationCosts = Array.from({ length: VEHICLE_LIFE }, () => vehicle.annual_registration);
+  const insurancePv = calculateNpvOfAnnualCashflows(annualInsuranceCosts, DISCOUNT_RATE);
+  const registrationPv = calculateNpvOfAnnualCashflows(annualRegistrationCosts, DISCOUNT_RATE);
 
+  // CALC-008: Pass MSRP as depreciation base (not initialCost with stamp duty/rebates)
   const { residualFuture, depreciation } = calculateResidualValueAtLife(
-    initialCost,
+    vehicle.msrp,
     scenario,
     isBev,
     overrides
@@ -702,7 +768,9 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
   const annualCost = calculateAnnualisedCost(totalCost, VEHICLE_LIFE, DISCOUNT_RATE);
   const costPerKm = vehicle.annual_kms > 0 ? annualCost / vehicle.annual_kms : 0;
 
-  const taxesAndFees = stampDuty + vehicle.annual_registration * VEHICLE_LIFE;
+  // CALC-002: taxes_and_fees now excludes registration to avoid double-counting
+  // (registration is tracked separately in breakdown.registration_cost)
+  const taxesAndFees = stampDuty;
 
   const breakdown: CostBreakdown = {
     purchase_cost: financing.upfrontCost,
