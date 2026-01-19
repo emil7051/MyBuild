@@ -15,8 +15,8 @@ test.describe('UI Redesign Verification', () => {
       const title = page.locator('h1');
       await expect(title).toContainText('Truck Cost Calculator');
 
-      // Check nav link is "Compare" not "Wizard"
-      const compareLink = page.getByRole('link', { name: 'Compare' });
+      // Check nav link is "Configure" not "Wizard"
+      const compareLink = page.getByRole('link', { name: 'Configure' });
       await expect(compareLink).toBeVisible();
 
       // Verify no "Wizard" link exists

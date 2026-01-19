@@ -7,14 +7,11 @@ import WizardDieselStep from '@components/wizard/WizardDieselStep';
 import WizardElectricStep from '@components/wizard/WizardElectricStep';
 import WizardCompareStep from '@components/wizard/WizardCompareStep';
 import WizardStepper, { type WizardStep } from '@components/wizard/WizardStepper';
-import { useCalculationRunner } from '@hooks/useCalculations';
 import { useWizardAutosave } from '@hooks/useWizardAutosave';
 import { useTCOStore } from '@state/tcoStore';
-import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
-import type { ComparisonRequestPayload } from '@shared/types/tco.types';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { wizardFormSchema } from '@forms/wizardForm';
-import { toast } from 'react-hot-toast';
+
 
 const steps: WizardStep[] = [
   {
@@ -56,7 +53,7 @@ const WizardPage = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const isCalculating = useTCOStore((state) => state.isCalculating);
   const updateWizard = useTCOStore((state) => state.updateWizard);
-  const { runComparison } = useCalculationRunner();
+  
   useWizardAutosave();
 
   // Memoize form values to prevent unnecessary re-renders
@@ -116,7 +113,13 @@ const WizardPage = () => {
     const subscription = formMethods.watch((values, { name, type }) => {
       console.log('[Form Watch]', { name, type, dutyCycle: values.dutyCycle });
 
-      // Skip if any duty cycle value is undefined (fields not yet registered)
+      // Always cancel pending debounce on any watch event
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+
+      // Skip if any duty cycle value is undefined (fields not yet registered or cleared)
       if (
         values.dutyCycle?.urban === undefined ||
         values.dutyCycle?.regional === undefined ||
@@ -127,9 +130,6 @@ const WizardPage = () => {
       }
 
       // Debounce store updates to avoid rapid re-renders during typing
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
       debounceRef.current = setTimeout(() => {
         console.log('[Form Watch] Syncing to store:', values.dutyCycle);
         syncToStore(values as WizardFormValues);
@@ -181,59 +181,6 @@ const WizardPage = () => {
     setStepIndex(Math.max(0, Math.min(targetIndex, steps.length - 1)));
   };
 
-  const handleCalculate = async () => {
-    console.log('[handleCalculate] Starting calculation...');
-    console.log('[handleCalculate] wizardData.dutyCycle:', wizardData.dutyCycle);
-
-    if (!wizardData.currentVehicle) {
-      console.log('[handleCalculate] No current vehicle selected, aborting');
-      return;
-    }
-
-    const vehicleIds = Array.from(
-      new Set([wizardData.currentVehicle, ...wizardData.comparisonVehicles.filter(Boolean)])
-    );
-
-    const formValues = formMethods.getValues();
-    console.log('[handleCalculate] Form values:', {
-      dutyCycle: formValues.dutyCycle,
-      scenario: formValues.scenario,
-      purchaseMethod: formValues.purchaseMethod,
-    });
-
-    const payload: ComparisonRequestPayload = {
-      vehicle_ids: vehicleIds,
-      scenario_name: formValues.scenario,
-      purchase_method: formValues.purchaseMethod,
-      duty_cycle: formValues.dutyCycle,
-    };
-    console.log('[handleCalculate] Final payload:', JSON.stringify(payload, null, 2));
-
-    const overrides = compactOverrides(formValues.overrides ?? {});
-    if (Object.keys(overrides).length) {
-      payload.overrides = overrides;
-    }
-    const vehicleOverrides = compactVehicleParamOverrides(
-      wizardData.vehicleParamOverrides ?? {}
-    );
-    if (Object.keys(vehicleOverrides).length) {
-      payload.vehicle_param_overrides = vehicleOverrides;
-    }
-
-    try {
-      const isValid = await formMethods.trigger();
-      if (!isValid) {
-        toast.error('Check the highlighted fields before running a comparison.');
-        return;
-      }
-      await runComparison(payload);
-      toast.success('Comparison saved to your session.');
-    } catch (error) {
-      console.error('Calculation failed', error);
-      toast.error('Calculation failed. Please try again.');
-    }
-  };
-
   return (
     <FormProvider {...formMethods}>
       <div className="flex flex-col gap-6">
@@ -254,11 +201,7 @@ const WizardPage = () => {
             <Button variant="ghost" onClick={goPrev} disabled={stepIndex === 0 || isCalculating}>
               Back
             </Button>
-            {isLastStep ? (
-              <Button onClick={handleCalculate} disabled={!baselineSelected || isCalculating}>
-                {isCalculating ? 'Calculating…' : 'Run comparison'}
-              </Button>
-            ) : (
+            {!isLastStep && (
               <Button onClick={() => void goNext()} disabled={!baselineSelected || isCalculating}>
                 Next
               </Button>

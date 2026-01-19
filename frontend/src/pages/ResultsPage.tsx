@@ -37,7 +37,7 @@ const ResultsPage = () => {
             </p>
           )}
         </div>
-        <Button variant="secondary" onClick={() => navigate('/')}>Return to wizard</Button>
+        <Button variant="secondary" onClick={() => navigate('/')}>Return to Configuration</Button>
       </div>
 
       <ResultsPanel />

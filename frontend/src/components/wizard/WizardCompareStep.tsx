@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { debounce } from 'lodash-es';
 import ResultsPanel from '@components/results/ResultsPanel';
 import ComparisonConfigPanel from './ComparisonConfigPanel';
 import SelectedVehiclesSummary from './SelectedVehiclesSummary';
@@ -14,13 +15,17 @@ const WizardCompareStep = () => {
   const getNextRequestId = useTCOStore((state) => state.getNextRequestId);
 
   const payload = useMemo<ComparisonRequestPayload | null>(() => {
+    console.log('[WizardCompareStep] Building payload, dutyCycle:', wizardData.dutyCycle);
+
     if (!wizardData.currentVehicle) {
+      console.log('[WizardCompareStep] No current vehicle, payload = null');
       return null;
     }
     const vehicleIds = Array.from(
       new Set([wizardData.currentVehicle, ...wizardData.comparisonVehicles])
     ).filter(Boolean) as string[];
     if (!vehicleIds.length) {
+      console.log('[WizardCompareStep] No vehicle IDs, payload = null');
       return null;
     }
 
@@ -42,6 +47,12 @@ const WizardCompareStep = () => {
     if (Object.keys(vehicleOverrides).length) {
       request.vehicle_param_overrides = vehicleOverrides;
     }
+
+    console.log('[WizardCompareStep] Payload built:', {
+      duty_cycle: request.duty_cycle,
+      scenario: request.scenario_name,
+    });
+
     return request;
   }, [
     wizardData.currentVehicle,
@@ -53,35 +64,45 @@ const WizardCompareStep = () => {
     wizardData.dutyCycle,
   ]);
 
+  // Stable debounced calculation function - created once, survives re-renders
+  const debouncedCalculate = useMemo(
+    () =>
+      debounce((p: ComparisonRequestPayload) => {
+        if (!p.vehicle_ids.length) return;
+
+        const requestId = getNextRequestId();
+        const vehicleOrder = p.vehicle_ids;
+
+        console.log('[WizardCompareStep] Auto-calc running with duty_cycle:', p.duty_cycle);
+
+        setIsCalculating(true);
+        try {
+          const results = calculateComparison(p);
+          console.log('[WizardCompareStep] Calculation complete, first result cost_per_km:', results[0]?.cost_per_km);
+          setResults(results, requestId, vehicleOrder);
+        } catch (error) {
+          console.warn('Auto-calculation failed:', error);
+        } finally {
+          setIsCalculating(false);
+        }
+      }, 600), // Increased debounce to 600ms for stability
+    [getNextRequestId, setIsCalculating, setResults]
+  );
+
+  // Cleanup on unmount
   useEffect(() => {
-    if (!payload) {
-      return;
+    return () => {
+      debouncedCalculate.cancel();
+    };
+  }, [debouncedCalculate]);
+
+  // Trigger calculation when payload changes
+  useEffect(() => {
+    if (payload) {
+      console.log('[WizardCompareStep] Payload changed, scheduling auto-calc');
+      debouncedCalculate(payload);
     }
-
-    const timer = setTimeout(() => {
-      // Skip if payload has no vehicles
-      if (!payload.vehicle_ids.length) {
-        return;
-      }
-
-      // Capture request context before starting calculation
-      const requestId = getNextRequestId();
-      const vehicleOrder = payload.vehicle_ids;
-
-      setIsCalculating(true);
-      try {
-        const results = calculateComparison(payload);
-        // setResults will only apply if requestId matches latest
-        setResults(results, requestId, vehicleOrder);
-      } catch (error) {
-        console.warn('Preview calculation failed:', error);
-      } finally {
-        setIsCalculating(false);
-      }
-    }, 350);
-
-    return () => clearTimeout(timer);
-  }, [payload, getNextRequestId, setIsCalculating, setResults]);
+  }, [payload, debouncedCalculate]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
