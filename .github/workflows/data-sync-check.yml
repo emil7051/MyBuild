@@ -1,0 +1,56 @@
+name: Data Sync Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+      - 'scripts/generate_vehicle_catalog_ts.py'
+      - 'shared/data/**'
+      - 'shared/types/tco.types.ts'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'data/**'
+      - 'scripts/generate_vehicle_catalog_ts.py'
+      - 'shared/data/**'
+      - 'shared/types/tco.types.ts'
+
+jobs:
+  data-sync:
+    name: Verify Generated TS Matches Python Data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run data generator
+        run: python scripts/generate_vehicle_catalog_ts.py
+
+      - name: Check for drift in generated files
+        run: |
+          if git diff --quiet shared/data/; then
+            echo "Generated TypeScript data is in sync with Python sources."
+          else
+            echo "ERROR: Generated TypeScript data has drifted from Python sources!"
+            echo ""
+            echo "The following files have differences:"
+            git diff --name-only shared/data/
+            echo ""
+            echo "Diff details:"
+            git diff shared/data/
+            echo ""
+            echo "To fix: Run 'python scripts/generate_vehicle_catalog_ts.py' and commit the changes."
+            exit 1
+          fi

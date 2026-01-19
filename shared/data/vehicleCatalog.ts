@@ -2,8 +2,11 @@
 
 import type { VehicleDetail, VehicleSummary } from '../types/tco.types';
 
-// Update this version when vehicle data changes to invalidate stale cache
-export const VEHICLE_CATALOG_VERSION = '2026-01-07-v1';
+/**
+ * Catalog version - auto-generated from vehicle data hash.
+ * Used for cache invalidation when vehicle data changes.
+ */
+export const VEHICLE_CATALOG_VERSION = 'v1-886232f5';
 
 export const VEHICLE_DETAILS: VehicleDetail[] = [
   {

@@ -171,6 +171,46 @@ export const useTCOStore = create<TCOStore>()(
         if (storedVersion !== VEHICLE_CATALOG_VERSION) {
           console.info('Vehicle catalog updated, refreshing cache');
           state.vehicleDetails = { ...VEHICLE_BY_ID };
+
+          // Clear vehicle param overrides for vehicles that no longer exist
+          if (state.wizardData.vehicleParamOverrides) {
+            const validVehicleIds = new Set(Object.keys(VEHICLE_BY_ID));
+            const overrideKeys = Object.keys(state.wizardData.vehicleParamOverrides);
+            const invalidKeys = overrideKeys.filter((id) => !validVehicleIds.has(id));
+
+            if (invalidKeys.length > 0) {
+              console.info(
+                `Clearing stale vehicle overrides for removed vehicles: ${invalidKeys.join(', ')}`
+              );
+              const validOverrides = { ...state.wizardData.vehicleParamOverrides };
+              for (const key of invalidKeys) {
+                delete validOverrides[key];
+              }
+              state.wizardData.vehicleParamOverrides = validOverrides;
+            }
+          }
+
+          // Clear selected vehicles that no longer exist
+          const validVehicleIds = new Set(Object.keys(VEHICLE_BY_ID));
+          if (state.wizardData.currentVehicle && !validVehicleIds.has(state.wizardData.currentVehicle)) {
+            console.info(`Clearing stale current vehicle: ${state.wizardData.currentVehicle}`);
+            state.wizardData.currentVehicle = undefined;
+          }
+          if (state.wizardData.comparisonVehicles) {
+            const validComparisons = state.wizardData.comparisonVehicles.filter((id) =>
+              validVehicleIds.has(id)
+            );
+            if (validComparisons.length !== state.wizardData.comparisonVehicles.length) {
+              console.info('Clearing stale comparison vehicles');
+              state.wizardData.comparisonVehicles = validComparisons;
+            }
+          }
+
+          // Clear stale results
+          if (state.results && state.results.length > 0) {
+            console.info('Clearing stale calculation results due to catalog update');
+            state.results = [];
+          }
         }
 
         // Validate duty cycle values
