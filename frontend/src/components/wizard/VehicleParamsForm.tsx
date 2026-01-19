@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import Card from '@components/shared/Card';
 import Field from '@components/shared/Field';
@@ -6,6 +6,8 @@ import { useTCOStore } from '@state/tcoStore';
 import type { VehicleParamOverrides } from '@shared/types/tco.types';
 import { vehicleParamOverridesSchema } from '@forms/wizardForm';
 import { formatCurrency } from '@utils/format';
+
+type FieldErrors = Partial<Record<keyof VehicleParamOverrides, string>>;
 
 interface VehicleParamsFormProps {
   vehicleId?: string;
@@ -23,18 +25,42 @@ const VehicleParamsForm = ({
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
   const wizardData = useTCOStore((state) => state.wizardData);
   const updateWizard = useTCOStore((state) => state.updateWizard);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const clearFieldError = (fieldKey: keyof VehicleParamOverrides) => {
+    setFieldErrors((prev) => {
+      if (!prev[fieldKey]) return prev;
+      const next = { ...prev };
+      delete next[fieldKey];
+      return next;
+    });
+  };
+
+  const setFieldError = (fieldKey: keyof VehicleParamOverrides, message: string) => {
+    setFieldErrors((prev) => ({ ...prev, [fieldKey]: message }));
+  };
 
   const setOverrideImmediate = (patch: Partial<VehicleParamOverrides>) => {
     if (!vehicleId) {
       return;
     }
 
+    // Get the field key being updated
+    const fieldKey = Object.keys(patch)[0] as keyof VehicleParamOverrides;
+
     // Validate the patch before applying
     const result = vehicleParamOverridesSchema.partial().safeParse(patch);
     if (!result.success) {
-      console.warn('Invalid vehicle param override:', result.error.flatten());
+      // Extract and display the error for this field
+      const fieldError = result.error.flatten().fieldErrors[fieldKey];
+      if (fieldError && fieldError.length > 0) {
+        setFieldError(fieldKey, fieldError[0]);
+      }
       return;
     }
+
+    // Clear any existing error for this field
+    clearFieldError(fieldKey);
 
     const existing = { ...(wizardData.vehicleParamOverrides ?? {}) };
     const current = { ...(existing[vehicleId] ?? {}) } as VehicleParamOverrides;
@@ -115,6 +141,7 @@ const VehicleParamsForm = ({
           label="Purchase price ($)"
           placeholder={formatCurrency(detail.msrp)}
           value={numberOrEmpty(overrides.msrp_override)}
+          error={fieldErrors.msrp_override}
           onChange={(event) =>
             setOverride({
               msrp_override:
@@ -129,6 +156,7 @@ const VehicleParamsForm = ({
           label="Payload capacity (tonnes)"
           placeholder={detail.payload.toFixed(1)}
           value={numberOrEmpty(overrides.payload_override)}
+          error={fieldErrors.payload_override}
           onChange={(event) =>
             setOverride({
               payload_override:
@@ -142,6 +170,7 @@ const VehicleParamsForm = ({
           label="Registration cost ($/year)"
           placeholder={formatCurrency(detail.annual_registration)}
           value={numberOrEmpty(overrides.annual_registration_override)}
+          error={fieldErrors.annual_registration_override}
           onChange={(event) =>
             setOverride({
               annual_registration_override:
@@ -158,6 +187,7 @@ const VehicleParamsForm = ({
           hint="Annual rate as a decimal - e.g. 0.06 for 6%."
           placeholder="0.06"
           value={numberOrEmpty(overrides.interest_rate_override)}
+          error={fieldErrors.interest_rate_override}
           onChange={(event) =>
             setOverride({
               interest_rate_override:
@@ -172,6 +202,7 @@ const VehicleParamsForm = ({
           label="Range (kilometres)"
           placeholder={detail.range_km ? detail.range_km.toString() : 'N/A'}
           value={numberOrEmpty(overrides.range_km_override)}
+          error={fieldErrors.range_km_override}
           onChange={(event) =>
             setOverride({
               range_km_override:
@@ -187,6 +218,7 @@ const VehicleParamsForm = ({
             label="Fuel consumption (L/km)"
             placeholder={detail.litres_per_km.toFixed(2)}
             value={numberOrEmpty(overrides.litres_per_km_override)}
+            error={fieldErrors.litres_per_km_override}
             onChange={(event) =>
               setOverride({
                 litres_per_km_override:
@@ -202,6 +234,7 @@ const VehicleParamsForm = ({
               label="Battery size (kWh)"
               placeholder={detail.battery_capacity_kwh.toString()}
               value={numberOrEmpty(overrides.battery_capacity_kwh_override)}
+              error={fieldErrors.battery_capacity_kwh_override}
               onChange={(event) =>
                 setOverride({
                   battery_capacity_kwh_override:
@@ -218,6 +251,7 @@ const VehicleParamsForm = ({
               label="Energy use (kWh/km)"
               placeholder={detail.kwh_per_km.toString()}
               value={numberOrEmpty(overrides.kwh_per_km_override)}
+              error={fieldErrors.kwh_per_km_override}
               onChange={(event) =>
                 setOverride({
                   kwh_per_km_override:
@@ -236,6 +270,7 @@ const VehicleParamsForm = ({
               hint="Custom charging duration for this truck."
               placeholder="1.5"
               value={numberOrEmpty(overrides.charging_time_hours_override)}
+              error={fieldErrors.charging_time_hours_override}
               onChange={(event) =>
                 setOverride({
                   charging_time_hours_override:

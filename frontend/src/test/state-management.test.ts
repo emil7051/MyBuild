@@ -19,6 +19,7 @@ describe('TCO Store State Management', () => {
       results: [],
       isCalculating: false,
       sessionId: undefined,
+      latestRequestId: 0,
     });
   });
 
@@ -48,7 +49,7 @@ describe('TCO Store State Management', () => {
       expect(warnSpy).toHaveBeenCalled();
     });
 
-    it('should clamp negative duty cycle values to zero', () => {
+    it('should reset negative duty cycle values to defaults', () => {
       const store = useTCOStore.getState();
 
       store.updateWizard({
@@ -56,7 +57,8 @@ describe('TCO Store State Management', () => {
       });
 
       const updated = useTCOStore.getState();
-      expect(updated.wizardData.dutyCycle.urban).toBe(0);
+      // Should reset to defaults when any value is negative
+      expect(updated.wizardData.dutyCycle.urban).toBe(60);
       expect(updated.wizardData.dutyCycle.regional).toBe(25);
       expect(updated.wizardData.dutyCycle.longHaul).toBe(15);
       expect(warnSpy).toHaveBeenCalled();
@@ -93,7 +95,7 @@ describe('TCO Store State Management', () => {
       expect(warnSpy).toHaveBeenCalled();
     });
 
-    it('should clamp all negative values', () => {
+    it('should reset all negative values to defaults', () => {
       const store = useTCOStore.getState();
 
       store.updateWizard({
@@ -101,11 +103,28 @@ describe('TCO Store State Management', () => {
       });
 
       const updated = useTCOStore.getState();
+      // Should reset to defaults when any value is negative
       expect(updated.wizardData.dutyCycle).toEqual({
-        urban: 0,
-        regional: 0,
-        longHaul: 0,
+        urban: 60,
+        regional: 25,
+        longHaul: 15,
       });
+      expect(warnSpy).toHaveBeenCalled();
+    });
+
+    it('should normalize duty cycle values when sum is not 100', () => {
+      const store = useTCOStore.getState();
+
+      store.updateWizard({
+        dutyCycle: { urban: 50, regional: 30, longHaul: 10 },
+      });
+
+      const updated = useTCOStore.getState();
+      // Should normalize values to sum to 100 (90 -> 100)
+      // 50/90 * 100 = 55.56, 30/90 * 100 = 33.33, 10/90 * 100 = 11.11
+      expect(updated.wizardData.dutyCycle.urban).toBeCloseTo(55.56, 1);
+      expect(updated.wizardData.dutyCycle.regional).toBeCloseTo(33.33, 1);
+      expect(updated.wizardData.dutyCycle.longHaul).toBeCloseTo(11.11, 1);
       expect(warnSpy).toHaveBeenCalled();
     });
   });
@@ -163,14 +182,22 @@ describe('TCO Store State Management', () => {
         comparisonVehicles: ['DSL001'],
       });
 
+      // Get a requestId for this operation
+      const requestId = store.getNextRequestId();
+      const vehicleOrder = ['BEV001', 'DSL001'];
+
       // Then set results in different order
-      store.setResults([
-        { vehicle_id: 'DSL001', total_cost: 100000, breakdown: {} } as unknown as CalculationResponsePayload,
-        { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as CalculationResponsePayload,
-      ]);
+      store.setResults(
+        [
+          { vehicle_id: 'DSL001', total_cost: 100000, breakdown: {} } as unknown as CalculationResponsePayload,
+          { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as CalculationResponsePayload,
+        ],
+        requestId,
+        vehicleOrder
+      );
 
       const updated = useTCOStore.getState();
-      // Results should be reordered to match wizard data order
+      // Results should be reordered to match the captured vehicle order
       expect(updated.results[0].vehicle_id).toBe('BEV001');
       expect(updated.results[1].vehicle_id).toBe('DSL001');
     });
@@ -178,9 +205,14 @@ describe('TCO Store State Management', () => {
     it('should reset results', () => {
       const store = useTCOStore.getState();
 
-      store.setResults([
-        { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as CalculationResponsePayload,
-      ]);
+      const requestId = store.getNextRequestId();
+      store.setResults(
+        [
+          { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as CalculationResponsePayload,
+        ],
+        requestId,
+        ['BEV001']
+      );
 
       expect(useTCOStore.getState().results).toHaveLength(1);
 

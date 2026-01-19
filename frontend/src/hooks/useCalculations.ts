@@ -16,6 +16,7 @@ import { buildSessionPayload } from '@utils/payload';
 export const useCalculationRunner = () => {
   const setResults = useTCOStore((state) => state.setResults);
   const setIsCalculating = useTCOStore((state) => state.setIsCalculating);
+  const getNextRequestId = useTCOStore((state) => state.getNextRequestId);
   const wizardData = useTCOStore((state) => state.wizardData);
   const sessionId = useTCOStore((state) => state.sessionId);
   const setSessionId = useTCOStore((state) => state.setSessionId);
@@ -23,6 +24,8 @@ export const useCalculationRunner = () => {
   // Mutex refs to prevent duplicate session creation race condition
   const isCreatingSession = useRef(false);
   const pendingSessionId = useRef<string | null>(null);
+  // Ref to store pending payload while session is being created
+  const pendingPayload = useRef<CalculationResponsePayload[] | null>(null);
 
   const persistSession = useCallback(
     async (data: CalculationResponsePayload[]) => {
@@ -30,8 +33,9 @@ export const useCalculationRunner = () => {
         return;
       }
 
-      // If we're already creating a session, skip this call
+      // If we're already creating a session, queue this payload to send after create completes
       if (isCreatingSession.current) {
+        pendingPayload.current = data;
         return;
       }
 
@@ -46,6 +50,14 @@ export const useCalculationRunner = () => {
           const response = await createSession(payload);
           pendingSessionId.current = response.sessionId;
           setSessionId(response.sessionId);
+
+          // After session creation completes, check if we have a pending payload to send
+          if (pendingPayload.current) {
+            const queuedData = pendingPayload.current;
+            pendingPayload.current = null;
+            const queuedPayload = buildSessionPayload(wizardData, queuedData);
+            await updateSession(response.sessionId, queuedPayload);
+          }
         }
       } catch (error) {
         console.warn('Failed to persist session', error);
@@ -58,11 +70,15 @@ export const useCalculationRunner = () => {
 
   const comparisonMutation = useMutation({
     mutationFn: async (payload: ComparisonRequestPayload) => {
-      return calculateComparison(payload);
+      // Capture request context before starting calculation
+      const requestId = getNextRequestId();
+      const vehicleOrder = payload.vehicle_ids;
+      const data = await calculateComparison(payload);
+      return { data, requestId, vehicleOrder };
     },
     onMutate: () => setIsCalculating(true),
-    onSuccess: (data) => {
-      setResults(data);
+    onSuccess: ({ data, requestId, vehicleOrder }) => {
+      setResults(data, requestId, vehicleOrder);
       void persistSession(data);
     },
     onSettled: () => setIsCalculating(false),
@@ -70,11 +86,15 @@ export const useCalculationRunner = () => {
 
   const singleMutation = useMutation({
     mutationFn: async (payload: CalculationRequestPayload) => {
-      return calculateTco(payload);
+      // Capture request context before starting calculation
+      const requestId = getNextRequestId();
+      const vehicleOrder = [payload.vehicle_id];
+      const data = await calculateTco(payload);
+      return { data, requestId, vehicleOrder };
     },
     onMutate: () => setIsCalculating(true),
-    onSuccess: (data) => {
-      setResults([data]);
+    onSuccess: ({ data, requestId, vehicleOrder }) => {
+      setResults([data], requestId, vehicleOrder);
       void persistSession([data]);
     },
     onSettled: () => setIsCalculating(false),
@@ -85,17 +105,20 @@ export const useCalculationRunner = () => {
       if (!payload.vehicle_ids.length) {
         return;
       }
+      // Capture request context before starting calculation
+      const requestId = getNextRequestId();
+      const vehicleOrder = payload.vehicle_ids;
       setIsCalculating(true);
       try {
         const data = calculateComparison(payload);
-        setResults(data);
+        setResults(data, requestId, vehicleOrder);
       } catch (error) {
         console.warn('Preview comparison failed', error);
       } finally {
         setIsCalculating(false);
       }
     },
-    [setIsCalculating, setResults]
+    [getNextRequestId, setIsCalculating, setResults]
   );
 
   return {

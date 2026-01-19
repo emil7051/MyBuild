@@ -120,13 +120,13 @@ const overridesSchema = z.object({
 export const vehicleParamOverridesSchema = z.object({
   msrp_override: z.number().min(0, 'Must be positive').max(10_000_000, 'Maximum $10M').optional(),
   payload_override: z.number().min(0, 'Must be positive').max(100, 'Maximum 100t').optional(),
-  range_km_override: z.number().min(0, 'Must be positive').max(2000, 'Maximum 2000km').optional(),
+  range_km_override: z.number().min(50, 'Minimum 50km').max(2000, 'Maximum 2000km').optional(),
   battery_capacity_kwh_override: z.number().min(0, 'Must be positive').max(2000, 'Maximum 2000kWh').optional(),
-  kwh_per_km_override: z.number().min(0, 'Must be positive').max(10, 'Maximum 10 kWh/km').optional(),
-  litres_per_km_override: z.number().min(0, 'Must be positive').max(5, 'Maximum 5 L/km').optional(),
+  kwh_per_km_override: z.number().min(0.1, 'Minimum 0.1 kWh/km').max(10, 'Maximum 10 kWh/km').optional(),
+  litres_per_km_override: z.number().min(0.05, 'Minimum 0.05 L/km').max(5, 'Maximum 5 L/km').optional(),
   annual_registration_override: z.number().min(0, 'Must be positive').max(100_000, 'Maximum $100k').optional(),
   interest_rate_override: z.number().min(0, 'Must be positive').max(1, 'Maximum 100%').optional(),
-  charging_time_hours_override: z.number().min(0, 'Must be positive').max(24, 'Maximum 24h').optional(),
+  charging_time_hours_override: z.number().min(0.1, 'Minimum 0.1 hours').max(24, 'Maximum 24h').optional(),
 });
 
 export type VehicleParamOverridesValidated = z.infer<typeof vehicleParamOverridesSchema>;
