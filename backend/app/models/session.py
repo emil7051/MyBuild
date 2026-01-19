@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field, model_validator, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from backend.app.models.calculation import (
     CalculationResponse,
@@ -19,7 +19,8 @@ class DutyCyclePayload(BaseModel):
     regional: float = Field(ge=0, le=100)
     long_haul: float = Field(ge=0, le=100, alias="longHaul")
 
-    @validator("urban", "regional", "long_haul")
+    @field_validator("urban", "regional", "long_haul")
+    @classmethod
     def _round_values(cls, value: float) -> float:  # noqa: D401
         """Ensure floats are rounded to two decimals for storage consistency."""
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -15,7 +16,16 @@ from backend.app.db.session import init_db
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title=settings.project_name, version=settings.version)
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        await init_db()
+        yield
+
+    app = FastAPI(
+        title=settings.project_name,
+        version=settings.version,
+        lifespan=lifespan,
+    )
 
     app.add_middleware(
         CORSMiddleware,
@@ -27,13 +37,8 @@ def create_app() -> FastAPI:
 
     app.include_router(api_router)
 
-    @app.on_event("startup")
-    async def _startup() -> None:  # pragma: no cover - integration hook
-        await init_db()
-
     frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
     if frontend_dist.exists():
-        frontend_root = frontend_dist.resolve()
         app.mount(
             "/assets",
             StaticFiles(directory=str(frontend_dist / "assets")),
@@ -42,12 +47,10 @@ def create_app() -> FastAPI:
 
         @app.get("/{full_path:path}")
         async def serve_spa(full_path: str):
-            requested_path = (frontend_root / full_path).resolve()
-            if not requested_path.is_relative_to(frontend_root):
-                return FileResponse(frontend_root / "index.html")
-            if requested_path.is_file():
-                return FileResponse(requested_path)
-            return FileResponse(frontend_root / "index.html")
+            file_path = frontend_dist / full_path
+            if file_path.is_file():
+                return FileResponse(file_path)
+            return FileResponse(frontend_dist / "index.html")
 
     else:
 

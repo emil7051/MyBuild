@@ -70,7 +70,6 @@ class SessionService:
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
-        await db.refresh(record)
 
         if payload.wizard_data:
             record.wizard_state = self._wizard_to_json(payload.wizard_data)
@@ -115,6 +114,7 @@ class SessionService:
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
+        await db.refresh(record)
 
         response = await self._build_response(db, session_id)
         await cache_session(session_id, response.model_dump(by_alias=True))
@@ -222,6 +222,7 @@ class SessionService:
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
+        await db.refresh(record)
 
         wizard_data = WizardDataPayload.model_validate(record.wizard_state)
         results = [

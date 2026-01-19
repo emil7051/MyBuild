@@ -6,7 +6,7 @@ from typing import List, Optional
 from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
 from pydantic import AnyHttpUrl, Field, field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -75,15 +75,17 @@ class Settings(BaseSettings):
         # Reconstruct URL
         return urlunsplit((scheme, parts.netloc, parts.path, new_query, parts.fragment))
 
-    class Config:
-        # Only load .env in development to avoid overriding production secrets
-        env_file = (
-            "backend/.env"
-            if os.getenv("ENVIRONMENT", "development") == "development"
-            else None
-        )
-        env_file_encoding = "utf-8"
-        case_sensitive = False
+    # Only load .env in development to avoid overriding production secrets.
+    _env_file = (
+        "backend/.env"
+        if os.getenv("ENVIRONMENT", "development") == "development"
+        else None
+    )
+    model_config = SettingsConfigDict(
+        env_file=_env_file,
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
 
 
 @lru_cache

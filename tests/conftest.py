@@ -22,6 +22,13 @@ def pytest_configure() -> None:
         sys.path.insert(0, str(project_root))
 
 
+@pytest.fixture()
+def anyio_backend() -> str:
+    """Restrict anyio tests to asyncio to avoid optional trio dependency."""
+
+    return "asyncio"
+
+
 async def _create_schema(engine) -> None:
     from backend.app.db.base import Base
 
