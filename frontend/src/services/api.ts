@@ -31,8 +31,14 @@ export const createSession = async (payload: SessionCreatePayload) => {
   return data;
 };
 
-export const updateSession = async (sessionId: string, payload: SessionUpdatePayload) => {
-  const { data } = await api.put<SessionResponsePayload>(`/sessions/${sessionId}`, payload);
+export const updateSession = async (
+  sessionId: string,
+  payload: SessionUpdatePayload,
+  signal?: AbortSignal
+) => {
+  const { data } = await api.put<SessionResponsePayload>(`/sessions/${sessionId}`, payload, {
+    signal,
+  });
   return data;
 };
 

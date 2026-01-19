@@ -28,12 +28,18 @@ interface TCOStore {
   isCalculating: boolean;
   vehicleDetails: Record<string, VehicleDetail>;
   sessionId?: string;
+  latestRequestId: number;
   updateWizard: (data: Partial<WizardData>) => void;
   setStepIndex: (index: number) => void;
-  setResults: (results: CalculationResponsePayload[]) => void;
+  setResults: (
+    results: CalculationResponsePayload[],
+    requestId: number,
+    vehicleOrder: string[]
+  ) => void;
   resetResults: () => void;
   setIsCalculating: (state: boolean) => void;
   setSessionId: (sessionId?: string) => void;
+  getNextRequestId: () => number;
 }
 
 const defaultWizardData: WizardData = {
@@ -82,7 +88,8 @@ const getPersistStorage = (): StateStorage => {
 };
 
 /**
- * Validates duty cycle values, returning defaults or clamped values if invalid
+ * Validates duty cycle values, returning defaults or clamped values if invalid.
+ * Checks for NaN, negative values, and totals that don't sum to ~100.
  */
 const validateDutyCycle = (dutyCycle?: DutyCycle): DutyCycle | undefined => {
   if (!dutyCycle) return undefined;
@@ -95,13 +102,28 @@ const validateDutyCycle = (dutyCycle?: DutyCycle): DutyCycle | undefined => {
     return defaultWizardData.dutyCycle;
   }
 
-  // Check for negative values
+  // Check for negative values - reset to defaults if any are negative
   if ([urban, regional, longHaul].some(v => v < 0)) {
-    console.warn('Negative duty cycle values detected, clamping to 0');
+    console.warn('Negative duty cycle values detected, using defaults');
+    return defaultWizardData.dutyCycle;
+  }
+
+  // Check if sum is approximately 100 (allow small floating point tolerance)
+  const sum = urban + regional + longHaul;
+  const tolerance = 0.01;
+  if (Math.abs(sum - 100) > tolerance) {
+    // If sum is 0, return defaults
+    if (sum === 0) {
+      console.warn('Duty cycle sum is 0, using defaults');
+      return defaultWizardData.dutyCycle;
+    }
+    // Otherwise normalize to 100
+    console.warn(`Duty cycle sum is ${sum}, normalizing to 100`);
+    const scale = 100 / sum;
     return {
-      urban: Math.max(0, urban),
-      regional: Math.max(0, regional),
-      longHaul: Math.max(0, longHaul),
+      urban: Math.round(urban * scale * 100) / 100,
+      regional: Math.round(regional * scale * 100) / 100,
+      longHaul: Math.round(longHaul * scale * 100) / 100,
     };
   }
 
@@ -110,13 +132,14 @@ const validateDutyCycle = (dutyCycle?: DutyCycle): DutyCycle | undefined => {
 
 export const useTCOStore = create<TCOStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       stepIndex: 0,
       wizardData: defaultWizardData,
       results: [],
       isCalculating: false,
       vehicleDetails: initialVehicleDetails,
       sessionId: undefined,
+      latestRequestId: 0,
       updateWizard: (data) =>
         set((state) => {
           const validatedData = { ...data };
@@ -130,17 +153,23 @@ export const useTCOStore = create<TCOStore>()(
           };
         }),
       setStepIndex: (index) => set({ stepIndex: index }),
-      setResults: (results) =>
+      getNextRequestId: () => {
+        const nextId = get().latestRequestId + 1;
+        set({ latestRequestId: nextId });
+        return nextId;
+      },
+      setResults: (results, requestId, vehicleOrder) =>
         set((state) => {
-          const orderedIds = [
-            state.wizardData.currentVehicle,
-            ...state.wizardData.comparisonVehicles,
-          ].filter(Boolean) as string[];
-          const prioritized = orderedIds
+          // Only apply results if this is the latest request
+          if (requestId !== state.latestRequestId) {
+            return {};
+          }
+          // Order results based on the captured vehicle order from when the request was made
+          const prioritized = vehicleOrder
             .map((vehicleId) => results.find((result) => result.vehicle_id === vehicleId))
             .filter(Boolean) as CalculationResponsePayload[];
           const remainder = results.filter(
-            (result) => !orderedIds.includes(result.vehicle_id)
+            (result) => !vehicleOrder.includes(result.vehicle_id)
           );
           return { results: [...prioritized, ...remainder] };
         }),
@@ -173,16 +202,10 @@ export const useTCOStore = create<TCOStore>()(
           state.vehicleDetails = { ...VEHICLE_BY_ID };
         }
 
-        // Validate duty cycle values
-        if (state.wizardData.dutyCycle) {
-          const { urban, regional, longHaul } = state.wizardData.dutyCycle;
-          const hasInvalidDutyCycle =
-            typeof urban !== 'number' || isNaN(urban) ||
-            typeof regional !== 'number' || isNaN(regional) ||
-            typeof longHaul !== 'number' || isNaN(longHaul);
-          if (hasInvalidDutyCycle) {
-            state.wizardData.dutyCycle = defaultWizardData.dutyCycle;
-          }
+        // Validate duty cycle values (checks for NaN, negative values, and sum != 100)
+        const validatedDutyCycle = validateDutyCycle(state.wizardData.dutyCycle);
+        if (validatedDutyCycle !== state.wizardData.dutyCycle) {
+          state.wizardData.dutyCycle = validatedDutyCycle ?? defaultWizardData.dutyCycle;
         }
       },
     }

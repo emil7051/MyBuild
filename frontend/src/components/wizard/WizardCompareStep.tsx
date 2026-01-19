@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import ResultsPanel from '@components/results/ResultsPanel';
 import ComparisonConfigPanel from './ComparisonConfigPanel';
 import SelectedVehiclesSummary from './SelectedVehiclesSummary';
@@ -11,9 +11,7 @@ const WizardCompareStep = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const setResults = useTCOStore((state) => state.setResults);
   const setIsCalculating = useTCOStore((state) => state.setIsCalculating);
-
-  // Generation counter to prevent stale results from overwriting newer ones
-  const generationRef = useRef(0);
+  const getNextRequestId = useTCOStore((state) => state.getNextRequestId);
 
   const payload = useMemo<ComparisonRequestPayload | null>(() => {
     if (!wizardData.currentVehicle) {
@@ -60,33 +58,30 @@ const WizardCompareStep = () => {
       return;
     }
 
-    const currentGeneration = ++generationRef.current;
-
     const timer = setTimeout(() => {
       // Skip if payload has no vehicles
       if (!payload.vehicle_ids.length) {
         return;
       }
 
+      // Capture request context before starting calculation
+      const requestId = getNextRequestId();
+      const vehicleOrder = payload.vehicle_ids;
+
       setIsCalculating(true);
       try {
         const results = calculateComparison(payload);
-
-        // Only apply results if this is still the latest generation
-        if (currentGeneration === generationRef.current) {
-          setResults(results);
-        }
+        // setResults will only apply if requestId matches latest
+        setResults(results, requestId, vehicleOrder);
       } catch (error) {
         console.warn('Preview calculation failed:', error);
       } finally {
-        if (currentGeneration === generationRef.current) {
-          setIsCalculating(false);
-        }
+        setIsCalculating(false);
       }
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [payload, setIsCalculating, setResults]);
+  }, [payload, getNextRequestId, setIsCalculating, setResults]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
