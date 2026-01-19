@@ -284,7 +284,7 @@ Work packages should be **sequential within the stream** because many tasks touc
 
 This phase addresses audit items about missing migrations and adds protections around PII and endpoint abuse. 
 
-#### Stream A2 — DB & migrations (sequential)
+#### Stream A2 — DB & migrations (sequential) COMPLETE
 
 **WP-A2-1: DB-001**
 
@@ -297,6 +297,27 @@ This phase addresses audit items about missing migrations and adds protections a
 **WP-A2-3: DB-003**
 
 * Add indexes for session and analytics query paths (depends on DB-001).
+
+**Stream A2 completion notes (2025-01-19):**
+- DB-001: Implemented Alembic migration system
+  - Added `alembic` dependency to requirements.txt
+  - Created `backend/alembic/` directory with env.py, script.py.mako
+  - Created `backend/alembic.ini` configuration
+  - Initial migration (001) captures existing schema
+  - `init_db()` in session.py now uses Alembic `upgrade head` instead of `create_all()`
+  - Supports both SQLite (development) and PostgreSQL (production)
+- DB-002: Added `session_secret_hash` column via migration (002)
+  - Nullable String(128) column for bcrypt hash storage
+  - Backward compatible with existing sessions (nullable)
+  - Model updated with column definition and docstring
+- DB-003: Added performance indexes via migration (003)
+  - `ix_calculation_results_session_id`, `ix_calculation_results_vehicle_id`, `ix_calculation_results_created_at`
+  - `ix_calculation_results_analytics` (composite index for aggregation queries)
+  - `ix_user_inputs_session_id`, `ix_user_inputs_vehicle_id`
+  - `ix_sessions_created_at`, `ix_sessions_status`
+  - All indexes defined in SQLAlchemy models via `__table_args__`
+- Documentation updated: README.md now includes comprehensive migration instructions
+- Tests added: `tests/test_migrations.py` validates migration system and schema integrity
 
 #### Stream A1 — Backend platform & security
 

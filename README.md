@@ -55,8 +55,8 @@ pip install -r requirements.txt -r requirements-dev.txt
 cp backend/.env.example backend/.env
 # Edit backend/.env with your database and Redis URLs
 
-# Run database migrations
-python -m backend.app.db.session
+# Run database migrations (creates schema if new, applies pending migrations otherwise)
+cd backend && alembic upgrade head
 
 # Start the backend server
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
@@ -174,6 +174,61 @@ The test suite includes:
 Run all tests:
 ```bash
 cd frontend && bun test
+```
+
+## Database Migrations
+
+The backend uses [Alembic](https://alembic.sqlalchemy.org/) for database schema migrations. Migrations are applied automatically on app startup, but can also be run manually.
+
+### Running Migrations
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Apply all pending migrations
+alembic upgrade head
+
+# Check current migration version
+alembic current
+
+# View migration history
+alembic history
+```
+
+### Creating New Migrations
+
+When modifying database models:
+
+```bash
+cd backend
+
+# Generate a new migration (auto-detects model changes)
+alembic revision --autogenerate -m "Description of changes"
+
+# Or create an empty migration for manual edits
+alembic revision -m "Description of changes"
+```
+
+### Migration Best Practices
+
+- **Always review auto-generated migrations** before applying them
+- **Test migrations on a copy of production data** before deploying
+- **Keep migrations small and focused** on one logical change
+- **Never modify a migration that has been applied** in production
+- Migrations support both SQLite (development) and PostgreSQL (production)
+
+### Rolling Back
+
+```bash
+# Rollback one migration
+alembic downgrade -1
+
+# Rollback to specific revision
+alembic downgrade <revision_id>
+
+# Rollback all migrations (use with caution!)
+alembic downgrade base
 ```
 
 ## Development Workflow

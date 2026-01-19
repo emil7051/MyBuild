@@ -11,6 +11,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -26,12 +27,28 @@ def _uuid_str() -> str:
 
 
 class SessionRecord(Base):
+    """Session record with wizard state and optional access control secret.
+
+    The session_secret_hash column stores a bcrypt hash of a per-session access
+    secret for protecting session data containing PII (contact email, notes).
+    New sessions should generate a secret on creation; existing sessions without
+    a secret maintain backward compatibility but offer weaker access control.
+    """
+
     __tablename__ = "sessions"
+    __table_args__ = (
+        Index("ix_sessions_created_at", "created_at"),
+        Index("ix_sessions_status", "status"),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid_str)
     status: Mapped[str] = mapped_column(String(20), default="draft", nullable=False)
     wizard_state: Mapped[dict | None] = mapped_column(JSON, default=dict)
     cached_results: Mapped[list | None] = mapped_column(JSON, default=list)
+    # Bcrypt hash of session access secret for PII protection (SEC-005/DB-002)
+    session_secret_hash: Mapped[str | None] = mapped_column(
+        String(128), nullable=True, comment="Bcrypt hash of session access secret"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -58,7 +75,13 @@ class SessionRecord(Base):
 
 
 class UserInputRecord(Base):
+    """User input record storing vehicle selection and overrides per session."""
+
     __tablename__ = "user_inputs"
+    __table_args__ = (
+        Index("ix_user_inputs_session_id", "session_id"),
+        Index("ix_user_inputs_vehicle_id", "vehicle_id"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     session_id: Mapped[str] = mapped_column(
@@ -76,7 +99,21 @@ class UserInputRecord(Base):
 
 
 class CalculationResultRecord(Base):
+    """Calculation result record storing TCO analysis outcomes per session/vehicle."""
+
     __tablename__ = "calculation_results"
+    __table_args__ = (
+        Index("ix_calculation_results_session_id", "session_id"),
+        Index("ix_calculation_results_vehicle_id", "vehicle_id"),
+        Index("ix_calculation_results_created_at", "created_at"),
+        # Composite index for analytics aggregation queries
+        Index(
+            "ix_calculation_results_analytics",
+            "session_id",
+            "vehicle_id",
+            "created_at",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     session_id: Mapped[str] = mapped_column(
