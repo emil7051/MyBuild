@@ -16,7 +16,7 @@ The TCO Web Platform helps truck operators get five-minute TCO insights through:
 ### Key Features
 
 - 16 pre-configured vehicles (8 BEV, 8 diesel) across light, medium, and articulated truck classes
-- Shared TypeScript calculation engine with ±1% parity validation against committed fixtures
+- Shared TypeScript calculation engine validated against Python reference implementation
 - Offline-capable progressive web app
 - PostgreSQL session persistence with Redis caching
 - RESTful API for integrations and analytics
@@ -144,7 +144,7 @@ python scripts/generate_vehicle_catalog_ts.py
 
 ### Calculation Engine
 - **TypeScript** - Shared calculator logic under `shared/calculator`
-- **Vitest** - Calculator regression tests against committed verification fixtures
+- **Vitest** - Calculator parity tests (within 5 cents per component) against Python-generated fixtures
 
 ## Stability & Robustness
 
@@ -164,7 +164,7 @@ The calculator engine and frontend include multiple layers of defensive programm
 
 ### Test Coverage
 The test suite includes:
-- **Calculator parity tests** - Validates TypeScript results match Python reference implementation (±1 cent tolerance)
+- **Calculator parity tests** - Validates TypeScript results match Python reference implementation (within 5 cents for dollar amounts, 0.05 cents for cost_per_km)
 - **Math utility tests** - Unit tests for NPV, annuity, and discounting functions
 - **Scenario tests** - All three economic scenarios (baseline, technology_breakthrough, oil_crisis)
 - **Edge case tests** - Zero values, NaN handling, boundary conditions, all 16 vehicles

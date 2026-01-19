@@ -49,15 +49,15 @@ Retrieve a list of all available vehicles with summary information.
   {
     "vehicle_id": "BEV001",
     "model_name": "Jac N75",
-    "weight_class": "Light Rigid",
     "drivetrain_type": "BEV",
+    "weight_class": "Light Rigid",
     "comparison_pair": "DSL001"
   },
   {
     "vehicle_id": "DSL001",
     "model_name": "Hino 300",
-    "weight_class": "Light Rigid",
     "drivetrain_type": "Diesel",
+    "weight_class": "Light Rigid",
     "comparison_pair": "BEV001"
   }
 ]
@@ -79,18 +79,18 @@ Retrieve detailed specifications for a specific vehicle.
 {
   "vehicle_id": "BEV001",
   "model_name": "Jac N75",
-  "weight_class": "Light Rigid",
   "drivetrain_type": "BEV",
-  "payload": 2650,
-  "range_km": 300,
-  "msrp": 145000,
+  "weight_class": "Light Rigid",
+  "comparison_pair": "DSL001",
+  "payload": 2650.0,
+  "msrp": 145000.0,
+  "range_km": 300.0,
   "battery_capacity_kwh": 89.0,
   "kwh_per_km": 0.6,
   "litres_per_km": 0.0,
   "maintenance_cost_per_km": 0.18,
-  "annual_registration": 800,
-  "annual_kms": 50000,
-  "comparison_pair": "DSL001"
+  "annual_registration": 800.0,
+  "annual_kms": 50000.0
 }
 ```
 
