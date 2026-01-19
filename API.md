@@ -47,23 +47,17 @@ Retrieve a list of all available vehicles with summary information.
 ```json
 [
   {
-    "id": "BEV001",
-    "name": "Jac N75",
+    "vehicle_id": "BEV001",
+    "model_name": "Jac N75",
+    "drivetrain_type": "BEV",
     "weight_class": "Light Rigid",
-    "drivetrain": "BEV",
-    "payload_kg": 2650,
-    "range_km": 300,
-    "msrp": 145000,
     "comparison_pair": "DSL001"
   },
   {
-    "id": "DSL001",
-    "name": "Hino 300",
+    "vehicle_id": "DSL001",
+    "model_name": "Hino 300",
+    "drivetrain_type": "DSL",
     "weight_class": "Light Rigid",
-    "drivetrain": "DSL",
-    "payload_kg": 3000,
-    "range_km": 800,
-    "msrp": 85000,
     "comparison_pair": "BEV001"
   }
 ]
@@ -83,18 +77,19 @@ Retrieve detailed specifications for a specific vehicle.
 **Response:**
 ```json
 {
-  "id": "BEV001",
-  "name": "Jac N75",
+  "vehicle_id": "BEV001",
+  "model_name": "Jac N75",
+  "drivetrain_type": "BEV",
   "weight_class": "Light Rigid",
-  "drivetrain": "BEV",
-  "payload_kg": 2650,
-  "range_km": 300,
+  "payload": 2650,
   "msrp": 145000,
-  "battery_kwh": 89.0,
-  "consumption_kwh_100km": 60.0,
+  "range_km": 300,
+  "battery_capacity_kwh": 89.0,
+  "kwh_per_km": 0.6,
+  "litres_per_km": 0.0,
   "maintenance_cost_per_km": 0.18,
-  "registration_cost": 800,
-  "default_annual_kms": 50000,
+  "annual_registration": 800,
+  "annual_kms": 50000,
   "comparison_pair": "DSL001"
 }
 ```
