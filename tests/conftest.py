@@ -9,8 +9,8 @@ import asyncio
 from pathlib import Path
 import sys
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 
@@ -70,8 +70,8 @@ def async_session_factory(
 def app(async_session_factory: async_sessionmaker[AsyncSession], monkeypatch):
     """FastAPI app with the database dependency overridden for tests."""
 
-    import backend.app.main as main_module
     from backend.app.db.session import get_db_session
+    import backend.app.main as main_module
     from backend.app.main import create_app
 
     async def _override_get_db_session():

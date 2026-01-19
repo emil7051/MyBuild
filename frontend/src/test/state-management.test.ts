@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useTCOStore } from '@state/tcoStore';
-import type { TCOResult } from '@shared/types/tco.types';
+import type { CalculationResponsePayload } from '@shared/types/tco.types';
 
 describe('TCO Store State Management', () => {
   beforeEach(() => {
@@ -150,8 +150,8 @@ describe('TCO Store State Management', () => {
 
       // Then set results in different order
       store.setResults([
-        { vehicle_id: 'DSL001', total_cost: 100000, breakdown: {} } as unknown as TCOResult,
-        { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as TCOResult,
+        { vehicle_id: 'DSL001', total_cost: 100000, breakdown: {} } as unknown as CalculationResponsePayload,
+        { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as CalculationResponsePayload,
       ]);
 
       const updated = useTCOStore.getState();
@@ -164,7 +164,7 @@ describe('TCO Store State Management', () => {
       const store = useTCOStore.getState();
 
       store.setResults([
-        { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as TCOResult,
+        { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as CalculationResponsePayload,
       ]);
 
       expect(useTCOStore.getState().results).toHaveLength(1);
