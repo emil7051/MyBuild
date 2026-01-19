@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useTCOStore } from '@state/tcoStore';
 import type { CalculationResponsePayload } from '@shared/types/tco.types';
 
@@ -23,6 +23,16 @@ describe('TCO Store State Management', () => {
   });
 
   describe('Duty Cycle Validation', () => {
+    let warnSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+
     it('should replace NaN duty cycle values with defaults', () => {
       const store = useTCOStore.getState();
 
@@ -35,6 +45,7 @@ describe('TCO Store State Management', () => {
       expect(updated.wizardData.dutyCycle.urban).toBe(60);
       expect(updated.wizardData.dutyCycle.regional).toBe(25);
       expect(updated.wizardData.dutyCycle.longHaul).toBe(15);
+      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('should clamp negative duty cycle values to zero', () => {
@@ -48,6 +59,7 @@ describe('TCO Store State Management', () => {
       expect(updated.wizardData.dutyCycle.urban).toBe(0);
       expect(updated.wizardData.dutyCycle.regional).toBe(25);
       expect(updated.wizardData.dutyCycle.longHaul).toBe(15);
+      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('should accept valid duty cycle values', () => {
@@ -61,6 +73,7 @@ describe('TCO Store State Management', () => {
       expect(updated.wizardData.dutyCycle.urban).toBe(50);
       expect(updated.wizardData.dutyCycle.regional).toBe(30);
       expect(updated.wizardData.dutyCycle.longHaul).toBe(20);
+      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('should handle all-NaN duty cycle values', () => {
@@ -77,6 +90,7 @@ describe('TCO Store State Management', () => {
         regional: 25,
         longHaul: 15,
       });
+      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('should clamp all negative values', () => {
@@ -92,6 +106,7 @@ describe('TCO Store State Management', () => {
         regional: 0,
         longHaul: 0,
       });
+      expect(warnSpy).toHaveBeenCalled();
     });
   });
 
