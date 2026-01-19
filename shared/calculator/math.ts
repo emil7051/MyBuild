@@ -3,7 +3,7 @@
  *
  * CONVENTIONS:
  * - All functions use ANNUAL discount rates
- * - End-of-period discounting (year 1 = no discounting)
+ * - Annuity-due discounting (year 1 = no discounting)
  * - Years are 1-indexed (year 1, year 2, etc.)
  *
  * These conventions match the original Python implementation
@@ -24,19 +24,19 @@ export const calculatePresentValue = (
     return annualAmount * years;
   }
 
-  return annualAmount * ((1 - (1 + discountRate) ** -years) / discountRate);
+  return annualAmount * ((1 - (1 + discountRate) ** -years) / discountRate) * (1 + discountRate);
 };
 
 /**
  * Discounts a single future value to present value.
  *
- * Uses END-OF-PERIOD convention:
+ * Uses ANNUITY-DUE convention:
  * - Year 1 cashflows are NOT discounted (exponent = 0)
  * - Year 2 cashflows are discounted by (1+r)^1
  * - Year n cashflows are discounted by (1+r)^(n-1)
  *
  * This matches the original Python implementation and is consistent
- * with assuming cashflows occur at the END of each year, with the
+ * with assuming cashflows occur at the start of each year, with the
  * first year's cashflow occurring at time 0 (today).
  *
  * @param amount - Future value to discount
