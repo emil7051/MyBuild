@@ -66,15 +66,16 @@ const memoryStorage = (() => {
 })();
 
 const getPersistStorage = (): StateStorage => {
-  const storage = typeof localStorage === 'undefined' ? undefined : localStorage;
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const storage = window.localStorage;
 
-  if (
-    storage &&
-    typeof storage.getItem === 'function' &&
-    typeof storage.setItem === 'function' &&
-    typeof storage.removeItem === 'function'
-  ) {
-    return storage;
+    if (
+      typeof storage.getItem === 'function' &&
+      typeof storage.setItem === 'function' &&
+      typeof storage.removeItem === 'function'
+    ) {
+      return storage;
+    }
   }
 
   return memoryStorage;
