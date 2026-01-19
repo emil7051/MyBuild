@@ -166,7 +166,9 @@ def main() -> None:
     details = build_vehicle_payload()
     version = compute_catalog_version(details)
     print(f"Generated vehicle catalog version: {version}")
-    VEHICLE_OUTPUT.write_text(render_vehicle_ts(details, version) + "\n", encoding="utf-8")
+    VEHICLE_OUTPUT.write_text(
+        render_vehicle_ts(details, version) + "\n", encoding="utf-8"
+    )
     constants = build_constants_payload()
     CONSTANTS_OUTPUT.write_text(render_constants_ts(constants) + "\n", encoding="utf-8")
     scenarios = build_scenarios_payload()

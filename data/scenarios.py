@@ -206,7 +206,8 @@ SCENARIOS = {
         battery_price_trajectory=generate_price_trajectory(
             -0.07, 15
         ),  # 7% annual decrease
-        carbon_price_trajectory=[0] * 15,  # No carbon price (see policy note above)  # No carbon price (see policy note above)
+        carbon_price_trajectory=[0]
+        * 15,  # No carbon price (see policy note above)  # No carbon price (see policy note above)
         bev_efficiency_improvement=generate_price_trajectory(
             -0.02, 15
         ),  # 2% annual improvement
