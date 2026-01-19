@@ -52,9 +52,7 @@ def test_session_update_clears_results(client: TestClient) -> None:
     session_id = create_response.json()["sessionId"]
 
     update_payload = make_session_update_payload_dict(results=[])
-    update_response = client.put(
-        f"/api/v1/sessions/{session_id}", json=update_payload
-    )
+    update_response = client.put(f"/api/v1/sessions/{session_id}", json=update_payload)
     assert update_response.status_code == 200
     assert update_response.json()["status"] == "draft"
 

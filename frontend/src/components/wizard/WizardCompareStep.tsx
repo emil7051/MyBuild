@@ -3,7 +3,6 @@ import ResultsPanel from '@components/results/ResultsPanel';
 import ComparisonConfigPanel from './ComparisonConfigPanel';
 import SelectedVehiclesSummary from './SelectedVehiclesSummary';
 import { useTCOStore } from '@state/tcoStore';
-import { useCalculationRunner } from '@hooks/useCalculations';
 import type { ComparisonRequestPayload } from '@shared/types/tco.types';
 import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
 import { calculateComparison } from '@shared/calculator';
@@ -12,7 +11,6 @@ const WizardCompareStep = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const setResults = useTCOStore((state) => state.setResults);
   const setIsCalculating = useTCOStore((state) => state.setIsCalculating);
-  const { runPreviewComparison } = useCalculationRunner();
 
   // Generation counter to prevent stale results from overwriting newer ones
   const generationRef = useRef(0);

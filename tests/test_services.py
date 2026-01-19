@@ -92,9 +92,7 @@ def test_vehicle_catalog_service_unknown_id() -> None:
 
 def test_session_service_create_persists_records(async_session_factory) -> None:
     overrides = CostOverride(annual_kms_variation=5000.0)
-    vehicle_overrides = {
-        BEV_VEHICLE_ID: VehicleParamOverride(msrp_override=110000.0)
-    }
+    vehicle_overrides = {BEV_VEHICLE_ID: VehicleParamOverride(msrp_override=110000.0)}
     wizard_data = make_wizard_data(
         overrides=overrides, vehicle_param_overrides=vehicle_overrides
     )

@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.config import settings
 from backend.app.db.session import get_db_session
 from backend.app.models import (
-
     VehicleDetail,
     VehicleSummary,
 )
@@ -48,9 +47,6 @@ def get_vehicle(vehicle_id: str) -> VehicleDetail:
         return _vehicle_service.get(vehicle_id)
     except KeyError as exc:  # pragma: no cover
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-
-
-
 
 
 @api_router.post(

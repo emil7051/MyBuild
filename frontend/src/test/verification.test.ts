@@ -3,9 +3,7 @@ import { calculateTco } from '@shared/calculator';
 import verificationData from '@shared/calculator/verification_data.json';
 import type { CalculationRequestPayload } from '@shared/types/tco.types';
 
-// Tolerance for floating point comparisons
-// Some small differences are expected due to float precision differences between Python and JS
-const TOLERANCE = 0.01; // 1 cent tolerance
+// Tolerance for floating point comparisons is handled by vitest's toBeCloseTo
 
 describe('TCO Calculation Verification', () => {
   verificationData.forEach((testCase) => {
