@@ -7,6 +7,7 @@ SEC-008: Rate limiting configuration for session and analytics endpoints.
 from __future__ import annotations
 
 import secrets
+from ipaddress import ip_address, ip_network
 from typing import Optional
 
 import bcrypt
@@ -17,13 +18,44 @@ from slowapi.util import get_remote_address
 from backend.app.core.config import settings
 
 
+def _is_trusted_proxy(direct_ip: str) -> bool:
+    """Check if the direct connection IP is from a trusted proxy."""
+    if not settings.trusted_proxies:
+        return False
+
+    try:
+        addr = ip_address(direct_ip)
+        for proxy in settings.trusted_proxies:
+            try:
+                if addr in ip_network(proxy, strict=False):
+                    return True
+            except ValueError:
+                # Invalid CIDR in config, skip it
+                continue
+    except ValueError:
+        # Invalid IP address format
+        return False
+
+    return False
+
+
 def get_client_ip(request: Request) -> str:
-    """Get client IP address, respecting X-Forwarded-For header for proxies."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        # Take the first IP in the chain (original client)
-        return forwarded.split(",")[0].strip()
-    return get_remote_address(request)
+    """Get client IP address, respecting X-Forwarded-For only from trusted proxies.
+
+    X-Forwarded-For is only trusted when the direct connection comes from an IP
+    in the trusted_proxies list. This prevents clients from spoofing the header
+    to bypass rate limits.
+    """
+    direct_ip = get_remote_address(request)
+
+    # Only trust X-Forwarded-For if request came from a trusted proxy
+    if _is_trusted_proxy(direct_ip):
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            # Take the first IP in the chain (original client)
+            return forwarded.split(",")[0].strip()
+
+    return direct_ip
 
 
 # Rate limiter instance using client IP

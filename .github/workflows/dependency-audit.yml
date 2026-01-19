@@ -99,6 +99,13 @@ jobs:
         working-directory: frontend
         run: bun install
 
+      - name: Generate package-lock.json for npm audit
+        working-directory: frontend
+        run: |
+          # npm audit requires package-lock.json, but we use bun.lock
+          # Generate a package-lock.json without modifying node_modules
+          npm i --package-lock-only --ignore-scripts
+
       - name: Run npm audit
         working-directory: frontend
         run: |

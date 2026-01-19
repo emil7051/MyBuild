@@ -5,10 +5,10 @@ numpy-financial==1.0.0
 plotly==5.15.0
 
 # Backend runtime
-fastapi==0.110.0
-uvicorn[standard]==0.29.0
-pydantic==2.6.0
-pydantic-settings==2.2.1
+fastapi==0.128.0
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
 python-dotenv==1.0.0
 orjson==3.9.15
 sqlalchemy==2.0.25
@@ -20,7 +20,7 @@ redis==5.0.1
 greenlet==3.3.0
 
 # Validation and utilities
-marshmallow==3.20.0
+marshmallow==3.26.2
 cerberus==1.3.0
 rich==13.5.0
 click==8.1.0
