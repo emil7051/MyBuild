@@ -58,7 +58,7 @@ Commits stay concise and imperative ("Add web app backend, frontend, and shared 
 
 ## Security & Configuration Tips
 
-Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI, scripts, and Docker read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit`, `bun audit`, and `bandit` whenever dependencies move, regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.
+Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI, scripts, and Docker read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit` and `bandit` for Python; use `bun pm untrusted` or equivalent to audit frontend dependencies when dependencies change. Regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.
 
 ## Serena MCP Best Practices
 

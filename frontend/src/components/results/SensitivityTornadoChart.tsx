@@ -51,6 +51,7 @@ const TornadoTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) 
       <p style={{ color: HIGH_COLOR }}>
         +20%: {entry.highDelta >= 0 ? '+' : ''}{formatCurrency(entry.highDelta)} savings
       </p>
+      <p className="mt-1 text-slate-500 italic">Linear approximation</p>
     </div>
   );
 };
@@ -170,12 +171,14 @@ const SensitivityTornadoChart = () => {
 
   return (
     <Card
-      title="Sensitivity analysis"
+      title="Sensitivity analysis (approximate)"
       subtitle="How do assumptions affect the comparison?"
     >
       <div className="mb-4">
         <p className="text-sm text-slate-600">
-          Impact of +/- 20% change in each parameter on BEV savings
+          Estimated impact of +/- 20% change in each parameter on BEV savings.
+          Values are linearly scaled from baseline costs and may not reflect
+          nonlinear effects (e.g., battery replacement timing, financing terms).
         </p>
       </div>
 
