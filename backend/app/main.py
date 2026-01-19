@@ -31,8 +31,8 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=[str(origin) for origin in settings.backend_cors_origins],
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+        allow_headers=["Content-Type"],
     )
 
     app.include_router(api_router)
@@ -41,11 +41,13 @@ def create_app() -> FastAPI:
         Path(__file__).parent.parent.parent / "frontend" / "dist"
     ).resolve()
     if frontend_dist.exists():
-        app.mount(
-            "/assets",
-            StaticFiles(directory=str(frontend_dist / "assets")),
-            name="assets",
-        )
+        assets_dir = frontend_dist / "assets"
+        if assets_dir.exists():
+            app.mount(
+                "/assets",
+                StaticFiles(directory=str(assets_dir)),
+                name="assets",
+            )
 
         @app.get("/{full_path:path}")
         async def serve_spa(full_path: str):

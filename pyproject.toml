@@ -2,12 +2,28 @@
 profile = "black"
 line_length = 88
 force_sort_within_sections = true
+skip = [
+    "archive",
+    ".venv",
+    "node_modules",
+]
 known_first_party = [
     "backend",
     "data",
     "scripts",
     "tests",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+extend-exclude = '''
+/(
+  archive
+  | \.venv
+  | node_modules
+)/
+'''
 
 [tool.ruff]
 line-length = 88

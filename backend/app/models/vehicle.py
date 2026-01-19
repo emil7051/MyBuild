@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class VehicleSummary(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     vehicle_id: str
     model_name: str
     drivetrain_type: str

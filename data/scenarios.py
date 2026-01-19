@@ -44,9 +44,9 @@ class EconomicScenario:
 
     # Policy evolution
     policy_phase_out_year: Optional[int] = None  # Year when subsidies end
-    road_user_charge_bev_start_year: Optional[int] = (
-        None  # Year when RUC applies to BEVs
-    )
+    road_user_charge_bev_start_year: Optional[
+        int
+    ] = None  # Year when RUC applies to BEVs
 
     def __post_init__(self):
         """Validate and extend trajectories to standard vehicle life."""

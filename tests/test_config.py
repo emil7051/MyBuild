@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+import pytest
+
 from backend.app.core.config import Settings
 
 
 def test_split_cors_origins() -> None:
     settings = Settings(backend_cors_origins="http://a.com, http://b.com")
     assert settings.backend_cors_origins == ["http://a.com", "http://b.com"]
+
+
+def test_reject_wildcard_cors_origins() -> None:
+    with pytest.raises(ValueError, match="BACKEND_CORS_ORIGINS"):
+        Settings(backend_cors_origins="*")
 
 
 def test_normalize_database_url_postgres() -> None:
