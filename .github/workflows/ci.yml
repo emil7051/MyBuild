@@ -12,7 +12,7 @@ concurrency:
 
 env:
   PYTHON_VERSION: '3.11'
-  NODE_VERSION: '20'
+  BUN_VERSION: 'latest'
 
 jobs:
   backend-lint:
@@ -90,24 +90,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package.json
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Install dependencies
         working-directory: frontend
-        run: npm install
+        run: bun install
 
       - name: Lint
         working-directory: frontend
-        run: npm run lint
+        run: bun run lint
 
       - name: Type-check
         working-directory: frontend
-        run: npm run typecheck
+        run: bun run typecheck
 
   frontend-test:
     name: Frontend Tests
@@ -117,12 +115,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package.json
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Set up Python (for shared engine)
         uses: actions/setup-python@v5
@@ -137,11 +133,11 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: frontend
-        run: npm install
+        run: bun install
 
       - name: Run tests
         working-directory: frontend
-        run: npm run test
+        run: bun run test
 
   frontend-build:
     name: Frontend Build
@@ -151,20 +147,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package.json
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Install dependencies
         working-directory: frontend
-        run: npm install
+        run: bun install
 
       - name: Build
         working-directory: frontend
-        run: npm run build
+        run: bun run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
