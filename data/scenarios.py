@@ -172,6 +172,27 @@ def generate_maintenance_trajectory(
 # PRE-DEFINED SCENARIOS
 # ============================================================================
 
+# -----------------------------------------------------------------------------
+# CARBON PRICING POLICY (DATA-006)
+# -----------------------------------------------------------------------------
+# All scenarios currently set carbon_price_trajectory to zeros (no carbon price).
+#
+# RATIONALE: Australia does not currently have an economy-wide carbon price.
+# The Safeguard Mechanism applies to facilities emitting >100,000 tCO2e/year,
+# which would not directly impact individual vehicle TCO calculations.
+#
+# IMPLICATIONS:
+# - calculateCarbonCostYear() returns 0 for all vehicles in all scenarios
+# - carbon_cost in CostBreakdown will always be 0
+# - This is intentional and reflects current Australian policy settings
+#
+# FUTURE CONSIDERATIONS:
+# If carbon pricing is introduced (e.g., via ETS or carbon tax), update
+# trajectories with credible government or industry projections. Suggested
+# sources: Australian Government DCCEEW, IEA World Energy Outlook,
+# Climate Change Authority modelling.
+# -----------------------------------------------------------------------------
+
 SCENARIOS = {
     "baseline": EconomicScenario(
         name="Baseline",
@@ -185,7 +206,8 @@ SCENARIOS = {
         battery_price_trajectory=generate_price_trajectory(
             -0.07, 15
         ),  # 7% annual decrease
-        carbon_price_trajectory=[0] * 15,  # No carbon price
+        carbon_price_trajectory=[0]
+        * 15,  # No carbon price (see policy note above)  # No carbon price (see policy note above)
         bev_efficiency_improvement=generate_price_trajectory(
             -0.02, 15
         ),  # 2% annual improvement
@@ -218,7 +240,7 @@ SCENARIOS = {
             0.13,
             0.11,
         ],
-        carbon_price_trajectory=[0] * 15,
+        carbon_price_trajectory=[0] * 15,  # No carbon price (see policy note above)
         bev_efficiency_improvement=generate_price_trajectory(
             -0.04, 15
         ),  # Major efficiency gains
@@ -268,7 +290,7 @@ SCENARIOS = {
             0.03, 15
         ),  # Electricity also affected
         battery_price_trajectory=generate_price_trajectory(-0.07, 15),
-        carbon_price_trajectory=[0] * 15,
+        carbon_price_trajectory=[0] * 15,  # No carbon price (see policy note above)
         bev_efficiency_improvement=generate_price_trajectory(-0.02, 15),
         diesel_efficiency_improvement=generate_price_trajectory(
             -0.02, 15

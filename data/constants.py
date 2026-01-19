@@ -40,7 +40,8 @@ SOLAR_MAINTENANCE = 0.15  # $/kwh/year
 STORAGE_INSTALLATION = 423  # $/kwh (4 hour lithium-ion battery energy-storage system)
 STORAGE_MAINTENANCE = 0.025  # % (AEMO/NREL rule - percentage of CAPEX/year)
 INFRASTRUCTURE_LIFE = 15  # Years
-CHARGER_COST = 300000  # AUD (CCS high-power DC fast charger, includes cabinet, dispenser, cooling, and typical electrical work - Smart Freight Media Centre)GRID_UPGRADE = 1000000  # AUD
+CHARGER_COST = 300000  # AUD (CCS high-power DC fast charger, includes cabinet, dispenser, cooling, and typical electrical work - Smart Freight Media Centre)
+GRID_UPGRADE = 1000000  # AUD (Grid connection and upgrade costs)
 
 # Charging Time Parameters
 
