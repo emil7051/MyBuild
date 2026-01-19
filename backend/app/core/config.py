@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     session_ttl_seconds: int = Field(
         default=1800, ge=60, description="TTL for cached wizard sessions in Redis."
     )
+    cache_results: bool = Field(
+        default=False,
+        description="Enable caching of calculation results in Redis.",
+    )
 
     # Security settings (Phase 4 / SEC-004, SEC-007, SEC-008)
     max_request_body_size: int = Field(
@@ -53,6 +57,11 @@ class Settings(BaseSettings):
         default=10,
         ge=1,
         description="Max analytics requests per IP per minute.",
+    )
+    rate_limit_vehicles_per_minute: int = Field(
+        default=60,
+        ge=1,
+        description="Max vehicle catalog requests per IP per minute.",
     )
     analytics_api_key: Optional[str] = Field(
         default=None,

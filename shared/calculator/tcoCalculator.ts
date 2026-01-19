@@ -266,6 +266,37 @@ const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequest
   return sanitized;
 };
 
+const NUMERIC_VEHICLE_FIELDS = [
+  'payload',
+  'msrp',
+  'range_km',
+  'battery_capacity_kwh',
+  'kwh_per_km',
+  'litres_per_km',
+  'maintenance_cost_per_km',
+  'annual_registration',
+  'annual_kms',
+] as const;
+
+type NumericVehicleField = (typeof NUMERIC_VEHICLE_FIELDS)[number];
+
+const normalizeVehicleDetail = (
+  vehicle: VehicleDetail,
+  fallback: VehicleDetail
+): VehicleDetail => {
+  const next: VehicleDetail = { ...vehicle };
+  NUMERIC_VEHICLE_FIELDS.forEach((key) => {
+    const value = toFiniteNumber(next[key]);
+    if (value !== undefined) {
+      next[key] = value as VehicleDetail[NumericVehicleField];
+      return;
+    }
+    const fallbackValue = toFiniteNumber(fallback[key]);
+    next[key] = (fallbackValue ?? 0) as VehicleDetail[NumericVehicleField];
+  });
+  return next;
+};
+
 const asNumber = (value: unknown, name: string): number => {
   if (typeof value !== 'number') {
     throw new Error(`Constant ${name} must be numeric.`);
@@ -776,10 +807,13 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
     overrides?.annual_kms_variation && overrides.annual_kms_variation > 0
       ? overrides.annual_kms_variation
       : vehicleWithStructuralOverrides.annual_kms;
-  const vehicle: VehicleDetail = {
-    ...vehicleWithStructuralOverrides,
-    annual_kms: annualKms,
-  };
+  const vehicle = normalizeVehicleDetail(
+    {
+      ...vehicleWithStructuralOverrides,
+      annual_kms: annualKms,
+    },
+    baseVehicle
+  );
   const isBev = vehicle.drivetrain_type === 'BEV';
 
   const { stampDuty, initialCost } = calculateInitialCost(vehicle);

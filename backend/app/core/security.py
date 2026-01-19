@@ -140,3 +140,8 @@ def get_rate_limit_sessions() -> str:
 def get_rate_limit_analytics() -> str:
     """Get rate limit string for analytics endpoint."""
     return f"{settings.rate_limit_analytics_per_minute}/minute"
+
+
+def get_rate_limit_vehicles() -> str:
+    """Get rate limit string for vehicle catalog endpoints."""
+    return f"{settings.rate_limit_vehicles_per_minute}/minute"

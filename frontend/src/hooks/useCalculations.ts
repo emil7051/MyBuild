@@ -100,30 +100,8 @@ export const useCalculationRunner = () => {
     onSettled: () => setIsCalculating(false),
   });
 
-  const runPreviewComparison = useCallback(
-    async (payload: ComparisonRequestPayload) => {
-      if (!payload.vehicle_ids.length) {
-        return;
-      }
-      // Capture request context before starting calculation
-      const requestId = getNextRequestId();
-      const vehicleOrder = payload.vehicle_ids;
-      setIsCalculating(true);
-      try {
-        const data = calculateComparison(payload);
-        setResults(data, requestId, vehicleOrder);
-      } catch (error) {
-        console.warn('Preview comparison failed', error);
-      } finally {
-        setIsCalculating(false);
-      }
-    },
-    [getNextRequestId, setIsCalculating, setResults]
-  );
-
   return {
     runComparison: comparisonMutation.mutateAsync,
-    runPreviewComparison,
     runSingle: singleMutation.mutateAsync,
     comparisonStatus: comparisonMutation.status,
     singleStatus: singleMutation.status,
