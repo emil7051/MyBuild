@@ -8,11 +8,13 @@ from pydantic import BaseModel, Field
 
 
 class CostOverride(BaseModel):
-    """Optional override hooks that align with the shared TypeScript calculator inputs."""
+    """Optional override hooks that align with shared TypeScript calculator inputs."""
 
     annual_kms_variation: Optional[float] = Field(
         default=None,
-        description="Absolute kilometres per year to use instead of the vehicle default.",
+        description=(
+            "Absolute kilometres per year to use instead of the vehicle default."
+        ),
     )
     residual_value_variation: Optional[float] = Field(
         default=None,
@@ -32,11 +34,15 @@ class CostOverride(BaseModel):
     )
     battery_life_variation: Optional[float] = Field(
         default=None,
-        description="Multiplier applied to BEV battery life simulations (0.7 = shorter life).",
+        description=(
+            "Multiplier applied to BEV battery life simulations (0.7 = shorter life)."
+        ),
     )
     charging_efficiency_variation: Optional[float] = Field(
         default=None,
-        description="Multiplier applied to BEV charging efficiency (1.1 = worse efficiency).",
+        description=(
+            "Multiplier applied to BEV charging efficiency (1.1 = worse efficiency)."
+        ),
     )
 
     model_config = {

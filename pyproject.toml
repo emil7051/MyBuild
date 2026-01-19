@@ -16,3 +16,4 @@ extend-exclude = [
     "archive",
     "attached_assets",
 ]
+per-file-ignores = { "data/*.py" = ["E501"], "data/**/*.py" = ["E501"], "scripts/*.py" = ["E501"], "scripts/**/*.py" = ["E501"] }

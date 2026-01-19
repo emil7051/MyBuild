@@ -59,8 +59,9 @@ class Settings(BaseSettings):
         query_params = parse_qs(parts.query, keep_blank_values=True)
 
         # Handle SSL mode for asyncpg compatibility
-        # asyncpg doesn't support sslmode parameter - remove it from the connection string
-        # asyncpg will handle SSL automatically with Neon's connection string
+        # asyncpg doesn't support sslmode parameter. Remove it from the
+        # connection string. asyncpg will handle SSL automatically with
+        # Neon's connection string.
         if "sslmode" in query_params:
             query_params.pop("sslmode")
 
