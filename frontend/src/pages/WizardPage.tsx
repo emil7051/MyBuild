@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { FormProvider, type FieldPath, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Card from '@components/shared/Card';
@@ -11,7 +11,7 @@ import { useCalculationRunner } from '@hooks/useCalculations';
 import { useWizardAutosave } from '@hooks/useWizardAutosave';
 import { useTCOStore } from '@state/tcoStore';
 import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
-import type { ComparisonRequestPayload, DutyCycle } from '@shared/types/tco.types';
+import type { ComparisonRequestPayload } from '@shared/types/tco.types';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { wizardFormSchema } from '@forms/wizardForm';
 import { toast } from 'react-hot-toast';
@@ -58,20 +58,34 @@ const WizardPage = () => {
   const updateWizard = useTCOStore((state) => state.updateWizard);
   const { runComparison } = useCalculationRunner();
   useWizardAutosave();
-  const formMethods = useForm<WizardFormValues>({
-    resolver: zodResolver(wizardFormSchema),
-    mode: 'onTouched',
-    defaultValues: {
+
+  // Memoize form values to prevent unnecessary re-renders
+  // This is the single source of truth flowing FROM the store TO the form
+  const formValues = useMemo<WizardFormValues>(
+    () => ({
       scenario: wizardData.scenario,
       purchaseMethod: wizardData.purchaseMethod,
       dutyCycle: wizardData.dutyCycle,
       overrides: wizardData.overrides ?? {},
+    }),
+    [wizardData.scenario, wizardData.purchaseMethod, wizardData.dutyCycle, wizardData.overrides]
+  );
+
+  const formMethods = useForm<WizardFormValues>({
+    resolver: zodResolver(wizardFormSchema),
+    mode: 'onTouched',
+    // Use 'values' for reactive sync from store (not 'defaultValues')
+    // This automatically updates form state when store changes
+    values: formValues,
+    // Keep dirty field values when external values change
+    resetOptions: {
+      keepDirtyValues: true,
     },
   });
 
   const isLastStep = stepIndex === steps.length - 1;
   const baselineSelected = Boolean(wizardData.currentVehicle);
-  const isUpdatingFromForm = useRef(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stepComponents = [
     <WizardDieselStep key="diesel" />,
     <WizardElectricStep key="electric" />,
@@ -79,70 +93,47 @@ const WizardPage = () => {
   ];
   const activeComponent = stepComponents[stepIndex];
 
-  useEffect(() => {
-    // Skip if we just updated the store from form (prevents circular update)
-    if (isUpdatingFromForm.current) {
-      isUpdatingFromForm.current = false;
-      return;
-    }
-    const currentValues = formMethods.getValues();
-    const overridesMatch =
-      JSON.stringify(currentValues.overrides ?? {}) === JSON.stringify(wizardData.overrides ?? {});
-    const dutyCycleMatch =
-      currentValues.dutyCycle?.urban === wizardData.dutyCycle.urban &&
-      currentValues.dutyCycle?.regional === wizardData.dutyCycle.regional &&
-      currentValues.dutyCycle?.longHaul === wizardData.dutyCycle.longHaul;
-    if (
-      currentValues.scenario !== wizardData.scenario ||
-      currentValues.purchaseMethod !== wizardData.purchaseMethod ||
-      !overridesMatch ||
-      !dutyCycleMatch
-    ) {
-      formMethods.reset({
-        scenario: wizardData.scenario,
-        purchaseMethod: wizardData.purchaseMethod,
-        dutyCycle: wizardData.dutyCycle,
-        overrides: wizardData.overrides ?? {},
-      });
-    }
-  }, [
-    formMethods,
-    wizardData.overrides,
-    wizardData.dutyCycle.longHaul,
-    wizardData.dutyCycle.regional,
-    wizardData.dutyCycle.urban,
-    wizardData.purchaseMethod,
-    wizardData.scenario,
-  ]);
-
-  useEffect(() => {
-    // Skip initial callback - fields may not be registered yet
-    let isInitialMount = true;
-    const subscription = formMethods.watch((values) => {
-      if (isInitialMount) {
-        isInitialMount = false;
-        return;
-      }
-      const dutyCycle = values.dutyCycle as DutyCycle | undefined;
-      // Skip if nested duty cycle values are undefined (fields not yet registered)
-      if (
-        dutyCycle &&
-        (dutyCycle.urban === undefined ||
-          dutyCycle.regional === undefined ||
-          dutyCycle.longHaul === undefined)
-      ) {
-        return;
-      }
-      isUpdatingFromForm.current = true;
+  // Debounced form-to-store sync
+  // Only syncs user changes back to store, with debounce to avoid rapid updates
+  const syncToStore = useCallback(
+    (values: WizardFormValues) => {
       updateWizard({
         scenario: values.scenario,
         purchaseMethod: values.purchaseMethod,
-        dutyCycle: dutyCycle ?? { urban: 60, regional: 25, longHaul: 15 },
+        dutyCycle: values.dutyCycle,
         overrides: values.overrides ?? {},
       });
+    },
+    [updateWizard]
+  );
+
+  useEffect(() => {
+    const subscription = formMethods.watch((values) => {
+      // Skip if any duty cycle value is undefined (fields not yet registered)
+      if (
+        values.dutyCycle?.urban === undefined ||
+        values.dutyCycle?.regional === undefined ||
+        values.dutyCycle?.longHaul === undefined
+      ) {
+        return;
+      }
+
+      // Debounce store updates to avoid rapid re-renders during typing
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      debounceRef.current = setTimeout(() => {
+        syncToStore(values as WizardFormValues);
+      }, 150);
     });
-    return () => subscription.unsubscribe();
-  }, [formMethods, updateWizard]);
+
+    return () => {
+      subscription.unsubscribe();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [formMethods, syncToStore]);
 
   const validateCurrentStep = async () => {
     const fieldsToValidate = stepFieldMap[stepIndex];

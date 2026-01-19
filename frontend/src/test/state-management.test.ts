@@ -112,7 +112,7 @@ describe('TCO Store State Management', () => {
       expect(warnSpy).toHaveBeenCalled();
     });
 
-    it('should normalize duty cycle values when sum is not 100', () => {
+    it('should keep duty cycle values as-is when sum is not 100 (validation handled by form)', () => {
       const store = useTCOStore.getState();
 
       store.updateWizard({
@@ -120,12 +120,12 @@ describe('TCO Store State Management', () => {
       });
 
       const updated = useTCOStore.getState();
-      // Should normalize values to sum to 100 (90 -> 100)
-      // 50/90 * 100 = 55.56, 30/90 * 100 = 33.33, 10/90 * 100 = 11.11
-      expect(updated.wizardData.dutyCycle.urban).toBeCloseTo(55.56, 1);
-      expect(updated.wizardData.dutyCycle.regional).toBeCloseTo(33.33, 1);
-      expect(updated.wizardData.dutyCycle.longHaul).toBeCloseTo(11.11, 1);
-      expect(warnSpy).toHaveBeenCalled();
+      // Store no longer normalizes - it keeps values as-is
+      // Form validation will show an error to the user about sum != 100
+      expect(updated.wizardData.dutyCycle.urban).toBe(50);
+      expect(updated.wizardData.dutyCycle.regional).toBe(30);
+      expect(updated.wizardData.dutyCycle.longHaul).toBe(10);
+      // No warning should be logged for non-normalized sums
     });
   });
 

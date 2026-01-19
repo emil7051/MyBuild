@@ -23,12 +23,16 @@ const WizardOperatingStep = () => {
   const scenario = watch('scenario');
   const scenarioMeta = scenarioOptions.find((option) => option.value === scenario);
 
-  // Real-time duty cycle validation
-  const dutyCycle = useWatch({ control, name: 'dutyCycle' });
+  // Watch individual duty cycle fields with explicit defaults
+  // This ensures we always have valid numbers even before fields register
+  const urban = useWatch({ control, name: 'dutyCycle.urban', defaultValue: 60 });
+  const regional = useWatch({ control, name: 'dutyCycle.regional', defaultValue: 25 });
+  const longHaul = useWatch({ control, name: 'dutyCycle.longHaul', defaultValue: 15 });
+
+  // Calculate sum with safe number conversion
   const dutyCycleSum = useMemo(() => {
-    const { urban = 0, regional = 0, longHaul = 0 } = dutyCycle || {};
     return (Number(urban) || 0) + (Number(regional) || 0) + (Number(longHaul) || 0);
-  }, [dutyCycle]);
+  }, [urban, regional, longHaul]);
   const isDutyCycleValid = Math.abs(dutyCycleSum - 100) < 0.01;
 
   return (

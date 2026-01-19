@@ -90,44 +90,36 @@ const getPersistStorage = (): StateStorage => {
 };
 
 /**
- * Validates duty cycle values, returning defaults or clamped values if invalid.
- * Checks for NaN, negative values, and totals that don't sum to ~100.
+ * Validates duty cycle values, returning defaults only for clearly invalid data.
+ * Does NOT normalize sums - let the form validation handle that.
+ * Only rejects: NaN, non-numeric, negative values.
  */
 const validateDutyCycle = (dutyCycle?: DutyCycle): DutyCycle | undefined => {
   if (!dutyCycle) return undefined;
 
   const { urban, regional, longHaul } = dutyCycle;
 
-  // Check for NaN or non-numeric values
+  // Check for NaN or non-numeric values - these are corrupted data
   if ([urban, regional, longHaul].some(v => typeof v !== 'number' || isNaN(v))) {
-    console.warn('Invalid duty cycle values detected, using defaults');
+    console.warn('Invalid duty cycle values detected (NaN/non-numeric), using defaults');
     return defaultWizardData.dutyCycle;
   }
 
-  // Check for negative values - reset to defaults if any are negative
+  // Check for negative values - these are invalid
   if ([urban, regional, longHaul].some(v => v < 0)) {
     console.warn('Negative duty cycle values detected, using defaults');
     return defaultWizardData.dutyCycle;
   }
 
-  // Check if sum is approximately 100 (allow small floating point tolerance)
-  const sum = urban + regional + longHaul;
-  const tolerance = 0.01;
-  if (Math.abs(sum - 100) > tolerance) {
-    // If sum is 0, return defaults
-    if (sum === 0) {
-      console.warn('Duty cycle sum is 0, using defaults');
-      return defaultWizardData.dutyCycle;
-    }
-    // Otherwise normalize to 100
-    console.warn(`Duty cycle sum is ${sum}, normalizing to 100`);
-    const scale = 100 / sum;
-    return {
-      urban: Math.round(urban * scale * 100) / 100,
-      regional: Math.round(regional * scale * 100) / 100,
-      longHaul: Math.round(longHaul * scale * 100) / 100,
-    };
+  // Check for values > 100 - these are clearly invalid
+  if ([urban, regional, longHaul].some(v => v > 100)) {
+    console.warn('Duty cycle value > 100 detected, using defaults');
+    return defaultWizardData.dutyCycle;
   }
+
+  // Do NOT normalize sums that don't equal 100
+  // The form's Zod validation will show an error to the user
+  // This allows users to see their actual input while being told it's invalid
 
   return dutyCycle;
 };
