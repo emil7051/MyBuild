@@ -37,7 +37,9 @@ def create_app() -> FastAPI:
 
     app.include_router(api_router)
 
-    frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+    frontend_dist = (
+        Path(__file__).parent.parent.parent / "frontend" / "dist"
+    ).resolve()
     if frontend_dist.exists():
         app.mount(
             "/assets",
@@ -47,9 +49,10 @@ def create_app() -> FastAPI:
 
         @app.get("/{full_path:path}")
         async def serve_spa(full_path: str):
-            file_path = frontend_dist / full_path
-            if file_path.is_file():
-                return FileResponse(file_path)
+            requested_path = (frontend_dist / full_path).resolve()
+            if requested_path.is_relative_to(frontend_dist):
+                if requested_path.is_file():
+                    return FileResponse(requested_path)
             return FileResponse(frontend_dist / "index.html")
 
     else:
