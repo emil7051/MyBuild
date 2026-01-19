@@ -14,7 +14,7 @@ ruff==0.0.290
 flake8==6.0.0
 flake8-docstrings==1.7.0
 flake8-import-order==0.18.0
-flake8-bugbear==23.7.0
+flake8-bugbear==23.7.10
 pylint==2.17.0
 vulture==2.9.0
 
@@ -42,4 +42,4 @@ ipykernel==6.25.0
 # Performance and profiling
 memory-profiler==0.61.0
 line-profiler==4.1.0
-py-spy==0.3.0
+py-spy==0.3.14

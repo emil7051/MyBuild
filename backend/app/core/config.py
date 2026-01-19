@@ -38,6 +38,15 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
 
+    @field_validator("backend_cors_origins")
+    @classmethod
+    def _validate_cors_origins(cls, value):
+        if "*" in value:
+            raise ValueError(
+                "BACKEND_CORS_ORIGINS cannot include '*' when credentials are enabled."
+            )
+        return value
+
     @field_validator("database_url", mode="before")
     @classmethod
     def _normalize_database_url(cls, value):

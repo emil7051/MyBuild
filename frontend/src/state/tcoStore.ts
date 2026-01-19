@@ -12,7 +12,7 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import { VEHICLE_BY_ID, VEHICLE_CATALOG_VERSION } from '@shared/data/vehicleCatalog';
 import type {
   CalculationResponsePayload,
@@ -51,6 +51,34 @@ const defaultWizardData: WizardData = {
 };
 
 const initialVehicleDetails: Record<string, VehicleDetail> = { ...VEHICLE_BY_ID };
+
+const memoryStorage = (() => {
+  let store = new Map<string, string>();
+  return {
+    getItem: (name: string) => (store.has(name) ? store.get(name)! : null),
+    setItem: (name: string, value: string) => {
+      store.set(name, value);
+    },
+    removeItem: (name: string) => {
+      store.delete(name);
+    },
+  };
+})();
+
+const getPersistStorage = (): StateStorage => {
+  const storage = typeof localStorage === 'undefined' ? undefined : localStorage;
+
+  if (
+    storage &&
+    typeof storage.getItem === 'function' &&
+    typeof storage.setItem === 'function' &&
+    typeof storage.removeItem === 'function'
+  ) {
+    return storage;
+  }
+
+  return memoryStorage;
+};
 
 /**
  * Validates duty cycle values, returning defaults or clamped values if invalid
@@ -121,6 +149,7 @@ export const useTCOStore = create<TCOStore>()(
     }),
     {
       name: 'tco-wizard-store',
+      storage: createJSONStorage(getPersistStorage),
       partialize: (state) => ({
         _vehicleCatalogVersion: VEHICLE_CATALOG_VERSION,
         wizardData: state.wizardData,
