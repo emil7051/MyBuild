@@ -231,6 +231,29 @@ alembic downgrade <revision_id>
 alembic downgrade base
 ```
 
+## Security
+
+The project includes automated security scanning and follows best practices for secure development. See [SECURITY.md](./SECURITY.md) for:
+
+- Vulnerability scanning policy and fail thresholds
+- Dependency audit procedures (Python and frontend)
+- Security reporting process
+- Backend and frontend security features
+
+### Dependency Vulnerability Scanning
+
+Dependencies are automatically audited in CI on every push and PR:
+
+```bash
+# Run Python dependency audit locally
+pip-audit -r requirements.txt -r backend/requirements.txt
+
+# Run frontend dependency audit locally
+cd frontend && npm audit
+```
+
+The CI workflow runs weekly scheduled scans to detect newly disclosed vulnerabilities.
+
 ## Development Workflow
 
 ### Running Tests
@@ -293,6 +316,7 @@ See [API.md](./API.md) for complete API documentation including:
 - **README.md** (this file) - Quick start and overview
 - **[API.md](./API.md)** - REST API documentation
 - **[AGENTS.md](./AGENTS.md)** - Development guidelines and conventions
+- **[SECURITY.md](./SECURITY.md)** - Security policy and vulnerability management
 - **[replit.md](./replit.md)** - Detailed architecture and design patterns
 
 ### Historical Documentation

@@ -1,0 +1,187 @@
+name: Dependency Vulnerability Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly on Monday at 9am UTC to catch newly disclosed vulnerabilities
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    # Allow manual triggering
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.11'
+  BUN_VERSION: 'latest'
+
+jobs:
+  python-audit:
+    name: Python Dependency Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install pip-audit
+        run: python -m pip install pip-audit
+
+      - name: Audit root requirements.txt
+        run: |
+          echo "Auditing requirements.txt..."
+          python -m pip_audit -r requirements.txt --strict --desc on || AUDIT_FAILED=1
+
+          if [ "$AUDIT_FAILED" = "1" ]; then
+            echo ""
+            echo "::error::Vulnerabilities found in requirements.txt"
+            echo "Review the vulnerabilities above and update affected packages."
+            exit 1
+          fi
+
+      - name: Audit backend/requirements.txt
+        run: |
+          echo "Auditing backend/requirements.txt..."
+          python -m pip_audit -r backend/requirements.txt --strict --desc on || AUDIT_FAILED=1
+
+          if [ "$AUDIT_FAILED" = "1" ]; then
+            echo ""
+            echo "::error::Vulnerabilities found in backend/requirements.txt"
+            echo "Review the vulnerabilities above and update affected packages."
+            exit 1
+          fi
+
+      - name: Generate SBOM (optional artifact)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python -m pip install cyclonedx-bom
+          python -m pip install -r requirements.txt -r backend/requirements.txt
+          cyclonedx-py environment -o sbom-python.json --format json || true
+
+      - name: Upload Python SBOM
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-python
+          path: sbom-python.json
+          retention-days: 90
+        continue-on-error: true
+
+  frontend-audit:
+    name: Frontend Dependency Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Set up Node.js (for npm audit)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: bun install
+
+      - name: Generate package-lock.json for npm audit
+        working-directory: frontend
+        run: |
+          # npm audit requires package-lock.json, but we use bun.lock
+          # Generate a package-lock.json without modifying node_modules
+          npm i --package-lock-only --ignore-scripts
+
+      - name: Run npm audit
+        working-directory: frontend
+        run: |
+          echo "Running npm audit for frontend dependencies..."
+          # npm audit returns non-zero if vulnerabilities found
+          # We use --audit-level=high to fail only on high/critical
+          npm audit --audit-level=high || AUDIT_FAILED=1
+
+          if [ "$AUDIT_FAILED" = "1" ]; then
+            echo ""
+            echo "::error::High or critical vulnerabilities found in frontend dependencies"
+            echo ""
+            echo "To see all vulnerabilities: npm audit"
+            echo "To see fix suggestions: npm audit fix --dry-run"
+            echo ""
+            echo "Note: Some vulnerabilities may be in dev dependencies and may not affect production."
+            exit 1
+          fi
+
+          echo "No high or critical vulnerabilities found."
+
+      - name: Report all vulnerabilities (informational)
+        working-directory: frontend
+        if: always()
+        run: |
+          echo "Full vulnerability report (informational):"
+          npm audit --json > audit-report.json || true
+          npm audit || true
+        continue-on-error: true
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-audit-report
+          path: frontend/audit-report.json
+          retention-days: 30
+        continue-on-error: true
+
+  audit-summary:
+    name: Audit Summary
+    runs-on: ubuntu-latest
+    needs: [python-audit, frontend-audit]
+    if: always()
+
+    steps:
+      - name: Check audit results
+        run: |
+          echo "=== Dependency Vulnerability Audit Summary ==="
+          echo ""
+
+          PYTHON_RESULT="${{ needs.python-audit.result }}"
+          FRONTEND_RESULT="${{ needs.frontend-audit.result }}"
+
+          echo "Python audit: $PYTHON_RESULT"
+          echo "Frontend audit: $FRONTEND_RESULT"
+          echo ""
+
+          if [ "$PYTHON_RESULT" != "success" ] || [ "$FRONTEND_RESULT" != "success" ]; then
+            echo "::error::One or more dependency audits failed"
+            echo ""
+            echo "=== Fail Policy ==="
+            echo "This CI job fails when:"
+            echo "  - Python: Any vulnerability is detected (--strict mode)"
+            echo "  - Frontend: High or critical vulnerabilities are detected"
+            echo ""
+            echo "=== Resolution Steps ==="
+            echo "1. Review the vulnerability details in the job logs above"
+            echo "2. Update affected packages to patched versions"
+            echo "3. If no patch is available, document the risk and consider:"
+            echo "   - Using an alternative package"
+            echo "   - Implementing mitigating controls"
+            echo "   - Temporarily ignoring the vulnerability with documented justification"
+            echo ""
+            echo "For false positives or accepted risks, see SECURITY.md for the ignore process."
+            exit 1
+          fi
+
+          echo "All dependency audits passed successfully."

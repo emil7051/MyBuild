@@ -31,11 +31,39 @@ class Settings(BaseSettings):
         default=1800, ge=60, description="TTL for cached wizard sessions in Redis."
     )
 
-    @field_validator("backend_cors_origins", mode="before")
+    # Security settings (Phase 4 / SEC-004, SEC-007, SEC-008)
+    max_request_body_size: int = Field(
+        default=1_048_576,  # 1 MB
+        ge=1024,
+        description="Maximum request body size in bytes.",
+    )
+    trusted_proxies: List[str] = Field(
+        default_factory=list,
+        description=(
+            "List of trusted proxy IPs or CIDRs. X-Forwarded-For header is only "
+            "trusted when request comes from these addresses. Empty = trust no proxies."
+        ),
+    )
+    rate_limit_sessions_per_minute: int = Field(
+        default=30,
+        ge=1,
+        description="Max session create/update requests per IP per minute.",
+    )
+    rate_limit_analytics_per_minute: int = Field(
+        default=10,
+        ge=1,
+        description="Max analytics requests per IP per minute.",
+    )
+    analytics_api_key: Optional[str] = Field(
+        default=None,
+        description="API key for analytics endpoint. If None, unrestricted.",
+    )
+
+    @field_validator("backend_cors_origins", "trusted_proxies", mode="before")
     @classmethod
-    def _split_cors_origins(cls, value):
+    def _split_comma_list(cls, value):
         if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
+            return [item.strip() for item in value.split(",") if item.strip()]
         return value
 
     @field_validator("backend_cors_origins")
