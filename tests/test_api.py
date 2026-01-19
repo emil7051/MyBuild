@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import httpx
 import pytest
 
@@ -17,6 +19,54 @@ async def test_healthcheck(client: httpx.AsyncClient) -> None:
     response = await client.get("/api/v1/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+@pytest.mark.anyio
+async def test_spa_traversal_blocked(
+    async_session_factory, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from backend.app.db.session import get_db_session
+    import backend.app.main as main_module
+    from backend.app.main import create_app
+
+    frontend_dist = Path(__file__).resolve().parents[1] / "frontend" / "dist"
+    created_dist = False
+    created_index = False
+    if not frontend_dist.exists():
+        frontend_dist.mkdir(parents=True)
+        created_dist = True
+
+    index_path = frontend_dist / "index.html"
+    if not index_path.exists():
+        index_path.write_text("<!doctype html><title>Test</title>", encoding="utf-8")
+        created_index = True
+
+    try:
+
+        async def _override_get_db_session():
+            async with async_session_factory() as session:
+                yield session
+
+        async def _noop_init_db() -> None:
+            return None
+
+        monkeypatch.setattr(main_module, "init_db", _noop_init_db)
+        application = create_app()
+        application.dependency_overrides[get_db_session] = _override_get_db_session
+
+        transport = httpx.ASGITransport(app=application)
+        async with httpx.AsyncClient(
+            transport=transport, base_url="http://testserver"
+        ) as async_client:
+            response = await async_client.get("/%2e%2e/package.json")
+
+        assert response.status_code == 200
+        assert response.text == index_path.read_text(encoding="utf-8")
+    finally:
+        if created_index:
+            index_path.unlink()
+        if created_dist:
+            frontend_dist.rmdir()
 
 
 @pytest.mark.anyio
