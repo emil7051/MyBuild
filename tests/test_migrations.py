@@ -78,9 +78,9 @@ class TestMigrationSystem:
             inspector = inspect(engine)
             columns = {c["name"] for c in inspector.get_columns("sessions")}
 
-            assert "session_secret_hash" in columns, (
-                "session_secret_hash column should exist after migrations"
-            )
+            assert (
+                "session_secret_hash" in columns
+            ), "session_secret_hash column should exist after migrations"
 
     def test_migration_adds_indexes(self) -> None:
         """Verify performance indexes are created by migrations."""
@@ -110,9 +110,7 @@ class TestMigrationSystem:
             assert "ix_user_inputs_vehicle_id" in input_indexes
 
             # Check sessions indexes
-            session_indexes = {
-                idx["name"] for idx in inspector.get_indexes("sessions")
-            }
+            session_indexes = {idx["name"] for idx in inspector.get_indexes("sessions")}
             assert "ix_sessions_created_at" in session_indexes
             assert "ix_sessions_status" in session_indexes
 

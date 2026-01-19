@@ -12,12 +12,12 @@ This migration adds indexes to improve query performance for:
 Without these indexes, analytics queries must perform full table scans,
 which degrades performance as the dataset grows.
 """
+
 from __future__ import annotations
 
 from typing import Sequence, Union
 
 from alembic import op
-
 
 # revision identifiers, used by Alembic.
 revision: str = "003"

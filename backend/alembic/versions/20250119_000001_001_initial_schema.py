@@ -9,13 +9,13 @@ It creates all tables as they existed before the migration system was introduced
 Running this migration on an empty database will create the full schema.
 Running it on an existing database will be a no-op (tables already exist).
 """
+
 from __future__ import annotations
 
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision: str = "001"
@@ -65,9 +65,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.ForeignKeyConstraint(
-            ["session_id"], ["sessions.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
     )
 
     # Calculation results table
@@ -89,9 +87,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.ForeignKeyConstraint(
-            ["session_id"], ["sessions.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
     )
 
     # Operator profiles table
@@ -113,9 +109,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.ForeignKeyConstraint(
-            ["session_id"], ["sessions.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
         sa.UniqueConstraint("session_id"),
     )
 
@@ -133,9 +127,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.ForeignKeyConstraint(
-            ["session_id"], ["sessions.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
     )
 
 

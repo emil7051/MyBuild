@@ -12,13 +12,13 @@ to read or update session data containing PII.
 The column is nullable to support existing sessions created before this
 security enhancement. New sessions will have a secret generated on creation.
 """
+
 from __future__ import annotations
 
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision: str = "002"

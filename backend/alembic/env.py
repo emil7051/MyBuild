@@ -1,18 +1,17 @@
 """Alembic migration environment configuration.
 
-Supports both sync (for autogenerate/offline) and async (for online) migrations.
+Supports both offline (SQL generation) and online (direct execution) migrations.
 Works with SQLite (development) and PostgreSQL (production).
+Always uses sync drivers to avoid event loop conflicts when called from FastAPI.
 """
 
 from __future__ import annotations
 
-import asyncio
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from backend.app.core.config import settings
 from backend.app.db.base import Base
@@ -86,41 +85,23 @@ def do_run_migrations(connection: Connection) -> None:
         context.run_migrations()
 
 
-async def run_async_migrations() -> None:
-    """Run migrations using async engine for PostgreSQL/asyncpg."""
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-        url=settings.database_url,
-    )
-
-    async with connectable.connect() as connection:
-        await connection.run_sync(do_run_migrations)
-
-    await connectable.dispose()
-
-
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
     Creates a connection and runs migrations directly against the database.
+    Always uses sync drivers to avoid asyncio.run() conflicts when called
+    from within an existing event loop (e.g., FastAPI lifespan startup).
     """
-    # For SQLite, we can use sync driver
-    url = settings.database_url
-    if url.startswith("sqlite"):
-        from sqlalchemy import create_engine
+    from sqlalchemy import create_engine
 
-        sync_url = get_url()
-        connectable = create_engine(sync_url, poolclass=pool.NullPool)
+    # Always use sync URL - get_url() converts async drivers to sync
+    sync_url = get_url()
+    connectable = create_engine(sync_url, poolclass=pool.NullPool)
 
-        with connectable.connect() as connection:
-            do_run_migrations(connection)
+    with connectable.connect() as connection:
+        do_run_migrations(connection)
 
-        connectable.dispose()
-    else:
-        # For PostgreSQL, use async engine
-        asyncio.run(run_async_migrations())
+    connectable.dispose()
 
 
 if context.is_offline_mode():
