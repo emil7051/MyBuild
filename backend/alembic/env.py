@@ -14,10 +14,10 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 
 from backend.app.core.config import settings
-from backend.app.db.base import Base
 
 # Import all models so they register with Base.metadata
 from backend.app.db import models  # noqa: F401
+from backend.app.db.base import Base
 
 # Alembic Config object, provides access to .ini values
 config = context.config

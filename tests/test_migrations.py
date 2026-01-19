@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
+import tempfile
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import inspect, create_engine
+from sqlalchemy import create_engine, inspect
 
 from backend.app.db.models import (
+    CalculationResultRecord,
     SessionRecord,
     UserInputRecord,
-    CalculationResultRecord,
 )
 
 
