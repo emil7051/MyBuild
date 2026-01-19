@@ -12,7 +12,7 @@ describe('Calculator Math Utilities', () => {
     it('should calculate PV of annuity correctly', () => {
       // $1000/year for 10 years at 5%
       const pv = calculatePresentValue(1000, 10, 0.05);
-      expect(pv).toBeCloseTo(7721.73, 0); // Standard annuity PV
+      expect(pv).toBeCloseTo(8107.82, 0); // Annuity-due PV
     });
 
     it('should return 0 for zero annual value', () => {
@@ -26,12 +26,12 @@ describe('Calculator Math Utilities', () => {
 
     it('should handle single year', () => {
       const pv = calculatePresentValue(1000, 1, 0.05);
-      expect(pv).toBeCloseTo(952.38, 0);
+      expect(pv).toBeCloseTo(1000, 0);
     });
   });
 
   describe('discountToPresent', () => {
-    it('should not discount year 1 (end-of-period convention)', () => {
+    it('should not discount year 1 (annuity-due convention)', () => {
       const pv = discountToPresent(1000, 1, 0.05);
       expect(pv).toBe(1000); // Year 1 not discounted per convention
     });
