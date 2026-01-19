@@ -207,27 +207,41 @@ Work packages should be **sequential within the stream** because many tasks touc
 - DOC-006: Enhanced CostBreakdown interface with detailed JSDoc documenting NPV/nominal/upfront fields
 - All changes via PR #12
 
-#### Stream E — Data integrity (generator + source-of-truth)
+#### Stream E — Data integrity (generator + source-of-truth) ✅ COMPLETE
 
-**WP-E1 (Data): DATA-001**
+**WP-E1 (Data): DATA-001** ✅
 
 * Fix broken constant definition caused by missing newline.
 
-**WP-E2 (Data): DATA-002 → DATA-003**
+**WP-E2 (Data): DATA-002 → DATA-003** ✅
 
 * Fix generator output ordering and then split generated vs manual constants so TS files accurately reflect generation policy.
 
-**WP-E3 (Data+FE coordination): DATA-005**
+**WP-E3 (Data+FE coordination): DATA-005** ✅
 
 * Catalog versioning & cache invalidation behavior (touches generator and frontend persistence; coordinate with FE State agent).
 
-**WP-E4 (QA/CI): DATA-004**
+**WP-E4 (QA/CI): DATA-004** ✅
 
 * CI job regenerates TS data and fails if `git diff` shows drift (depends on DATA-002 + DATA-003).
 
-**WP-E5 (Data policy): DATA-006**
+**WP-E5 (Data policy): DATA-006** ✅
 
 * Carbon price trajectories: either define meaningful non-zero trajectories *or* explicitly document/remove carbon cost outputs if policy is disabled (do not invent numbers without a source).
+
+**Stream E completion notes (2026-01-19):**
+- DATA-001: Fixed missing newline in constants.py that was commenting out GRID_UPGRADE
+- DATA-002: Verified generator output matches VehicleDetail type (no changes needed)
+- DATA-003: Separated generated vs manual constants:
+  - `constants.generated.ts`: Auto-generated from Python data
+  - `constants.future.ts`: Manually maintained future/planned constants
+  - `constants.ts`: Re-exports from both
+- DATA-004: Added CI workflow `.github/workflows/data-sync-check.yml` to detect drift
+- DATA-005: Implemented deterministic catalog versioning with hash-based versions (`v1-<hash>`)
+  - Generator computes version from vehicle data hash
+  - Frontend clears stale overrides/selections when catalog changes
+- DATA-006: Documented carbon pricing policy (intentionally disabled, reflects current AU policy)
+- All changes via PR #13
 
 #### Stream C — Frontend state & autosave robustness (parallel)
 
@@ -249,10 +263,10 @@ Work packages should be **sequential within the stream** because many tasks touc
 
 **Phase 3 acceptance criteria**
 
-* [ ] Calculator regression suite passes and covers the corrected logic paths (diesel carbon-cost, PV convention, override hardening).
-* [ ] Charts reflect corrected engine semantics and no longer present misleading mixes of upfront/nominal/PV values (DOC-006 + VIZ fixes).
-* [ ] Data generator output is deterministic; generated TS is separated from manual constants; CI catches drift.
-* [ ] Frontend no longer reorders results incorrectly or overwrites server state out-of-order via autosave.
+* [x] Calculator regression suite passes and covers the corrected logic paths (diesel carbon-cost, PV convention, override hardening). *(Completed via PR #9)*
+* [x] Charts reflect corrected engine semantics and no longer present misleading mixes of upfront/nominal/PV values (DOC-006 + VIZ fixes). *(Completed via PR #12)*
+* [x] Data generator output is deterministic; generated TS is separated from manual constants; CI catches drift. *(Completed via PR #13)*
+* [ ] Frontend no longer reorders results incorrectly or overwrites server state out-of-order via autosave. *(Pending: Stream C)*
 
 ---
 
