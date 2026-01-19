@@ -9,7 +9,40 @@ The TCO Web Platform provides a RESTful API for calculating Total Cost of Owners
 
 ## Authentication
 
-Currently, the API does not require authentication. All endpoints are publicly accessible.
+### Session Access Control
+
+Session endpoints use a secret-based access control mechanism to protect user data (including PII in `operatorProfile`):
+
+- **POST `/sessions`** returns a one-time `sessionSecret` in the response
+- **GET/PUT `/sessions/{id}`** require the `X-Session-Secret` header
+- The server stores only a bcrypt hash of the secret (never the plaintext)
+- Legacy sessions (created before this feature) remain accessible without a secret for backward compatibility
+
+**Example flow:**
+```javascript
+// 1. Create session - receive secret
+const response = await fetch('/api/v1/sessions', {
+  method: 'POST',
+  body: JSON.stringify(sessionData)
+});
+const { sessionId, sessionSecret } = await response.json();
+
+// 2. Store secret client-side (e.g., localStorage)
+localStorage.setItem(`session_secret_${sessionId}`, sessionSecret);
+
+// 3. Use secret for subsequent requests
+await fetch(`/api/v1/sessions/${sessionId}`, {
+  headers: { 'X-Session-Secret': sessionSecret }
+});
+```
+
+### Analytics API Key (Optional)
+
+The `/analytics/summary` endpoint can be protected with an API key:
+
+- Set the `ANALYTICS_API_KEY` environment variable to enable protection
+- When enabled, requests must include the `X-Analytics-Key` header
+- If not configured, the endpoint is publicly accessible
 
 ## Endpoints
 
@@ -180,6 +213,7 @@ Duty cycle values are percentages (0-100) and must sum to ~100.
 ```json
 {
   "sessionId": "550e8400-e29b-41d4-a716-446655440000",
+  "sessionSecret": "abc123xyz...",
   "status": "completed",
   "wizardData": {...},
   "results": [...],
@@ -189,6 +223,8 @@ Duty cycle values are percentages (0-100) and must sum to ~100.
   "lastCalculatedAt": "2025-11-10T21:30:00Z"
 }
 ```
+
+**Important:** The `sessionSecret` is returned **only once** on creation. Store it securely - it's required for subsequent GET/PUT requests.
 
 **Status Code:** `201 Created`
 
@@ -202,6 +238,9 @@ Retrieve a saved session by ID.
 
 **Parameters:**
 - `session_id` (path): UUID of the session
+
+**Headers:**
+- `X-Session-Secret` (required): The session secret returned on creation
 
 **Response:**
 ```json
@@ -218,7 +257,9 @@ Retrieve a saved session by ID.
 ```
 
 **Error Responses:**
+- `403 Forbidden` - Invalid or missing session secret
 - `404 Not Found` - Session ID does not exist
+- `422 Unprocessable Entity` - Invalid UUID format
 
 #### Update Session
 
@@ -230,6 +271,9 @@ Update an existing session with new data.
 
 **Parameters:**
 - `session_id` (path): UUID of the session
+
+**Headers:**
+- `X-Session-Secret` (required): The session secret returned on creation
 
 **Request Body:**
 ```json
@@ -256,7 +300,9 @@ Update an existing session with new data.
 ```
 
 **Error Responses:**
+- `403 Forbidden` - Invalid or missing session secret
 - `404 Not Found` - Session ID does not exist
+- `422 Unprocessable Entity` - Invalid UUID format or validation error
 
 ---
 
@@ -269,6 +315,9 @@ GET /api/v1/analytics/summary
 ```
 
 Retrieve aggregated analytics across all sessions.
+
+**Headers (if `ANALYTICS_API_KEY` is configured):**
+- `X-Analytics-Key` (required): The configured analytics API key
 
 **Response:**
 ```json
@@ -303,14 +352,30 @@ All errors follow a consistent format:
 - `200 OK` - Request succeeded
 - `201 Created` - Resource created successfully
 - `400 Bad Request` - Invalid request parameters
+- `403 Forbidden` - Invalid or missing session secret
 - `404 Not Found` - Resource not found
+- `413 Request Entity Too Large` - Request body exceeds 1MB limit
+- `422 Unprocessable Entity` - Validation error (invalid UUID format, invalid vehicle ID, invalid scenario, etc.)
+- `429 Too Many Requests` - Rate limit exceeded
 - `500 Internal Server Error` - Server error
 
 ---
 
 ## Rate Limiting
 
-Currently, there is no rate limiting implemented. For production deployments, consider implementing rate limiting at the infrastructure level.
+Rate limiting is implemented via [slowapi](https://github.com/laurentS/slowapi) with configurable limits per endpoint type:
+
+| Endpoint Type | Default Limit | Environment Variable |
+|---------------|---------------|---------------------|
+| Sessions | 30/minute | `RATE_LIMIT_SESSIONS_PER_MINUTE` |
+| Analytics | 10/minute | `RATE_LIMIT_ANALYTICS_PER_MINUTE` |
+| Vehicles | 60/minute | `RATE_LIMIT_VEHICLES_PER_MINUTE` |
+
+When rate limited, the API returns `429 Too Many Requests` with a `Retry-After` header.
+
+### Request Size Limits
+
+A maximum request body size of 1MB is enforced. Requests exceeding this limit receive `413 Request Entity Too Large`.
 
 ---
 

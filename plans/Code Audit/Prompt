@@ -1,9 +1,0 @@
-Please create a new worktree for Phase 3 of /Users/ed/Developer/MyBuild/plans/Code Audit/Implementation.md. And then take the following steps:
-
-  1. Review /Users/ed/Developer/MyBuild/plans/Code Audit/GPT.md for context on the code remediation and update we're undertaking.
-  2. Implement phase 3 stream C of /Users/ed/Developer/MyBuild/plans/Code Audit/Implementation.md - use the SERENA MCP available to you, and Opus 4.5 Sub-agents where necessary.
-  3. Update any tests or documentation if necessary.
-  4. Activate the venv and run all tests and lint to ensure they pass.
-  5. Create a pull request for the changes you've made.
-  6. Optional: Update AGENTs.md, Claude.md and Serena memories with any relevant learnings about the codebase.
-  7. Close the work-tree you created for this phase.

@@ -13,7 +13,10 @@ Task tool calls must include: model: "opus"
 A web platform for comparing Total Cost of Ownership (TCO) of battery-electric vehicles (BEV) versus diesel trucks over a 15-year lifecycle. Built for truck operators, fleet managers, and the Transport Workers Union (TWU).
 
 **Key features:**
-- Interactive 3-step wizard (vehicle selection, operating profile, cost assumptions)
+- Interactive 3-step wizard:
+  1. Select your diesel truck
+  2. Select electric trucks to compare
+  3. Configure operating profile/cost assumptions and view results
 - 14 cost components including purchase, financing, fuel, maintenance, battery replacement, residual value
 - Scenario modeling (baseline, technology breakthrough, oil crisis)
 - Visual insights with cost-per-km charts, payback timelines, cost breakdowns
@@ -30,9 +33,11 @@ Always use `bun` instead of `npm` or `yarn` for frontend operations.
 - Vite build tool
 - TailwindCSS for styling
 - Zustand for state management
+- React Query (@tanstack/react-query) for server state
 - React Hook Form + Zod for validation
 - Recharts for data visualization
-- Vitest for testing
+- react-hot-toast for notifications
+- Vitest for testing (Playwright for E2E)
 
 ### Backend
 - FastAPI (Python)
@@ -50,30 +55,37 @@ Always use `bun` instead of `npm` or `yarn` for frontend operations.
 ```
 .
 ├── backend/              # FastAPI backend
+│   ├── alembic/          # Database migrations
 │   ├── app/
 │   │   ├── api/          # API routes
-│   │   ├── core/         # Config and cache
+│   │   ├── core/         # Config, cache, security, middleware
 │   │   ├── db/           # Models and session
 │   │   ├── models/       # Pydantic schemas
 │   │   └── services/     # Business logic
 ├── frontend/             # React + TypeScript
 │   ├── src/
-│   │   ├── components/   # UI components (wizard, results, shared)
+│   │   ├── components/   # UI components (wizard, results, shared, layout)
 │   │   ├── hooks/        # React hooks
 │   │   ├── pages/        # Route pages
 │   │   ├── services/     # API clients
-│   │   └── state/        # Zustand store
+│   │   ├── state/        # Zustand store
+│   │   └── test/         # Vitest test files
+│   └── e2e/              # Playwright E2E tests
 ├── shared/               # Shared TypeScript code
 │   ├── calculator/       # TCO engine (source of truth)
-│   ├── data/             # Generated from Python
+│   │   └── verification_data.json  # Python-generated test fixtures
+│   ├── data/             # Generated from Python + manual constants
+│   │   ├── *.generated.ts  # Auto-generated (don't edit)
+│   │   └── constants.future.ts  # Manually maintained
 │   └── types/            # TypeScript type definitions
 ├── data/                 # Authoritative Python data layer
 │   ├── constants.py
 │   ├── policies.py
 │   ├── scenarios.py
 │   └── vehicles.py
-├── scripts/              # Code generation utilities
-└── tests/                # Backend test suite
+├── scripts/              # Code generation and validation utilities
+├── tests/                # Backend test suite
+└── archive/              # Historical docs and legacy Python engine
 ```
 
 ## Key Commands
@@ -105,6 +117,11 @@ pytest tests/ --cov                # Run tests with coverage
 **Data Generation (run when modifying data/*.py):**
 ```bash
 python scripts/generate_vehicle_catalog_ts.py
+# Generates 4 files in shared/data/:
+# - vehicleCatalog.ts (vehicle specs)
+# - constants.generated.ts (calculation constants)
+# - scenarios.ts (economic scenarios)
+# - policies.ts (rebates, carbon pricing)
 ```
 
 ## Code Style

@@ -130,9 +130,12 @@ python scripts/generate_vehicle_catalog_ts.py
 - **Vite** - Build tool and dev server
 - **TailwindCSS** - Styling
 - **Zustand** - State management
+- **React Query** - Server state management
 - **React Hook Form + Zod** - Form validation
 - **Recharts** - Data visualization
-- **Vitest** - Testing
+- **react-hot-toast** - Notifications
+- **Vitest** - Unit testing
+- **Playwright** - E2E testing
 
 ### Backend
 - **FastAPI** - Python web framework
@@ -173,7 +176,11 @@ The test suite includes:
 
 Run all tests:
 ```bash
+# Unit tests
 cd frontend && bun test
+
+# E2E tests (requires dev server running)
+cd frontend && bunx playwright test
 ```
 
 ## Database Migrations
@@ -249,7 +256,7 @@ Dependencies are automatically audited in CI on every push and PR:
 pip-audit -r requirements.txt -r backend/requirements.txt
 
 # Run frontend dependency audit locally
-cd frontend && npm audit
+cd frontend && bun pm audit
 ```
 
 The CI workflow runs weekly scheduled scans to detect newly disclosed vulnerabilities.
@@ -262,7 +269,7 @@ The CI workflow runs weekly scheduled scans to detect newly disclosed vulnerabil
 # Backend tests
 pytest tests/ --cov
 
-# Frontend tests (all)
+# Frontend unit tests (all)
 cd frontend
 bun test
 
@@ -273,6 +280,14 @@ bun test verification.test.ts
 # Run with coverage
 cd frontend
 bun test --coverage
+
+# E2E tests (requires dev server running on localhost:5000)
+cd frontend
+bunx playwright test
+
+# E2E tests with UI mode (for debugging)
+cd frontend
+bunx playwright test --ui
 ```
 
 ### Code Quality
