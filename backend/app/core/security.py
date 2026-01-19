@@ -7,19 +7,26 @@ SEC-008: Rate limiting configuration for session and analytics endpoints.
 from __future__ import annotations
 
 from ipaddress import ip_address, ip_network
+import logging
 import secrets
 from typing import Optional
 
 import bcrypt
 from fastapi import HTTPException, Request, status
+
+logger = logging.getLogger(__name__)
+
 try:
     from slowapi import Limiter
     from slowapi.util import get_remote_address
+
+    _SLOWAPI_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency at runtime
     Limiter = None  # type: ignore[assignment]
     get_remote_address = None  # type: ignore[assignment]
+    _SLOWAPI_AVAILABLE = False
 
-from backend.app.core.config import settings
+from backend.app.core.config import settings  # noqa: E402
 
 
 def _is_trusted_proxy(direct_ip: str) -> bool:
@@ -77,7 +84,14 @@ class _NoopLimiter:
 
 
 # Rate limiter instance using client IP (no-op if slowapi missing)
-limiter = Limiter(key_func=get_client_ip) if Limiter else _NoopLimiter()
+if _SLOWAPI_AVAILABLE:
+    limiter = Limiter(key_func=get_client_ip)
+else:
+    logger.warning(
+        "SECURITY WARNING: slowapi not available. Rate limiting is DISABLED. "
+        "Install slowapi to enable rate limiting: pip install slowapi"
+    )
+    limiter = _NoopLimiter()
 
 
 def generate_session_secret() -> str:

@@ -81,7 +81,9 @@ def upgrade() -> None:
                 server_default=sa.func.now(),
             ),
             sa.PrimaryKeyConstraint("id"),
-            sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
+            sa.ForeignKeyConstraint(
+                ["session_id"], ["sessions.id"], ondelete="CASCADE"
+            ),
         )
 
     # Calculation results table
@@ -104,7 +106,9 @@ def upgrade() -> None:
                 server_default=sa.func.now(),
             ),
             sa.PrimaryKeyConstraint("id"),
-            sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
+            sa.ForeignKeyConstraint(
+                ["session_id"], ["sessions.id"], ondelete="CASCADE"
+            ),
         )
 
     # Operator profiles table
@@ -127,7 +131,9 @@ def upgrade() -> None:
                 server_default=sa.func.now(),
             ),
             sa.PrimaryKeyConstraint("id"),
-            sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
+            sa.ForeignKeyConstraint(
+                ["session_id"], ["sessions.id"], ondelete="CASCADE"
+            ),
             sa.UniqueConstraint("session_id"),
         )
 
@@ -146,7 +152,9 @@ def upgrade() -> None:
                 server_default=sa.func.now(),
             ),
             sa.PrimaryKeyConstraint("id"),
-            sa.ForeignKeyConstraint(["session_id"], ["sessions.id"], ondelete="CASCADE"),
+            sa.ForeignKeyConstraint(
+                ["session_id"], ["sessions.id"], ondelete="CASCADE"
+            ),
         )
 
 
