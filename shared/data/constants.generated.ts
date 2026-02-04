@@ -44,6 +44,7 @@ export const CONSTANTS: ConstantCatalog = {
   "DIESEL_PRICE": 2.05,
   "DISCOUNT_RATE": 0.05,
   "DOWN_PAYMENT_RATE": 0.2,
+  "DUTY_CYCLE_TOTAL_TOLERANCE": 0.5,
   "FINANCING_TERM": 5,
   "FREIGHT_RATE_PER_TONNE_KM": {
     "Articulated": 0.08,

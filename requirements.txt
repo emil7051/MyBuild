@@ -3,7 +3,7 @@
 # Install with: pip install -r requirements.txt
 # For development tools: pip install -r requirements-dev.txt
 
-# --- Backend Runtime (mirrors backend/requirements.txt) ---
+# --- Backend Runtime (canonical list; backend/requirements.txt re-exports this) ---
 
 # Web framework
 fastapi==0.128.0

@@ -6,12 +6,27 @@ import type {
   CalculationResponsePayload,
   ComparisonRequestPayload,
 } from '@shared/types/tco.types';
-import {
-  createSession,
-  updateSession,
-} from '@services/api';
+import { createSession, updateSession } from '@services/api';
 import { useTCOStore } from '@state/tcoStore';
 import { buildSessionPayload } from '@utils/payload';
+
+const stableStringify = (value: unknown): string => {
+  if (value === undefined || value === null) {
+    return 'null';
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`;
+  }
+  if (typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) =>
+      a.localeCompare(b)
+    );
+    return `{${entries
+      .map(([key, val]) => `${JSON.stringify(key)}:${stableStringify(val)}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+};
 
 export const useCalculationRunner = () => {
   const setResults = useTCOStore((state) => state.setResults);
@@ -26,6 +41,10 @@ export const useCalculationRunner = () => {
   const pendingSessionId = useRef<string | null>(null);
   // Ref to store pending payload while session is being created
   const pendingPayload = useRef<CalculationResponsePayload[] | null>(null);
+  const lastComparisonHash = useRef<string | null>(null);
+  const inflightComparisonHash = useRef<string | null>(null);
+  const lastSingleHash = useRef<string | null>(null);
+  const inflightSingleHash = useRef<string | null>(null);
 
   const persistSession = useCallback(
     async (data: CalculationResponsePayload[]) => {
@@ -70,37 +89,20 @@ export const useCalculationRunner = () => {
 
   const comparisonMutation = useMutation({
     mutationFn: async (payload: ComparisonRequestPayload) => {
-      console.log('[comparisonMutation] Starting calculation with payload:', {
-        vehicle_ids: payload.vehicle_ids,
-        duty_cycle: payload.duty_cycle,
-        scenario_name: payload.scenario_name,
-        purchase_method: payload.purchase_method,
-      });
-
       // Capture request context before starting calculation
       const requestId = getNextRequestId();
       const vehicleOrder = payload.vehicle_ids;
       const data = await calculateComparison(payload);
-
-      console.log('[comparisonMutation] Calculation complete, results:', data.map(r => ({
-        vehicle_id: r.vehicle_id,
-        total_cost: r.total_cost,
-        cost_per_km: r.cost_per_km,
-      })));
-
       return { data, requestId, vehicleOrder };
     },
     onMutate: () => {
-      console.log('[comparisonMutation] onMutate - setting isCalculating=true');
       setIsCalculating(true);
     },
     onSuccess: ({ data, requestId, vehicleOrder }) => {
-      console.log('[comparisonMutation] onSuccess - setting results, requestId:', requestId);
       setResults(data, requestId, vehicleOrder);
       void persistSession(data);
     },
     onSettled: () => {
-      console.log('[comparisonMutation] onSettled - setting isCalculating=false');
       setIsCalculating(false);
     },
   });
@@ -122,8 +124,44 @@ export const useCalculationRunner = () => {
   });
 
   return {
-    runComparison: comparisonMutation.mutateAsync,
-    runSingle: singleMutation.mutateAsync,
+    runComparison: useCallback(
+      async (payload: ComparisonRequestPayload) => {
+        const hash = stableStringify(payload);
+        if (hash === lastComparisonHash.current || hash === inflightComparisonHash.current) {
+          return;
+        }
+        inflightComparisonHash.current = hash;
+        try {
+          const result = await comparisonMutation.mutateAsync(payload);
+          lastComparisonHash.current = hash;
+          return result;
+        } finally {
+          if (inflightComparisonHash.current === hash) {
+            inflightComparisonHash.current = null;
+          }
+        }
+      },
+      [comparisonMutation]
+    ),
+    runSingle: useCallback(
+      async (payload: CalculationRequestPayload) => {
+        const hash = stableStringify(payload);
+        if (hash === lastSingleHash.current || hash === inflightSingleHash.current) {
+          return;
+        }
+        inflightSingleHash.current = hash;
+        try {
+          const result = await singleMutation.mutateAsync(payload);
+          lastSingleHash.current = hash;
+          return result;
+        } finally {
+          if (inflightSingleHash.current === hash) {
+            inflightSingleHash.current = null;
+          }
+        }
+      },
+      [singleMutation]
+    ),
     comparisonStatus: comparisonMutation.status,
     singleStatus: singleMutation.status,
   };

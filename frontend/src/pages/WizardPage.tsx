@@ -94,11 +94,6 @@ const WizardPage = () => {
   // Only syncs user changes back to store, with debounce to avoid rapid updates
   const syncToStore = useCallback(
     (values: WizardFormValues) => {
-      console.log('[syncToStore] Updating store with:', {
-        dutyCycle: values.dutyCycle,
-        scenario: values.scenario,
-        purchaseMethod: values.purchaseMethod,
-      });
       updateWizard({
         scenario: values.scenario,
         purchaseMethod: values.purchaseMethod,
@@ -110,9 +105,7 @@ const WizardPage = () => {
   );
 
   useEffect(() => {
-    const subscription = formMethods.watch((values, { name, type }) => {
-      console.log('[Form Watch]', { name, type, dutyCycle: values.dutyCycle });
-
+    const subscription = formMethods.watch((values) => {
       // Always cancel pending debounce on any watch event
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
@@ -125,13 +118,11 @@ const WizardPage = () => {
         values.dutyCycle?.regional === undefined ||
         values.dutyCycle?.longHaul === undefined
       ) {
-        console.log('[Form Watch] Skipping - undefined duty cycle values');
         return;
       }
 
       // Debounce store updates to avoid rapid re-renders during typing
       debounceRef.current = setTimeout(() => {
-        console.log('[Form Watch] Syncing to store:', values.dutyCycle);
         syncToStore(values as WizardFormValues);
       }, 150);
     });

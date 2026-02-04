@@ -1,7 +1,6 @@
 """Pydantic models for session persistence and analytics endpoints.
 
 API-007: Server-side payload validation for vehicleId, scenario, email, length.
-SEC-005: Session access-control secret support.
 """
 
 from __future__ import annotations
@@ -17,9 +16,11 @@ from backend.app.models.calculation import (
     CostOverride,
     VehicleParamOverride,
 )
+from data.constants import DUTY_CYCLE_TOTAL_TOLERANCE
+from data.scenarios import SCENARIOS
 
-# Valid scenarios (must match frontend wizardForm.ts and data/scenarios.py)
-VALID_SCENARIOS = {"baseline", "technology_breakthrough", "oil_crisis"}
+# Valid scenarios sourced from data/scenarios.py
+VALID_SCENARIOS = set(SCENARIOS.keys())
 
 # Email regex pattern (RFC 5322 simplified)
 EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
@@ -98,7 +99,7 @@ class WizardDataPayload(BaseModel):
 
     @model_validator(mode="after")
     def _validate_duty_cycle(self) -> "WizardDataPayload":
-        if abs(self.duty_cycle.total() - 100) > 0.5:
+        if abs(self.duty_cycle.total() - 100) > DUTY_CYCLE_TOTAL_TOLERANCE:
             raise ValueError("Duty cycle splits must sum to ~100%.")
         return self
 
@@ -215,35 +216,10 @@ class SessionResponse(BaseModel):
     }
 
 
-class SessionCreateResponse(BaseModel):
-    """Response for session creation with one-time session secret (SEC-005).
+class SessionCreateResponse(SessionResponse):
+    """Response for session creation."""
 
-    The session_secret is returned only once at creation time. Clients must store
-    it securely as it's required for subsequent GET/PUT requests. The server
-    stores only a bcrypt hash of this secret.
-    """
-
-    session_id: str = Field(alias="sessionId")
-    status: str
-    wizard_data: WizardDataPayload = Field(alias="wizardData")
-    results: List[CalculationResponse] = Field(default_factory=list)
-    operator_profile: Optional[OperatorProfilePayload] = Field(
-        default=None, alias="operatorProfile"
-    )
-    feedback: Optional[FeedbackPayload] = None
-    updated_at: datetime = Field(alias="updatedAt")
-    last_calculated_at: Optional[datetime] = Field(
-        default=None, alias="lastCalculatedAt"
-    )
-    session_secret: Optional[str] = Field(
-        default=None,
-        alias="sessionSecret",
-        description="One-time session secret. Store securely; required for access.",
-    )
-
-    model_config = {
-        "populate_by_name": True,
-    }
+    pass
 
 
 class AnalyticsSummary(BaseModel):

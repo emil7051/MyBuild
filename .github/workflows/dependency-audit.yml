@@ -49,23 +49,11 @@ jobs:
             exit 1
           fi
 
-      - name: Audit backend/requirements.txt
-        run: |
-          echo "Auditing backend/requirements.txt..."
-          python -m pip_audit -r backend/requirements.txt --strict --desc on || AUDIT_FAILED=1
-
-          if [ "$AUDIT_FAILED" = "1" ]; then
-            echo ""
-            echo "::error::Vulnerabilities found in backend/requirements.txt"
-            echo "Review the vulnerabilities above and update affected packages."
-            exit 1
-          fi
-
       - name: Generate SBOM (optional artifact)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           python -m pip install cyclonedx-bom
-          python -m pip install -r requirements.txt -r backend/requirements.txt
+          python -m pip install -r requirements.txt
           cyclonedx-py environment -o sbom-python.json --format json || true
 
       - name: Upload Python SBOM

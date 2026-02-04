@@ -25,14 +25,10 @@ class Settings(BaseSettings):
     )
     redis_url: Optional[str] = Field(
         default="redis://localhost:6379/0",
-        description="Redis connection string for session caching.",
+        description="Redis connection string for session caching (omit to disable).",
     )
     session_ttl_seconds: int = Field(
         default=1800, ge=60, description="TTL for cached wizard sessions in Redis."
-    )
-    cache_results: bool = Field(
-        default=False,
-        description="Enable caching of calculation results in Redis.",
     )
 
     # Security settings (Phase 4 / SEC-004, SEC-007, SEC-008)

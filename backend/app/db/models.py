@@ -29,10 +29,8 @@ def _uuid_str() -> str:
 class SessionRecord(Base):
     """Session record with wizard state and optional access control secret.
 
-    The session_secret_hash column stores a bcrypt hash of a per-session access
-    secret for protecting session data containing PII (contact email, notes).
-    New sessions should generate a secret on creation; existing sessions without
-    a secret maintain backward compatibility but offer weaker access control.
+    The session_secret_hash column is retained for potential future access
+    control but is not enforced by current session flows.
     """
 
     __tablename__ = "sessions"
@@ -45,7 +43,7 @@ class SessionRecord(Base):
     status: Mapped[str] = mapped_column(String(20), default="draft", nullable=False)
     wizard_state: Mapped[dict | None] = mapped_column(JSON, default=dict)
     cached_results: Mapped[list | None] = mapped_column(JSON, default=list)
-    # Bcrypt hash of session access secret for PII protection (SEC-005/DB-002)
+    # Bcrypt hash of session access secret reserved for optional PII protection
     session_secret_hash: Mapped[str | None] = mapped_column(
         String(128), nullable=True, comment="Bcrypt hash of session access secret"
     )
@@ -87,7 +85,7 @@ class UserInputRecord(Base):
     session_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False
     )
-    vehicle_id: Mapped[str] = mapped_column(String(16), nullable=False)
+    vehicle_id: Mapped[str] = mapped_column(String(32), nullable=False)
     scenario_name: Mapped[str] = mapped_column(String(64), nullable=False)
     purchase_method: Mapped[str] = mapped_column(String(16), nullable=False)
     overrides: Mapped[dict | None] = mapped_column(JSON)
@@ -119,7 +117,7 @@ class CalculationResultRecord(Base):
     session_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False
     )
-    vehicle_id: Mapped[str] = mapped_column(String(16), nullable=False)
+    vehicle_id: Mapped[str] = mapped_column(String(32), nullable=False)
     scenario_name: Mapped[str] = mapped_column(String(64), nullable=False)
     purchase_method: Mapped[str] = mapped_column(String(16), nullable=False)
     result_payload: Mapped[dict] = mapped_column(JSON, nullable=False)

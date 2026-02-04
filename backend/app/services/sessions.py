@@ -1,6 +1,5 @@
 """Session persistence and analytics services.
 
-SEC-005: Session access-control secret generation and verification.
 API-003: Override shape normalization for consistent storage.
 API-006: SQL-optimized analytics aggregation.
 """
@@ -15,11 +14,6 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.cache import cache_session, get_cached_session
-from backend.app.core.security import (
-    generate_session_secret,
-    hash_secret,
-    verify_secret,
-)
 from backend.app.db.models import (
     CalculationResultRecord,
     FeedbackRecord,
@@ -47,18 +41,13 @@ class SessionService:
     async def create_session(
         self, db: AsyncSession, payload: SessionCreate
     ) -> SessionCreateResponse:
-        """Create a new session with access-control secret (SEC-005)."""
+        """Create a new session."""
         now = datetime.now(timezone.utc)
-
-        # Generate session secret (SEC-005)
-        session_secret = generate_session_secret()
-        secret_hash = hash_secret(session_secret)
 
         record = SessionRecord(
             status="completed" if payload.results else "draft",
             wizard_state=self._wizard_to_json(payload.wizard_data),
             cached_results=self._results_to_json(payload.results or []),
-            session_secret_hash=secret_hash,  # Store only the hash
             last_calculated_at=now if payload.results else None,
         )
         db.add(record)
@@ -80,33 +69,18 @@ class SessionService:
         response = await self._build_response(db, record.id)
         await cache_session(record.id, response.model_dump(by_alias=True))
 
-        # Return response with one-time session secret
-        return SessionCreateResponse(
-            session_id=response.session_id,
-            status=response.status,
-            wizard_data=response.wizard_data,
-            results=response.results,
-            operator_profile=response.operator_profile,
-            feedback=response.feedback,
-            updated_at=response.updated_at,
-            last_calculated_at=response.last_calculated_at,
-            session_secret=session_secret,  # One-time reveal
-        )
+        return SessionCreateResponse.model_validate(response.model_dump(by_alias=True))
 
     async def update_session(
         self,
         db: AsyncSession,
         session_id: str,
         payload: SessionUpdate,
-        session_secret: Optional[str] = None,
     ) -> SessionResponse:
-        """Update an existing session with secret verification (SEC-005)."""
+        """Update an existing session."""
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
-
-        # Verify session secret if session has one (SEC-005)
-        self._verify_session_access(record, session_secret)
 
         if payload.wizard_data:
             record.wizard_state = self._wizard_to_json(payload.wizard_data)
@@ -147,16 +121,12 @@ class SessionService:
         self,
         db: AsyncSession,
         session_id: str,
-        session_secret: Optional[str] = None,
     ) -> SessionResponse:
-        """Retrieve a session with secret verification (SEC-005)."""
-        # Check cache first (but still need to verify secret)
+        """Retrieve a session."""
+        # Check cache first
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
-
-        # Verify session secret if session has one (SEC-005)
-        self._verify_session_access(record, session_secret)
 
         cached = await get_cached_session(session_id)
         if cached:
@@ -167,24 +137,6 @@ class SessionService:
         response = await self._build_response(db, session_id)
         await cache_session(session_id, response.model_dump(by_alias=True))
         return response
-
-    def _verify_session_access(
-        self, record: SessionRecord, session_secret: Optional[str]
-    ) -> None:
-        """Verify session access with secret (SEC-005).
-
-        For backward compatibility, sessions without a secret hash
-        are accessible without authentication.
-        """
-        if record.session_secret_hash is None:
-            # Legacy session without access control
-            return
-
-        if session_secret is None:
-            raise PermissionError("Session access requires X-Session-Secret header.")
-
-        if not verify_secret(session_secret, record.session_secret_hash):
-            raise PermissionError("Invalid session secret.")
 
     async def analytics_summary(self, db: AsyncSession) -> AnalyticsSummary:
         """Get analytics summary using SQL aggregation (API-006)."""

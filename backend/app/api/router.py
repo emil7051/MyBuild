@@ -5,10 +5,10 @@ SEC-007: Analytics endpoint restricted to backend-only access via API key.
 SEC-008: Rate limiting for session, analytics, and vehicle catalog endpoints.
 """
 
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.config import settings
@@ -88,9 +88,7 @@ async def create_session(
 ) -> SessionCreateResponse:
     """Create a new session.
 
-    Returns the session data including a one-time session secret (SEC-005).
-    The secret must be stored securely by the client and provided on
-    subsequent GET/PUT requests via the X-Session-Secret header.
+    Returns the session data for persistence and resume.
     """
     try:
         return await _session_service.create_session(db, payload)
@@ -109,24 +107,16 @@ async def update_session(
     session_id: str,
     payload: SessionUpdate,
     db: AsyncSession = Depends(get_db_session),
-    x_session_secret: Optional[str] = Header(None, alias="X-Session-Secret"),
 ) -> SessionResponse:
     """Update an existing session.
-
-    Requires the session secret in X-Session-Secret header for sessions
-    that have access control enabled (SEC-005).
     """
     # Validate UUID format (API-002)
     validate_uuid(session_id)
 
     try:
-        return await _session_service.update_session(
-            db, session_id, payload, session_secret=x_session_secret
-        )
+        return await _session_service.update_session(db, session_id, payload)
     except KeyError as exc:  # pragma: no cover
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except PermissionError as exc:
-        raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 
 @api_router.get(
@@ -139,24 +129,16 @@ async def get_session(
     request: Request,
     session_id: str,
     db: AsyncSession = Depends(get_db_session),
-    x_session_secret: Optional[str] = Header(None, alias="X-Session-Secret"),
 ) -> SessionResponse:
     """Retrieve an existing session.
-
-    Requires the session secret in X-Session-Secret header for sessions
-    that have access control enabled (SEC-005).
     """
     # Validate UUID format (API-002)
     validate_uuid(session_id)
 
     try:
-        return await _session_service.get_session(
-            db, session_id, session_secret=x_session_secret
-        )
+        return await _session_service.get_session(db, session_id)
     except KeyError as exc:  # pragma: no cover
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except PermissionError as exc:
-        raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 
 @api_router.get(

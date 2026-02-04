@@ -253,7 +253,7 @@ Dependencies are automatically audited in CI on every push and PR:
 
 ```bash
 # Run Python dependency audit locally
-pip-audit -r requirements.txt -r backend/requirements.txt
+pip-audit -r requirements.txt
 
 # Run frontend dependency audit locally
 cd frontend && bun pm audit

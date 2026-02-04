@@ -78,6 +78,10 @@ RIGID_ANNUAL_KMS = 23000  # kms/year (SMVU Data)
 ART_ANNUAL_KMS = 84000  # kms/year (SMVU Data)
 WORKING_DAYS = 255  # Number of working days per year (365 * 0.70)
 
+# Validation Parameters
+
+DUTY_CYCLE_TOTAL_TOLERANCE = 0.5  # % tolerance for duty cycle sum validation
+
 # Payload Penalty - Based on BITRE freight rates
 FREIGHT_RATE_PER_TONNE_KM = {
     "Light Rigid": 0.25,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)

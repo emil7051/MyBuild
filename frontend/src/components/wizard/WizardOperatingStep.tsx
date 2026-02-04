@@ -6,6 +6,7 @@ import Field from '@components/shared/Field';
 import Select from '@components/shared/Select';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { purchaseOptions, scenarioOptions } from '@forms/wizardForm';
+import { DUTY_CYCLE_TOTAL_TOLERANCE } from '@shared/data/constants';
 
 const numberOrUndefined = (value: unknown): number | undefined => {
   if (value === '' || value === undefined || value === null) return undefined;
@@ -18,7 +19,7 @@ const WizardOperatingStep = () => {
     register,
     watch,
     control,
-    formState: { errors, dirtyFields, touchedFields },
+    formState: { errors },
   } = useFormContext<WizardFormValues>();
   const scenario = watch('scenario');
   const scenarioMeta = scenarioOptions.find((option) => option.value === scenario);
@@ -29,20 +30,11 @@ const WizardOperatingStep = () => {
   const regional = useWatch({ control, name: 'dutyCycle.regional', defaultValue: 25 });
   const longHaul = useWatch({ control, name: 'dutyCycle.longHaul', defaultValue: 15 });
 
-  // Comprehensive debug logging
-  console.log('[WizardOperatingStep] Render', {
-    watchedValues: { urban, regional, longHaul },
-    errors: errors.dutyCycle,
-    dirtyFields: dirtyFields.dutyCycle,
-    touchedFields: touchedFields.dutyCycle,
-    formValues: control._formValues?.dutyCycle,
-  });
-
   // Calculate sum with safe number conversion
   const dutyCycleSum = useMemo(() => {
     return (Number(urban) || 0) + (Number(regional) || 0) + (Number(longHaul) || 0);
   }, [urban, regional, longHaul]);
-  const isDutyCycleValid = Math.abs(dutyCycleSum - 100) < 0.01;
+  const isDutyCycleValid = Math.abs(dutyCycleSum - 100) <= DUTY_CYCLE_TOTAL_TOLERANCE;
 
   return (
     <Card
@@ -94,7 +86,6 @@ const WizardOperatingStep = () => {
             error={errors.dutyCycle?.urban?.message}
             {...register('dutyCycle.urban', {
               setValueAs: numberOrUndefined,
-              onChange: (e) => console.log('[Field onChange] urban:', e.target.value, '→', numberOrUndefined(e.target.value)),
             })}
           />
           <Field
@@ -106,7 +97,6 @@ const WizardOperatingStep = () => {
             error={errors.dutyCycle?.regional?.message}
             {...register('dutyCycle.regional', {
               setValueAs: numberOrUndefined,
-              onChange: (e) => console.log('[Field onChange] regional:', e.target.value, '→', numberOrUndefined(e.target.value)),
             })}
           />
           <Field
@@ -118,7 +108,6 @@ const WizardOperatingStep = () => {
             error={errors.dutyCycle?.longHaul?.message}
             {...register('dutyCycle.longHaul', {
               setValueAs: numberOrUndefined,
-              onChange: (e) => console.log('[Field onChange] longHaul:', e.target.value, '→', numberOrUndefined(e.target.value)),
             })}
           />
         </div>

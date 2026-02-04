@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { DUTY_CYCLE_TOTAL_TOLERANCE } from '@shared/data/constants';
+import { SCENARIO_DEFINITIONS } from '@shared/data/scenarios';
 import type { DutyCycle, PurchaseMethod, ScenarioKey } from '@shared/types/tco.types';
 
 export interface ScenarioOption {
@@ -7,26 +9,16 @@ export interface ScenarioOption {
   description: string;
 }
 
-export const scenarioOptions: ScenarioOption[] = [
-  {
-    value: 'baseline',
-    label: 'Current trends',
-    description:
-      'Fuel prices rise 2-3% per year, maintenance costs follow typical patterns, battery prices stay similar.',
-  },
-  {
-    value: 'technology_breakthrough',
-    label: 'Fast EV progress',
-    description:
-      'Battery costs drop faster, electric trucks become more efficient, maintenance savings grow.',
-  },
-  {
-    value: 'oil_crisis',
-    label: 'High fuel prices',
-    description:
-      'Diesel prices spike from year 3, more price swings, electricity costs rise steadily at 3% per year.',
-  },
-];
+const scenarioKeys = Object.keys(SCENARIO_DEFINITIONS) as ScenarioKey[];
+
+export const scenarioOptions: ScenarioOption[] = scenarioKeys.map((key) => {
+  const scenario = SCENARIO_DEFINITIONS[key];
+  return {
+    value: key,
+    label: scenario.name,
+    description: scenario.description,
+  };
+});
 
 export const purchaseOptions: { value: PurchaseMethod; label: string }[] = [
   { value: 'financed', label: 'Financed' },
@@ -56,7 +48,7 @@ const dutyCycleSchema = z
   })
   .superRefine((values, ctx) => {
     const total = values.urban + values.regional + values.longHaul;
-    if (Math.round(total) !== 100) {
+    if (Math.abs(total - 100) > DUTY_CYCLE_TOTAL_TOLERANCE) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Duty cycle must add up to 100%.',
@@ -132,7 +124,7 @@ export const vehicleParamOverridesSchema = z.object({
 export type VehicleParamOverridesValidated = z.infer<typeof vehicleParamOverridesSchema>;
 
 export const wizardFormSchema = z.object({
-  scenario: z.enum(['baseline', 'technology_breakthrough', 'oil_crisis']),
+  scenario: z.enum(scenarioKeys as [ScenarioKey, ...ScenarioKey[]]),
   purchaseMethod: z.enum(['financed', 'outright']),
   dutyCycle: dutyCycleSchema.default({
     urban: 60,

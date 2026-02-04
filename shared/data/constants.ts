@@ -19,5 +19,10 @@
 export { CONSTANTS } from './constants.generated';
 export type { ConstantCatalog } from '../types/tco.types';
 
+export const DUTY_CYCLE_TOTAL_TOLERANCE =
+  typeof CONSTANTS.DUTY_CYCLE_TOTAL_TOLERANCE === 'number'
+    ? CONSTANTS.DUTY_CYCLE_TOTAL_TOLERANCE
+    : 0.5;
+
 // Re-export manually maintained future constants
 export { FUTURE_CONSTANTS } from './constants.future';

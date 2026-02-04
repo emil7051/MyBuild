@@ -1,6 +1,5 @@
-"""Security utilities for session access control and rate limiting.
+"""Security utilities for rate limiting and optional access control helpers.
 
-SEC-005: Session access-control secret generation and verification.
 SEC-008: Rate limiting configuration for session and analytics endpoints.
 """
 
@@ -9,7 +8,6 @@ from __future__ import annotations
 from ipaddress import ip_address, ip_network
 import logging
 import secrets
-from typing import Optional
 
 import bcrypt
 from fastapi import HTTPException, Request, status
@@ -130,14 +128,6 @@ def verify_secret(secret: str, hashed: str) -> bool:
         return bcrypt.checkpw(secret.encode("utf-8"), hashed.encode("utf-8"))
     except Exception:
         return False
-
-
-def get_session_secret_header(request: Request) -> Optional[str]:
-    """Extract session secret from request header.
-
-    The secret can be provided via the X-Session-Secret header.
-    """
-    return request.headers.get("X-Session-Secret")
 
 
 def verify_analytics_api_key(request: Request) -> None:
