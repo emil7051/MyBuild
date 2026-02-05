@@ -49,7 +49,13 @@ def disable_redis_cache(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _noop_get(*_args, **_kwargs):
         return None
 
-    monkeypatch.setattr(cache_module, "redis_client", None)
+    async def _noop_client():
+        return None
+
+    monkeypatch.setattr(cache_module, "_redis_client", None, raising=False)
+    monkeypatch.setattr(cache_module, "_next_retry_at", 0.0, raising=False)
+    monkeypatch.setattr(cache_module, "_get_redis_client", _noop_client, raising=False)
+    monkeypatch.setattr(cache_module.settings, "redis_url", None, raising=False)
     monkeypatch.setattr(sessions_module, "cache_session", _noop_cache)
     monkeypatch.setattr(sessions_module, "get_cached_session", _noop_get)
 
