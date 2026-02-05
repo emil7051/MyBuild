@@ -19,6 +19,7 @@ describe('TCO Store State Management', () => {
       results: [],
       isCalculating: false,
       sessionId: undefined,
+      sessionSecret: undefined,
       latestRequestId: 0,
     });
   });
@@ -238,6 +239,24 @@ describe('TCO Store State Management', () => {
       store.setSessionId(undefined);
 
       expect(useTCOStore.getState().sessionId).toBeUndefined();
+    });
+
+    it('should set session secret', () => {
+      const store = useTCOStore.getState();
+
+      store.setSessionSecret('test-secret-abc');
+
+      expect(useTCOStore.getState().sessionSecret).toBe('test-secret-abc');
+    });
+
+    it('should clear session secret when session is cleared', () => {
+      const store = useTCOStore.getState();
+
+      store.setSessionId('test-session-123');
+      store.setSessionSecret('test-secret-abc');
+      store.setSessionId(undefined);
+
+      expect(useTCOStore.getState().sessionSecret).toBeUndefined();
     });
   });
 

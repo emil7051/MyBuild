@@ -33,14 +33,18 @@ async def _create_session(session_factory, payload):
         return await SessionService().create_session(session, payload)
 
 
-async def _update_session(session_factory, session_id, payload):
+async def _update_session(session_factory, session_id, payload, session_secret=None):
     async with session_factory() as session:
-        return await SessionService().update_session(session, session_id, payload)
+        return await SessionService().update_session(
+            session, session_id, payload, session_secret
+        )
 
 
-async def _get_session(session_factory, session_id):
+async def _get_session(session_factory, session_id, session_secret=None):
     async with session_factory() as session:
-        return await SessionService().get_session(session, session_id)
+        return await SessionService().get_session(
+            session, session_id, session_secret
+        )
 
 
 async def _fetch_inputs(session_factory):
@@ -149,6 +153,7 @@ def test_session_service_update_clears_results(async_session_factory) -> None:
             async_session_factory,
             response.session_id,
             update_payload,
+            response.session_secret,
         )
     )
     assert updated.status == "draft"

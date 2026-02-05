@@ -14,6 +14,11 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.cache import cache_session, get_cached_session
+from backend.app.core.security import (
+    generate_session_secret,
+    hash_secret,
+    verify_session_secret,
+)
 from backend.app.db.models import (
     CalculationResultRecord,
     FeedbackRecord,
@@ -43,12 +48,14 @@ class SessionService:
     ) -> SessionCreateResponse:
         """Create a new session."""
         now = datetime.now(timezone.utc)
+        session_secret = generate_session_secret()
 
         record = SessionRecord(
             status="completed" if payload.results else "draft",
             wizard_state=self._wizard_to_json(payload.wizard_data),
             cached_results=self._results_to_json(payload.results or []),
             last_calculated_at=now if payload.results else None,
+            session_secret_hash=hash_secret(session_secret),
         )
         db.add(record)
         await db.flush()
@@ -69,18 +76,22 @@ class SessionService:
         response = await self._build_response(db, record.id)
         await cache_session(record.id, response.model_dump(by_alias=True))
 
-        return SessionCreateResponse.model_validate(response.model_dump(by_alias=True))
+        create_payload = response.model_dump(by_alias=True)
+        create_payload["sessionSecret"] = session_secret
+        return SessionCreateResponse.model_validate(create_payload)
 
     async def update_session(
         self,
         db: AsyncSession,
         session_id: str,
         payload: SessionUpdate,
+        session_secret: str | None = None,
     ) -> SessionResponse:
         """Update an existing session."""
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
+        verify_session_secret(session_secret, record.session_secret_hash)
 
         if payload.wizard_data:
             record.wizard_state = self._wizard_to_json(payload.wizard_data)
@@ -121,12 +132,14 @@ class SessionService:
         self,
         db: AsyncSession,
         session_id: str,
+        session_secret: str | None = None,
     ) -> SessionResponse:
         """Retrieve a session."""
         # Check cache first
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
+        verify_session_secret(session_secret, record.session_secret_hash)
 
         cached = await get_cached_session(session_id)
         if cached:

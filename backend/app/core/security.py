@@ -130,6 +130,27 @@ def verify_secret(secret: str, hashed: str) -> bool:
         return False
 
 
+def verify_session_secret(provided: str | None, hashed: str | None) -> None:
+    """Verify session secret header against stored hash.
+
+    Raises HTTPException if the secret is required and missing/invalid.
+    """
+    if not hashed:
+        return
+
+    if not provided:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session secret required. Provide X-Session-Secret header.",
+        )
+
+    if not verify_secret(provided, hashed):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid session secret.",
+        )
+
+
 def verify_analytics_api_key(request: Request) -> None:
     """Verify the analytics API key (SEC-007).
 

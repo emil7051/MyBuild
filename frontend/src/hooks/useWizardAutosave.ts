@@ -24,7 +24,9 @@ const sanitizeWizardData = (wizardData: WizardData): WizardData => {
 export const useWizardAutosave = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const sessionId = useTCOStore((state) => state.sessionId);
+  const sessionSecret = useTCOStore((state) => state.sessionSecret);
   const setSessionId = useTCOStore((state) => state.setSessionId);
+  const setSessionSecret = useTCOStore((state) => state.setSessionSecret);
   const hasHydrated = useTCOStore((state) => state._hasHydrated);
   const lastSnapshot = useRef<string>('');
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -66,6 +68,7 @@ export const useWizardAutosave = () => {
       createSession({ wizardData: payload })
         .then((response) => {
           setSessionId(response.sessionId);
+          setSessionSecret(response.sessionSecret);
           lastSnapshot.current = serialized;
           setSaveStatus('idle');
 
@@ -75,7 +78,9 @@ export const useWizardAutosave = () => {
             pendingAutosaveRef.current = null;
             const pendingSerialized = JSON.stringify(pendingData);
             if (pendingSerialized !== serialized) {
-              updateSession(response.sessionId, { wizardData: pendingData }).catch((error) => {
+              updateSession(response.sessionId, { wizardData: pendingData }, {
+                sessionSecret: response.sessionSecret,
+              }).catch((error) => {
                 console.warn('Pending autosave failed', error);
               });
               lastSnapshot.current = pendingSerialized;
@@ -110,7 +115,7 @@ export const useWizardAutosave = () => {
       lastSnapshot.current = serialized;
       setSaveStatus('saving');
 
-      updateSession(sessionId, { wizardData: payload }, signal)
+      updateSession(sessionId, { wizardData: payload }, { signal, sessionSecret })
         .then(() => {
           setSaveStatus('idle');
         })
@@ -133,7 +138,7 @@ export const useWizardAutosave = () => {
     return () => {
       clearTimeout(timer);
     };
-  }, [hasHydrated, sessionId, setSessionId, wizardData]);
+  }, [hasHydrated, sessionId, sessionSecret, setSessionId, setSessionSecret, wizardData]);
 
   // Cleanup AbortController on unmount
   useEffect(() => {
