@@ -53,7 +53,7 @@ def create_app() -> FastAPI:
         allow_origins=[str(origin) for origin in settings.backend_cors_origins],
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "OPTIONS"],
-        allow_headers=["Content-Type", "X-Analytics-Key"],
+        allow_headers=["Content-Type", "X-Analytics-Key", "X-Session-Secret"],
     )
 
     app.include_router(api_router)

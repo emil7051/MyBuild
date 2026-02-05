@@ -1,15 +1,12 @@
 **Current Priorities (Remaining)**
 | ID | Title | Impact | Effort | Risk | Owner Suggestion | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- |
-| P1 | Optimize analytics aggregation | High | High | Medium | Backend + Data | PERF-01 |
-| P2 | Review session secret storage (localStorage vs HttpOnly) | High | Medium | Medium | Frontend + Backend | SEC-02 |
-| P3 | Add Redis-backed rate limit storage | Medium | Medium | Low | Backend/Infra | SEC-04 |
-| P4 | Remove unused deps and dead code | Medium | Low | Low | Backend + Frontend | DEAD-02, DEAD-03 |
-| P5 | Resolve dual lockfile strategy | Medium | Low | Low | Frontend/Infra | DEP-01 |
-| P6 | Raise backend coverage threshold incrementally | Medium | Medium | Low | Backend | TEST-02 |
-| P7 | Guard `--reload` in production compose | Medium | Low | Low | Backend/Infra | OPS-01 |
-| P8 | Fix duty-cycle comment drift | Low | Low | Low | Frontend | MAINT-02 |
-| P9 | Deduplicate payload sanitization | Low | Low | Low | Frontend | MAINT-03 |
+| P1 | Remove unused deps and dead code | Medium | Low | Low | Backend + Frontend | DEAD-02, DEAD-03 |
+| P2 | Resolve dual lockfile strategy | Medium | Low | Low | Frontend/Infra | DEP-01 |
+| P3 | Raise backend coverage threshold incrementally | Medium | Medium | Low | Backend | TEST-02 |
+| P4 | Guard `--reload` in production compose | Medium | Low | Low | Backend/Infra | OPS-01 |
+| P5 | Fix duty-cycle comment drift | Low | Low | Low | Frontend | MAINT-02 |
+| P6 | Deduplicate payload sanitization | Low | Low | Low | Frontend | MAINT-03 |
 
 **Still-Relevant Context**
 Architecture map and data flow:
@@ -49,50 +46,13 @@ Constraints (not provided, treated as assumptions):
 **Top Remaining Risks & Hotspots**
 | Rank | Risk | Likelihood | Impact | Score | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Session secret stored in localStorage (XSS exposure risk) | 3 | 4 | 12 | `frontend/src/state/tcoStore.ts`, `frontend/src/services/api.ts` |
-| 2 | Analytics aggregation loads full table in memory | 3 | 4 | 12 | `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220` |
-| 3 | Rate limiting likely per-process only (slowapi default storage) | 3 | 3 | 9 | `backend/app/core/security.py:85` |
-| 4 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
-| 5 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `frontend/src/services/api.ts:17` |
-| 6 | Backend coverage floor is low | 2 | 3 | 6 | `.github/workflows/ci.yml:68` |
-| 7 | Compose runs backend with `--reload` | 2 | 2 | 4 | `docker-compose.yml:7` |
-| 8 | Comment drift from behavior (duty cycle validation) | 2 | 2 | 4 | `frontend/src/state/tcoStore.ts:241` |
+| 1 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `frontend/src/services/api.ts:17` |
+| 2 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
+| 3 | Backend coverage floor is low | 2 | 3 | 6 | `.github/workflows/ci.yml:68` |
+| 4 | Compose runs backend with `--reload` | 2 | 2 | 4 | `docker-compose.yml:7` |
+| 5 | Comment drift from behavior (duty cycle validation) | 2 | 2 | 4 | `frontend/src/state/tcoStore.ts:241` |
 
 **Remaining Findings**
-**Security & Privacy**
-
-**SEC-02 — Session secret stored in localStorage**
-Issue: Session secret is persisted to localStorage for resume; if XSS occurs it can be exfiltrated and used to access sessions.
-Status (2026-02-05): Implemented for resume UX alongside secret enforcement.
-Evidence:
-- Store persistence includes `sessionSecret` in `frontend/src/state/tcoStore.ts`.
-- Session API client sends `X-Session-Secret` in `frontend/src/services/api.ts`.
-Follow-up: Consider HttpOnly cookies, tighter CSP, shorter secret TTLs, or avoiding persistence when possible.
-
-**SEC-04 — Rate limiting likely per-process only (assumption)**
-Issue: slowapi limiter is instantiated without an explicit shared storage backend.
-Evidence:
-- Limiter is created with `Limiter(key_func=get_client_ip)` in `backend/app/core/security.py:85` with no storage configured.
-Impact: If slowapi defaults to in-memory storage (assumption), rate limiting will be per-process and ineffective across multiple workers or instances.
-Root cause hypothesis: Simple default configuration used for local dev.
-Recommendation: Configure slowapi with Redis storage and document it in `Settings`, or ensure a single-process deployment.
-Tradeoffs: Requires Redis availability and configuration; adds operational dependencies.
-Migration/compatibility considerations: For multi-instance deployments, configure shared storage before scaling out.
-Test/verification plan: Add a test that asserts configured storage type from settings when rate limiting is enabled.
-
-**Performance**
-
-**PERF-01 — Analytics aggregation loads all calculation rows into memory**
-Issue: Analytics summary reads all calculation results and aggregates in Python.
-Evidence:
-- `backend/app/services/sessions.py:210` selects all rows and `backend/app/services/sessions.py:220` builds a `session_map` in memory.
-Impact: Memory growth and latency as data volume increases; analytics endpoint can become a hotspot.
-Root cause hypothesis: Initial optimization focused on fewer columns but still full-table read.
-Recommendation: Move aggregation to SQL (group-by per session/vehicle), or precompute aggregates in a materialized table. Consider background aggregation jobs.
-Tradeoffs: SQL complexity or additional storage for precomputed metrics.
-Migration/compatibility considerations: Validate parity between old and new aggregation outputs; consider dual-run for a release to compare results.
-Test/verification plan: Add a performance regression test with a large dataset and compare response times; verify correctness with fixtures.
-
 **Maintainability**
 
 **MAINT-02 — Comment/code mismatch in duty-cycle validation**
@@ -201,8 +161,7 @@ Test/verification plan: Update unit tests to lock intended behavior.
 **Open Questions / Assumptions**
 - Session secrets are now enforced for new sessions; should we backfill/rotate secrets for legacy sessions (null `session_secret_hash`) and enforce universally?
 - Analytics access is server-side only (API key required); do we want an internal/admin UI or a separate reporting workflow to view analytics?
-- Are there multi-instance deployments where rate limiting must be shared? (Assumption for SEC-04.)
-- Should sessions be resumable across browsers/devices, and do we want to move session secret storage to HttpOnly cookies or shorten secret TTLs?
+- Should session secret cookies use a different TTL or rotation strategy for long-lived resumes?
 
 **Completed Work (Implemented)**
 **Progress Update (2026-02-05)**
@@ -215,6 +174,9 @@ Completed:
 - CR-02/CR-03: Session cache is cache-first with cached secret hash; Redis client is lazily initialized with retry/backoff and resets on failure.
 - CR-04: Runtime migrations are gated by `RUN_MIGRATIONS` (defaults to enabled in development, disabled otherwise); startup skips migrations when disabled.
 - CR-05: Secret verification now logs expected errors and returns HTTP 500 on unexpected failures; added test coverage.
+- PERF-01: Analytics aggregation now uses SQL joins/aggregates instead of loading all rows in memory.
+- SEC-02: Session secrets now persist via HttpOnly cookies; frontend stops persisting secrets in localStorage; cookie refresh on read/update; tests updated.
+- SEC-04: slowapi rate limiting now uses Redis-backed storage (configurable) with coverage.
 
 **Correctness & Reliability**
 
@@ -238,8 +200,19 @@ Status (2026-02-05): Implemented. `verify_secret` now logs expected errors and s
 **SEC-01 — Session access-control secret enforced**
 Status (2026-02-05): Implemented end-to-end. Session creation generates a secret, stores a bcrypt hash, and requires `X-Session-Secret` for GET/PUT. Frontend persists and sends the secret; tests updated.
 
+**SEC-02 — Session secret stored in localStorage**
+Status (2026-02-05): Resolved. Secrets are now stored in HttpOnly cookies and no longer persisted to localStorage; update/get refresh cookie for migration.
+
 **SEC-03 — Analytics access now server-side only**
 Status (2026-02-05): Implemented. Analytics UI removed; analytics endpoint now requires `ANALYTICS_API_KEY` and is disabled if unset.
+
+**SEC-04 — Rate limiting likely per-process only (assumption)**
+Status (2026-02-05): Resolved. slowapi is configured with Redis-backed storage via settings; test verifies configured storage.
+
+**Performance**
+
+**PERF-01 — Analytics aggregation loads all calculation rows into memory**
+Status (2026-02-05): Resolved. Analytics aggregation now uses SQL joins and aggregates to avoid loading full result tables into memory.
 
 **Maintainability**
 

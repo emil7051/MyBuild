@@ -27,8 +27,35 @@ class Settings(BaseSettings):
         default="redis://localhost:6379/0",
         description="Redis connection string for session caching (omit to disable).",
     )
+    rate_limit_redis_url: Optional[str] = Field(
+        default=None,
+        description=(
+            "Redis connection string for slowapi rate limit storage. "
+            "Defaults to REDIS_URL outside development."
+        ),
+    )
     session_ttl_seconds: int = Field(
         default=1800, ge=60, description="TTL for cached wizard sessions in Redis."
+    )
+    session_secret_cookie_name: str = Field(
+        default="tco_session_secret",
+        description="Cookie name for the HttpOnly session secret.",
+    )
+    session_secret_cookie_max_age_days: int = Field(
+        default=30,
+        ge=1,
+        description="Max age (days) for the session secret cookie.",
+    )
+    session_secret_cookie_samesite: str = Field(
+        default="lax",
+        description="SameSite policy for the session secret cookie.",
+    )
+    session_secret_cookie_secure: Optional[bool] = Field(
+        default=None,
+        description=(
+            "Whether the session secret cookie should be Secure. "
+            "Defaults to True outside development."
+        ),
     )
 
     # Security settings (Phase 4 / SEC-004, SEC-007, SEC-008)
@@ -129,6 +156,12 @@ class Settings(BaseSettings):
         if self.run_migrations is not None:
             return self.run_migrations
         return self.environment == "development"
+
+    @property
+    def session_secret_cookie_secure_effective(self) -> bool:
+        if self.session_secret_cookie_secure is not None:
+            return self.session_secret_cookie_secure
+        return self.environment != "development"
 
     # Only load .env in development to avoid overriding production secrets.
     _env_file = (

@@ -81,15 +81,34 @@ class _NoopLimiter:
         return decorator
 
 
-# Rate limiter instance using client IP (no-op if slowapi missing)
-if _SLOWAPI_AVAILABLE:
-    limiter = Limiter(key_func=get_client_ip)
-else:
+def _get_rate_limit_storage_uri() -> str | None:
+    if settings.rate_limit_redis_url:
+        return settings.rate_limit_redis_url
+    if settings.environment != "development":
+        return settings.redis_url
+    return None
+
+
+def _build_limiter():
+    if _SLOWAPI_AVAILABLE:
+        storage_uri = _get_rate_limit_storage_uri()
+        if storage_uri:
+            return Limiter(key_func=get_client_ip, storage_uri=storage_uri)
+        logger.warning(
+            "SECURITY WARNING: slowapi storage not configured; "
+            "rate limiting will be per-process only."
+        )
+        return Limiter(key_func=get_client_ip)
+
     logger.warning(
         "SECURITY WARNING: slowapi not available. Rate limiting is DISABLED. "
         "Install slowapi to enable rate limiting: pip install slowapi"
     )
-    limiter = _NoopLimiter()
+    return _NoopLimiter()
+
+
+# Rate limiter instance using client IP (no-op if slowapi missing)
+limiter = _build_limiter()
 
 
 def generate_session_secret() -> str:

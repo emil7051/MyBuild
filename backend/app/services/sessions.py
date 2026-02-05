@@ -6,11 +6,11 @@ API-006: SQL-optimized analytics aggregation.
 
 from __future__ import annotations
 
-from collections import defaultdict
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Iterable, List, Optional
+from typing import Iterable, List, Optional
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import case, delete, func, select
+from sqlalchemy.orm import aliased
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.cache import cache_session, get_cached_session
@@ -232,60 +232,54 @@ class SessionService:
         if not bev_vehicles:
             return None, None, None
 
-        # Fetch only the columns we need (no full result_payload)
-        rows = await db.execute(
-            select(
-                CalculationResultRecord.session_id,
-                CalculationResultRecord.vehicle_id,
-                CalculationResultRecord.total_cost,
-                CalculationResultRecord.annual_cost,
-            )
-        )
-
-        session_map: Dict[str, Dict[str, dict]] = defaultdict(dict)
-        for row in rows.all():
-            session_map[row.session_id][row.vehicle_id] = {
-                "total_cost": row.total_cost,
-                "annual_cost": row.annual_cost,
-            }
-
         bev_wins = 0
         comparisons = 0
-        cost_deltas: List[float] = []
-        payback_values: List[float] = []
+        cost_delta_sum = 0.0
+        payback_sum = 0.0
+        payback_count = 0
 
-        # For payback, we need purchase costs - fetch only when needed
-        for session_id, vehicles in session_map.items():
-            for bev_id, diesel_id in bev_vehicles.items():
-                if bev_id not in vehicles or diesel_id not in vehicles:
-                    continue
+        bev = aliased(CalculationResultRecord)
+        diesel = aliased(CalculationResultRecord)
 
-                bev_data = vehicles[bev_id]
-                diesel_data = vehicles[diesel_id]
+        for bev_id, diesel_id in bev_vehicles.items():
+            bev_vehicle = BY_ID.get(bev_id)
+            diesel_vehicle = BY_ID.get(diesel_id)
+            if not bev_vehicle or not diesel_vehicle:
+                continue
 
-                comparisons += 1
-                if bev_data["total_cost"] < diesel_data["total_cost"]:
-                    bev_wins += 1
+            initial_gap = bev_vehicle.msrp - diesel_vehicle.msrp
+            annual_savings = diesel.annual_cost - bev.annual_cost
+            payback_expr = case(
+                (annual_savings > 0, initial_gap / annual_savings),
+                else_=None,
+            )
 
-                cost_deltas.append(diesel_data["total_cost"] - bev_data["total_cost"])
+            stmt = (
+                select(
+                    func.count().label("comparisons"),
+                    func.sum(
+                        case((bev.total_cost < diesel.total_cost, 1), else_=0)
+                    ).label("bev_wins"),
+                    func.sum(diesel.total_cost - bev.total_cost).label("cost_delta_sum"),
+                    func.sum(payback_expr).label("payback_sum"),
+                    func.count(payback_expr).label("payback_count"),
+                )
+                .select_from(bev)
+                .join(diesel, bev.session_id == diesel.session_id)
+                .where(bev.vehicle_id == bev_id, diesel.vehicle_id == diesel_id)
+            )
 
-                # Estimate payback from annual savings
-                annual_savings = diesel_data["annual_cost"] - bev_data["annual_cost"]
-                if annual_savings > 0:
-                    # Use average BEV premium as rough estimate
-                    # This avoids loading full payloads
-                    bev_vehicle = BY_ID.get(bev_id)
-                    diesel_vehicle = BY_ID.get(diesel_id)
-                    if bev_vehicle and diesel_vehicle:
-                        initial_gap = bev_vehicle.msrp - diesel_vehicle.msrp
-                        payback = max(initial_gap / annual_savings, 0)
-                        payback_values.append(payback)
+            row = (await db.execute(stmt)).one()
+            if row.comparisons:
+                comparisons += row.comparisons
+                bev_wins += row.bev_wins or 0
+                cost_delta_sum += row.cost_delta_sum or 0.0
+                payback_sum += row.payback_sum or 0.0
+                payback_count += row.payback_count or 0
 
         bev_win_rate = (bev_wins / comparisons) if comparisons else None
-        avg_payback = (
-            sum(payback_values) / len(payback_values) if payback_values else None
-        )
-        avg_cost_delta = sum(cost_deltas) / len(cost_deltas) if cost_deltas else None
+        avg_payback = (payback_sum / payback_count) if payback_count else None
+        avg_cost_delta = (cost_delta_sum / comparisons) if comparisons else None
         return bev_win_rate, avg_payback, avg_cost_delta
 
     async def _build_response(
