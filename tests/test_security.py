@@ -310,3 +310,35 @@ def test_verify_session_secret_returns_500_on_unexpected_error(
         security.verify_session_secret("secret", "hash")
 
     assert exc_info.value.status_code == 500
+
+
+def test_rate_limiter_uses_configured_storage(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from backend.app.core import security
+
+    created: dict[str, dict] = {}
+
+    class DummyLimiter:
+        def __init__(self, *args, **kwargs):
+            created["kwargs"] = kwargs
+
+        def limit(self, _limit: str):
+            def decorator(func):
+                return func
+
+            return decorator
+
+    monkeypatch.setattr(security, "Limiter", DummyLimiter)
+    monkeypatch.setattr(security, "_SLOWAPI_AVAILABLE", True)
+    monkeypatch.setattr(
+        security.settings, "rate_limit_redis_url", "redis://rate-limit", raising=False
+    )
+    monkeypatch.setattr(
+        security.settings, "redis_url", "redis://cache", raising=False
+    )
+
+    limiter = security._build_limiter()
+
+    assert isinstance(limiter, DummyLimiter)
+    assert created["kwargs"]["storage_uri"] == "redis://rate-limit"

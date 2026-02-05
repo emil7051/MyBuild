@@ -8,7 +8,7 @@ SEC-008: Rate limiting for session, analytics, and vehicle catalog endpoints.
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.config import settings
@@ -36,6 +36,25 @@ api_router = APIRouter(prefix=settings.api_v1_prefix)
 _vehicle_service = VehicleCatalogService()
 _session_service = SessionService()
 
+
+def _get_session_secret(
+    request: Request, header_secret: str | None
+) -> str | None:
+    if header_secret:
+        return header_secret
+    return request.cookies.get(settings.session_secret_cookie_name)
+
+
+def _set_session_secret_cookie(response: Response, session_secret: str) -> None:
+    response.set_cookie(
+        key=settings.session_secret_cookie_name,
+        value=session_secret,
+        httponly=True,
+        secure=settings.session_secret_cookie_secure_effective,
+        samesite=settings.session_secret_cookie_samesite,
+        max_age=settings.session_secret_cookie_max_age_days * 24 * 60 * 60,
+        path="/",
+    )
 
 def validate_uuid(session_id: str) -> str:
     """Validate session_id is a valid UUID format (API-002).
@@ -84,6 +103,7 @@ def get_vehicle(request: Request, vehicle_id: str) -> VehicleDetail:
 async def create_session(
     request: Request,
     payload: SessionCreate,
+    response: Response,
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionCreateResponse:
     """Create a new session.
@@ -91,7 +111,9 @@ async def create_session(
     Returns the session data for persistence and resume.
     """
     try:
-        return await _session_service.create_session(db, payload)
+        created = await _session_service.create_session(db, payload)
+        _set_session_secret_cookie(response, created.session_secret)
+        return created
     except ValueError as exc:  # pragma: no cover
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -106,6 +128,7 @@ async def update_session(
     request: Request,
     session_id: str,
     payload: SessionUpdate,
+    response: Response,
     session_secret: str | None = Header(default=None, alias="X-Session-Secret"),
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
@@ -114,9 +137,13 @@ async def update_session(
     validate_uuid(session_id)
 
     try:
-        return await _session_service.update_session(
-            db, session_id, payload, session_secret
+        resolved_secret = _get_session_secret(request, session_secret)
+        updated = await _session_service.update_session(
+            db, session_id, payload, resolved_secret
         )
+        if resolved_secret:
+            _set_session_secret_cookie(response, resolved_secret)
+        return updated
     except KeyError as exc:  # pragma: no cover
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -130,6 +157,7 @@ async def update_session(
 async def get_session(
     request: Request,
     session_id: str,
+    response: Response,
     session_secret: str | None = Header(default=None, alias="X-Session-Secret"),
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
@@ -138,7 +166,11 @@ async def get_session(
     validate_uuid(session_id)
 
     try:
-        return await _session_service.get_session(db, session_id, session_secret)
+        resolved_secret = _get_session_secret(request, session_secret)
+        fetched = await _session_service.get_session(db, session_id, resolved_secret)
+        if resolved_secret:
+            _set_session_secret_cookie(response, resolved_secret)
+        return fetched
     except KeyError as exc:  # pragma: no cover
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

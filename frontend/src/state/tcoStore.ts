@@ -190,7 +190,6 @@ export const useTCOStore = create<TCOStore>()(
         results: state.results,
         vehicleDetails: state.vehicleDetails,
         sessionId: state.sessionId,
-        sessionSecret: state.sessionSecret,
       }),
       onRehydrateStorage: () => (state, error) => {
         if (error) {
@@ -199,6 +198,16 @@ export const useTCOStore = create<TCOStore>()(
         }
 
         if (!state) return;
+
+        // Do not persist session secrets; drop legacy stored values while keeping
+        // them in memory for a one-time migration to cookies.
+        if (state.sessionSecret) {
+          if (state.sessionId && typeof state.setSessionId === 'function') {
+            state.setSessionId(state.sessionId);
+          } else {
+            state.sessionSecret = undefined;
+          }
+        }
 
         // Check vehicle catalog version and refresh if outdated
         const storedVersion = (state as { _vehicleCatalogVersion?: string })._vehicleCatalogVersion;

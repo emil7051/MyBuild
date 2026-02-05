@@ -90,6 +90,8 @@ async def test_vehicle_not_found(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
+    from backend.app.core import config
+
     payload = make_session_payload_dict()
     create_response = await client.post("/api/v1/sessions", json=payload)
     assert create_response.status_code == 201
@@ -100,9 +102,20 @@ async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
     session_id = created["sessionId"]
     session_secret = created["sessionSecret"]
 
+    cookie_name = config.settings.session_secret_cookie_name
+    assert client.cookies.get(cookie_name) == session_secret
+
+    # Clear cookies to confirm secret is still required without header/cookie
+    client.cookies.clear()
     get_response_missing = await client.get(f"/api/v1/sessions/{session_id}")
     assert get_response_missing.status_code == 401
 
+    # Cookie-based access
+    client.cookies.set(cookie_name, session_secret)
+    get_response_cookie = await client.get(f"/api/v1/sessions/{session_id}")
+    assert get_response_cookie.status_code == 200
+
+    # Header-based access still works
     get_response = await client.get(
         f"/api/v1/sessions/{session_id}",
         headers={"X-Session-Secret": session_secret},
