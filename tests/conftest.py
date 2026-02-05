@@ -37,8 +37,11 @@ async def _create_schema(engine) -> None:
 
 
 @pytest.fixture(autouse=True)
-def disable_redis_cache(monkeypatch: pytest.MonkeyPatch) -> None:
+def disable_redis_cache(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest) -> None:
     """Disable Redis usage during tests to keep runs deterministic."""
+
+    if request.node.get_closest_marker("enable_redis_cache"):
+        return
 
     import backend.app.core.cache as cache_module
     import backend.app.services.sessions as sessions_module
