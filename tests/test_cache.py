@@ -6,7 +6,6 @@ import asyncio
 
 import pytest
 
-
 pytestmark = pytest.mark.enable_redis_cache
 
 
