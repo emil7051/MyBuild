@@ -29,8 +29,8 @@ def _uuid_str() -> str:
 class SessionRecord(Base):
     """Session record with wizard state and optional access control secret.
 
-    The session_secret_hash column is retained for potential future access
-    control but is not enforced by current session flows.
+    The session_secret_hash column stores a per-session secret used to
+    authorize read/update access to session data.
     """
 
     __tablename__ = "sessions"
@@ -43,7 +43,7 @@ class SessionRecord(Base):
     status: Mapped[str] = mapped_column(String(20), default="draft", nullable=False)
     wizard_state: Mapped[dict | None] = mapped_column(JSON, default=dict)
     cached_results: Mapped[list | None] = mapped_column(JSON, default=list)
-    # Bcrypt hash of session access secret reserved for optional PII protection
+    # Bcrypt hash of session access secret for session-level access control
     session_secret_hash: Mapped[str | None] = mapped_column(
         String(128), nullable=True, comment="Bcrypt hash of session access secret"
     )

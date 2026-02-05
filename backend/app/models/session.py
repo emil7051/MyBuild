@@ -219,7 +219,7 @@ class SessionResponse(BaseModel):
 class SessionCreateResponse(SessionResponse):
     """Response for session creation."""
 
-    pass
+    session_secret: str = Field(alias="sessionSecret")
 
 
 class AnalyticsSummary(BaseModel):

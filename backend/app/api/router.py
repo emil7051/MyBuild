@@ -8,7 +8,7 @@ SEC-008: Rate limiting for session, analytics, and vehicle catalog endpoints.
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.config import settings
@@ -106,6 +106,7 @@ async def update_session(
     request: Request,
     session_id: str,
     payload: SessionUpdate,
+    session_secret: str | None = Header(default=None, alias="X-Session-Secret"),
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
     """Update an existing session.
@@ -114,7 +115,9 @@ async def update_session(
     validate_uuid(session_id)
 
     try:
-        return await _session_service.update_session(db, session_id, payload)
+        return await _session_service.update_session(
+            db, session_id, payload, session_secret
+        )
     except KeyError as exc:  # pragma: no cover
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -128,6 +131,7 @@ async def update_session(
 async def get_session(
     request: Request,
     session_id: str,
+    session_secret: str | None = Header(default=None, alias="X-Session-Secret"),
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
     """Retrieve an existing session.
@@ -136,7 +140,7 @@ async def get_session(
     validate_uuid(session_id)
 
     try:
-        return await _session_service.get_session(db, session_id)
+        return await _session_service.get_session(db, session_id, session_secret)
     except KeyError as exc:  # pragma: no cover
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

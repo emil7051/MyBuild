@@ -34,11 +34,14 @@ export const useCalculationRunner = () => {
   const getNextRequestId = useTCOStore((state) => state.getNextRequestId);
   const wizardData = useTCOStore((state) => state.wizardData);
   const sessionId = useTCOStore((state) => state.sessionId);
+  const sessionSecret = useTCOStore((state) => state.sessionSecret);
   const setSessionId = useTCOStore((state) => state.setSessionId);
+  const setSessionSecret = useTCOStore((state) => state.setSessionSecret);
 
   // Mutex refs to prevent duplicate session creation race condition
   const isCreatingSession = useRef(false);
   const pendingSessionId = useRef<string | null>(null);
+  const pendingSessionSecret = useRef<string | null>(null);
   // Ref to store pending payload while session is being created
   const pendingPayload = useRef<CalculationResponsePayload[] | null>(null);
   const lastComparisonHash = useRef<string | null>(null);
@@ -60,22 +63,29 @@ export const useCalculationRunner = () => {
 
       const payload = buildSessionPayload(wizardData, data);
       const currentSessionId = sessionId || pendingSessionId.current;
+      const currentSessionSecret = sessionSecret || pendingSessionSecret.current;
 
       try {
         if (currentSessionId) {
-          await updateSession(currentSessionId, payload);
+          await updateSession(currentSessionId, payload, {
+            sessionSecret: currentSessionSecret ?? undefined,
+          });
         } else {
           isCreatingSession.current = true;
           const response = await createSession(payload);
           pendingSessionId.current = response.sessionId;
+          pendingSessionSecret.current = response.sessionSecret;
           setSessionId(response.sessionId);
+          setSessionSecret(response.sessionSecret);
 
           // After session creation completes, check if we have a pending payload to send
           if (pendingPayload.current) {
             const queuedData = pendingPayload.current;
             pendingPayload.current = null;
             const queuedPayload = buildSessionPayload(wizardData, queuedData);
-            await updateSession(response.sessionId, queuedPayload);
+            await updateSession(response.sessionId, queuedPayload, {
+              sessionSecret: response.sessionSecret,
+            });
           }
         }
       } catch (error) {
@@ -84,7 +94,7 @@ export const useCalculationRunner = () => {
         isCreatingSession.current = false;
       }
     },
-    [sessionId, setSessionId, wizardData]
+    [sessionId, sessionSecret, setSessionId, setSessionSecret, wizardData]
   );
 
   const comparisonMutation = useMutation({

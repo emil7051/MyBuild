@@ -220,6 +220,10 @@ export interface SessionResponsePayload extends SessionCreatePayload {
   lastCalculatedAt?: string | null;
 }
 
+export interface SessionCreateResponsePayload extends SessionResponsePayload {
+  sessionSecret: string;
+}
+
 export type SessionUpdatePayload = Partial<SessionCreatePayload>;
 
 export interface ApiError {
