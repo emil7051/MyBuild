@@ -37,9 +37,7 @@ _vehicle_service = VehicleCatalogService()
 _session_service = SessionService()
 
 
-def _get_session_secret(
-    request: Request, header_secret: str | None
-) -> str | None:
+def _get_session_secret(request: Request, header_secret: str | None) -> str | None:
     if header_secret:
         return header_secret
     return request.cookies.get(settings.session_secret_cookie_name)
@@ -55,6 +53,7 @@ def _set_session_secret_cookie(response: Response, session_secret: str) -> None:
         max_age=settings.session_secret_cookie_max_age_days * 24 * 60 * 60,
         path="/",
     )
+
 
 def validate_uuid(session_id: str) -> str:
     """Validate session_id is a valid UUID format (API-002).

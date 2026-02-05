@@ -37,8 +37,13 @@ async def _create_schema(engine) -> None:
 
 
 @pytest.fixture(autouse=True)
-def disable_redis_cache(monkeypatch: pytest.MonkeyPatch) -> None:
+def disable_redis_cache(
+    monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
     """Disable Redis usage during tests to keep runs deterministic."""
+
+    if request.node.get_closest_marker("enable_redis_cache"):
+        return
 
     import backend.app.core.cache as cache_module
     import backend.app.services.sessions as sessions_module
@@ -49,7 +54,13 @@ def disable_redis_cache(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _noop_get(*_args, **_kwargs):
         return None
 
-    monkeypatch.setattr(cache_module, "redis_client", None)
+    async def _noop_client():
+        return None
+
+    monkeypatch.setattr(cache_module, "_redis_client", None, raising=False)
+    monkeypatch.setattr(cache_module, "_next_retry_at", 0.0, raising=False)
+    monkeypatch.setattr(cache_module, "_get_redis_client", _noop_client, raising=False)
+    monkeypatch.setattr(cache_module.settings, "redis_url", None, raising=False)
     monkeypatch.setattr(sessions_module, "cache_session", _noop_cache)
     monkeypatch.setattr(sessions_module, "get_cached_session", _noop_get)
 

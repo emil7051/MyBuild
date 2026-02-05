@@ -10,8 +10,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Iterable, List, Optional
 
 from sqlalchemy import case, delete, func, select
-from sqlalchemy.orm import aliased
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from backend.app.core.cache import cache_session, get_cached_session
 from backend.app.core.security import (
@@ -260,7 +260,9 @@ class SessionService:
                     func.sum(
                         case((bev.total_cost < diesel.total_cost, 1), else_=0)
                     ).label("bev_wins"),
-                    func.sum(diesel.total_cost - bev.total_cost).label("cost_delta_sum"),
+                    func.sum(diesel.total_cost - bev.total_cost).label(
+                        "cost_delta_sum"
+                    ),
                     func.sum(payback_expr).label("payback_sum"),
                     func.count(payback_expr).label("payback_count"),
                 )

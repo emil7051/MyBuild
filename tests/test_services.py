@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import pytest
 from sqlalchemy import func, select
 
+from backend.app.core.security import hash_secret
 from backend.app.db.models import (
     CalculationResultRecord,
     FeedbackRecord,
@@ -17,7 +18,6 @@ from backend.app.db.models import (
 )
 from backend.app.models.calculation import CostOverride, VehicleParamOverride
 from backend.app.models.session import SessionResponse
-from backend.app.core.security import hash_secret
 from backend.app.services.sessions import SessionService
 from backend.app.services.vehicles import VehicleCatalogService
 from data.vehicles import ALL_MODELS, BY_ID
@@ -45,9 +45,7 @@ async def _update_session(session_factory, session_id, payload, session_secret=N
 
 async def _get_session(session_factory, session_id, session_secret=None):
     async with session_factory() as session:
-        return await SessionService().get_session(
-            session, session_id, session_secret
-        )
+        return await SessionService().get_session(session, session_id, session_secret)
 
 
 async def _fetch_inputs(session_factory):

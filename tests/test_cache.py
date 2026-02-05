@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import asyncio
 
+import pytest
+
+pytestmark = pytest.mark.enable_redis_cache
+
 
 def test_redis_client_retries_after_failure(monkeypatch) -> None:
     from backend.app.core import cache

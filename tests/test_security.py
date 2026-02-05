@@ -9,9 +9,9 @@ SEC-007: Analytics API key protection
 
 from __future__ import annotations
 
+from fastapi import HTTPException
 import httpx
 import pytest
-from fastapi import HTTPException
 
 from tests.factories import (
     BEV_VEHICLE_ID,
@@ -334,9 +334,7 @@ def test_rate_limiter_uses_configured_storage(
     monkeypatch.setattr(
         security.settings, "rate_limit_redis_url", "redis://rate-limit", raising=False
     )
-    monkeypatch.setattr(
-        security.settings, "redis_url", "redis://cache", raising=False
-    )
+    monkeypatch.setattr(security.settings, "redis_url", "redis://cache", raising=False)
 
     limiter = security._build_limiter()
 
