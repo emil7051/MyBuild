@@ -45,9 +45,7 @@ async def _update_session(session_factory, session_id, payload, session_secret=N
 
 async def _get_session(session_factory, session_id, session_secret=None):
     async with session_factory() as session:
-        return await SessionService().get_session(
-            session, session_id, session_secret
-        )
+        return await SessionService().get_session(session, session_id, session_secret)
 
 
 async def _fetch_inputs(session_factory):
