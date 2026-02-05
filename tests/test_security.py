@@ -9,9 +9,9 @@ SEC-007: Analytics API key protection
 
 from __future__ import annotations
 
+from fastapi import HTTPException
 import httpx
 import pytest
-from fastapi import HTTPException
 
 from tests.factories import (
     BEV_VEHICLE_ID,
