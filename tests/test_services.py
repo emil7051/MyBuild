@@ -33,18 +33,14 @@ async def _create_session(session_factory, payload):
         return await SessionService().create_session(session, payload)
 
 
-async def _update_session(session_factory, session_id, payload, session_secret=None):
+async def _update_session(session_factory, session_id, payload):
     async with session_factory() as session:
-        return await SessionService().update_session(
-            session, session_id, payload, session_secret=session_secret
-        )
+        return await SessionService().update_session(session, session_id, payload)
 
 
-async def _get_session(session_factory, session_id, session_secret=None):
+async def _get_session(session_factory, session_id):
     async with session_factory() as session:
-        return await SessionService().get_session(
-            session, session_id, session_secret=session_secret
-        )
+        return await SessionService().get_session(session, session_id)
 
 
 async def _fetch_inputs(session_factory):
@@ -147,16 +143,12 @@ def test_session_service_update_clears_results(async_session_factory) -> None:
     payload = make_session_create()
     response = asyncio.run(_create_session(async_session_factory, payload))
 
-    # SEC-005: Update requires session secret
-    session_secret = response.session_secret
-
     update_payload = make_session_update(results=[])
     updated = asyncio.run(
         _update_session(
             async_session_factory,
             response.session_id,
             update_payload,
-            session_secret=session_secret,
         )
     )
     assert updated.status == "draft"

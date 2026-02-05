@@ -222,16 +222,6 @@ export interface SessionResponsePayload extends SessionCreatePayload {
 
 export type SessionUpdatePayload = Partial<SessionCreatePayload>;
 
-export interface AnalyticsSummaryPayload {
-  totalSessions: number;
-  completedSessions: number;
-  calculationsLast24h: number;
-  bevWinRate?: number | null;
-  averagePaybackYears?: number | null;
-  averageCostDelta?: number | null;
-  topVehicles: Record<string, number>;
-}
-
 export interface ApiError {
   detail: string;
 }

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DUTY_CYCLE_TOTAL_TOLERANCE } from '@shared/data/constants';
+import { DUTY_CYCLE_TOTAL_TOLERANCE, OVERRIDE_LIMITS } from '@shared/data/constants';
 import { SCENARIO_DEFINITIONS } from '@shared/data/scenarios';
 import type { DutyCycle, PurchaseMethod, ScenarioKey } from '@shared/types/tco.types';
 
@@ -10,6 +10,8 @@ export interface ScenarioOption {
 }
 
 const scenarioKeys = Object.keys(SCENARIO_DEFINITIONS) as ScenarioKey[];
+const costLimits = OVERRIDE_LIMITS.cost;
+const vehicleLimits = OVERRIDE_LIMITS.vehicle;
 
 export const scenarioOptions: ScenarioOption[] = scenarioKeys.map((key) => {
   const scenario = SCENARIO_DEFINITIONS[key];
@@ -62,63 +64,99 @@ const overridesSchema = z.object({
     .number({
       invalid_type_error: 'Annual kilometres must be a number.',
     })
-    .min(5000, 'Minimum 5,000 km per year.')
-    .max(250000, 'Maximum 250,000 km per year.')
+    .min(costLimits.annual_kms_variation.min, 'Minimum 5,000 km per year.')
+    .max(costLimits.annual_kms_variation.max, 'Maximum 250,000 km per year.')
     .optional(),
   residual_value_variation: z
     .number({
       invalid_type_error: 'Residual value must be a number.',
     })
-    .min(0.5, 'Too low — at least 0.5x the base residual.')
-    .max(1.5, 'Too high — maximum 1.5x the base residual.')
+    .min(costLimits.residual_value_variation.min, 'Too low — at least 0.5x the base residual.')
+    .max(costLimits.residual_value_variation.max, 'Too high — maximum 1.5x the base residual.')
     .optional(),
   maintenance_cost_variation: z
     .number({
       invalid_type_error: 'Maintenance multiplier must be a number.',
     })
-    .min(0.5, 'Minimum multiplier is 0.5x.')
-    .max(1.5, 'Maximum multiplier is 1.5x.')
+    .min(costLimits.maintenance_cost_variation.min, 'Minimum multiplier is 0.5x.')
+    .max(costLimits.maintenance_cost_variation.max, 'Maximum multiplier is 1.5x.')
     .optional(),
   fuel_price_variation: z
     .number({
       invalid_type_error: 'Diesel multiplier must be a number.',
     })
-    .min(0.5, 'Minimum multiplier is 0.5x.')
-    .max(2.0, 'Maximum multiplier is 2.0x.')
+    .min(costLimits.fuel_price_variation.min, 'Minimum multiplier is 0.5x.')
+    .max(costLimits.fuel_price_variation.max, 'Maximum multiplier is 2.0x.')
     .optional(),
   electricity_price_variation: z
     .number({
       invalid_type_error: 'Electricity multiplier must be a number.',
     })
-    .min(0.5, 'Minimum multiplier is 0.5x.')
-    .max(2.0, 'Maximum multiplier is 2.0x.')
+    .min(costLimits.electricity_price_variation.min, 'Minimum multiplier is 0.5x.')
+    .max(costLimits.electricity_price_variation.max, 'Maximum multiplier is 2.0x.')
     .optional(),
   battery_life_variation: z
     .number({
       invalid_type_error: 'Battery life multiplier must be a number.',
     })
-    .min(0.5, 'Minimum multiplier is 0.5x.')
-    .max(1.5, 'Maximum multiplier is 1.5x.')
+    .min(costLimits.battery_life_variation.min, 'Minimum multiplier is 0.5x.')
+    .max(costLimits.battery_life_variation.max, 'Maximum multiplier is 1.5x.')
     .optional(),
   charging_efficiency_variation: z
     .number({
       invalid_type_error: 'Charging efficiency multiplier must be a number.',
     })
-    .min(0.7, 'Minimum multiplier is 0.7x.')
-    .max(1.3, 'Maximum multiplier is 1.3x.')
+    .min(costLimits.charging_efficiency_variation.min, 'Minimum multiplier is 0.7x.')
+    .max(costLimits.charging_efficiency_variation.max, 'Maximum multiplier is 1.3x.')
     .optional(),
 });
 
 export const vehicleParamOverridesSchema = z.object({
-  msrp_override: z.number().min(0, 'Must be positive').max(10_000_000, 'Maximum $10M').optional(),
-  payload_override: z.number().min(0, 'Must be positive').max(100, 'Maximum 100t').optional(),
-  range_km_override: z.number().min(50, 'Minimum 50km').max(2000, 'Maximum 2000km').optional(),
-  battery_capacity_kwh_override: z.number().min(0, 'Must be positive').max(2000, 'Maximum 2000kWh').optional(),
-  kwh_per_km_override: z.number().min(0.1, 'Minimum 0.1 kWh/km').max(10, 'Maximum 10 kWh/km').optional(),
-  litres_per_km_override: z.number().min(0.05, 'Minimum 0.05 L/km').max(5, 'Maximum 5 L/km').optional(),
-  annual_registration_override: z.number().min(0, 'Must be positive').max(100_000, 'Maximum $100k').optional(),
-  interest_rate_override: z.number().min(0, 'Must be positive').max(1, 'Maximum 100%').optional(),
-  charging_time_hours_override: z.number().min(0.1, 'Minimum 0.1 hours').max(24, 'Maximum 24h').optional(),
+  msrp_override: z
+    .number()
+    .min(vehicleLimits.msrp_override.min, 'Must be positive')
+    .max(vehicleLimits.msrp_override.max, 'Maximum $10M')
+    .optional(),
+  payload_override: z
+    .number()
+    .min(vehicleLimits.payload_override.min, 'Must be positive')
+    .max(vehicleLimits.payload_override.max, 'Maximum 100t')
+    .optional(),
+  range_km_override: z
+    .number()
+    .min(vehicleLimits.range_km_override.min, 'Minimum 50km')
+    .max(vehicleLimits.range_km_override.max, 'Maximum 2500km')
+    .optional(),
+  battery_capacity_kwh_override: z
+    .number()
+    .min(vehicleLimits.battery_capacity_kwh_override.min, 'Must be positive')
+    .max(vehicleLimits.battery_capacity_kwh_override.max, 'Maximum 2000kWh')
+    .optional(),
+  kwh_per_km_override: z
+    .number()
+    .min(vehicleLimits.kwh_per_km_override.min, 'Minimum 0.1 kWh/km')
+    .max(vehicleLimits.kwh_per_km_override.max, 'Maximum 10 kWh/km')
+    .optional(),
+  litres_per_km_override: z
+    .number()
+    .min(vehicleLimits.litres_per_km_override.min, 'Minimum 0.05 L/km')
+    .max(vehicleLimits.litres_per_km_override.max, 'Maximum 5 L/km')
+    .optional(),
+  annual_registration_override: z
+    .number()
+    .min(vehicleLimits.annual_registration_override.min, 'Must be positive')
+    .max(vehicleLimits.annual_registration_override.max, 'Maximum $100k')
+    .optional(),
+  interest_rate_override: z
+    .number()
+    .min(vehicleLimits.interest_rate_override.min, 'Must be positive')
+    .max(vehicleLimits.interest_rate_override.max, 'Maximum 20%')
+    .optional(),
+  charging_time_hours_override: z
+    .number()
+    .min(vehicleLimits.charging_time_hours_override.min, 'Minimum 0.1 hours')
+    .max(vehicleLimits.charging_time_hours_override.max, 'Maximum 8h')
+    .optional(),
 });
 
 export type VehicleParamOverridesValidated = z.infer<typeof vehicleParamOverridesSchema>;

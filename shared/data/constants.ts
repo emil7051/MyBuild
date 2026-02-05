@@ -25,5 +25,17 @@ export const DUTY_CYCLE_TOTAL_TOLERANCE =
     ? CONSTANTS.DUTY_CYCLE_TOTAL_TOLERANCE
     : 0.5;
 
+export type OverrideLimit = {
+  min: number;
+  max: number;
+};
+
+export type OverrideLimits = {
+  cost: Record<string, OverrideLimit>;
+  vehicle: Record<string, OverrideLimit>;
+};
+
+export const OVERRIDE_LIMITS = CONSTANTS.OVERRIDE_LIMITS as OverrideLimits;
+
 // Re-export manually maintained future constants
 export { FUTURE_CONSTANTS } from './constants.future';

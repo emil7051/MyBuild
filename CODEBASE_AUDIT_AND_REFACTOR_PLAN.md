@@ -1,9 +1,23 @@
 **Executive Summary**
-- The most critical gap is the incomplete session access-control secret: tests and security docs expect it, the DB schema has a hash column, but the API does not enforce it. This makes session IDs effectively bearer tokens and undermines the stated privacy model for contact emails. Evidence: `tests/test_security.py:149`, `tests/test_security.py:172`, `SECURITY.md:116`, `backend/app/db/models.py:46`, `backend/app/api/router.py:77`.
-- Validation ranges for vehicle overrides drift between frontend, backend, and the shared calculator. This creates silent clamping and inconsistent results across layers. Evidence: `frontend/src/forms/wizardForm.ts:112`, `backend/app/models/calculation.py:89`, `shared/calculator/tcoCalculator.ts:211`.
+- Session access-control secrets were removed by design; docs/tests now align with sessionId-only access. This increases the importance of keeping session payloads free of sensitive data or adding access control later. Evidence: `SECURITY.md`, `tests/test_api.py`.
+- Validation ranges for vehicle overrides were unified to the calculator via shared `OVERRIDE_LIMITS` in `data/constants.py`. Evidence: `data/constants.py`, `frontend/src/forms/wizardForm.ts`, `backend/app/models/calculation.py`, `shared/data/constants.generated.ts`.
 - Session creation is duplicated across autosave and calculation flows, each with its own mutex, which can create duplicate sessions and inconsistent persistence under race conditions. Evidence: `frontend/src/hooks/useWizardAutosave.ts:63`, `frontend/src/hooks/useCalculations.ts:68`.
 - Analytics aggregation currently loads all calculation rows and performs in-memory aggregation, which will not scale with growing usage. Evidence: `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220`.
 - Several dead or unused elements (session secret helpers, unused frontend API functions, unused Python deps) add maintenance risk and suggest incomplete refactors. Evidence: `backend/app/core/security.py:95`, `frontend/src/services/api.ts:17`, `requirements.txt:20`.
+
+**Progress Update (2026-02-05)**
+Completed:
+- Session secret enforcement removed by design: tests/docs aligned to sessionId-only access; `SECURITY.md` updated to reflect no per-session secret and localStorage usage.
+- Override validation ranges unified to the calculator via shared `OVERRIDE_LIMITS` in `data/constants.py`; frontend and backend now consume the same limits; shared constants regenerated.
+- Analytics UI removed from frontend (unused components/hooks deleted and API client call removed).
+- Analytics endpoint now requires `ANALYTICS_API_KEY`; if unset, endpoint is disabled (403). Tests and docs updated accordingly.
+
+Remaining (highest-impact):
+- Centralize session lifecycle to prevent duplicate session creation (CR-01).
+- Optimize analytics aggregation path (PERF-01).
+- Cache-first session lookup and Redis reconnection strategy (CR-02, CR-03).
+- Make migrations an explicit deploy step (CR-04).
+- Remove remaining dead code/deps and resolve dual lockfile strategy (DEAD-02/03, DEP-01).
 
 **Repo Overview**
 Architecture map and data flow:
@@ -43,16 +57,15 @@ Constraints (not provided, treated as assumptions):
 **Top Risks & Hotspots**
 | Rank | Risk | Likelihood | Impact | Score | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Session access control secret not implemented (privacy exposure) | 4 | 5 | 20 | `backend/app/api/router.py:77`, `tests/test_security.py:149`, `SECURITY.md:116` |
-| 2 | Validation drift across frontend/backend/calculator | 4 | 4 | 16 | `frontend/src/forms/wizardForm.ts:112`, `backend/app/models/calculation.py:89`, `shared/calculator/tcoCalculator.ts:211` |
-| 3 | Duplicate session creation paths can race | 3 | 4 | 12 | `frontend/src/hooks/useWizardAutosave.ts:63`, `frontend/src/hooks/useCalculations.ts:68` |
-| 4 | Analytics aggregation loads full table in memory | 3 | 4 | 12 | `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220` |
-| 5 | Session ID stored in localStorage despite “no sensitive data” guidance | 3 | 4 | 12 | `frontend/src/state/tcoStore.ts:176`, `SECURITY.md:96` |
-| 6 | Rate limiting likely per-process only (slowapi default storage) | 3 | 3 | 9 | `backend/app/core/security.py:85` |
-| 7 | Migrations run on app startup (multi-instance risk) | 2 | 4 | 8 | `backend/app/db/session.py:37` |
-| 8 | Redis client initialized once; no retry if Redis unavailable | 3 | 2 | 6 | `backend/app/core/cache.py:16` |
-| 9 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `backend/app/core/security.py:95` |
-| 10 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
+| 1 | Session access is unauthenticated; avoid storing sensitive data or add access control | 3 | 4 | 12 | `backend/app/api/router.py`, `SECURITY.md` |
+| 2 | Duplicate session creation paths can race | 3 | 4 | 12 | `frontend/src/hooks/useWizardAutosave.ts:63`, `frontend/src/hooks/useCalculations.ts:68` |
+| 3 | Analytics aggregation loads full table in memory | 3 | 4 | 12 | `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220` |
+| 4 | Cache doesn’t avoid the first DB hit | 3 | 3 | 9 | `backend/app/services/sessions.py:127` |
+| 5 | Rate limiting likely per-process only (slowapi default storage) | 3 | 3 | 9 | `backend/app/core/security.py:85` |
+| 6 | Migrations run on app startup (multi-instance risk) | 2 | 4 | 8 | `backend/app/db/session.py:37` |
+| 7 | Redis client initialized once; no retry if Redis unavailable | 3 | 2 | 6 | `backend/app/core/cache.py:16` |
+| 8 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `backend/app/core/security.py:95` |
+| 9 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
 
 **Findings**
 **Correctness & Reliability**
@@ -115,44 +128,32 @@ Test/verification plan: Add a unit test that simulates bcrypt failure and assert
 
 **Security & Privacy**
 
-**SEC-01 — Session access-control secret not implemented**
-Issue: Session secret access control is described in tests and documentation but not enforced in the API.
+**SEC-01 — Session access-control secret removed by design**
+Issue: Session secret access control was previously documented/tested but is not enforced in the API.
+Status (2026-02-05): Resolved by aligning tests/docs to sessionId-only access. The API no longer returns or validates a session secret; the privacy posture now depends on keeping session payloads non-sensitive or adding access control later.
 Evidence:
-- Tests expect a `sessionSecret` and 403 without it in `tests/test_security.py:149` and `tests/test_security.py:172`.
-- Security policy states “access requires session secret” in `SECURITY.md:116`.
-- DB schema has `session_secret_hash` column in `backend/app/db/models.py:46`.
-- API routes `create_session`, `get_session`, `update_session` do not check any secret in `backend/app/api/router.py:77` and `backend/app/api/router.py:122`.
-- Secret helper functions exist but are unused in `backend/app/core/security.py:95`.
-Impact: Any party with a session ID can fetch or update sessions, including contact_email in operator profiles, violating the documented privacy posture.
-Root cause hypothesis: Partial implementation left behind after a design change or unfinished feature.
-Recommendation: Either implement session secret enforcement or explicitly remove it from tests/docs and redesign the privacy model. Implementing requires generating a secret on create, storing hash, returning secret, and validating `X-Session-Secret` on GET/PUT.
-Tradeoffs: Implementing increases client complexity (must store and send secret); removing reduces protection but simplifies UX.
-Migration/compatibility considerations: Rolling out enforcement requires a backfill plan for existing sessions (grace period or optional auth for legacy records).
-Test/verification plan: Use the existing tests in `tests/test_security.py` as the acceptance suite and ensure they pass; add a migration test for backfilled secrets.
+- Session endpoints do not require `X-Session-Secret` in `backend/app/api/router.py`.
+- `SECURITY.md` updated to reflect sessionId-only access and localStorage usage.
+- Session secret tests removed from `tests/test_security.py` and `tests/test_api.py`.
+Remaining considerations:
+- Decide whether to remove `session_secret_hash` column and helper functions (see DEAD-01).
+- If PII is required in sessions, introduce real access control.
 
-**SEC-02 — Session ID stored in localStorage contradicts security guidance**
-Issue: Session ID is persisted to localStorage even though docs claim no sensitive data is stored there.
+**SEC-02 — Session ID stored in localStorage**
+Issue: Session ID is persisted to localStorage; this is acceptable only if session payloads are non-sensitive.
+Status (2026-02-05): Security guidance updated to explicitly allow sessionId persistence in localStorage, with the caveat that no PII should be stored client-side.
 Evidence:
-- Store persistence uses localStorage in `frontend/src/state/tcoStore.ts:77` and includes `sessionId` in persisted state at `frontend/src/state/tcoStore.ts:176`.
-- Security policy claims no sensitive data in localStorage in `SECURITY.md:96`.
-Impact: If session IDs are bearer tokens (current state), XSS can exfiltrate session IDs, enabling session takeover.
-Root cause hypothesis: Convenience persistence chosen without aligning to security policy.
-Recommendation: Store session IDs in memory only or move to an HttpOnly cookie-based session mechanism with CSRF protections. If session secrets are implemented, persist only non-sensitive identifiers.
-Tradeoffs: Removing persistence may degrade resume UX; cookies add backend complexity.
-Migration/compatibility considerations: Consider a phased rollout with a feature flag; preserve existing localStorage for a transition window.
-Test/verification plan: Add tests that assert no sensitive identifiers are persisted when the flag is on; verify session resume still works.
+- Store persistence uses localStorage in `frontend/src/state/tcoStore.ts:77`.
+- `SECURITY.md` updated to reflect localStorage usage.
+Follow-up: If session payloads ever include sensitive data, revisit HttpOnly cookie-based access or other auth.
 
-**SEC-03 — Analytics API key configuration mismatch**
-Issue: Backend supports optional API key enforcement, but frontend does not send the key.
+**SEC-03 — Analytics access now server-side only**
+Issue: Backend allowed optional API key enforcement while frontend attempted to call the endpoint without a key.
+Status (2026-02-05): Analytics UI removed; analytics endpoint now requires `ANALYTICS_API_KEY` and is disabled if unset. This keeps analytics data private and backend-only.
 Evidence:
-- Backend checks `X-Analytics-Key` in `backend/app/core/security.py:142`.
-- Frontend calls the endpoint without headers in `frontend/src/services/api.ts:50`.
-Impact: If an API key is configured, the analytics UI breaks; if no key is configured, analytics data is publicly accessible.
-Root cause hypothesis: Backend flexibility not reflected in frontend configuration.
-Recommendation: Decide on policy. If analytics should be protected, add `VITE_ANALYTICS_API_KEY` (or similar) and send header in the client, or move analytics requests to a backend-only channel. If analytics should be public, document that and remove the key path.
-Tradeoffs: Client-side keys are not secret; for real protection, use a backend proxy or server-side-only access.
-Migration/compatibility considerations: Ensure keyless mode remains for local dev if needed; guard in code to avoid shipping secrets.
-Test/verification plan: Add frontend integration test that asserts correct header when env var is present; backend test already covers enforcement in `tests/test_security.py:225`.
+- `frontend/src/components/results/AnalyticsSummaryCard.tsx` and `frontend/src/hooks/useAnalyticsSummary.ts` removed.
+- `backend/app/core/security.py` requires the key; tests updated in `tests/test_security.py`.
+Follow-up: If internal review is needed, add an admin-only UI or a secured reporting workflow.
 
 **SEC-04 — Rate limiting likely per-process only (assumption)**
 Issue: slowapi limiter is instantiated without an explicit shared storage backend.
@@ -181,17 +182,13 @@ Test/verification plan: Add a performance regression test with a large dataset a
 **Maintainability**
 
 **MAINT-01 — Validation ranges drift across layers**
-Issue: Override bounds are not consistent across frontend Zod schema, backend Pydantic, and calculator clamps.
+Issue: Override bounds were inconsistent across frontend Zod schema, backend Pydantic, and calculator clamps.
+Status (2026-02-05): Resolved by centralizing limits in `data/constants.py` (`OVERRIDE_LIMITS`) and consuming them in frontend/backend; shared constants regenerated.
 Evidence:
-- Frontend allows `interest_rate_override` up to 1 and `charging_time_hours_override` up to 24 in `frontend/src/forms/wizardForm.ts:120`.
-- Backend enforces the same maxima in `backend/app/models/calculation.py:119` and `backend/app/models/calculation.py:125`.
-- Calculator clamps `interest_rate_override` to 0.2 and `charging_time_hours_override` to 8 in `shared/calculator/tcoCalculator.ts:247` and `shared/calculator/tcoCalculator.ts:255`.
-Impact: Users can submit values that are silently clamped in calculation, leading to confusing discrepancies and difficult debugging.
-Root cause hypothesis: Multiple validation sources maintained independently.
-Recommendation: Define a single source of truth for override constraints (shared constants or generated schema) and import into frontend/backend/calculator. Add a parity test to enforce equality.
-Tradeoffs: Requires refactor across three layers and careful rollout.
-Migration/compatibility considerations: Choose a canonical range and communicate changes; consider telemetry to detect real-world usage beyond new limits.
-Test/verification plan: Add a test that asserts constraint equivalence across layers and fails CI on drift.
+- `data/constants.py` defines `OVERRIDE_LIMITS`.
+- `frontend/src/forms/wizardForm.ts` and `backend/app/models/calculation.py` now use those limits.
+- Calculator remains the canonical clamp source in `shared/calculator/tcoCalculator.ts`.
+Follow-up: Add a CI parity check to ensure limits remain aligned across layers.
 
 **MAINT-02 — Comment/code mismatch in duty-cycle validation**
 Issue: A comment claims validation includes sum check, but the function does not check the sum.
@@ -348,11 +345,11 @@ Test/verification plan: Update unit tests to lock intended behavior.
 **Prioritized Backlog**
 | ID | Title | Impact | Effort | Risk | Owner Suggestion | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- |
-| P1 | Implement or remove session secret access control | High | Medium | Medium | Backend + Frontend | SEC-01 decision |
-| P2 | Unify override constraints across layers | High | Medium | Medium | Shared + Frontend + Backend | MAINT-01 |
+| P1 | Remove session secret access control (Done) | High | Medium | Medium | Backend + Frontend | SEC-01 decision |
+| P2 | Unify override constraints across layers (Done) | High | Medium | Medium | Shared + Frontend + Backend | MAINT-01 |
 | P3 | Centralize session lifecycle (single-flight creation) | High | Medium | Medium | Frontend | CR-01 |
 | P4 | Optimize analytics aggregation | High | High | Medium | Backend + Data | PERF-01 |
-| P5 | Remove session ID from localStorage or secure with HttpOnly cookies | High | Medium | Medium | Frontend + Backend | SEC-02, P1 |
+| P5 | Confirm localStorage policy and avoid PII in sessions (Done) | High | Medium | Medium | Frontend + Backend | SEC-02 |
 | P6 | Add Redis-backed rate limit storage | Medium | Medium | Low | Backend/Infra | SEC-04 |
 | P7 | Make migrations an explicit deploy step | Medium | Medium | Low | Backend/Infra | CR-04 |
 | P8 | Remove unused deps and dead code | Medium | Low | Low | Backend + Frontend | DEAD-02, DEAD-03 |
@@ -361,11 +358,11 @@ Test/verification plan: Update unit tests to lock intended behavior.
 
 **Migration Plan**
 1. Phase 1 — Safety rails and alignment.
-Add parity tests for override constraints, add a session lifecycle unit test to prevent duplicate session creation, and add a security regression test for session secret behavior (either enforcement or removal). Rollout: merge behind feature flags where applicable. Rollback: revert to current behavior by disabling flags.
+Add parity tests for override constraints, add a session lifecycle unit test to prevent duplicate session creation, and add a security regression test for sessionId-only access. Rollout: merge behind feature flags where applicable. Rollback: revert to current behavior by disabling flags.
 2. Phase 2 — Low-risk refactors.
 Centralize override sanitization, remove unused frontend API calls, remove unused dependencies after verifying no scripts use them, and adjust cache initialization to be lazy. Rollout: small PRs with targeted tests. Rollback: revert per PR if regressions occur.
 3. Phase 3 — High-impact structural changes.
-Implement session secret enforcement (or formally remove it), move migrations to a deploy-time step, and optimize analytics aggregation (potentially adding new tables or jobs). Rollout: staged deployment with dual-read for analytics and a migration plan for existing sessions. Rollback: feature-flag enforcement and keep backward compatibility for legacy sessions during the transition.
+Move migrations to a deploy-time step, and optimize analytics aggregation (potentially adding new tables or jobs). Rollout: staged deployment with dual-read for analytics. Rollback: feature-flag enforcement and keep backward compatibility for legacy sessions during the transition.
 
 **Tooling & Guardrails Recommendations**
 - Add a CI check that validates override constraint parity across frontend, backend, and calculator.
@@ -375,11 +372,10 @@ Implement session secret enforcement (or formally remove it), move migrations to
 - Add a dependency usage audit (pipdeptree + grep) before pruning dependencies.
 
 **Open Questions / Assumptions**
-- Is the session secret model intended to be enforced, or has the product moved away from it? Evidence conflict: `SECURITY.md:116` vs `backend/app/api/router.py:77`.
-- Is analytics data intended to be public? If not, how should clients authenticate to it?
+- Session secrets are no longer enforced by design; should we remove the unused `session_secret_hash` column and related helpers entirely?
+- Analytics access is server-side only (API key required); do we want an internal/admin UI or a separate reporting workflow to view analytics?
 - Are there multi-instance deployments where rate limiting must be shared? (Assumption for SEC-04.)
-- Should sessions be resumable across browsers/devices, and what is the privacy requirement for stored operator contact emails?
-- Are frontend and backend expected to share a single validation schema (e.g., generated from Python), or can we accept controlled divergence?
+- Should sessions be resumable across browsers/devices, and what is the privacy requirement for stored operator contact emails (given sessionId-only access)?
 
 **Appendix**
 Commands run (local, read-only):
@@ -409,6 +405,15 @@ Commands run (local, read-only):
 - `rg -n "marshmallow|cerberus" -S .`
 - `rg -n "dotenv" backend scripts`
 - `rg -n "dangerouslySetInnerHTML|innerHTML|document.write|window.location|localStorage|sessionStorage" frontend/src`
+- `git log -n 20 --oneline`
+- `git show --stat 4ee9f16`
+- `git show --stat 7897eac`
+- `rg -n "Session Secret|X-Session-Secret|session secret|secret" tests/test_security.py`
+- `rg -n "Analytics-Key|analytics key" backend/app/core/security.py backend/app/api/router.py frontend/src/services/api.ts`
+- `rg -n "analytics" backend frontend shared tests`
+- `rg -n "contactEmail|operatorProfile" frontend/src`
+- `rg -n "override" shared/calculator/tcoCalculator.ts`
+- `python scripts/generate_vehicle_catalog_ts.py`
 
 Notes:
 - No tests or linters were executed in this audit; findings are based on static inspection.

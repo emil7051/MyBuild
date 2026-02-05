@@ -76,6 +76,76 @@ export const CONSTANTS: ConstantCatalog = {
   "OFFPEAK_CHARGING_EMISSIONS": 0.7,
   "OFFPEAK_CHARGING_PRICE": 0.15,
   "OTHER_INSURANCE": 2000,
+  "OVERRIDE_LIMITS": {
+    "cost": {
+      "annual_kms_variation": {
+        "max": 250000,
+        "min": 5000
+      },
+      "battery_life_variation": {
+        "max": 1.5,
+        "min": 0.5
+      },
+      "charging_efficiency_variation": {
+        "max": 1.3,
+        "min": 0.7
+      },
+      "electricity_price_variation": {
+        "max": 2.0,
+        "min": 0.5
+      },
+      "fuel_price_variation": {
+        "max": 2.0,
+        "min": 0.5
+      },
+      "maintenance_cost_variation": {
+        "max": 1.5,
+        "min": 0.5
+      },
+      "residual_value_variation": {
+        "max": 1.5,
+        "min": 0.5
+      }
+    },
+    "vehicle": {
+      "annual_registration_override": {
+        "max": 100000,
+        "min": 0
+      },
+      "battery_capacity_kwh_override": {
+        "max": 2000,
+        "min": 0
+      },
+      "charging_time_hours_override": {
+        "max": 8,
+        "min": 0.1
+      },
+      "interest_rate_override": {
+        "max": 0.2,
+        "min": 0
+      },
+      "kwh_per_km_override": {
+        "max": 10,
+        "min": 0.1
+      },
+      "litres_per_km_override": {
+        "max": 5,
+        "min": 0.05
+      },
+      "msrp_override": {
+        "max": 10000000,
+        "min": 0
+      },
+      "payload_override": {
+        "max": 100,
+        "min": 0
+      },
+      "range_km_override": {
+        "max": 2500,
+        "min": 50
+      }
+    }
+  },
   "PAYLOAD_UTILISATION_FACTOR": {
     "Articulated": 0.9,
     "Light Rigid": 0.8,

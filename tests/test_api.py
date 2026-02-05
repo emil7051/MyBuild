@@ -95,15 +95,11 @@ async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
     assert create_response.status_code == 201
     created = create_response.json()
     assert created["status"] == "completed"
+    assert "sessionSecret" not in created
 
-    # SEC-005: Session now requires secret for GET
     session_id = created["sessionId"]
-    session_secret = created["sessionSecret"]
 
-    get_response = await client.get(
-        f"/api/v1/sessions/{session_id}",
-        headers={"X-Session-Secret": session_secret},
-    )
+    get_response = await client.get(f"/api/v1/sessions/{session_id}")
     assert get_response.status_code == 200
     assert get_response.json()["sessionId"] == session_id
 
@@ -115,24 +111,30 @@ async def test_session_update_clears_results(client: httpx.AsyncClient) -> None:
     )
     created = create_response.json()
     session_id = created["sessionId"]
-    session_secret = created["sessionSecret"]
 
     update_payload = make_session_update_payload_dict(results=[])
-    # SEC-005: Session now requires secret for PUT
     update_response = await client.put(
         f"/api/v1/sessions/{session_id}",
         json=update_payload,
-        headers={"X-Session-Secret": session_secret},
     )
     assert update_response.status_code == 200
     assert update_response.json()["status"] == "draft"
 
 
 @pytest.mark.anyio
-async def test_analytics_summary(client: httpx.AsyncClient) -> None:
+async def test_analytics_summary(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
     await client.post("/api/v1/sessions", json=make_session_payload_dict())
 
-    response = await client.get("/api/v1/analytics/summary")
+    from backend.app.core import config
+
+    monkeypatch.setattr(config.settings, "analytics_api_key", "test-api-key-12345")
+
+    response = await client.get(
+        "/api/v1/analytics/summary",
+        headers={"X-Analytics-Key": "test-api-key-12345"},
+    )
     assert response.status_code == 200
     summary = response.json()
     assert summary["totalSessions"] == 1

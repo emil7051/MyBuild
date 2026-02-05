@@ -13,13 +13,13 @@ The TCO Web Platform provides a RESTful API for calculating Total Cost of Owners
 
 Session endpoints do not require authentication. Clients can create, fetch, and update sessions using the `sessionId` returned on creation.
 
-### Analytics API Key (Optional)
+### Analytics API Key
 
-The `/analytics/summary` endpoint can be protected with an API key:
+The `/analytics/summary` endpoint requires an API key:
 
-- Set the `ANALYTICS_API_KEY` environment variable to enable protection
-- When enabled, requests must include the `X-Analytics-Key` header
-- If not configured, the endpoint is publicly accessible
+- Set the `ANALYTICS_API_KEY` environment variable to enable access
+- Requests must include the `X-Analytics-Key` header
+- If not configured, the endpoint is disabled
 
 ## Endpoints
 
@@ -282,8 +282,10 @@ GET /api/v1/analytics/summary
 
 Retrieve aggregated analytics across all sessions.
 
-**Headers (if `ANALYTICS_API_KEY` is configured):**
+**Headers:**
 - `X-Analytics-Key` (required): The configured analytics API key
+
+If `ANALYTICS_API_KEY` is not configured, the endpoint is disabled and returns `403`.
 
 **Response:**
 ```json
@@ -367,9 +369,6 @@ BASE_URL = "http://localhost:8000/api/v1"
 vehicles = requests.get(f"{BASE_URL}/vehicles").json()
 print(f"Loaded {len(vehicles)} vehicles")
 
-# Get analytics summary
-analytics = requests.get(f"{BASE_URL}/analytics/summary").json()
-print(f"Total sessions: {analytics['totalSessions']}")
 ```
 
 ### JavaScript Example
@@ -377,17 +376,11 @@ print(f"Total sessions: {analytics['totalSessions']}")
 ```javascript
 const BASE_URL = 'http://localhost:8000/api/v1';
 
-async function loadCatalogAndAnalytics() {
-  const [vehiclesRes, analyticsRes] = await Promise.all([
-    fetch(`${BASE_URL}/vehicles`),
-    fetch(`${BASE_URL}/analytics/summary`),
-  ]);
-
+async function loadCatalog() {
+  const vehiclesRes = await fetch(`${BASE_URL}/vehicles`);
   const vehicles = await vehiclesRes.json();
-  const analytics = await analyticsRes.json();
 
   console.log(`Loaded ${vehicles.length} vehicles`);
-  console.log(`Total sessions: ${analytics.totalSessions}`);
 }
 ```
 

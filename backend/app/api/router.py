@@ -153,7 +153,7 @@ async def analytics_summary(
 ) -> AnalyticsSummary:
     """Get analytics summary (SEC-007: restricted to backend-only access).
 
-    Requires X-Analytics-Key header if ANALYTICS_API_KEY is configured.
+    Requires X-Analytics-Key header. Endpoint disabled if key is not configured.
     """
     # Verify API key if configured (SEC-007)
     verify_analytics_api_key(request)

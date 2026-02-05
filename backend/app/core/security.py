@@ -131,13 +131,16 @@ def verify_secret(secret: str, hashed: str) -> bool:
 
 
 def verify_analytics_api_key(request: Request) -> None:
-    """Verify the analytics API key if configured (SEC-007).
+    """Verify the analytics API key (SEC-007).
 
-    Raises HTTPException 401 if API key is required but missing/invalid.
+    Raises HTTPException 403 if the endpoint is disabled (no key configured),
+    or 401 if the key is missing/invalid.
     """
     if settings.analytics_api_key is None:
-        # No API key configured, endpoint is unrestricted
-        return
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Analytics API key is not configured. Endpoint disabled.",
+        )
 
     provided_key = request.headers.get("X-Analytics-Key")
     if not provided_key:

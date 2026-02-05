@@ -61,7 +61,7 @@ class Settings(BaseSettings):
     )
     analytics_api_key: Optional[str] = Field(
         default=None,
-        description="API key for analytics endpoint. If None, unrestricted.",
+        description="API key for analytics endpoint. If None, endpoint is disabled.",
     )
 
     @field_validator("backend_cors_origins", "trusted_proxies", mode="before")

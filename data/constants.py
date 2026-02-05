@@ -82,6 +82,30 @@ WORKING_DAYS = 255  # Number of working days per year (365 * 0.70)
 
 DUTY_CYCLE_TOTAL_TOLERANCE = 0.5  # % tolerance for duty cycle sum validation
 
+# Override validation limits (shared across frontend/backend/calculator)
+OVERRIDE_LIMITS = {
+    "cost": {
+        "annual_kms_variation": {"min": 5000, "max": 250000},
+        "residual_value_variation": {"min": 0.5, "max": 1.5},
+        "maintenance_cost_variation": {"min": 0.5, "max": 1.5},
+        "fuel_price_variation": {"min": 0.5, "max": 2.0},
+        "electricity_price_variation": {"min": 0.5, "max": 2.0},
+        "battery_life_variation": {"min": 0.5, "max": 1.5},
+        "charging_efficiency_variation": {"min": 0.7, "max": 1.3},
+    },
+    "vehicle": {
+        "msrp_override": {"min": 0, "max": 10_000_000},
+        "payload_override": {"min": 0, "max": 100},
+        "range_km_override": {"min": 50, "max": 2500},
+        "battery_capacity_kwh_override": {"min": 0, "max": 2000},
+        "kwh_per_km_override": {"min": 0.1, "max": 10},
+        "litres_per_km_override": {"min": 0.05, "max": 5},
+        "annual_registration_override": {"min": 0, "max": 100_000},
+        "interest_rate_override": {"min": 0, "max": 0.2},
+        "charging_time_hours_override": {"min": 0.1, "max": 8},
+    },
+}
+
 # Payload Penalty - Based on BITRE freight rates
 FREIGHT_RATE_PER_TONNE_KM = {
     "Light Rigid": 0.25,  # $/tonne-km (BITRE 2017 rate for rigid truck freight transport)

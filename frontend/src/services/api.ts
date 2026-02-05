@@ -1,12 +1,10 @@
 import axios from 'axios';
 import type {
-
   VehicleDetail,
   VehicleSummary,
   SessionCreatePayload,
   SessionResponsePayload,
   SessionUpdatePayload,
-  AnalyticsSummaryPayload,
 } from '@shared/types/tco.types';
 
 const api = axios.create({
@@ -44,10 +42,5 @@ export const updateSession = async (
 
 export const fetchSession = async (sessionId: string) => {
   const { data } = await api.get<SessionResponsePayload>(`/sessions/${sessionId}`);
-  return data;
-};
-
-export const fetchAnalyticsSummary = async () => {
-  const { data } = await api.get<AnalyticsSummaryPayload>('/analytics/summary');
   return data;
 };

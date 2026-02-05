@@ -2,7 +2,6 @@
 
 TEST-005: Override shape normalization
 SEC-003: Backend bounds checking
-SEC-005: Session access-control secret
 API-002: UUID validation
 API-007: Payload validation
 SEC-007: Analytics API key protection
@@ -142,81 +141,6 @@ async def test_valid_overrides_accepted(client: httpx.AsyncClient) -> None:
 
 
 # ============================================================================
-# SEC-005: Session access-control secret tests
-# ============================================================================
-
-
-@pytest.mark.anyio
-async def test_session_create_returns_secret(client: httpx.AsyncClient) -> None:
-    """Session creation should return a sessionSecret."""
-    payload = make_session_payload_dict()
-    response = await client.post("/api/v1/sessions", json=payload)
-    assert response.status_code == 201
-    data = response.json()
-    assert "sessionSecret" in data
-    assert data["sessionSecret"] is not None
-    assert len(data["sessionSecret"]) > 20  # Token should be reasonably long
-
-
-@pytest.mark.anyio
-async def test_session_get_requires_secret(client: httpx.AsyncClient) -> None:
-    """GET session should require the session secret."""
-    # Create session and get the secret
-    payload = make_session_payload_dict()
-    create_response = await client.post("/api/v1/sessions", json=payload)
-    assert create_response.status_code == 201
-    created = create_response.json()
-    session_id = created["sessionId"]
-    session_secret = created["sessionSecret"]
-
-    # GET without secret should fail with 403
-    response_no_secret = await client.get(f"/api/v1/sessions/{session_id}")
-    assert response_no_secret.status_code == 403
-
-    # GET with correct secret should succeed
-    response_with_secret = await client.get(
-        f"/api/v1/sessions/{session_id}",
-        headers={"X-Session-Secret": session_secret},
-    )
-    assert response_with_secret.status_code == 200
-
-    # GET with wrong secret should fail
-    response_wrong_secret = await client.get(
-        f"/api/v1/sessions/{session_id}",
-        headers={"X-Session-Secret": "wrong-secret"},
-    )
-    assert response_wrong_secret.status_code == 403
-
-
-@pytest.mark.anyio
-async def test_session_update_requires_secret(client: httpx.AsyncClient) -> None:
-    """PUT session should require the session secret."""
-    # Create session
-    payload = make_session_payload_dict()
-    create_response = await client.post("/api/v1/sessions", json=payload)
-    created = create_response.json()
-    session_id = created["sessionId"]
-    session_secret = created["sessionSecret"]
-
-    update_payload = make_session_update_payload_dict(results=[])
-
-    # PUT without secret should fail
-    response_no_secret = await client.put(
-        f"/api/v1/sessions/{session_id}",
-        json=update_payload,
-    )
-    assert response_no_secret.status_code == 403
-
-    # PUT with correct secret should succeed
-    response_with_secret = await client.put(
-        f"/api/v1/sessions/{session_id}",
-        json=update_payload,
-        headers={"X-Session-Secret": session_secret},
-    )
-    assert response_with_secret.status_code == 200
-
-
-# ============================================================================
 # SEC-007: Analytics API key protection tests
 # ============================================================================
 
@@ -254,14 +178,14 @@ async def test_analytics_with_api_key_required(
 async def test_analytics_without_api_key_configured(
     client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Analytics endpoint should be open when no API key is configured."""
+    """Analytics endpoint should be disabled when no API key is configured."""
     from backend.app.core import config
 
     # Ensure no API key is configured
     monkeypatch.setattr(config.settings, "analytics_api_key", None)
 
     response = await client.get("/api/v1/analytics/summary")
-    assert response.status_code == 200
+    assert response.status_code == 403
 
 
 # ============================================================================

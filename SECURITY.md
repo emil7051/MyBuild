@@ -85,7 +85,8 @@ We aim to acknowledge reports within 48 hours and provide a fix timeline within 
 - Input validation on all API endpoints
 - Parameterized queries (SQLAlchemy ORM)
 - Rate limiting on session/analytics endpoints
-- Session secrets stored as hashes only
+- Session access is based on sessionId only (no per-session secret enforced)
+- Analytics endpoint requires `ANALYTICS_API_KEY` and is disabled if unset
 - Path traversal protection for static file serving
 - CORS configuration restricts allowed origins
 
@@ -93,7 +94,7 @@ We aim to acknowledge reports within 48 hours and provide a fix timeline within 
 
 - Input sanitization in forms
 - Content Security Policy headers (when deployed)
-- No sensitive data in localStorage (session secrets stored in memory)
+- Session IDs are stored in localStorage for resume; no PII is stored in localStorage by the frontend
 
 ### Data Layer
 
@@ -113,6 +114,6 @@ We aim to acknowledge reports within 48 hours and provide a fix timeline within 
 
 ### Sensitive Data Handling
 
-- Session contact emails are stored but access requires session secret
+- Session data may include optional operator profile fields if supplied via API; session endpoints are unauthenticated by default, so avoid storing sensitive data unless access control is added
 - Analytics data is aggregated; individual sessions are not publicly queryable
 - No plaintext secrets in codebase (use environment variables)
