@@ -1,13 +1,13 @@
 **Executive Summary**
-- Session access-control secrets were removed by design; docs/tests now align with sessionId-only access. This increases the importance of keeping session payloads free of sensitive data or adding access control later. Evidence: `SECURITY.md`, `tests/test_api.py`.
+- Session access-control secret is enforced end-to-end: create returns a per-session secret, the backend stores a bcrypt hash, and GET/PUT require `X-Session-Secret`. Frontend persists and sends the secret. Evidence: `backend/app/services/sessions.py`, `backend/app/core/security.py`, `backend/app/api/router.py`, `frontend/src/services/api.ts`, `frontend/src/state/tcoStore.ts`, `tests/test_api.py`.
 - Validation ranges for vehicle overrides were unified to the calculator via shared `OVERRIDE_LIMITS` in `data/constants.py`. Evidence: `data/constants.py`, `frontend/src/forms/wizardForm.ts`, `backend/app/models/calculation.py`, `shared/data/constants.generated.ts`.
 - Session creation is duplicated across autosave and calculation flows, each with its own mutex, which can create duplicate sessions and inconsistent persistence under race conditions. Evidence: `frontend/src/hooks/useWizardAutosave.ts:63`, `frontend/src/hooks/useCalculations.ts:68`.
 - Analytics aggregation currently loads all calculation rows and performs in-memory aggregation, which will not scale with growing usage. Evidence: `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220`.
-- Several dead or unused elements (session secret helpers, unused frontend API functions, unused Python deps) add maintenance risk and suggest incomplete refactors. Evidence: `backend/app/core/security.py:95`, `frontend/src/services/api.ts:17`, `requirements.txt:20`.
+- Several dead or unused elements (unused frontend API functions, unused Python deps) add maintenance risk and suggest incomplete refactors. Evidence: `frontend/src/services/api.ts:17`, `requirements.txt:20`.
 
 **Progress Update (2026-02-05)**
 Completed:
-- Session secret enforcement removed by design: tests/docs aligned to sessionId-only access; `SECURITY.md` updated to reflect no per-session secret and localStorage usage.
+- Session secret enforcement implemented end-to-end: create returns `sessionSecret`, backend stores a bcrypt hash and requires `X-Session-Secret` for session GET/PUT; frontend persists/sends the secret; tests updated.
 - Override validation ranges unified to the calculator via shared `OVERRIDE_LIMITS` in `data/constants.py`; frontend and backend now consume the same limits; shared constants regenerated.
 - Analytics UI removed from frontend (unused components/hooks deleted and API client call removed).
 - Analytics endpoint now requires `ANALYTICS_API_KEY`; if unset, endpoint is disabled (403). Tests and docs updated accordingly.
@@ -57,14 +57,14 @@ Constraints (not provided, treated as assumptions):
 **Top Risks & Hotspots**
 | Rank | Risk | Likelihood | Impact | Score | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Session access is unauthenticated; avoid storing sensitive data or add access control | 3 | 4 | 12 | `backend/app/api/router.py`, `SECURITY.md` |
+| 1 | Session secret stored in localStorage (XSS exposure risk) | 3 | 4 | 12 | `frontend/src/state/tcoStore.ts`, `frontend/src/services/api.ts` |
 | 2 | Duplicate session creation paths can race | 3 | 4 | 12 | `frontend/src/hooks/useWizardAutosave.ts:63`, `frontend/src/hooks/useCalculations.ts:68` |
 | 3 | Analytics aggregation loads full table in memory | 3 | 4 | 12 | `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220` |
 | 4 | Cache doesn’t avoid the first DB hit | 3 | 3 | 9 | `backend/app/services/sessions.py:127` |
 | 5 | Rate limiting likely per-process only (slowapi default storage) | 3 | 3 | 9 | `backend/app/core/security.py:85` |
 | 6 | Migrations run on app startup (multi-instance risk) | 2 | 4 | 8 | `backend/app/db/session.py:37` |
 | 7 | Redis client initialized once; no retry if Redis unavailable | 3 | 2 | 6 | `backend/app/core/cache.py:16` |
-| 8 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `backend/app/core/security.py:95` |
+| 8 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `frontend/src/services/api.ts:17` |
 | 9 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
 
 **Findings**
@@ -128,24 +128,26 @@ Test/verification plan: Add a unit test that simulates bcrypt failure and assert
 
 **Security & Privacy**
 
-**SEC-01 — Session access-control secret removed by design**
-Issue: Session secret access control was previously documented/tested but is not enforced in the API.
-Status (2026-02-05): Resolved by aligning tests/docs to sessionId-only access. The API no longer returns or validates a session secret; the privacy posture now depends on keeping session payloads non-sensitive or adding access control later.
+**SEC-01 — Session access-control secret enforced**
+Issue: Session secret access control was previously documented/tested but not enforced in the API.
+Status (2026-02-05): Implemented end-to-end. Session creation generates a secret, stores a bcrypt hash, and requires `X-Session-Secret` for GET/PUT. Frontend persists and sends the secret; tests updated.
 Evidence:
-- Session endpoints do not require `X-Session-Secret` in `backend/app/api/router.py`.
-- `SECURITY.md` updated to reflect sessionId-only access and localStorage usage.
-- Session secret tests removed from `tests/test_security.py` and `tests/test_api.py`.
+- `backend/app/services/sessions.py` generates `sessionSecret` and stores `session_secret_hash`.
+- `backend/app/core/security.py` verifies secrets.
+- `backend/app/api/router.py` enforces `X-Session-Secret` on session GET/PUT.
+- `frontend/src/services/api.ts` sends the header and `frontend/src/state/tcoStore.ts` persists the secret.
+- `tests/test_api.py` updated to require the header.
 Remaining considerations:
-- Decide whether to remove `session_secret_hash` column and helper functions (see DEAD-01).
-- If PII is required in sessions, introduce real access control.
+- Decide whether to backfill secrets for legacy sessions (`session_secret_hash` is nullable) and enforce secrets universally.
+- Evaluate localStorage persistence risk and consider HttpOnly cookies or shorter secret TTL.
 
-**SEC-02 — Session ID stored in localStorage**
-Issue: Session ID is persisted to localStorage; this is acceptable only if session payloads are non-sensitive.
-Status (2026-02-05): Security guidance updated to explicitly allow sessionId persistence in localStorage, with the caveat that no PII should be stored client-side.
+**SEC-02 — Session secret stored in localStorage**
+Issue: Session secret is persisted to localStorage for resume; if XSS occurs it can be exfiltrated and used to access sessions.
+Status (2026-02-05): Implemented for resume UX alongside secret enforcement.
 Evidence:
-- Store persistence uses localStorage in `frontend/src/state/tcoStore.ts:77`.
-- `SECURITY.md` updated to reflect localStorage usage.
-Follow-up: If session payloads ever include sensitive data, revisit HttpOnly cookie-based access or other auth.
+- Store persistence includes `sessionSecret` in `frontend/src/state/tcoStore.ts`.
+- Session API client sends `X-Session-Secret` in `frontend/src/services/api.ts`.
+Follow-up: Consider HttpOnly cookies, tighter CSP, shorter secret TTLs, or avoiding persistence when possible.
 
 **SEC-03 — Analytics access now server-side only**
 Issue: Backend allowed optional API key enforcement while frontend attempted to call the endpoint without a key.
@@ -215,17 +217,14 @@ Test/verification plan: Add a unit test for sanitizer and use in both paths.
 
 **Duplication & Dead Code**
 
-**DEAD-01 — Session secret helpers and DB column unused**
-Issue: Session secret functions and schema exist but are not wired into API flow.
+**DEAD-01 — Session secret helpers and DB column now used**
+Issue: Session secret helpers and schema previously appeared unused, creating confusion.
+Status (2026-02-05): Resolved; helpers and `session_secret_hash` are now used for session access control.
 Evidence:
-- Helpers in `backend/app/core/security.py:95` are unused.
-- `session_secret_hash` column in `backend/app/db/models.py:46` is unused by services.
-Impact: Increases cognitive load and creates false sense of security.
-Root cause hypothesis: Feature partially implemented then stalled.
-Recommendation: Either complete the feature (see SEC-01) or remove the unused helpers and column to reduce confusion.
-Tradeoffs: Removing the column requires a migration; implementing requires frontend changes.
-Migration/compatibility considerations: If removing, provide a migration and update tests/docs accordingly.
-Test/verification plan: Add tests to ensure the chosen path (implemented or removed) is consistent.
+- `backend/app/core/security.py` provides generation/verification.
+- `backend/app/services/sessions.py` stores and checks the hash.
+- `backend/app/db/models.py` retains the column.
+Recommendation: None.
 
 **DEAD-02 — Unused frontend API calls**
 Issue: `fetchVehicles` and `fetchVehicle` are defined but unused; frontend uses static shared data instead.
@@ -268,17 +267,14 @@ Test/verification plan: Verify that dependency audit still works and reproducibl
 
 **Tests & Observability**
 
-**TEST-01 — Tests expect session secret that API does not implement**
-Issue: Security tests assert session secret behavior that is absent in the current API.
+**TEST-01 — Session secret tests now align with API**
+Issue: Tests previously expected session secret behavior that the API did not implement.
+Status (2026-02-05): Resolved; API returns `sessionSecret` on create and enforces `X-Session-Secret` on GET/PUT, and tests validate this.
 Evidence:
-- Tests in `tests/test_security.py:149` assert `sessionSecret` in response and enforce `X-Session-Secret`.
-- API routes do not include secret validation in `backend/app/api/router.py:77`.
-Impact: Either tests are failing or the code has drifted from its intended security design, reducing confidence.
-Root cause hypothesis: Feature partially removed or never completed.
-Recommendation: Resolve by implementing the feature or updating tests/docs to reflect current behavior.
-Tradeoffs: Implementation introduces client-side handling; removal reduces security posture.
-Migration/compatibility considerations: Ensure documentation and client behavior is updated to match.
-Test/verification plan: Align CI to the chosen behavior and ensure tests pass.
+- `tests/test_api.py` asserts secret presence and header requirement.
+- `backend/app/api/router.py` enforces the header.
+- `backend/app/services/sessions.py` generates the secret.
+Follow-up: Add a negative test for invalid secrets (optional).
 
 **TEST-02 — Backend coverage floor is low**
 Issue: CI allows backend coverage down to 50%.
@@ -345,11 +341,11 @@ Test/verification plan: Update unit tests to lock intended behavior.
 **Prioritized Backlog**
 | ID | Title | Impact | Effort | Risk | Owner Suggestion | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- |
-| P1 | Remove session secret access control (Done) | High | Medium | Medium | Backend + Frontend | SEC-01 decision |
+| P1 | Implement session secret access control (Done) | High | Medium | Medium | Backend + Frontend | SEC-01 decision |
 | P2 | Unify override constraints across layers (Done) | High | Medium | Medium | Shared + Frontend + Backend | MAINT-01 |
 | P3 | Centralize session lifecycle (single-flight creation) | High | Medium | Medium | Frontend | CR-01 |
 | P4 | Optimize analytics aggregation | High | High | Medium | Backend + Data | PERF-01 |
-| P5 | Confirm localStorage policy and avoid PII in sessions (Done) | High | Medium | Medium | Frontend + Backend | SEC-02 |
+| P5 | Review session secret storage (localStorage vs HttpOnly) | High | Medium | Medium | Frontend + Backend | SEC-02 |
 | P6 | Add Redis-backed rate limit storage | Medium | Medium | Low | Backend/Infra | SEC-04 |
 | P7 | Make migrations an explicit deploy step | Medium | Medium | Low | Backend/Infra | CR-04 |
 | P8 | Remove unused deps and dead code | Medium | Low | Low | Backend + Frontend | DEAD-02, DEAD-03 |
@@ -358,7 +354,7 @@ Test/verification plan: Update unit tests to lock intended behavior.
 
 **Migration Plan**
 1. Phase 1 — Safety rails and alignment.
-Add parity tests for override constraints, add a session lifecycle unit test to prevent duplicate session creation, and add a security regression test for sessionId-only access. Rollout: merge behind feature flags where applicable. Rollback: revert to current behavior by disabling flags.
+Add parity tests for override constraints, add a session lifecycle unit test to prevent duplicate session creation, and add a security regression test for session secret enforcement. Rollout: merge behind feature flags where applicable. Rollback: revert to current behavior by disabling flags.
 2. Phase 2 — Low-risk refactors.
 Centralize override sanitization, remove unused frontend API calls, remove unused dependencies after verifying no scripts use them, and adjust cache initialization to be lazy. Rollout: small PRs with targeted tests. Rollback: revert per PR if regressions occur.
 3. Phase 3 — High-impact structural changes.
@@ -372,10 +368,10 @@ Move migrations to a deploy-time step, and optimize analytics aggregation (poten
 - Add a dependency usage audit (pipdeptree + grep) before pruning dependencies.
 
 **Open Questions / Assumptions**
-- Session secrets are no longer enforced by design; should we remove the unused `session_secret_hash` column and related helpers entirely?
+- Session secrets are now enforced for new sessions; should we backfill/rotate secrets for legacy sessions (null `session_secret_hash`) and enforce universally?
 - Analytics access is server-side only (API key required); do we want an internal/admin UI or a separate reporting workflow to view analytics?
 - Are there multi-instance deployments where rate limiting must be shared? (Assumption for SEC-04.)
-- Should sessions be resumable across browsers/devices, and what is the privacy requirement for stored operator contact emails (given sessionId-only access)?
+- Should sessions be resumable across browsers/devices, and do we want to move session secret storage to HttpOnly cookies or shorten secret TTLs?
 
 **Appendix**
 Commands run (local, read-only):

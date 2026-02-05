@@ -3,6 +3,7 @@ import type {
   VehicleDetail,
   VehicleSummary,
   SessionCreatePayload,
+  SessionCreateResponsePayload,
   SessionResponsePayload,
   SessionUpdatePayload,
 } from '@shared/types/tco.types';
@@ -22,25 +23,47 @@ export const fetchVehicle = async (vehicleId: string) => {
   return data;
 };
 
+type SessionRequestOptions = {
+  sessionSecret?: string;
+  signal?: AbortSignal;
+};
 
+const getSessionConfig = (options: SessionRequestOptions = {}) => {
+  const config: { headers?: Record<string, string>; signal?: AbortSignal } = {};
+  if (options.sessionSecret) {
+    config.headers = { 'X-Session-Secret': options.sessionSecret };
+  }
+  if (options.signal) {
+    config.signal = options.signal;
+  }
+  return config;
+};
 
 export const createSession = async (payload: SessionCreatePayload) => {
-  const { data } = await api.post<SessionResponsePayload>('/sessions', payload);
+  const { data } = await api.post<SessionCreateResponsePayload>('/sessions', payload);
   return data;
 };
 
 export const updateSession = async (
   sessionId: string,
   payload: SessionUpdatePayload,
-  signal?: AbortSignal
+  options: SessionRequestOptions = {}
 ) => {
-  const { data } = await api.put<SessionResponsePayload>(`/sessions/${sessionId}`, payload, {
-    signal,
-  });
+  const { data } = await api.put<SessionResponsePayload>(
+    `/sessions/${sessionId}`,
+    payload,
+    getSessionConfig(options)
+  );
   return data;
 };
 
-export const fetchSession = async (sessionId: string) => {
-  const { data } = await api.get<SessionResponsePayload>(`/sessions/${sessionId}`);
+export const fetchSession = async (
+  sessionId: string,
+  options: SessionRequestOptions = {}
+) => {
+  const { data } = await api.get<SessionResponsePayload>(
+    `/sessions/${sessionId}`,
+    getSessionConfig(options)
+  );
   return data;
 };

@@ -28,6 +28,7 @@ interface TCOStore {
   isCalculating: boolean;
   vehicleDetails: Record<string, VehicleDetail>;
   sessionId?: string;
+  sessionSecret?: string;
   latestRequestId: number;
   _hasHydrated: boolean;
   updateWizard: (data: Partial<WizardData>) => void;
@@ -40,6 +41,7 @@ interface TCOStore {
   resetResults: () => void;
   setIsCalculating: (state: boolean) => void;
   setSessionId: (sessionId?: string) => void;
+  setSessionSecret: (sessionSecret?: string) => void;
   getNextRequestId: () => number;
   setHasHydrated: (state: boolean) => void;
 }
@@ -133,6 +135,7 @@ export const useTCOStore = create<TCOStore>()(
       isCalculating: false,
       vehicleDetails: initialVehicleDetails,
       sessionId: undefined,
+      sessionSecret: undefined,
       latestRequestId: 0,
       _hasHydrated: false,
       updateWizard: (data) =>
@@ -170,7 +173,12 @@ export const useTCOStore = create<TCOStore>()(
         }),
       resetResults: () => set({ results: [] }),
       setIsCalculating: (state) => set({ isCalculating: state }),
-      setSessionId: (sessionId) => set({ sessionId }),
+      setSessionId: (sessionId) =>
+        set((state) => ({
+          sessionId,
+          sessionSecret: sessionId === state.sessionId ? state.sessionSecret : undefined,
+        })),
+      setSessionSecret: (sessionSecret) => set({ sessionSecret }),
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
@@ -182,6 +190,7 @@ export const useTCOStore = create<TCOStore>()(
         results: state.results,
         vehicleDetails: state.vehicleDetails,
         sessionId: state.sessionId,
+        sessionSecret: state.sessionSecret,
       }),
       onRehydrateStorage: () => (state, error) => {
         if (error) {
