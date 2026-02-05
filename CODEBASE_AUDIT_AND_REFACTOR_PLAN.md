@@ -1,25 +1,17 @@
-**Executive Summary**
-- Session access-control secret is enforced end-to-end: create returns a per-session secret, the backend stores a bcrypt hash, and GET/PUT require `X-Session-Secret`. Frontend persists and sends the secret. Evidence: `backend/app/services/sessions.py`, `backend/app/core/security.py`, `backend/app/api/router.py`, `frontend/src/services/api.ts`, `frontend/src/state/tcoStore.ts`, `tests/test_api.py`.
-- Validation ranges for vehicle overrides were unified to the calculator via shared `OVERRIDE_LIMITS` in `data/constants.py`. Evidence: `data/constants.py`, `frontend/src/forms/wizardForm.ts`, `backend/app/models/calculation.py`, `shared/data/constants.generated.ts`.
-- Session creation is duplicated across autosave and calculation flows, each with its own mutex, which can create duplicate sessions and inconsistent persistence under race conditions. Evidence: `frontend/src/hooks/useWizardAutosave.ts:63`, `frontend/src/hooks/useCalculations.ts:68`.
-- Analytics aggregation currently loads all calculation rows and performs in-memory aggregation, which will not scale with growing usage. Evidence: `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220`.
-- Several dead or unused elements (unused frontend API functions, unused Python deps) add maintenance risk and suggest incomplete refactors. Evidence: `frontend/src/services/api.ts:17`, `requirements.txt:20`.
+**Current Priorities (Remaining)**
+| ID | Title | Impact | Effort | Risk | Owner Suggestion | Dependencies |
+| --- | --- | --- | --- | --- | --- | --- |
+| P1 | Optimize analytics aggregation | High | High | Medium | Backend + Data | PERF-01 |
+| P2 | Review session secret storage (localStorage vs HttpOnly) | High | Medium | Medium | Frontend + Backend | SEC-02 |
+| P3 | Add Redis-backed rate limit storage | Medium | Medium | Low | Backend/Infra | SEC-04 |
+| P4 | Remove unused deps and dead code | Medium | Low | Low | Backend + Frontend | DEAD-02, DEAD-03 |
+| P5 | Resolve dual lockfile strategy | Medium | Low | Low | Frontend/Infra | DEP-01 |
+| P6 | Raise backend coverage threshold incrementally | Medium | Medium | Low | Backend | TEST-02 |
+| P7 | Guard `--reload` in production compose | Medium | Low | Low | Backend/Infra | OPS-01 |
+| P8 | Fix duty-cycle comment drift | Low | Low | Low | Frontend | MAINT-02 |
+| P9 | Deduplicate payload sanitization | Low | Low | Low | Frontend | MAINT-03 |
 
-**Progress Update (2026-02-05)**
-Completed:
-- Session secret enforcement implemented end-to-end: create returns `sessionSecret`, backend stores a bcrypt hash and requires `X-Session-Secret` for session GET/PUT; frontend persists/sends the secret; tests updated.
-- Override validation ranges unified to the calculator via shared `OVERRIDE_LIMITS` in `data/constants.py`; frontend and backend now consume the same limits; shared constants regenerated.
-- Analytics UI removed from frontend (unused components/hooks deleted and API client call removed).
-- Analytics endpoint now requires `ANALYTICS_API_KEY`; if unset, endpoint is disabled (403). Tests and docs updated accordingly.
-
-Remaining (highest-impact):
-- Centralize session lifecycle to prevent duplicate session creation (CR-01).
-- Optimize analytics aggregation path (PERF-01).
-- Cache-first session lookup and Redis reconnection strategy (CR-02, CR-03).
-- Make migrations an explicit deploy step (CR-04).
-- Remove remaining dead code/deps and resolve dual lockfile strategy (DEAD-02/03, DEP-01).
-
-**Repo Overview**
+**Still-Relevant Context**
 Architecture map and data flow:
 - Frontend SPA (React + Vite + Bun). Entry: `frontend/src/main.tsx`. Routes: `frontend/src/App.tsx`. Evidence: `README.md:28`, `README.md:102`, `frontend/package.json:7`.
 - Shared calculator (TypeScript). Core: `shared/calculator/tcoCalculator.ts`, math: `shared/calculator/math.ts`. Evidence: `README.md:110`, `shared/calculator/tcoCalculator.ts:1`.
@@ -54,92 +46,20 @@ Constraints (not provided, treated as assumptions):
 - Timeline / available engineering capacity: Not specified.
 - Preferred coding standards/linting rules: See CI lint tools. Evidence: `.github/workflows/ci.yml:35`.
 
-**Top Risks & Hotspots**
+**Top Remaining Risks & Hotspots**
 | Rank | Risk | Likelihood | Impact | Score | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Session secret stored in localStorage (XSS exposure risk) | 3 | 4 | 12 | `frontend/src/state/tcoStore.ts`, `frontend/src/services/api.ts` |
-| 2 | Duplicate session creation paths can race | 3 | 4 | 12 | `frontend/src/hooks/useWizardAutosave.ts:63`, `frontend/src/hooks/useCalculations.ts:68` |
-| 3 | Analytics aggregation loads full table in memory | 3 | 4 | 12 | `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220` |
-| 4 | Cache doesn’t avoid the first DB hit | 3 | 3 | 9 | `backend/app/services/sessions.py:127` |
-| 5 | Rate limiting likely per-process only (slowapi default storage) | 3 | 3 | 9 | `backend/app/core/security.py:85` |
-| 6 | Migrations run on app startup (multi-instance risk) | 2 | 4 | 8 | `backend/app/db/session.py:37` |
-| 7 | Redis client initialized once; no retry if Redis unavailable | 3 | 2 | 6 | `backend/app/core/cache.py:16` |
-| 8 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `frontend/src/services/api.ts:17` |
-| 9 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
+| 2 | Analytics aggregation loads full table in memory | 3 | 4 | 12 | `backend/app/services/sessions.py:210`, `backend/app/services/sessions.py:220` |
+| 3 | Rate limiting likely per-process only (slowapi default storage) | 3 | 3 | 9 | `backend/app/core/security.py:85` |
+| 4 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
+| 5 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `frontend/src/services/api.ts:17` |
+| 6 | Backend coverage floor is low | 2 | 3 | 6 | `.github/workflows/ci.yml:68` |
+| 7 | Compose runs backend with `--reload` | 2 | 2 | 4 | `docker-compose.yml:7` |
+| 8 | Comment drift from behavior (duty cycle validation) | 2 | 2 | 4 | `frontend/src/state/tcoStore.ts:241` |
 
-**Findings**
-**Correctness & Reliability**
-
-**CR-01 — Duplicate session creation paths can race**
-Issue: Session creation is implemented in both autosave and calculation flows with separate mutexes, which can create multiple sessions if both trigger before `sessionId` is set.
-Evidence:
-- `frontend/src/hooks/useWizardAutosave.ts:63` shows `createSession` in autosave with `isCreatingSessionRef` local to that hook.
-- `frontend/src/hooks/useCalculations.ts:68` shows `createSession` in the calculation flow with a different `isCreatingSession` ref.
-Impact: Duplicate sessions, inconsistent server state, and user confusion on resume. In worst cases, session updates may apply to a session that is not the one referenced by local storage.
-Root cause hypothesis: Session lifecycle management is spread across multiple hooks without a shared single-flight mechanism.
-Recommendation: Centralize session lifecycle in a single store/service layer (e.g., Zustand action) and ensure a single shared mutex for creation/update. One path should own `createSession`, others should enqueue updates.
-Tradeoffs: Centralization introduces refactor risk and must be coordinated with existing hooks to avoid regressions.
-Migration/compatibility considerations: Preserve API contracts and ensure `sessionId` semantics remain stable. Provide a transitional adapter to route old hook calls to the new service.
-Test/verification plan: Add a concurrency test that simulates autosave + calculation triggering back-to-back and asserts only one session is created and all updates land on that ID.
-
-**CR-02 — Cache doesn’t avoid the first DB hit**
-Issue: `get_session` performs a database lookup before checking Redis cache, reducing cache benefit.
-Evidence:
-- `backend/app/services/sessions.py:127` fetches the DB record before cache lookup at `backend/app/services/sessions.py:131`.
-Impact: Additional DB load under read-heavy traffic; Redis cache only saves secondary queries.
-Root cause hypothesis: Cache introduced after DB existence check to preserve “not found” errors.
-Recommendation: Check Redis first and fall back to DB only on cache miss, or cache a short-lived “not found” marker. Alternatively, query DB only for existence and cached payload separately.
-Tradeoffs: Cache-first can return stale data if cache invalidation fails; mitigated by TTL and update-on-write.
-Migration/compatibility considerations: No API schema changes; ensure cache entries include a version or updated_at to detect staleness.
-Test/verification plan: Add tests for cache hit path and stale cache invalidation by updating a session and ensuring cache refresh.
-
-**CR-03 — Redis client initialization is one-shot**
-Issue: Redis client is created at import time and not reinitialized after failure.
-Evidence:
-- `backend/app/core/cache.py:16` creates the client; if creation fails it returns None and remains None for process lifetime.
-Impact: If Redis is temporarily unavailable at startup, caching remains disabled even after Redis recovers.
-Root cause hypothesis: Simplified init logic without reconnection strategy.
-Recommendation: Lazy-initialize client on first use and/or retry with exponential backoff. Store a function that can recreate the client if `redis_client` is None.
-Tradeoffs: Slight overhead in hot path to check/reconnect; can be minimized with a lock and backoff.
-Migration/compatibility considerations: No API changes; ensure reconnection logic is thread-safe in async context.
-Test/verification plan: Unit test that simulates a failed connection followed by a successful retry, verifying cache usage.
-
-**CR-04 — Migrations run on app startup**
-Issue: Alembic migrations execute during app startup.
-Evidence:
-- `backend/app/db/session.py:37` runs `command.upgrade` at startup.
-Impact: Startup latency and potential conflicts if multiple instances start concurrently; in some deployments this can block readiness or cause migration race errors.
-Root cause hypothesis: Convenience for dev environments baked into runtime init.
-Recommendation: Make migrations an explicit deployment step (CI/CD job, release hook). Gate runtime migrations behind a config flag.
-Tradeoffs: Requires operational discipline; reduces “it just works” dev simplicity.
-Migration/compatibility considerations: Ensure dev workflow still runs migrations easily (e.g., `make migrate`).
-Test/verification plan: Add integration test that asserts startup with `RUN_MIGRATIONS=false` does not attempt migrations.
-
-**CR-05 — Broad exception swallowing in secret verification**
-Issue: `verify_secret` catches all exceptions and silently returns False.
-Evidence:
-- `backend/app/core/security.py:127` catches `Exception` and returns False.
-Impact: Real operational errors (e.g., bcrypt failures) are hidden, reducing observability and complicating debugging.
-Root cause hypothesis: Defensive programming to avoid crashes, without structured logging.
-Recommendation: Catch specific exceptions and log at warning level; treat unexpected errors as 500 to avoid false negatives.
-Tradeoffs: More visible errors may surface but provide clarity; can be feature-flagged in production.
-Migration/compatibility considerations: If callers expect boolean-only behavior, introduce logging first then tighten error handling.
-Test/verification plan: Add a unit test that simulates bcrypt failure and asserts logging/exception path.
-
+**Remaining Findings**
 **Security & Privacy**
-
-**SEC-01 — Session access-control secret enforced**
-Issue: Session secret access control was previously documented/tested but not enforced in the API.
-Status (2026-02-05): Implemented end-to-end. Session creation generates a secret, stores a bcrypt hash, and requires `X-Session-Secret` for GET/PUT. Frontend persists and sends the secret; tests updated.
-Evidence:
-- `backend/app/services/sessions.py` generates `sessionSecret` and stores `session_secret_hash`.
-- `backend/app/core/security.py` verifies secrets.
-- `backend/app/api/router.py` enforces `X-Session-Secret` on session GET/PUT.
-- `frontend/src/services/api.ts` sends the header and `frontend/src/state/tcoStore.ts` persists the secret.
-- `tests/test_api.py` updated to require the header.
-Remaining considerations:
-- Decide whether to backfill secrets for legacy sessions (`session_secret_hash` is nullable) and enforce secrets universally.
-- Evaluate localStorage persistence risk and consider HttpOnly cookies or shorter secret TTL.
 
 **SEC-02 — Session secret stored in localStorage**
 Issue: Session secret is persisted to localStorage for resume; if XSS occurs it can be exfiltrated and used to access sessions.
@@ -148,14 +68,6 @@ Evidence:
 - Store persistence includes `sessionSecret` in `frontend/src/state/tcoStore.ts`.
 - Session API client sends `X-Session-Secret` in `frontend/src/services/api.ts`.
 Follow-up: Consider HttpOnly cookies, tighter CSP, shorter secret TTLs, or avoiding persistence when possible.
-
-**SEC-03 — Analytics access now server-side only**
-Issue: Backend allowed optional API key enforcement while frontend attempted to call the endpoint without a key.
-Status (2026-02-05): Analytics UI removed; analytics endpoint now requires `ANALYTICS_API_KEY` and is disabled if unset. This keeps analytics data private and backend-only.
-Evidence:
-- `frontend/src/components/results/AnalyticsSummaryCard.tsx` and `frontend/src/hooks/useAnalyticsSummary.ts` removed.
-- `backend/app/core/security.py` requires the key; tests updated in `tests/test_security.py`.
-Follow-up: If internal review is needed, add an admin-only UI or a secured reporting workflow.
 
 **SEC-04 — Rate limiting likely per-process only (assumption)**
 Issue: slowapi limiter is instantiated without an explicit shared storage backend.
@@ -183,15 +95,6 @@ Test/verification plan: Add a performance regression test with a large dataset a
 
 **Maintainability**
 
-**MAINT-01 — Validation ranges drift across layers**
-Issue: Override bounds were inconsistent across frontend Zod schema, backend Pydantic, and calculator clamps.
-Status (2026-02-05): Resolved by centralizing limits in `data/constants.py` (`OVERRIDE_LIMITS`) and consuming them in frontend/backend; shared constants regenerated.
-Evidence:
-- `data/constants.py` defines `OVERRIDE_LIMITS`.
-- `frontend/src/forms/wizardForm.ts` and `backend/app/models/calculation.py` now use those limits.
-- Calculator remains the canonical clamp source in `shared/calculator/tcoCalculator.ts`.
-Follow-up: Add a CI parity check to ensure limits remain aligned across layers.
-
 **MAINT-02 — Comment/code mismatch in duty-cycle validation**
 Issue: A comment claims validation includes sum check, but the function does not check the sum.
 Evidence:
@@ -216,15 +119,6 @@ Migration/compatibility considerations: Ensure output remains identical to avoid
 Test/verification plan: Add a unit test for sanitizer and use in both paths.
 
 **Duplication & Dead Code**
-
-**DEAD-01 — Session secret helpers and DB column now used**
-Issue: Session secret helpers and schema previously appeared unused, creating confusion.
-Status (2026-02-05): Resolved; helpers and `session_secret_hash` are now used for session access control.
-Evidence:
-- `backend/app/core/security.py` provides generation/verification.
-- `backend/app/services/sessions.py` stores and checks the hash.
-- `backend/app/db/models.py` retains the column.
-Recommendation: None.
 
 **DEAD-02 — Unused frontend API calls**
 Issue: `fetchVehicles` and `fetchVehicle` are defined but unused; frontend uses static shared data instead.
@@ -267,15 +161,6 @@ Test/verification plan: Verify that dependency audit still works and reproducibl
 
 **Tests & Observability**
 
-**TEST-01 — Session secret tests now align with API**
-Issue: Tests previously expected session secret behavior that the API did not implement.
-Status (2026-02-05): Resolved; API returns `sessionSecret` on create and enforces `X-Session-Secret` on GET/PUT, and tests validate this.
-Evidence:
-- `tests/test_api.py` asserts secret presence and header requirement.
-- `backend/app/api/router.py` enforces the header.
-- `backend/app/services/sessions.py` generates the secret.
-Follow-up: Add a negative test for invalid secrets (optional).
-
 **TEST-02 — Backend coverage floor is low**
 Issue: CI allows backend coverage down to 50%.
 Evidence:
@@ -302,31 +187,6 @@ Test/verification plan: Verify production startup uses a non-reload configuratio
 
 **AI-Generated Pattern Indicators (Symptoms, Not Blame)**
 
-**AI-01 — Over-defensive validation scattered across layers**
-Issue: The same override validation is repeated in three layers with inconsistent bounds.
-Evidence:
-- Frontend Zod validation in `frontend/src/forms/wizardForm.ts:112`.
-- Backend Pydantic validation in `backend/app/models/calculation.py:89`.
-- Calculator clamping in `shared/calculator/tcoCalculator.ts:211`.
-Impact: Divergent behavior, silent clamps, and maintenance cost. This is typical of “defensive duplication” in AI-assisted code.
-Root cause hypothesis: Each layer independently added safety checks instead of centralizing constraints.
-Recommendation: Replace with a shared, generated constraint catalog used by all layers.
-Tradeoffs: Cross-layer refactor with coordination overhead.
-Migration/compatibility considerations: Ensure backward compatibility with existing persisted data.
-Test/verification plan: Add constraint parity tests across frontend/backend/calculator.
-
-**AI-02 — Error swallowing without observability**
-Issue: Broad exception handling hides failures in cache and secret verification.
-Evidence:
-- `backend/app/core/cache.py:43` catches `Exception` and logs a warning.
-- `backend/app/core/security.py:127` catches `Exception` and returns False with no logging.
-Impact: Failures become silent, making production issues difficult to diagnose.
-Root cause hypothesis: Auto-generated defensive patterns without structured error strategy.
-Recommendation: Replace with narrow exception handling and structured logging; consider metrics.
-Tradeoffs: More logs; ensure rate-limited logging to avoid noise.
-Migration/compatibility considerations: Introduce logging first, then tighten exception scopes.
-Test/verification plan: Add tests to assert logging for error paths.
-
 **AI-03 — Comment drift from behavior**
 Issue: Comment claims sum validation that the implementation does not perform.
 Evidence:
@@ -338,40 +198,71 @@ Tradeoffs: Minimal.
 Migration/compatibility considerations: None.
 Test/verification plan: Update unit tests to lock intended behavior.
 
-**Prioritized Backlog**
-| ID | Title | Impact | Effort | Risk | Owner Suggestion | Dependencies |
-| --- | --- | --- | --- | --- | --- | --- |
-| P1 | Implement session secret access control (Done) | High | Medium | Medium | Backend + Frontend | SEC-01 decision |
-| P2 | Unify override constraints across layers (Done) | High | Medium | Medium | Shared + Frontend + Backend | MAINT-01 |
-| P3 | Centralize session lifecycle (single-flight creation) | High | Medium | Medium | Frontend | CR-01 |
-| P4 | Optimize analytics aggregation | High | High | Medium | Backend + Data | PERF-01 |
-| P5 | Review session secret storage (localStorage vs HttpOnly) | High | Medium | Medium | Frontend + Backend | SEC-02 |
-| P6 | Add Redis-backed rate limit storage | Medium | Medium | Low | Backend/Infra | SEC-04 |
-| P7 | Make migrations an explicit deploy step | Medium | Medium | Low | Backend/Infra | CR-04 |
-| P8 | Remove unused deps and dead code | Medium | Low | Low | Backend + Frontend | DEAD-02, DEAD-03 |
-| P9 | Resolve dual lockfile strategy | Medium | Low | Low | Frontend/Infra | DEP-01 |
-| P10 | Raise backend coverage threshold incrementally | Medium | Medium | Low | Backend | TEST-02 |
-
-**Migration Plan**
-1. Phase 1 — Safety rails and alignment.
-Add parity tests for override constraints, add a session lifecycle unit test to prevent duplicate session creation, and add a security regression test for session secret enforcement. Rollout: merge behind feature flags where applicable. Rollback: revert to current behavior by disabling flags.
-2. Phase 2 — Low-risk refactors.
-Centralize override sanitization, remove unused frontend API calls, remove unused dependencies after verifying no scripts use them, and adjust cache initialization to be lazy. Rollout: small PRs with targeted tests. Rollback: revert per PR if regressions occur.
-3. Phase 3 — High-impact structural changes.
-Move migrations to a deploy-time step, and optimize analytics aggregation (potentially adding new tables or jobs). Rollout: staged deployment with dual-read for analytics. Rollback: feature-flag enforcement and keep backward compatibility for legacy sessions during the transition.
-
-**Tooling & Guardrails Recommendations**
-- Add a CI check that validates override constraint parity across frontend, backend, and calculator.
-- Add vulture (already in dev deps) to CI for unused Python code detection and a similar ESLint rule for unused exports.
-- Add a check that ensures session secret behavior aligns with tests/docs (single source of truth).
-- Add a performance budget test for analytics endpoint with a fixture dataset.
-- Add a dependency usage audit (pipdeptree + grep) before pruning dependencies.
-
 **Open Questions / Assumptions**
 - Session secrets are now enforced for new sessions; should we backfill/rotate secrets for legacy sessions (null `session_secret_hash`) and enforce universally?
 - Analytics access is server-side only (API key required); do we want an internal/admin UI or a separate reporting workflow to view analytics?
 - Are there multi-instance deployments where rate limiting must be shared? (Assumption for SEC-04.)
 - Should sessions be resumable across browsers/devices, and do we want to move session secret storage to HttpOnly cookies or shorten secret TTLs?
+
+**Completed Work (Implemented)**
+**Progress Update (2026-02-05)**
+Completed:
+- Session secret enforcement implemented end-to-end: create returns `sessionSecret`, backend stores a bcrypt hash and requires `X-Session-Secret` for session GET/PUT; frontend persists/sends the secret; tests updated.
+- Override validation ranges unified to the calculator via shared `OVERRIDE_LIMITS` in `data/constants.py`; frontend and backend now consume the same limits; shared constants regenerated.
+- Analytics UI removed from frontend (unused components/hooks deleted and API client call removed).
+- Analytics endpoint now requires `ANALYTICS_API_KEY`; if unset, endpoint is disabled (403). Tests and docs updated accordingly.
+- CR-01: Centralized frontend session lifecycle with a shared single-flight create path and queued updates; autosave and calculation hooks now route through a common service.
+- CR-02/CR-03: Session cache is cache-first with cached secret hash; Redis client is lazily initialized with retry/backoff and resets on failure.
+- CR-04: Runtime migrations are gated by `RUN_MIGRATIONS` (defaults to enabled in development, disabled otherwise); startup skips migrations when disabled.
+- CR-05: Secret verification now logs expected errors and returns HTTP 500 on unexpected failures; added test coverage.
+
+**Correctness & Reliability**
+
+**CR-01 — Duplicate session creation paths can race**
+Status (2026-02-05): Implemented. Added a shared session lifecycle service with a single-flight create path and queued updates; autosave and calculations now route through it, plus a single-flight unit test.
+
+**CR-02 — Cache doesn’t avoid the first DB hit**
+Status (2026-02-05): Implemented. Session lookup now checks Redis first using cached payload + secret hash and falls back to DB on cache miss or legacy entry; added cache-hit coverage.
+
+**CR-03 — Redis client initialization is one-shot**
+Status (2026-02-05): Implemented. Redis client is lazily initialized with retry/backoff and resets to allow reconnection after failures; retry coverage added.
+
+**CR-04 — Migrations run on app startup**
+Status (2026-02-05): Implemented. Added `RUN_MIGRATIONS` gate and a test ensuring startup skips migrations when disabled.
+
+**CR-05 — Broad exception swallowing in secret verification**
+Status (2026-02-05): Implemented. `verify_secret` now logs expected errors and surfaces unexpected failures as HTTP 500; test coverage added.
+
+**Security & Privacy**
+
+**SEC-01 — Session access-control secret enforced**
+Status (2026-02-05): Implemented end-to-end. Session creation generates a secret, stores a bcrypt hash, and requires `X-Session-Secret` for GET/PUT. Frontend persists and sends the secret; tests updated.
+
+**SEC-03 — Analytics access now server-side only**
+Status (2026-02-05): Implemented. Analytics UI removed; analytics endpoint now requires `ANALYTICS_API_KEY` and is disabled if unset.
+
+**Maintainability**
+
+**MAINT-01 — Validation ranges drift across layers**
+Status (2026-02-05): Resolved by centralizing limits in `data/constants.py` (`OVERRIDE_LIMITS`) and consuming them in frontend/backend; shared constants regenerated.
+
+**Duplication & Dead Code**
+
+**DEAD-01 — Session secret helpers and DB column now used**
+Status (2026-02-05): Resolved; helpers and `session_secret_hash` are now used for session access control.
+
+**Tests & Observability**
+
+**TEST-01 — Session secret tests now align with API**
+Status (2026-02-05): Resolved; API returns `sessionSecret` on create and enforces `X-Session-Secret` on GET/PUT, and tests validate this.
+
+**AI-Generated Pattern Indicators (Resolved)**
+
+**AI-01 — Over-defensive validation scattered across layers**
+Status (2026-02-05): Resolved by centralizing override limits with shared `OVERRIDE_LIMITS`.
+
+**AI-02 — Error swallowing without observability**
+Status (2026-02-05): Resolved for cache + secret verification via narrower exception handling and logging.
 
 **Appendix**
 Commands run (local, read-only):

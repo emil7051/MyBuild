@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timezone
 
 import pytest
 from sqlalchemy import func, select
@@ -15,6 +16,8 @@ from backend.app.db.models import (
     UserInputRecord,
 )
 from backend.app.models.calculation import CostOverride, VehicleParamOverride
+from backend.app.models.session import SessionResponse
+from backend.app.core.security import hash_secret
 from backend.app.services.sessions import SessionService
 from backend.app.services.vehicles import VehicleCatalogService
 from data.vehicles import ALL_MODELS, BY_ID
@@ -198,3 +201,41 @@ def test_session_service_analytics_summary(async_session_factory) -> None:
     record = asyncio.run(_fetch_session(async_session_factory, response.session_id))
     assert record is not None
     assert record.status == "completed"
+
+
+def test_session_service_get_session_uses_cache_before_db(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = SessionService()
+    secret = "cache-secret"
+    payload = SessionResponse(
+        session_id="cached-session",
+        status="completed",
+        wizard_data=make_wizard_data(),
+        results=make_default_results(),
+        updated_at=datetime.now(timezone.utc),
+        last_calculated_at=datetime.now(timezone.utc),
+    ).model_dump(by_alias=True, mode="json")
+    cached_entry = {
+        "payload": payload,
+        "session_secret_hash": hash_secret(secret),
+    }
+
+    async def _fake_get_cached_session(_session_id: str):
+        return cached_entry
+
+    class DummyDB:
+        async def get(self, *_args, **_kwargs):
+            raise AssertionError("DB should not be called on cache hit")
+
+        async def refresh(self, *_args, **_kwargs):
+            raise AssertionError("DB refresh should not be called on cache hit")
+
+    async def _run():
+        monkeypatch.setattr(
+            "backend.app.services.sessions.get_cached_session", _fake_get_cached_session
+        )
+        return await service.get_session(DummyDB(), "cached-session", secret)
+
+    result = asyncio.run(_run())
+    assert result.session_id == "cached-session"

@@ -74,7 +74,11 @@ class SessionService:
         await db.refresh(record)
 
         response = await self._build_response(db, record.id)
-        await cache_session(record.id, response.model_dump(by_alias=True))
+        await cache_session(
+            record.id,
+            response.model_dump(by_alias=True),
+            record.session_secret_hash,
+        )
 
         create_payload = response.model_dump(by_alias=True)
         create_payload["sessionSecret"] = session_secret
@@ -125,7 +129,11 @@ class SessionService:
         await db.commit()
 
         response = await self._build_response(db, session_id)
-        await cache_session(session_id, response.model_dump(by_alias=True))
+        await cache_session(
+            session_id,
+            response.model_dump(by_alias=True),
+            record.session_secret_hash,
+        )
         return response
 
     async def get_session(
@@ -135,20 +143,24 @@ class SessionService:
         session_secret: str | None = None,
     ) -> SessionResponse:
         """Retrieve a session."""
-        # Check cache first
+        cached = await get_cached_session(session_id)
+        if cached:
+            verify_session_secret(session_secret, cached["session_secret_hash"])
+            return SessionResponse.model_validate(cached["payload"])
+
         record = await db.get(SessionRecord, session_id)
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
         verify_session_secret(session_secret, record.session_secret_hash)
 
-        cached = await get_cached_session(session_id)
-        if cached:
-            return SessionResponse.model_validate(cached)
-
         await db.refresh(record)
 
         response = await self._build_response(db, session_id)
-        await cache_session(session_id, response.model_dump(by_alias=True))
+        await cache_session(
+            session_id,
+            response.model_dump(by_alias=True),
+            record.session_secret_hash,
+        )
         return response
 
     async def analytics_summary(self, db: AsyncSession) -> AnalyticsSummary:

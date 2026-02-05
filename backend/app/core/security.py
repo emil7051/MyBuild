@@ -126,8 +126,12 @@ def verify_secret(secret: str, hashed: str) -> bool:
     """
     try:
         return bcrypt.checkpw(secret.encode("utf-8"), hashed.encode("utf-8"))
-    except Exception:
+    except (ValueError, TypeError) as exc:
+        logger.warning("Invalid session secret hash: %s", exc)
         return False
+    except Exception:
+        logger.exception("Unexpected error while verifying session secret.")
+        raise
 
 
 def verify_session_secret(provided: str | None, hashed: str | None) -> None:
@@ -144,7 +148,15 @@ def verify_session_secret(provided: str | None, hashed: str | None) -> None:
             detail="Session secret required. Provide X-Session-Secret header.",
         )
 
-    if not verify_secret(provided, hashed):
+    try:
+        is_valid = verify_secret(provided, hashed)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Session secret verification failed.",
+        )
+
+    if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid session secret.",

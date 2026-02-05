@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import httpx
 import pytest
+from fastapi import HTTPException
 
 from tests.factories import (
     BEV_VEHICLE_ID,
@@ -292,3 +293,20 @@ async def test_no_overrides_stored_as_none(
 
         # No overrides should be None
         assert user_input.overrides is None
+
+
+def test_verify_session_secret_returns_500_on_unexpected_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unexpected bcrypt errors should surface as 500s."""
+    from backend.app.core import security
+
+    def _boom(*_args, **_kwargs):
+        raise RuntimeError("bcrypt failure")
+
+    monkeypatch.setattr(security.bcrypt, "checkpw", _boom)
+
+    with pytest.raises(HTTPException) as exc_info:
+        security.verify_session_secret("secret", "hash")
+
+    assert exc_info.value.status_code == 500

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 import tempfile
 
@@ -113,6 +114,22 @@ class TestMigrationSystem:
             session_indexes = {idx["name"] for idx in inspector.get_indexes("sessions")}
             assert "ix_sessions_created_at" in session_indexes
             assert "ix_sessions_status" in session_indexes
+
+    def test_init_db_skips_when_disabled(self, monkeypatch) -> None:
+        """Verify init_db returns early when migrations are disabled."""
+        from backend.app.db import session as db_session
+
+        called = {"upgrade": False}
+
+        def _fake_upgrade(*_args, **_kwargs):
+            called["upgrade"] = True
+
+        monkeypatch.setattr(db_session.command, "upgrade", _fake_upgrade)
+        monkeypatch.setattr(db_session.settings, "run_migrations", False, raising=False)
+
+        asyncio.run(db_session.init_db())
+
+        assert called["upgrade"] is False
 
 
 class TestModelIndexDefinitions:

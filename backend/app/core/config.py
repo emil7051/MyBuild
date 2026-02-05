@@ -63,6 +63,13 @@ class Settings(BaseSettings):
         default=None,
         description="API key for analytics endpoint. If None, endpoint is disabled.",
     )
+    run_migrations: Optional[bool] = Field(
+        default=None,
+        description=(
+            "Run Alembic migrations on app startup. "
+            "Defaults to True in development and False otherwise."
+        ),
+    )
 
     @field_validator("backend_cors_origins", "trusted_proxies", mode="before")
     @classmethod
@@ -116,6 +123,12 @@ class Settings(BaseSettings):
 
         # Reconstruct URL
         return urlunsplit((scheme, parts.netloc, parts.path, new_query, parts.fragment))
+
+    @property
+    def should_run_migrations(self) -> bool:
+        if self.run_migrations is not None:
+            return self.run_migrations
+        return self.environment == "development"
 
     # Only load .env in development to avoid overriding production secrets.
     _env_file = (

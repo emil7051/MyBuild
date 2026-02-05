@@ -6,7 +6,7 @@ import type {
   CalculationResponsePayload,
   ComparisonRequestPayload,
 } from '@shared/types/tco.types';
-import { createSession, updateSession } from '@services/api';
+import { persistSessionUpdate } from '@services/sessionLifecycle';
 import { useTCOStore } from '@state/tcoStore';
 import { buildSessionPayload } from '@utils/payload';
 
@@ -33,17 +33,6 @@ export const useCalculationRunner = () => {
   const setIsCalculating = useTCOStore((state) => state.setIsCalculating);
   const getNextRequestId = useTCOStore((state) => state.getNextRequestId);
   const wizardData = useTCOStore((state) => state.wizardData);
-  const sessionId = useTCOStore((state) => state.sessionId);
-  const sessionSecret = useTCOStore((state) => state.sessionSecret);
-  const setSessionId = useTCOStore((state) => state.setSessionId);
-  const setSessionSecret = useTCOStore((state) => state.setSessionSecret);
-
-  // Mutex refs to prevent duplicate session creation race condition
-  const isCreatingSession = useRef(false);
-  const pendingSessionId = useRef<string | null>(null);
-  const pendingSessionSecret = useRef<string | null>(null);
-  // Ref to store pending payload while session is being created
-  const pendingPayload = useRef<CalculationResponsePayload[] | null>(null);
   const lastComparisonHash = useRef<string | null>(null);
   const inflightComparisonHash = useRef<string | null>(null);
   const lastSingleHash = useRef<string | null>(null);
@@ -55,46 +44,14 @@ export const useCalculationRunner = () => {
         return;
       }
 
-      // If we're already creating a session, queue this payload to send after create completes
-      if (isCreatingSession.current) {
-        pendingPayload.current = data;
-        return;
-      }
-
       const payload = buildSessionPayload(wizardData, data);
-      const currentSessionId = sessionId || pendingSessionId.current;
-      const currentSessionSecret = sessionSecret || pendingSessionSecret.current;
-
       try {
-        if (currentSessionId) {
-          await updateSession(currentSessionId, payload, {
-            sessionSecret: currentSessionSecret ?? undefined,
-          });
-        } else {
-          isCreatingSession.current = true;
-          const response = await createSession(payload);
-          pendingSessionId.current = response.sessionId;
-          pendingSessionSecret.current = response.sessionSecret;
-          setSessionId(response.sessionId);
-          setSessionSecret(response.sessionSecret);
-
-          // After session creation completes, check if we have a pending payload to send
-          if (pendingPayload.current) {
-            const queuedData = pendingPayload.current;
-            pendingPayload.current = null;
-            const queuedPayload = buildSessionPayload(wizardData, queuedData);
-            await updateSession(response.sessionId, queuedPayload, {
-              sessionSecret: response.sessionSecret,
-            });
-          }
-        }
+        await persistSessionUpdate(payload, payload);
       } catch (error) {
         console.warn('Failed to persist session', error);
-      } finally {
-        isCreatingSession.current = false;
       }
     },
-    [sessionId, sessionSecret, setSessionId, setSessionSecret, wizardData]
+    [wizardData]
   );
 
   const comparisonMutation = useMutation({

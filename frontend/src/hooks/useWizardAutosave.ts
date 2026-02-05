@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useTCOStore } from '@state/tcoStore';
-import { createSession, updateSession } from '@services/api';
+import { persistSessionUpdate } from '@services/sessionLifecycle';
 import type { WizardData } from '@shared/types/tco.types';
 import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
 
@@ -24,14 +24,9 @@ const sanitizeWizardData = (wizardData: WizardData): WizardData => {
 export const useWizardAutosave = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const sessionId = useTCOStore((state) => state.sessionId);
-  const sessionSecret = useTCOStore((state) => state.sessionSecret);
-  const setSessionId = useTCOStore((state) => state.setSessionId);
-  const setSessionSecret = useTCOStore((state) => state.setSessionSecret);
   const hasHydrated = useTCOStore((state) => state._hasHydrated);
   const lastSnapshot = useRef<string>('');
   const abortControllerRef = useRef<AbortController | null>(null);
-  const isCreatingSessionRef = useRef(false);
-  const pendingAutosaveRef = useRef<WizardData | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'error'>('idle');
 
   useEffect(() => {
@@ -48,44 +43,17 @@ export const useWizardAutosave = () => {
       return;
     }
 
-    // If no sessionId exists, queue the autosave data
+    // If no sessionId exists, create a new session immediately
     if (!sessionId) {
-      // If we're already creating a session, queue this data
-      if (isCreatingSessionRef.current) {
-        pendingAutosaveRef.current = payload;
-        return;
-      }
-
-      // Only create session if we have a vehicle selected
       if (!wizardData.currentVehicle) {
         return;
       }
 
-      // Create a new session
-      isCreatingSessionRef.current = true;
       setSaveStatus('saving');
-
-      createSession({ wizardData: payload })
-        .then((response) => {
-          setSessionId(response.sessionId);
-          setSessionSecret(response.sessionSecret);
+      persistSessionUpdate({ wizardData: payload }, { wizardData: payload })
+        .then(() => {
           lastSnapshot.current = serialized;
           setSaveStatus('idle');
-
-          // If there's pending data that changed while we were creating the session, send it
-          if (pendingAutosaveRef.current) {
-            const pendingData = pendingAutosaveRef.current;
-            pendingAutosaveRef.current = null;
-            const pendingSerialized = JSON.stringify(pendingData);
-            if (pendingSerialized !== serialized) {
-              updateSession(response.sessionId, { wizardData: pendingData }, {
-                sessionSecret: response.sessionSecret,
-              }).catch((error) => {
-                console.warn('Pending autosave failed', error);
-              });
-              lastSnapshot.current = pendingSerialized;
-            }
-          }
         })
         .catch((error) => {
           console.warn('Failed to create session for autosave', error);
@@ -94,9 +62,6 @@ export const useWizardAutosave = () => {
             id: 'session-create-error',
             duration: 5000,
           });
-        })
-        .finally(() => {
-          isCreatingSessionRef.current = false;
         });
 
       return;
@@ -115,7 +80,7 @@ export const useWizardAutosave = () => {
       lastSnapshot.current = serialized;
       setSaveStatus('saving');
 
-      updateSession(sessionId, { wizardData: payload }, { signal, sessionSecret })
+      persistSessionUpdate({ wizardData: payload }, { wizardData: payload }, { signal })
         .then(() => {
           setSaveStatus('idle');
         })
@@ -138,7 +103,7 @@ export const useWizardAutosave = () => {
     return () => {
       clearTimeout(timer);
     };
-  }, [hasHydrated, sessionId, sessionSecret, setSessionId, setSessionSecret, wizardData]);
+  }, [hasHydrated, sessionId, wizardData]);
 
   // Cleanup AbortController on unmount
   useEffect(() => {

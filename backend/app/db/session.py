@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import AsyncGenerator
 
@@ -14,6 +15,7 @@ from backend.app.db.base import Base  # noqa: F401 - needed for Alembic metadata
 
 engine = create_async_engine(settings.database_url, echo=False, future=True)
 AsyncSessionFactory = async_sessionmaker(engine, expire_on_commit=False)
+logger = logging.getLogger(__name__)
 
 
 def _get_alembic_config() -> Config:
@@ -46,6 +48,9 @@ async def init_db() -> None:
     - Rollback capability for failed deployments
     - Audit trail of schema changes
     """
+    if not settings.should_run_migrations:
+        logger.info("Skipping migrations: RUN_MIGRATIONS is disabled.")
+        return
     # Run migrations synchronously (Alembic doesn't have async support)
     # This is safe at startup before any async operations begin
     config = _get_alembic_config()
