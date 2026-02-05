@@ -169,6 +169,7 @@ frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/.eslintcache
+frontend/package-lock.json
 frontend/playwright-report/
 frontend/test-results/
 backend/.env

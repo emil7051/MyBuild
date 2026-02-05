@@ -256,7 +256,7 @@ export const useTCOStore = create<TCOStore>()(
           }
         }
 
-        // Validate duty cycle values (checks for NaN, negative values, and sum != 100)
+        // Validate duty cycle values (checks for NaN, negative values, and values > 100)
         const validatedDutyCycle = validateDutyCycle(state.wizardData.dutyCycle);
         if (validatedDutyCycle !== state.wizardData.dutyCycle) {
           state.wizardData.dutyCycle = validatedDutyCycle ?? defaultWizardData.dutyCycle;

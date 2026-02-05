@@ -127,6 +127,7 @@ describe('TCO Store State Management', () => {
       expect(updated.wizardData.dutyCycle.regional).toBe(30);
       expect(updated.wizardData.dutyCycle.longHaul).toBe(10);
       // No warning should be logged for non-normalized sums
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
