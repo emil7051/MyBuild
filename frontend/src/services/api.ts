@@ -1,7 +1,5 @@
 import axios from 'axios';
 import type {
-  VehicleDetail,
-  VehicleSummary,
   SessionCreatePayload,
   SessionCreateResponsePayload,
   SessionResponsePayload,
@@ -13,16 +11,6 @@ const api = axios.create({
   timeout: 10000,
   withCredentials: true,
 });
-
-export const fetchVehicles = async () => {
-  const { data } = await api.get<VehicleSummary[]>('/vehicles');
-  return data;
-};
-
-export const fetchVehicle = async (vehicleId: string) => {
-  const { data } = await api.get<VehicleDetail>(`/vehicles/${vehicleId}`);
-  return data;
-};
 
 type SessionRequestOptions = {
   sessionSecret?: string;

@@ -1,12 +1,5 @@
 **Current Priorities (Remaining)**
-| ID | Title | Impact | Effort | Risk | Owner Suggestion | Dependencies |
-| --- | --- | --- | --- | --- | --- | --- |
-| P1 | Remove unused deps and dead code | Medium | Low | Low | Backend + Frontend | DEAD-02, DEAD-03 |
-| P2 | Resolve dual lockfile strategy | Medium | Low | Low | Frontend/Infra | DEP-01 |
-| P3 | Raise backend coverage threshold incrementally | Medium | Medium | Low | Backend | TEST-02 |
-| P4 | Guard `--reload` in production compose | Medium | Low | Low | Backend/Infra | OPS-01 |
-| P5 | Fix duty-cycle comment drift | Low | Low | Low | Frontend | MAINT-02 |
-| P6 | Deduplicate payload sanitization | Low | Low | Low | Frontend | MAINT-03 |
+None. All items in this plan are implemented as of 2026-02-05.
 
 **Still-Relevant Context**
 Architecture map and data flow:
@@ -28,7 +21,7 @@ Dependency map (high-level):
 - React + React Query + Zod + Zustand from `frontend/package.json`. Evidence: `frontend/package.json:16`.
 
 Baseline health snapshot:
-- CI lint/test coverage is defined in `.github/workflows/ci.yml` with a backend coverage floor at 50%. Evidence: `.github/workflows/ci.yml:68`.
+- CI lint/test coverage is defined in `.github/workflows/ci.yml` with a backend coverage floor at 60%. Evidence: `.github/workflows/ci.yml:68`.
 - Dependency audits are performed weekly and on PRs. Evidence: `.github/workflows/dependency-audit.yml:1`.
 - I did not run tests or linters locally; see Appendix for commands run and limitations.
 
@@ -44,119 +37,10 @@ Constraints (not provided, treated as assumptions):
 - Preferred coding standards/linting rules: See CI lint tools. Evidence: `.github/workflows/ci.yml:35`.
 
 **Top Remaining Risks & Hotspots**
-| Rank | Risk | Likelihood | Impact | Score | Evidence |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Unused deps and dead code increase surface area | 3 | 2 | 6 | `requirements.txt:20`, `frontend/src/services/api.ts:17` |
-| 2 | Dual lockfile strategy can drift | 2 | 3 | 6 | `frontend/bun.lock`, `frontend/package-lock.json`, `.github/workflows/dependency-audit.yml:90` |
-| 3 | Backend coverage floor is low | 2 | 3 | 6 | `.github/workflows/ci.yml:68` |
-| 4 | Compose runs backend with `--reload` | 2 | 2 | 4 | `docker-compose.yml:7` |
-| 5 | Comment drift from behavior (duty cycle validation) | 2 | 2 | 4 | `frontend/src/state/tcoStore.ts:241` |
+None. The previously listed risks are resolved by the changes recorded below.
 
 **Remaining Findings**
-**Maintainability**
-
-**MAINT-02 — Comment/code mismatch in duty-cycle validation**
-Issue: A comment claims validation includes sum check, but the function does not check the sum.
-Evidence:
-- Comment in `frontend/src/state/tcoStore.ts:241` references sum validation, while `validateDutyCycle` only checks NaN/negative/out-of-range in `frontend/src/state/tcoStore.ts:97`.
-Impact: Misleads maintainers and can lead to incorrect assumptions in future refactors.
-Root cause hypothesis: Comment updated without aligning behavior.
-Recommendation: Update the comment or implement a sum check consistent with the comment, and add a unit test.
-Tradeoffs: Adding sum checks may change current UX; updating comment is lower risk.
-Migration/compatibility considerations: If behavior changes, update any UI validation messaging accordingly.
-Test/verification plan: Add unit tests that assert expected behavior with sums not equal to 100.
-
-**MAINT-03 — Duplicate payload sanitization logic**
-Issue: Overrides sanitization is re-implemented in multiple places.
-Evidence:
-- `frontend/src/hooks/useWizardAutosave.ts:9` sanitizes overrides locally.
-- `frontend/src/utils/payload.ts:9` provides similar sanitization for session payloads.
-Impact: Risk of drift and inconsistent behavior across flows.
-Root cause hypothesis: Utility functions were not reused.
-Recommendation: Export and reuse a single sanitizer function across hooks.
-Tradeoffs: Small refactor; low risk.
-Migration/compatibility considerations: Ensure output remains identical to avoid behavioral changes.
-Test/verification plan: Add a unit test for sanitizer and use in both paths.
-
-**Duplication & Dead Code**
-
-**DEAD-02 — Unused frontend API calls**
-Issue: `fetchVehicles` and `fetchVehicle` are defined but unused; frontend uses static shared data instead.
-Evidence:
-- API calls in `frontend/src/services/api.ts:17` are not referenced anywhere else (confirmed via search).
-- Vehicle data is consumed from shared catalog in `frontend/src/hooks/useVehicleCatalog.ts:4`.
-Impact: Dead code increases maintenance overhead and creates ambiguity about source-of-truth.
-Root cause hypothesis: Backend endpoints exist for other clients but frontend no longer uses them.
-Recommendation: Remove unused functions or re-enable API consumption with a clear product reason.
-Tradeoffs: Removing may affect future integrations; keeping requires documentation.
-Migration/compatibility considerations: Ensure any external clients rely on backend endpoints are documented separately.
-Test/verification plan: If removed, update any tests that mock these APIs.
-
-**DEAD-03 — Unused Python dependencies**
-Issue: Several runtime dependencies appear unused by repo code.
-Evidence:
-- `requirements.txt:20` includes `orjson`, but there are no code references.
-- `requirements.txt:48` includes `marshmallow` and `cerberus`, with no references found.
-- `requirements.txt:58` includes `loguru`, with no references found.
-Impact: Increased attack surface, longer install times, and maintenance overhead.
-Root cause hypothesis: Dependencies carried over from previous tooling or experiments.
-Recommendation: Remove unused dependencies or document their use. Consider a dependency usage check in CI.
-Tradeoffs: Removing may break out-of-repo tooling; verify before deletion.
-Migration/compatibility considerations: Validate scripts in `scripts/` still run after removal.
-Test/verification plan: Run `pipdeptree` or `python -m vulture` in CI to confirm usage.
-
-**Dependency Health**
-
-**DEP-01 — Dual lockfiles and audit generation may drift**
-Issue: `frontend` has both `bun.lock` and `package-lock.json`, and CI regenerates a package-lock for npm audit.
-Evidence:
-- Lockfiles present: `frontend/bun.lock` and `frontend/package-lock.json`.
-- CI generates `package-lock.json` for npm audit in `.github/workflows/dependency-audit.yml:90`.
-Impact: Potential mismatch between audited dependency tree and actual Bun install tree.
-Root cause hypothesis: npm audit requirement forced a separate lockfile.
-Recommendation: Choose a single source of truth for lockfile. Option A: keep `bun.lock` and generate package-lock in CI only (remove committed package-lock). Option B: use npm/pnpm lockfile exclusively and align installs.
-Tradeoffs: npm audit tooling expects package-lock; Bun-based installs prefer bun.lock.
-Migration/compatibility considerations: If removing package-lock, update `.gitignore` and CI scripts accordingly.
-Test/verification plan: Verify that dependency audit still works and reproducible builds remain stable.
-
-**Tests & Observability**
-
-**TEST-02 — Backend coverage floor is low**
-Issue: CI allows backend coverage down to 50%.
-Evidence:
-- Coverage gate configured at `--cov-fail-under=50` in `.github/workflows/ci.yml:74`.
-Impact: Important regressions can slip without test detection.
-Root cause hypothesis: Initial threshold set to accommodate legacy code.
-Recommendation: Raise the threshold incrementally (e.g., 50 → 60 → 70) with a focused test backlog.
-Tradeoffs: Higher thresholds may slow delivery initially.
-Migration/compatibility considerations: Increase only after adding tests for critical paths.
-Test/verification plan: Track coverage trend and fail CI at the new threshold.
-
-**Build/Deploy Ergonomics**
-
-**OPS-01 — `docker-compose` runs backend with `--reload`**
-Issue: Compose runs Uvicorn with reload enabled.
-Evidence:
-- `docker-compose.yml:7` uses `uvicorn ... --reload`.
-Impact: Fine for dev, but if used in production it is unsafe and inefficient.
-Root cause hypothesis: Single compose file used for dev and production.
-Recommendation: Split dev and prod compose files or guard reload with an env flag.
-Tradeoffs: Extra config overhead.
-Migration/compatibility considerations: Maintain a `docker-compose.prod.yml` or documented prod run command.
-Test/verification plan: Verify production startup uses a non-reload configuration.
-
-**AI-Generated Pattern Indicators (Symptoms, Not Blame)**
-
-**AI-03 — Comment drift from behavior**
-Issue: Comment claims sum validation that the implementation does not perform.
-Evidence:
-- `frontend/src/state/tcoStore.ts:241` comment vs `frontend/src/state/tcoStore.ts:97` behavior.
-Impact: Misleads reviewers and indicates a likely copy/paste or auto-generated doc artifact.
-Root cause hypothesis: Automated or copy/paste documentation without verification.
-Recommendation: Align comments to actual behavior or implement the described check.
-Tradeoffs: Minimal.
-Migration/compatibility considerations: None.
-Test/verification plan: Update unit tests to lock intended behavior.
+None. All items from this audit plan have been implemented and moved to the Completed Work section.
 
 **Open Questions / Assumptions**
 - Session secrets are now enforced for new sessions; should we backfill/rotate secrets for legacy sessions (null `session_secret_hash`) and enforce universally?
@@ -177,6 +61,13 @@ Completed:
 - PERF-01: Analytics aggregation now uses SQL joins/aggregates instead of loading all rows in memory.
 - SEC-02: Session secrets now persist via HttpOnly cookies; frontend stops persisting secrets in localStorage; cookie refresh on read/update; tests updated.
 - SEC-04: slowapi rate limiting now uses Redis-backed storage (configurable) with coverage.
+- MAINT-02/AI-03: Duty-cycle validation comments now match behavior; tests assert non-100 sums are preserved without warnings.
+- MAINT-03: Added shared `sanitizeWizardData` and reuse across autosave/session payload building with unit coverage.
+- DEAD-02: Removed unused frontend vehicle API calls.
+- DEAD-03: Removed unused Python deps (`orjson`, `marshmallow`, `cerberus`, `loguru`).
+- DEP-01: Kept `bun.lock` as source of truth and removed committed `package-lock.json` (CI still generates it for npm audit).
+- TEST-02: Raised backend coverage floor to 60%.
+- OPS-01: Guarded Uvicorn `--reload` in compose via `UVICORN_RELOAD`.
 
 **Correctness & Reliability**
 
@@ -219,15 +110,40 @@ Status (2026-02-05): Resolved. Analytics aggregation now uses SQL joins and aggr
 **MAINT-01 — Validation ranges drift across layers**
 Status (2026-02-05): Resolved by centralizing limits in `data/constants.py` (`OVERRIDE_LIMITS`) and consuming them in frontend/backend; shared constants regenerated.
 
+**MAINT-02 — Comment/code mismatch in duty-cycle validation**
+Status (2026-02-05): Resolved. Comment updated to match behavior (no sum validation), and tests assert non-100 sums are preserved without warnings.
+
+**MAINT-03 — Duplicate payload sanitization logic**
+Status (2026-02-05): Resolved. Added shared `sanitizeWizardData` in `frontend/src/utils/payload.ts`, reused in autosave and session payload builder; unit test added.
+
 **Duplication & Dead Code**
 
 **DEAD-01 — Session secret helpers and DB column now used**
 Status (2026-02-05): Resolved; helpers and `session_secret_hash` are now used for session access control.
 
+**DEAD-02 — Unused frontend API calls**
+Status (2026-02-05): Resolved. Removed `fetchVehicles` and `fetchVehicle` from `frontend/src/services/api.ts`.
+
+**DEAD-03 — Unused Python dependencies**
+Status (2026-02-05): Resolved. Removed unused runtime deps (`orjson`, `marshmallow`, `cerberus`, `loguru`) from `requirements.txt`.
+
+**Dependency Health**
+
+**DEP-01 — Dual lockfiles and audit generation may drift**
+Status (2026-02-05): Resolved via Option A. `bun.lock` remains the source of truth; committed `frontend/package-lock.json` removed and ignored while CI generates one for npm audit.
+
 **Tests & Observability**
 
 **TEST-01 — Session secret tests now align with API**
 Status (2026-02-05): Resolved; API returns `sessionSecret` on create and enforces `X-Session-Secret` on GET/PUT, and tests validate this.
+
+**TEST-02 — Backend coverage floor is low**
+Status (2026-02-05): Resolved. Coverage gate raised to 60% in `.github/workflows/ci.yml`.
+
+**Build/Deploy Ergonomics**
+
+**OPS-01 — `docker-compose` runs backend with `--reload`**
+Status (2026-02-05): Resolved. Compose now gates reload via `UVICORN_RELOAD` (default `1` for dev).
 
 **AI-Generated Pattern Indicators (Resolved)**
 
@@ -236,6 +152,9 @@ Status (2026-02-05): Resolved by centralizing override limits with shared `OVERR
 
 **AI-02 — Error swallowing without observability**
 Status (2026-02-05): Resolved for cache + secret verification via narrower exception handling and logging.
+
+**AI-03 — Comment drift from behavior**
+Status (2026-02-05): Resolved. Duty-cycle validation comment updated; tests lock intended behavior.
 
 **Appendix**
 Commands run (local, read-only):

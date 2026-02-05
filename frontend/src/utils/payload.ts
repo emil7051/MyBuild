@@ -30,21 +30,26 @@ export const compactVehicleParamOverrides = (
   return cleaned;
 };
 
-export const buildSessionPayload = (
-  wizardData: WizardData,
-  results: CalculationResponsePayload[]
-): SessionCreatePayload => {
+export const sanitizeWizardData = (wizardData: WizardData): WizardData => {
   const overrides = compactOverrides(wizardData.overrides ?? {});
   const vehicleOverrides = compactVehicleParamOverrides(
-    wizardData.vehicleParamOverrides
+    wizardData.vehicleParamOverrides ?? {}
   );
-  const serializedWizard: WizardData = {
+
+  return {
     ...wizardData,
     overrides: Object.keys(overrides).length ? overrides : undefined,
     vehicleParamOverrides: Object.keys(vehicleOverrides).length
       ? vehicleOverrides
       : undefined,
   };
+};
+
+export const buildSessionPayload = (
+  wizardData: WizardData,
+  results: CalculationResponsePayload[]
+): SessionCreatePayload => {
+  const serializedWizard = sanitizeWizardData(wizardData);
 
   return {
     wizardData: serializedWizard,

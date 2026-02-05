@@ -3,23 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useTCOStore } from '@state/tcoStore';
 import { persistSessionUpdate } from '@services/sessionLifecycle';
-import type { WizardData } from '@shared/types/tco.types';
-import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
-
-const sanitizeWizardData = (wizardData: WizardData): WizardData => {
-  const overrides = compactOverrides(wizardData.overrides ?? {});
-  const vehicleOverrides = compactVehicleParamOverrides(
-    wizardData.vehicleParamOverrides ?? {}
-  );
-
-  return {
-    ...wizardData,
-    overrides: Object.keys(overrides).length ? overrides : undefined,
-    vehicleParamOverrides: Object.keys(vehicleOverrides).length
-      ? vehicleOverrides
-      : undefined,
-  };
-};
+import { sanitizeWizardData } from '@utils/payload';
 
 export const useWizardAutosave = () => {
   const wizardData = useTCOStore((state) => state.wizardData);

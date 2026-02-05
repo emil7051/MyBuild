@@ -5,7 +5,12 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    command: uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+    command: >
+      sh -c "if [ \"$${UVICORN_RELOAD:-1}\" = \"1\" ]; then
+        uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000;
+      else
+        uvicorn backend.app.main:app --host 0.0.0.0 --port 8000;
+      fi"
     ports:
       - "8000:8000"
     volumes:
@@ -15,6 +20,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://tco_user:tco_pass@postgres:5432/tco_db
       - REDIS_URL=redis://redis:6379/0
       - SESSION_TTL_SECONDS=1800
+      - UVICORN_RELOAD=1
     env_file:
       - backend/.env
     depends_on:
