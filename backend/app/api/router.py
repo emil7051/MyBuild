@@ -108,8 +108,7 @@ async def update_session(
     payload: SessionUpdate,
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
-    """Update an existing session.
-    """
+    """Update an existing session."""
     # Validate UUID format (API-002)
     validate_uuid(session_id)
 
@@ -130,8 +129,7 @@ async def get_session(
     session_id: str,
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
-    """Retrieve an existing session.
-    """
+    """Retrieve an existing session."""
     # Validate UUID format (API-002)
     validate_uuid(session_id)
 
