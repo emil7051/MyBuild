@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic_settings import SettingsConfigDict
 
 from backend.app.core.config import Settings
 
@@ -40,3 +41,16 @@ def test_reject_invalid_tracing_sample_rate() -> None:
 def test_reject_invalid_alert_error_rate_threshold() -> None:
     with pytest.raises(ValueError, match="observability_alert_error_rate_threshold"):
         Settings(observability_alert_error_rate_threshold=-0.1)
+
+
+def test_ignore_unknown_dotenv_keys(tmp_path) -> None:
+    env_file = tmp_path / "deployment.env"
+    env_file.write_text("UNKNOWN_DEPLOYMENT_FLAG=true\n", encoding="utf-8")
+
+    config = dict(Settings.model_config)
+    config["env_file"] = str(env_file)
+
+    class TestSettings(Settings):
+        model_config = SettingsConfigDict(**config)
+
+    TestSettings()

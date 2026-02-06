@@ -229,16 +229,21 @@ class Settings(BaseSettings):
             return self.session_secret_cookie_secure
         return self.environment != "development"
 
-    # Only load .env in development to avoid overriding production secrets.
+    # Only load a local dotenv file in development.
+    # Deployment platforms often inject additional env keys that are not part of
+    # this Settings model; ignore those extras so startup remains resilient.
+    _env_file_path = "backend/.env"
     _env_file = (
-        "backend/.env"
+        _env_file_path
         if os.getenv("ENVIRONMENT", "development") == "development"
+        and os.path.exists(_env_file_path)
         else None
     )
     model_config = SettingsConfigDict(
         env_file=_env_file,
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",
     )
 
 
