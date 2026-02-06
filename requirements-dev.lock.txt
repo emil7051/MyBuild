@@ -185,7 +185,7 @@ pytest-cov==4.1.0
     # via -r requirements-dev.txt
 pytest-mock==3.11.0
     # via -r requirements-dev.txt
-pytest-xdist==3.3.0
+pytest-xdist==3.8.0
     # via -r requirements-dev.txt
 python-dotenv==1.0.0
     # via
