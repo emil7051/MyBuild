@@ -167,7 +167,7 @@ pathspec==1.0.4
     #   mypy
 pip-api==0.0.34
     # via pip-audit
-pip-audit==2.6.0
+pip-audit==2.10.0
     # via -r requirements-dev.txt
 pip-requirements-parser==32.0.1
     # via pip-audit

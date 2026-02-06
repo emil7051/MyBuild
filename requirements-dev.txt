@@ -32,4 +32,4 @@ types-requests==2.31.0
 pre-commit==3.3.0
 bandit==1.7.0
 pipdeptree==2.13.0
-pip-audit==2.6.0
+pip-audit==2.10.0
