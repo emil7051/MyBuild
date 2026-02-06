@@ -12,9 +12,9 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 
 **What matters most:**
 
-1. **Test infrastructure and coverage still need work.** Component-test enablement, CI type checks, and E2E execution in CI remain incomplete.
+1. **Test infrastructure and coverage still need work.** Core parity/unit suites are strong and CI now includes dedicated backend type-check and frontend E2E jobs, but component-test coverage remains thin.
 
-2. **Deployment and observability guidance is still thin.** There is no formal production runbook for Replit deployment and no structured telemetry stack for request-level troubleshooting.
+2. **Deployment and observability guidance is still thin.** There is no formal production runbook for Replit deployment. A low-overhead structured logging + request-metrics baseline now exists, but distributed tracing and alerting workflows are still immature.
 
 3. **AI-generated code patterns** are present but manageable. Repetitive sanitization code, defensive null checks on guaranteed types, and silent error swallowing add maintenance burden and UX risk.
 
@@ -88,92 +88,29 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 
 | Area | Risk Level | Status |
 |------|------------|--------|
-| Test coverage and CI safety rails | **Medium** | Core parity/unit suites are strong, but CI type checking and E2E CI coverage remain incomplete. |
-| Deployment and operations | **Medium** | Replit deployment documentation and observability baselines remain incomplete. |
+| Test coverage and CI safety rails | **Medium** | Core parity/unit suites are strong and CI now runs backend type-check + frontend E2E, but component and broader integration coverage remain limited. |
+| Deployment and operations | **Medium** | Replit deployment documentation remains incomplete; observability baseline exists but tracing/alerting maturity is still limited. |
 | Code maintainability | **Low-Medium** | Major duplication/dead-code cleanup is complete; targeted AI-pattern refactors remain. |
 
 ---
 
 ## 4. Findings
 
-Sections `4.1`, `4.3`, `4.4`, and `4.5` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
+### 4.1 Tests & Observability
 
-### 4.2 Security & Privacy
+#### OBS-01: Baseline observability implemented; tracing/alerting still pending
+- **Evidence:** Backend now includes structured JSON request logs and in-memory request metrics with periodic summaries (`backend/app/core/observability.py`) wired through app middleware (`backend/app/main.py`). API-path request IDs are emitted in response headers (`x-request-id`). No OpenTelemetry/Prometheus/Sentry integration is configured yet.
+- **Impact:** Request-level troubleshooting is improved with low overhead on key API paths. Cross-service traces and production alerting remain limited.
+- **Recommendation:** Keep the current low-overhead logging baseline; add sampled distributed tracing and alerting workflows as a separate follow-up when operational maturity requires it.
 
-Security items `SEC-01` through `SEC-08` are complete (or explicitly de-scoped) and are tracked in Section 10 (`DONE`) at the bottom of this document.
-
-#### SEC-05: Broad `except Exception` in cache module masks programming errors — **RESOLVED**
-- **Status (2026-02-06): DONE.** Cache error handling is narrowed to `RedisError` and no longer swallows non-Redis/programming failures.
-- **Resolution (2026-02-06):** Updated `backend/app/core/cache.py` to catch `RedisError` only for Redis I/O paths and added focused coverage in `tests/test_cache.py` for serialization/JSON error propagation and Redis failure fallback behavior.
-
-### 4.6 Dependency Health
-
-Dependency items `DEP-01` through `DEP-07` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
-
-#### DEP-05: CI uses `bun install` without `--frozen-lockfile` — **RESOLVED**
-- **Status (2026-02-06): DONE.** Added `--frozen-lockfile` to CI Bun installs in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`.
-- **Original impact:** CI could resolve different dependency versions than lockfile specifies.
-
-#### DEP-06: `BUN_VERSION: 'latest'` in CI — **RESOLVED**
-- **Status (2026-02-06): DONE.** Pinned CI Bun runtime to `1.3.5` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`.
-- **Original impact:** Frontend builds were not reproducible.
-
-#### DEP-07: No automated dependency update workflow — **RESOLVED**
-- **Status (2026-02-06): DONE.** Added `.github/dependabot.yml` to automate dependency updates:
-  - Monthly cadence for runtime version updates (pip + npm + GitHub Actions).
-  - Security updates grouped separately via Dependabot `applies-to: security-updates`.
-- **Original impact:** Security patches could be missed and upgrades could become high-risk batch changes.
-
-### 4.7 Tests & Observability
-
-Test items `TEST-01` through `TEST-11` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
-
-#### OBS-01: No observability instrumentation
-- **Evidence:** No OpenTelemetry, Prometheus, or Sentry integration found in backend or frontend code. No structured logging beyond Python's default logger.
-- **Impact:** Harder to diagnose performance regressions or failures in production. No request-level tracing for debugging multi-service interactions.
-- **Recommendation:** Start with structured logging and request metrics on key paths (session create/update, calculation). Add distributed tracing later as deployment matures.
-
-### 4.8 Build/Deploy Ergonomics
+### 4.2 Build/Deploy Ergonomics
 
 #### OPS-01: No documented Replit deployment runbook
 - **Evidence:** Replit deployment config exists in `.replit`, but no dedicated deployment runbook exists under `docs/`.
 - **Impact:** Operational setup and rollback steps remain tribal knowledge.
 - **Recommendation:** Document the Replit deployment process (env vars, DB migration flow, rollback path, and operational checks).
 
-#### OPS-02: No Python lockfile for transitive dependencies — **RESOLVED**
-- **Status (2026-02-06): DONE.** Added lockfile-based Python dependency workflow using `uv pip compile`.
-- **Resolution (2026-02-06):** Added `requirements.lock.txt` and `requirements-dev.lock.txt`, updated install paths in `.github/workflows/ci.yml`, `.github/workflows/data-sync-check.yml`, `.github/workflows/dependency-audit.yml`, `.replit`, and `backend/requirements.txt`, and documented lockfile regeneration in `README.md`.
-- **Original impact:** Transitive deps could change between installs.
-
-#### OPS-03: No bun cache in CI — **RESOLVED**
-- **Status (2026-02-06): DONE.** Added Bun install-cache restore/save in CI.
-- **Resolution (2026-02-06):** Added `actions/cache` entries for `~/.bun/install/cache` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`.
-- **Original impact:** Every frontend CI job installed dependencies from scratch.
-
-#### OPS-04: Backend test job depends on lint job unnecessarily — **RESOLVED**
-- **Status (2026-02-06): DONE.** Removed backend test dependence on lint.
-- **Resolution (2026-02-06):** Removed `needs: backend-lint` from `backend-test` in `.github/workflows/ci.yml` so lint and tests run in parallel while `ci-success` still gates on both.
-- **Original impact:** Lint runtime was added to CI critical path.
-
-#### OPS-05: Docker compose `env_file` fails on fresh clone — **DE-SCOPED**
-- **Status (2026-02-06): DONE (DE-SCOPED).** Docker compose files are no longer active in this repository.
-- **Original impact:** `docker compose up` failed after fresh clone due to required local env file.
-
-#### OPS-06: No health checks on Docker services — **DE-SCOPED**
-- **Status (2026-02-06): DONE (DE-SCOPED).** Docker compose files are no longer active in this repository.
-- **Original impact:** Backend startup ordering was vulnerable to dependency readiness races.
-
-#### OPS-07: No automated staleness check for generated TypeScript files — **RESOLVED**
-- **Evidence:** Generation script must be run manually. No CI enforcement.
-- **Impact:** Python and TypeScript data layers can silently diverge.
-- **Recommendation:** Add CI step that regenerates and checks for uncommitted diffs.
-- **Resolution (2026-02-06):** Already implemented. `.github/workflows/data-sync-check.yml` runs the generation script and checks for uncommitted diffs.
-
-#### OPS-08: Single Docker Compose file serves dev and production — **DE-SCOPED**
-- **Status (2026-02-06): DONE (DE-SCOPED).** Docker compose files are no longer active in this repository.
-- **Original impact:** Risk of shipping dev server settings in production container workflows.
-
-### 4.9 AI-Generated Code Patterns
+### 4.3 AI-Generated Code Patterns
 
 #### AI-01: Repetitive sanitization code in `tcoCalculator.ts`
 - **Evidence:** `tcoCalculator.ts:126-267`. Each of 16 override fields gets its own 5-6 line block with identical pattern. ~140 lines of repetitive code.
@@ -210,17 +147,6 @@ Test items `TEST-01` through `TEST-11` are complete and have been moved to Secti
 - **Impact:** Users may believe state was saved when it wasn't. Silent failures leave the UI in an inconsistent state with no indication anything went wrong.
 - **Recommendation:** Surface errors via toast notifications (react-hot-toast is already a dependency). Add retry strategy for transient failures. Pairs well with FE-01 (Error Boundary).
 
-### 4.10 Accessibility
-
-#### A11Y-01: Color contrast failure for muted text
-- **Evidence:** `tailwind.config.js:13`. `brand-muted` (#666666) on `brand-background` (#F4F4F3) gives ~3.9:1 contrast ratio, below WCAG AA 4.5:1 requirement.
-- **Recommendation:** Darken to at least `#595959`.
-
-#### A11Y-02: Vehicle chips use `div role="button"` instead of `<button>`
-- **Evidence:** `WizardElectricStep.tsx:126-162`.
-- **Impact:** Custom keyboard handling duplicates native button behavior.
-- **Recommendation:** Replace with `<button>` element.
-
 ---
 
 ## 5. Prioritized Backlog
@@ -232,7 +158,7 @@ Test items `TEST-01` through `TEST-11` are complete and have been moved to Secti
 | A11Y-01 | Add chart text alternatives | **Low** | M | Low | 3 | None |
 | A11Y-02 | Replace chip pseudo-buttons with `<button>` | **Low** | S | Low | 3 | None |
 | OPS-01 | Document Replit deployment process | **Low** | S | Low | 3 | None |
-| OBS-01 | Add structured logging (Replit-compatible) | **Low** | M | Low | 3 | None |
+| OBS-02 | Add sampled tracing + alerting workflow (Replit-compatible) | **Low** | M | Low | 3 | Build on OBS-01 baseline |
 
 *Size: XS=<1hr, S=1-4hr, M=4-16hr, L=16hr+*
 
@@ -240,62 +166,17 @@ Test items `TEST-01` through `TEST-11` are complete and have been moved to Secti
 
 ## 6. Migration Plan
 
-### Phase 1: Safety Rails (1-2 days)
-
-**Goal:** Fix broken infrastructure and add guardrails. All changes are additive or fix-only. Zero functional changes.
-
-Completed and moved to `DONE`:
-1. MAINT-01 (pin ruff version consistently)
-2. MAINT-03 (add missing test dependencies to `requirements-dev.txt`)
-3. MAINT-07 (add `react-hooks/recommended` to ESLint extends)
-4. DEP-05 (enforce `bun install --frozen-lockfile` in CI)
-5. DEP-06 (pin Bun version in CI)
-
-Remaining:
-1. None. Phase 1 items are complete.
-
-**Rollback:** All changes are independent. Any can be reverted individually.
-**Verification:** CI passes. `bun test` passes. `pytest tests/` passes locally.
-
 ### Phase 2: Low-Risk Refactors (3-5 days)
-
-**Goal:** Fix calculation accuracy issues, improve test coverage, clean up dead code. Each change is well-tested and reversible.
-
-**Calculator accuracy fixes (remaining):**
-
-Completed and moved to `DONE`:
-1. CALC-01 (annuity-due formula)
-2. CALC-02 (articulated BEV charging mix)
-3. CALC-03 (fuel tax credit)
-4. CALC-04 (road user charge handling)
-5. CALC-05 (rebate parity alignment)
-6. CALC-06 (grouped cost breakdown migration)
-7. CALC-07 (battery replacement year constant)
-8. CALC-08 (remove misleading vehicle maintenance field)
-9. TEST-04/TEST-05 (expanded verification fixtures and override cases)
-
-Remaining:
-1. None. Calculator accuracy items are complete.
 
 **Test and CI improvements:**
 
+Remaining:
 1. Surface frontend persist/calculation errors to users (`AI-07`)
 
 **Cleanup and maintenance:**
 
-Completed and moved to `DONE`:
-1. DEAD-01, DEAD-02, and DEAD-04 through DEAD-07 (dead-code/dependency cleanup)
-2. DEP-07 (Dependabot automation for dependency updates)
-3. SEC-05 (narrow cache exception handling)
-4. OPS-02 (Python transitive lockfile workflow)
-5. OPS-03 (Bun cache in CI)
-6. OPS-04 (remove backend lint->test CI coupling)
-
 Remaining:
 1. Refactor repetitive sanitization to data-driven
-
-**Rollback:** Each item is a separate PR. Revert any single PR if issues arise.
-**Verification:** Full CI pass. Calculator parity tests pass with updated verification data. Coverage increases.
 
 ### Phase 3: Structural Improvements (ongoing)
 
@@ -304,7 +185,7 @@ Remaining:
 1. Add component tests using React Testing Library
 2. Add accessibility improvements (charts, stepper, error messages)
 3. Document Replit deployment process
-4. Add structured logging (Replit-compatible)
+4. Add sampled distributed tracing and operational alerting
 
 **Approach:** Use feature flags or route-level code splitting for lazy loading.
 
@@ -324,18 +205,6 @@ Remaining:
 | Frontend formatting | prettier | Optional: if Prettier is reintroduced, enforce with `prettier --check src/`; DEP-04 removed the unused formatter for now. |
 | Frozen lockfile | bun | `bun install --frozen-lockfile` |
 | Constants validation | Custom | Charging mix sums, rate ranges, trajectory lengths |
-
-### Fix existing CI checks
-
-| Issue | Fix |
-|-------|-----|
-| Ruff version drift | **DONE:** pinned to `ruff==0.8.0` in CI and `requirements-dev.txt` |
-| BUN_VERSION: latest | **DONE:** pinned to `1.3.5` in CI workflows |
-| Missing frozen lockfile | **DONE:** `bun install --frozen-lockfile` applied to CI install steps |
-| No Python transitive lockfile | **DONE:** Added `requirements.lock.txt` and `requirements-dev.lock.txt` via `uv pip compile`; CI/Replit now install from lockfiles |
-| Sequential backend jobs | **DONE:** Removed `needs: backend-lint` from `backend-test` |
-| No bun cache | **DONE:** Added `actions/cache` for `~/.bun/install/cache` in CI workflows |
-| Vitest includes e2e | **DONE:** `e2e/` excluded from Vitest glob |
 
 ### Pre-commit hooks (recommended)
 
@@ -370,10 +239,6 @@ repos:
 | 6 | PaybackChart (FE-03) | **Year-by-year cash flows.** | Users are making $200k+ purchasing decisions. Accuracy matters. |
 | 7 | Deployment target | **Replit + Replit-managed database.** | Docker hardening items deprioritised accordingly. |
 
-### Deferred Items (excluded from phased plan)
-
-None currently.
-
 ### Assumptions (verified or updated)
 
 - **Deployment target:** Replit with Replit-managed database. **Confirmed.** Docker hardening items are dev-environment-only improvements.
@@ -382,6 +247,7 @@ None currently.
 - **Browser support:** No browserslist config found beyond the env var workaround. Assumed modern browsers (Chrome/Firefox/Safari/Edge latest 2 versions).
 - **Session secret migration:** Completed. Session secret is cookie-only and not returned in JSON responses.
 - **Analytics performance targets:** No SLOs for analytics endpoints found. BE-03 was implemented with a single aggregate query; revisit only if business-level analytics SLOs are introduced.
+- **Observability baseline:** Structured JSON request logging, request IDs, and lightweight per-route metrics are now implemented in backend middleware; tracing and alerting remain future work.
 - **Dependency update tooling:** Dependabot automation is now configured via `.github/dependabot.yml` (pip, npm, and GitHub Actions ecosystems).
 
 ---
@@ -404,23 +270,6 @@ None currently.
 | pip-audit (vulns) | **PASS** | No known vulnerabilities |
 | Vulture (dead code) | **PASS** | Nothing detected at 80% confidence |
 | mypy (type check) | **PASS** | `backend-typecheck` scope passes in CI path (`python -m mypy backend/app/core backend/app/api backend/app/main.py`) |
-
-### Audit Sources
-
-This audit consolidates two reviews:
-
-1. **Multi-agent automated analysis (2026-02-06):** 5 parallel agents covering backend, frontend, shared calculator, health checks, and infrastructure. Produced the original 75 findings.
-2. **Targeted follow-up review (2026-02-06):** Focused review of middleware, session security, validation consistency, and dead code. Added 11 findings (BE-04, BE-05, SEC-08, MAINT-11, MAINT-12, DEAD-06, DEAD-07, DEP-07, OBS-01, OPS-08, AI-07) and enriched BE-01 with side-effects detail.
-
-### Agent Reports
-
-This audit was conducted using 5 parallel analysis agents:
-
-1. **Backend review** (ad95a15): 62 tools, ~87K tokens. Reviewed all backend code, tests, services, models, middleware, security.
-2. **Frontend review** (a8ae621): 71 tools, ~103K tokens. Reviewed all frontend components, hooks, state, services, tests, config.
-3. **Shared calculator review** (a2879fa): 42 tools, ~97K tokens. Reviewed calculator engine, math utilities, types, data layer, generation scripts, verification data.
-4. **Health checks** (adaac0f): 13 commands run. Ruff, black, isort, pytest, typecheck, eslint, vitest, bandit, pip-audit, vulture, mypy.
-5. **Infrastructure review** (a20c980): 120+ tools, ~57K tokens. Reviewed CI, Docker, dependencies, config, migrations, deployment.
 
 ### Key Files Referenced
 
@@ -503,6 +352,7 @@ Completed items moved from active backlog/planning lists.
 | OPS-06 | **DONE (DE-SCOPED)** | 2026-02-06 | Docker service health-check finding archived because Docker compose manifests are no longer active in this repository. |
 | OPS-07 | **DONE** | 2026-02-06 | Added generated-file staleness CI guard in `.github/workflows/data-sync-check.yml` to prevent Python/TypeScript data drift. |
 | OPS-08 | **DONE (DE-SCOPED)** | 2026-02-06 | Dev/prod compose split finding archived because Docker compose manifests are no longer active in this repository. |
+| OBS-01 | **DONE** | 2026-02-06 | Added low-overhead backend observability baseline: structured JSON request logs, API `x-request-id` propagation, route-grouped request metrics, and middleware wiring/tests (`backend/app/core/observability.py`, `backend/app/main.py`, `tests/test_middleware.py`). |
 | BE-01 | **DONE** | 2026-02-06 | Replaced request-size middleware with ASGI-level pre-handler enforcement for `Content-Length` and chunked bodies; added tests preventing side effects on oversized requests (`backend/app/core/middleware.py`, `tests/test_middleware.py`). |
 | BE-02 | **DONE** | 2026-02-06 | Refactored session response assembly to avoid double-fetch/refresh and use eager-loaded related records (`backend/app/services/sessions.py`). |
 | BE-03 | **DONE** | 2026-02-06 | Reworked BEV-vs-diesel analytics from per-pair query loop to a single aggregate query (`backend/app/services/sessions.py`). |

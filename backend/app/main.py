@@ -25,6 +25,10 @@ from backend.app.api import api_router
 from backend.app.api.router import limiter
 from backend.app.core.config import settings
 from backend.app.core.middleware import RequestSizeLimitMiddleware
+from backend.app.core.observability import (
+    ObservabilityMiddleware,
+    configure_observability_logger,
+)
 from backend.app.db.session import init_db
 
 
@@ -39,6 +43,7 @@ def create_app() -> FastAPI:
         version=settings.version,
         lifespan=lifespan,
     )
+    configure_observability_logger()
 
     # Add rate limiter state.
     if _rate_limit_exceeded_handler and RateLimitExceeded:
@@ -55,6 +60,7 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PUT", "OPTIONS"],
         allow_headers=["Content-Type", "X-Analytics-Key"],
     )
+    app.add_middleware(ObservabilityMiddleware)
 
     app.include_router(api_router)
 

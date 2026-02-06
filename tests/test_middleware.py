@@ -1,4 +1,4 @@
-"""Tests for custom request-size middleware behavior."""
+"""Tests for custom middleware behavior."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ import pytest
 
 from backend.app.core import config
 from backend.app.core.middleware import RequestSizeLimitMiddleware
+from backend.app.core.observability import ObservabilityMiddleware, request_metrics
 
 
 class _ChunkedBody(httpx.AsyncByteStream):
@@ -45,6 +46,43 @@ def middleware_app(monkeypatch: pytest.MonkeyPatch) -> tuple[FastAPI, dict[str, 
 async def middleware_client(middleware_app: tuple[FastAPI, dict[str, int]]):
     app, _ = middleware_app
     transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://testserver",
+    ) as client:
+        yield client
+
+
+@pytest.fixture()
+def observability_app() -> FastAPI:
+    """Build a test app with observability middleware."""
+    request_metrics.reset()
+
+    app = FastAPI()
+    app.add_middleware(ObservabilityMiddleware)
+
+    @app.get("/")
+    async def root() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @app.get("/api/v1/health")
+    async def health() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @app.post("/api/v1/sessions")
+    async def create_session() -> dict[str, str]:
+        return {"status": "created"}
+
+    @app.get("/api/v1/error")
+    async def always_fails() -> dict[str, str]:
+        raise RuntimeError("boom")
+
+    return app
+
+
+@pytest.fixture()
+async def observability_client(observability_app: FastAPI):
+    transport = httpx.ASGITransport(app=observability_app, raise_app_exceptions=False)
     async with httpx.AsyncClient(
         transport=transport,
         base_url="http://testserver",
@@ -94,3 +132,41 @@ async def test_allows_request_within_limit(
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert side_effects["writes"] == 1
+
+
+@pytest.mark.anyio
+async def test_observability_adds_request_id_header_and_tracks_api_metrics(
+    observability_client: httpx.AsyncClient,
+) -> None:
+    response = await observability_client.post("/api/v1/sessions")
+
+    assert response.status_code == 200
+    assert response.headers.get("x-request-id")
+
+    snapshot = request_metrics.snapshot()
+    assert snapshot["requests"] == 1
+    assert snapshot["errors"] == 0
+    assert snapshot["routes"]["sessions"]["requests"] == 1
+
+
+@pytest.mark.anyio
+async def test_observability_skips_non_api_paths(
+    observability_client: httpx.AsyncClient,
+) -> None:
+    response = await observability_client.get("/")
+
+    assert response.status_code == 200
+    assert response.headers.get("x-request-id") is None
+    assert request_metrics.snapshot()["requests"] == 0
+
+
+@pytest.mark.anyio
+async def test_observability_counts_server_errors(
+    observability_client: httpx.AsyncClient,
+) -> None:
+    response = await observability_client.get("/api/v1/error")
+
+    assert response.status_code == 500
+    snapshot = request_metrics.snapshot()
+    assert snapshot["requests"] == 1
+    assert snapshot["errors"] == 1
