@@ -51,7 +51,7 @@ coverage==7.3.0
     # via
     #   -r requirements-dev.txt
     #   pytest-cov
-cyclonedx-python-lib==4.2.3
+cyclonedx-python-lib==11.6.0
     # via pip-audit
 defusedxml==0.7.1
     # via py-serializable
