@@ -37,19 +37,19 @@ try:
 
     OTEL_AVAILABLE = True
 except ModuleNotFoundError:
-    propagate = None  # type: ignore[assignment]
-    trace = None  # type: ignore[assignment]
-    OTLPSpanExporter = None  # type: ignore[assignment]
-    Resource = None  # type: ignore[assignment]
-    TracerProvider = None  # type: ignore[assignment]
-    BatchSpanProcessor = None  # type: ignore[assignment]
-    ConsoleSpanExporter = None  # type: ignore[assignment]
-    SimpleSpanProcessor = None  # type: ignore[assignment]
-    ParentBased = None  # type: ignore[assignment]
-    TraceIdRatioBased = None  # type: ignore[assignment]
-    SpanKind = None  # type: ignore[assignment]
-    Status = None  # type: ignore[assignment]
-    StatusCode = None  # type: ignore[assignment]
+    propagate = None
+    trace = None
+    OTLPSpanExporter = None
+    Resource = None
+    TracerProvider = None
+    BatchSpanProcessor = None
+    ConsoleSpanExporter = None
+    SimpleSpanProcessor = None
+    ParentBased = None
+    TraceIdRatioBased = None
+    SpanKind = None
+    Status = None
+    StatusCode = None
     OTEL_AVAILABLE = False
 
 REQUEST_ID_HEADER = "x-request-id"

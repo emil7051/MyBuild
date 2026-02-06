@@ -19,20 +19,24 @@ updates:
         dependency-type: production
         patterns:
           - '*'
+      python-dev-monthly:
+        applies-to: version-updates
+        dependency-type: development
+        patterns:
+          - '*'
       python-security:
         applies-to: security-updates
-        dependency-type: production
         patterns:
           - '*'
 
-  - package-ecosystem: npm
+  - package-ecosystem: bun
     directory: /frontend
     schedule:
       interval: monthly
       day: monday
       time: '09:00'
       timezone: Etc/UTC
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 6
     labels:
       - dependencies
       - frontend
@@ -44,9 +48,13 @@ updates:
         dependency-type: production
         patterns:
           - '*'
+      frontend-dev-monthly:
+        applies-to: version-updates
+        dependency-type: development
+        patterns:
+          - '*'
       frontend-security:
         applies-to: security-updates
-        dependency-type: production
         patterns:
           - '*'
 

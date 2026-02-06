@@ -13,9 +13,9 @@ from backend.app.core import config
 from backend.app.core.middleware import RequestSizeLimitMiddleware
 from backend.app.core.observability import (
     OTEL_AVAILABLE,
+    TRACE_ID_HEADER,
     ObservabilityMiddleware,
     RequestAlertPolicy,
-    TRACE_ID_HEADER,
     observability_logger,
     request_metrics,
 )

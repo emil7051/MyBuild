@@ -39,7 +39,6 @@ from backend.app.models.session import (
 from data.scenarios import SCENARIOS
 from data.vehicles import BY_ID
 
-
 _SCENARIO_LABEL_TO_KEY = {
     scenario.name.casefold(): key for key, scenario in SCENARIOS.items()
 }
