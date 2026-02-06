@@ -40,7 +40,13 @@ interface SensitivityTornadoChartProps {
   vehicleDetails: Record<string, VehicleDetail>;
 }
 
-const TornadoTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
+type TornadoTooltipProps = TooltipProps<ValueType, NameType> & {
+  payload?: Array<{
+    payload: TornadoBarData;
+  }>;
+};
+
+const TornadoTooltip = ({ active, payload }: TornadoTooltipProps) => {
   if (!active || !payload?.length) {
     return null;
   }

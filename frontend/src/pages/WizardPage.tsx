@@ -9,7 +9,7 @@ import WizardCompareStep from '@components/wizard/WizardCompareStep';
 import WizardStepper, { type WizardStep } from '@components/wizard/WizardStepper';
 import { useWizardAutosave } from '@hooks/useWizardAutosave';
 import { useTCOStore } from '@state/tcoStore';
-import type { WizardFormValues } from '@forms/wizardForm';
+import type { WizardFormInputValues, WizardFormValues } from '@forms/wizardForm';
 import { wizardFormSchema } from '@forms/wizardForm';
 
 const steps: WizardStep[] = [
@@ -27,7 +27,7 @@ const steps: WizardStep[] = [
   },
 ];
 
-const stepFieldMap: FieldPath<WizardFormValues>[][] = [
+const stepFieldMap: FieldPath<WizardFormInputValues>[][] = [
   ['vehicleParamOverrides'],
   ['vehicleParamOverrides'],
   [
@@ -57,7 +57,7 @@ const WizardPage = () => {
 
   useWizardAutosave();
 
-  const formValues = useMemo<WizardFormValues>(
+  const formValues = useMemo<WizardFormInputValues>(
     () => ({
       scenario: wizardData.scenario,
       purchaseMethod: wizardData.purchaseMethod,
@@ -74,7 +74,7 @@ const WizardPage = () => {
     ]
   );
 
-  const formMethods = useForm<WizardFormValues>({
+  const formMethods = useForm<WizardFormInputValues, unknown, WizardFormValues>({
     resolver: zodResolver(wizardFormSchema),
     mode: 'onTouched',
     values: formValues,

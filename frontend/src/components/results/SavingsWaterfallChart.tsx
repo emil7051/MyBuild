@@ -36,7 +36,13 @@ interface SavingsWaterfallChartProps {
   vehicleDetails: Record<string, VehicleDetail>;
 }
 
-const WaterfallTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
+type WaterfallTooltipProps = TooltipProps<ValueType, NameType> & {
+  payload?: Array<{
+    payload: WaterfallItem;
+  }>;
+};
+
+const WaterfallTooltip = ({ active, payload }: WaterfallTooltipProps) => {
   if (!active || !payload?.length) {
     return null;
   }
