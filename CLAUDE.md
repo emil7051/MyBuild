@@ -110,7 +110,7 @@ bun test                           # Run tests
 
 **Backend:**
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements-dev.lock.txt
 uvicorn backend.app.main:app --reload
 pytest tests/ --cov                # Run tests with coverage
 ```

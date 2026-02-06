@@ -38,8 +38,13 @@ import type {
   VehicleDetail,
   VehicleParamOverrides,
 } from '../types/tco.types';
+import {
+  DEFAULT_DUTY_CYCLE,
+  getDutyCycleErrorMessage,
+  validateDutyCycle,
+} from '../types/dutyCycle';
 import { VEHICLE_BY_ID, VEHICLE_CATALOG_VERSION, VEHICLE_DETAILS } from '../data/vehicleCatalog';
-import { CONSTANTS } from '../data/constants';
+import { CONSTANTS, OVERRIDE_LIMITS } from '../data/constants';
 import { SCENARIO_DEFINITIONS } from '../data/scenarios';
 import { POLICY_CONFIG } from '../data/policies';
 import {
@@ -91,8 +96,6 @@ const assertMaintenanceCosts = (
   return record as Record<'BEV' | 'Diesel', Record<WeightClass, number>>;
 };
 
-const DEFAULT_DUTY_CYCLE: DutyCycle = { urban: 60, regional: 25, longHaul: 15 };
-
 const clampNumber = (value: number, min: number, max: number): number =>
   Math.min(Math.max(value, min), max);
 
@@ -126,77 +129,71 @@ const clampOverrideAboveMin = (value: unknown, min: number, max: number): number
   return Math.min(numeric, max);
 };
 
+const COST_OVERRIDE_LIMITS = OVERRIDE_LIMITS.cost;
+const VEHICLE_OVERRIDE_LIMITS = OVERRIDE_LIMITS.vehicle;
+
 /**
- * Sanitizes calculation payload to prevent NaN and invalid values from reaching calculations.
- * This is a defensive layer - frontend validation should catch most issues.
+ * Sanitizes override sections to prevent NaN and invalid values from reaching calculations.
+ * Duty-cycle validation is handled explicitly via shared validation policy.
  */
 const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequestPayload => {
   const sanitized = { ...payload };
-
-  // Sanitize duty cycle - ensure all values are valid positive numbers
-  if (sanitized.duty_cycle) {
-    sanitized.duty_cycle = {
-      urban: Math.max(0, Number(sanitized.duty_cycle.urban) || 0),
-      regional: Math.max(0, Number(sanitized.duty_cycle.regional) || 0),
-      longHaul: Math.max(0, Number(sanitized.duty_cycle.longHaul) || 0),
-    };
-  }
 
   // Sanitize cost overrides - ensure they're positive numbers or undefined
   if (sanitized.overrides) {
     const cleanOverrides: CostOverrides = {};
     const annualKmsVariation = clampOverrideAboveMin(
       sanitized.overrides.annual_kms_variation,
-      5000,
-      250000
+      COST_OVERRIDE_LIMITS.annual_kms_variation.min,
+      COST_OVERRIDE_LIMITS.annual_kms_variation.max
     );
     if (annualKmsVariation !== undefined) {
       cleanOverrides.annual_kms_variation = annualKmsVariation;
     }
     const residualValueVariation = clampOverrideValue(
       sanitized.overrides.residual_value_variation,
-      0.5,
-      1.5
+      COST_OVERRIDE_LIMITS.residual_value_variation.min,
+      COST_OVERRIDE_LIMITS.residual_value_variation.max
     );
     if (residualValueVariation !== undefined) {
       cleanOverrides.residual_value_variation = residualValueVariation;
     }
     const fuelPriceVariation = clampOverrideValue(
       sanitized.overrides.fuel_price_variation,
-      0.5,
-      2.0
+      COST_OVERRIDE_LIMITS.fuel_price_variation.min,
+      COST_OVERRIDE_LIMITS.fuel_price_variation.max
     );
     if (fuelPriceVariation !== undefined) {
       cleanOverrides.fuel_price_variation = fuelPriceVariation;
     }
     const electricityPriceVariation = clampOverrideValue(
       sanitized.overrides.electricity_price_variation,
-      0.5,
-      2.0
+      COST_OVERRIDE_LIMITS.electricity_price_variation.min,
+      COST_OVERRIDE_LIMITS.electricity_price_variation.max
     );
     if (electricityPriceVariation !== undefined) {
       cleanOverrides.electricity_price_variation = electricityPriceVariation;
     }
     const maintenanceCostVariation = clampOverrideValue(
       sanitized.overrides.maintenance_cost_variation,
-      0.5,
-      1.5
+      COST_OVERRIDE_LIMITS.maintenance_cost_variation.min,
+      COST_OVERRIDE_LIMITS.maintenance_cost_variation.max
     );
     if (maintenanceCostVariation !== undefined) {
       cleanOverrides.maintenance_cost_variation = maintenanceCostVariation;
     }
     const batteryLifeVariation = clampOverrideValue(
       sanitized.overrides.battery_life_variation,
-      0.5,
-      1.5
+      COST_OVERRIDE_LIMITS.battery_life_variation.min,
+      COST_OVERRIDE_LIMITS.battery_life_variation.max
     );
     if (batteryLifeVariation !== undefined) {
       cleanOverrides.battery_life_variation = batteryLifeVariation;
     }
     const chargingEfficiencyVariation = clampOverrideValue(
       sanitized.overrides.charging_efficiency_variation,
-      0.7,
-      1.3
+      COST_OVERRIDE_LIMITS.charging_efficiency_variation.min,
+      COST_OVERRIDE_LIMITS.charging_efficiency_variation.max
     );
     if (chargingEfficiencyVariation !== undefined) {
       cleanOverrides.charging_efficiency_variation = chargingEfficiencyVariation;
@@ -211,62 +208,74 @@ const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequest
   // Sanitize vehicle param overrides - ensure they're positive numbers or undefined
   if (sanitized.vehicle_overrides) {
     const cleanVehicleOverrides: VehicleParamOverrides = {};
-    const msrpOverride = clampOverrideValue(sanitized.vehicle_overrides.msrp_override, 0, 10_000_000);
+    const msrpOverride = clampOverrideValue(
+      sanitized.vehicle_overrides.msrp_override,
+      VEHICLE_OVERRIDE_LIMITS.msrp_override.min,
+      VEHICLE_OVERRIDE_LIMITS.msrp_override.max
+    );
     if (msrpOverride !== undefined) {
       cleanVehicleOverrides.msrp_override = msrpOverride;
     }
-    const payloadOverride = clampOverrideValue(sanitized.vehicle_overrides.payload_override, 0, 100);
+    const payloadOverride = clampOverrideValue(
+      sanitized.vehicle_overrides.payload_override,
+      VEHICLE_OVERRIDE_LIMITS.payload_override.min,
+      VEHICLE_OVERRIDE_LIMITS.payload_override.max
+    );
     if (payloadOverride !== undefined) {
       cleanVehicleOverrides.payload_override = payloadOverride;
     }
-    const rangeOverride = clampOverrideValue(sanitized.vehicle_overrides.range_km_override, 50, 2500);
+    const rangeOverride = clampOverrideValue(
+      sanitized.vehicle_overrides.range_km_override,
+      VEHICLE_OVERRIDE_LIMITS.range_km_override.min,
+      VEHICLE_OVERRIDE_LIMITS.range_km_override.max
+    );
     if (rangeOverride !== undefined) {
       cleanVehicleOverrides.range_km_override = rangeOverride;
     }
     const batteryCapacityOverride = clampOverrideValue(
       sanitized.vehicle_overrides.battery_capacity_kwh_override,
-      0,
-      2000
+      VEHICLE_OVERRIDE_LIMITS.battery_capacity_kwh_override.min,
+      VEHICLE_OVERRIDE_LIMITS.battery_capacity_kwh_override.max
     );
     if (batteryCapacityOverride !== undefined) {
       cleanVehicleOverrides.battery_capacity_kwh_override = batteryCapacityOverride;
     }
     const kwhPerKmOverride = clampOverrideValue(
       sanitized.vehicle_overrides.kwh_per_km_override,
-      0.1,
-      10
+      VEHICLE_OVERRIDE_LIMITS.kwh_per_km_override.min,
+      VEHICLE_OVERRIDE_LIMITS.kwh_per_km_override.max
     );
     if (kwhPerKmOverride !== undefined) {
       cleanVehicleOverrides.kwh_per_km_override = kwhPerKmOverride;
     }
     const litresPerKmOverride = clampOverrideValue(
       sanitized.vehicle_overrides.litres_per_km_override,
-      0.05,
-      5
+      VEHICLE_OVERRIDE_LIMITS.litres_per_km_override.min,
+      VEHICLE_OVERRIDE_LIMITS.litres_per_km_override.max
     );
     if (litresPerKmOverride !== undefined) {
       cleanVehicleOverrides.litres_per_km_override = litresPerKmOverride;
     }
     const annualRegistrationOverride = clampOverrideValue(
       sanitized.vehicle_overrides.annual_registration_override,
-      0,
-      100_000
+      VEHICLE_OVERRIDE_LIMITS.annual_registration_override.min,
+      VEHICLE_OVERRIDE_LIMITS.annual_registration_override.max
     );
     if (annualRegistrationOverride !== undefined) {
       cleanVehicleOverrides.annual_registration_override = annualRegistrationOverride;
     }
     const interestRateOverride = clampOverrideValue(
       sanitized.vehicle_overrides.interest_rate_override,
-      0,
-      0.2
+      VEHICLE_OVERRIDE_LIMITS.interest_rate_override.min,
+      VEHICLE_OVERRIDE_LIMITS.interest_rate_override.max
     );
     if (interestRateOverride !== undefined) {
       cleanVehicleOverrides.interest_rate_override = interestRateOverride;
     }
     const chargingTimeOverride = clampOverrideValue(
       sanitized.vehicle_overrides.charging_time_hours_override,
-      0.1,
-      8
+      VEHICLE_OVERRIDE_LIMITS.charging_time_hours_override.min,
+      VEHICLE_OVERRIDE_LIMITS.charging_time_hours_override.max
     );
     if (chargingTimeOverride !== undefined) {
       cleanVehicleOverrides.charging_time_hours_override = chargingTimeOverride;
@@ -275,6 +284,13 @@ const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequest
   }
 
   return sanitized;
+};
+
+const assertValidDutyCycle = (dutyCycle: DutyCycle): void => {
+  const validation = validateDutyCycle(dutyCycle);
+  if (!validation.valid) {
+    throw new Error(getDutyCycleErrorMessage(validation));
+  }
 };
 
 const NUMERIC_VEHICLE_FIELDS = [
@@ -429,27 +445,15 @@ const getSeriesValue = (series: number[] | undefined, year: number, fallback: nu
 const dutyCycleToProfile = (dutyCycle?: DutyCycle): ChargingMix => {
   const raw = dutyCycle ?? DEFAULT_DUTY_CYCLE;
 
-  let urban = Number(raw.urban) || 0;
-  let regional = Number(raw.regional) || 0;
-  let longHaul = Number(raw.longHaul) || 0;
-
-  if (urban < 0) urban = 0;
-  if (regional < 0) regional = 0;
-  if (longHaul < 0) longHaul = 0;
-
-  let total = urban + regional + longHaul;
-
-  if (total === 0) {
-    urban = DEFAULT_DUTY_CYCLE.urban;
-    regional = DEFAULT_DUTY_CYCLE.regional;
-    longHaul = DEFAULT_DUTY_CYCLE.longHaul;
-    total = urban + regional + longHaul;
+  const total = raw.urban + raw.regional + raw.longHaul;
+  if (total <= 0) {
+    throw new Error('Duty cycle splits must sum to ~100%.');
   }
 
   const normalized: DutyCycle = {
-    urban: (urban / total) * 100,
-    regional: (regional / total) * 100,
-    longHaul: (longHaul / total) * 100,
+    urban: (raw.urban / total) * 100,
+    regional: (raw.regional / total) * 100,
+    longHaul: (raw.longHaul / total) * 100,
   };
 
   // Route-type profiles. Urban leans on depot/off-peak, long haul leans on public DC.
@@ -720,6 +724,17 @@ const calculatePayloadPenalty = (vehicle: VehicleDetail): number => {
   if (payloadDifference <= 0) {
     return 0;
   }
+  /**
+   * Annual payload penalty (lost freight revenue):
+   * penalty = max(0, payload_baseline - payload_vehicle)
+   *         * freight_rate_per_tonne_km(weight_class)
+   *         * annual_kms
+   *         * payload_utilisation_factor(weight_class)
+   *
+   * Source references:
+   * - FREIGHT_RATE_PER_TONNE_KM assumptions in `data/constants.py`
+   * - PAYLOAD_UTILISATION_FACTOR assumptions in `data/constants.py`
+   */
   const freightRate = FREIGHT_RATE_PER_TONNE_KM[vehicle.weight_class];
   const utilisation = PAYLOAD_UTILISATION_FACTOR[vehicle.weight_class];
   return payloadDifference * freightRate * vehicle.annual_kms * utilisation;
@@ -791,6 +806,16 @@ const buildFinancingSnapshot = (
     typeof interestRateOverride === 'number' ? interestRateOverride : interestRate;
   const monthlyRate = effectiveRate / 12;
   const numPayments = FINANCING_TERM * 12;
+  /**
+   * Amortising loan payment (PMT / annuity-immediate):
+   * PMT = PV * i / (1 - (1 + i)^(-n))
+   * where:
+   * - PV = loanAmount
+   * - i = monthlyRate
+   * - n = numPayments
+   *
+   * Reference: standard fixed-payment loan formula (same structure as Excel PMT).
+   */
   const monthlyPayment =
     monthlyRate === 0
       ? loanAmount / numPayments
@@ -813,6 +838,20 @@ const calculateResidualValueAtLife = (
   isBev: boolean,
   overrides?: CostOverrides
 ) => {
+  /**
+   * Residual value uses declining-balance depreciation:
+   * residual_1 = msrp * (1 - d_first_year)
+   * residual_t = residual_(t-1) * (1 - d_ongoing), for t = 2..VEHICLE_LIFE
+   *
+   * Then apply scenario/override multipliers:
+   * residual_final = residual_life
+   *                * bev_residual_value_multiplier (BEV only)
+   *                * residual_value_variation (if provided)
+   *
+   * Source references:
+   * - DEPRECIATION_RATE_FIRST_YEAR / DEPRECIATION_RATE_ONGOING in constants
+   * - scenario.bev_residual_value_multiplier trajectory
+   */
   const firstYearDep = msrp * DEPRECIATION_RATE_FIRST_YEAR;
   let residual = msrp - firstYearDep;
   for (let year = 2; year <= VEHICLE_LIFE; year += 1) {
@@ -848,13 +887,14 @@ export interface NominalCostTimelinePoint {
 }
 
 const calculateTcoWithDetails = (payload: CalculationRequestPayload): TcoComputationDetails => {
-  // Sanitize payload to prevent NaN and invalid values
+  // Sanitize override payload values before computing.
   const sanitizedPayload = sanitizePayload(payload);
 
   const baseVehicle = getVehicle(sanitizedPayload.vehicle_id);
   const scenario = getScenario(sanitizedPayload.scenario_name);
   const overrides = sanitizedPayload.overrides;
   const dutyCycle = sanitizedPayload.duty_cycle ?? DEFAULT_DUTY_CYCLE;
+  assertValidDutyCycle(dutyCycle);
   const vehicleWithStructuralOverrides = applyVehicleOverrides(
     baseVehicle,
     sanitizedPayload.vehicle_overrides

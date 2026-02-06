@@ -3,42 +3,20 @@ import type { PropsWithChildren } from 'react';
 import { toast } from 'react-hot-toast';
 import { useTCOStore } from '@state/tcoStore';
 import { useCalculationRunner } from '@hooks/useCalculations';
-import { compactOverrides, compactVehicleParamOverrides } from '@utils/payload';
-import type { ComparisonRequestPayload } from '@shared/types/tco.types';
+import { buildComparisonPayload } from '@utils/payload';
 
 const AppShell = ({ children }: PropsWithChildren) => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const isCalculating = useTCOStore((state) => state.isCalculating);
   const { runComparison } = useCalculationRunner();
 
-  const canCalculate = Boolean(wizardData.currentVehicle) && !isCalculating;
+  const canCalculate = Boolean(buildComparisonPayload(wizardData)) && !isCalculating;
 
   const handleRunComparison = async () => {
-    if (!wizardData.currentVehicle) {
+    const payload = buildComparisonPayload(wizardData);
+    if (!payload) {
       toast.error('Select a diesel truck first.');
       return;
-    }
-
-    const vehicleIds = Array.from(
-      new Set([wizardData.currentVehicle, ...wizardData.comparisonVehicles.filter(Boolean)])
-    );
-
-    const payload: ComparisonRequestPayload = {
-      vehicle_ids: vehicleIds,
-      scenario_name: wizardData.scenario,
-      purchase_method: wizardData.purchaseMethod,
-      duty_cycle: wizardData.dutyCycle,
-    };
-
-    const overrides = compactOverrides(wizardData.overrides ?? {});
-    if (Object.keys(overrides).length) {
-      payload.overrides = overrides;
-    }
-    const vehicleOverrides = compactVehicleParamOverrides(
-      wizardData.vehicleParamOverrides ?? {}
-    );
-    if (Object.keys(vehicleOverrides).length) {
-      payload.vehicle_param_overrides = vehicleOverrides;
     }
 
     try {

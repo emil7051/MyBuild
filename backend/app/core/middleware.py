@@ -1,6 +1,6 @@
 """Custom middleware for security and request handling.
 
-SEC-004: Request body size limits to prevent DoS via large payloads.
+See `docs/security-requirements.md` for policy details.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from backend.app.core.config import settings
 
 
 class RequestSizeLimitMiddleware:
-    """Middleware to enforce maximum request body size (SEC-004).
+    """Middleware to enforce maximum request body size.
 
     Enforces body size limits in two ways:
     1. Early rejection if Content-Length header exceeds the limit

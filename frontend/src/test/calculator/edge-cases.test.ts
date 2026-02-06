@@ -27,12 +27,13 @@ describe('Edge Cases', () => {
       expect(result.total_cost).not.toBeNaN();
     });
 
-    it('should handle zero-sum (fallback to defaults)', () => {
-      const result = calculateTco({
-        ...basePayload,
-        duty_cycle: { urban: 0, regional: 0, longHaul: 0 },
-      });
-      expect(result.total_cost).not.toBeNaN();
+    it('should reject zero-sum duty cycle', () => {
+      expect(() =>
+        calculateTco({
+          ...basePayload,
+          duty_cycle: { urban: 0, regional: 0, longHaul: 0 },
+        })
+      ).toThrow('Duty cycle splits must sum to ~100%.');
     });
 
     it('should handle undefined duty cycle', () => {

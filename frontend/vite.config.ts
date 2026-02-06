@@ -2,6 +2,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
+const allowedHosts =
+  process.env.VITE_ALLOWED_HOSTS
+    ?.split(',')
+    .map((value) => value.trim())
+    .filter(Boolean) ?? ['localhost', '127.0.0.1', '.replit.dev', '.repl.co'];
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -23,7 +29,7 @@ export default defineConfig({
   server: {
     port: 5000,
     host: '0.0.0.0',
-    allowedHosts: true,
+    allowedHosts,
     fs: {
       allow: ['..'],
     },

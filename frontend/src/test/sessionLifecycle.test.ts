@@ -50,7 +50,7 @@ describe('sessionLifecycle', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
-    useTCOStore.setState({ sessionId: undefined, sessionSecret: undefined });
+    useTCOStore.setState({ sessionId: undefined });
   });
 
   it('single-flights session creation and queues updates during create', async () => {
@@ -89,7 +89,6 @@ describe('sessionLifecycle', () => {
 
     resolveCreate!({
       sessionId: 'session-123',
-      sessionSecret: 'secret-abc',
       status: 'draft',
       wizardData,
       results: [],
@@ -102,8 +101,7 @@ describe('sessionLifecycle', () => {
     expect(updateSessionMock).toHaveBeenCalledTimes(1);
     expect(updateSessionMock).toHaveBeenCalledWith(
       'session-123',
-      { wizardData, results: [sampleResult] },
-      { sessionSecret: 'secret-abc' }
+      { wizardData, results: [sampleResult] }
     );
   });
 });

@@ -43,9 +43,9 @@ class SessionRecord(Base):
     status: Mapped[str] = mapped_column(String(20), default="draft", nullable=False)
     wizard_state: Mapped[dict | None] = mapped_column(JSON, default=dict)
     cached_results: Mapped[list | None] = mapped_column(JSON, default=list)
-    # Bcrypt hash of session access secret for session-level access control
+    # Session secret hash (prefixed SHA-256)
     session_secret_hash: Mapped[str | None] = mapped_column(
-        String(128), nullable=True, comment="Bcrypt hash of session access secret"
+        String(128), nullable=True, comment="Hash of session access secret"
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

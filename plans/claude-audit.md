@@ -12,15 +12,11 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 
 **What matters most:**
 
-1. **Calculator accuracy risks (HIGH).** The annualised cost formula uses an ordinary annuity instead of annuity-due, inflating the displayed annual cost and cost-per-km by ~5%. The articulated BEV charging mix sums to 0.90 instead of 1.0, reducing fuel costs by ~10% for that weight class. The fuel tax credit ($0.203/L) is defined but never applied, potentially overstating diesel costs by ~10%. These affect the numbers users see when making purchasing decisions.
+1. **Test infrastructure and coverage still need work.** Component-test enablement, CI type checks, and E2E execution in CI remain incomplete.
 
-2. **Test infrastructure is broken.** Backend tests cannot run locally (pytest-asyncio incompatibility). ~~Two frontend tests fail (Playwright spec loaded by Vitest, `vi.resetModules` issue).~~ *Resolved: 142/142 Vitest tests now pass.* Vitest uses `node` environment, blocking all component testing. Zero React component tests exist.
+2. **Deployment and observability guidance is still thin.** There is no formal production runbook for Replit deployment and no structured telemetry stack for request-level troubleshooting.
 
-3. **CI gaps leave real risks undetected.** No mypy type checking, no E2E tests, no SAST scanning, no Prettier enforcement. Ruff version drift between local and CI. Bun version not pinned. Frontend lockfile not frozen in CI.
-
-4. **Docker and deployment need hardening.** No `.dockerignore`, no multi-stage builds, containers run as root, no health checks, no production Dockerfile or deployment pipeline. Heavy unused Python dependencies (numpy, pandas, plotly) inflate the backend image.
-
-5. **AI-generated code patterns** are present but manageable. Repetitive sanitization code, defensive null checks on guaranteed types, verbose comments restating code, audit-reference comments throughout. These add maintenance burden but don't introduce bugs.
+3. **AI-generated code patterns** are present but manageable. Repetitive sanitization code, defensive null checks on guaranteed types, and silent error swallowing add maintenance burden and UX risk.
 
 ---
 
@@ -82,270 +78,55 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 
 ### Dependency Map
 
-**Backend:** FastAPI 0.128 + SQLAlchemy 2.0.25 + Alembic 1.13 + asyncpg + Redis 5.0 + bcrypt + slowapi
+**Backend:** FastAPI 0.128 + SQLAlchemy 2.0.25 + Alembic 1.13 + asyncpg + Redis 5.0 + slowapi
 **Frontend:** React 18 + React Query 5 + Zustand 4 + React Hook Form 7 + Zod 3 + Recharts 2 + Vite 7 + Vitest 4
 **Shared:** Pure TypeScript, no external deps
 
 ---
 
-## 3. Top Risks & Hotspots
+## 3. Current Risk Snapshot
 
-Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=LxI.
-
-| # | Risk | L | I | Risk | Category |
-|---|------|---|---|------|----------|
-| 1 | Annualised cost formula inflates displayed annual cost by ~5% | 5 | 5 | **25** | Calculator correctness |
-| 2 | Articulated BEV charging mix sums to 0.90, not 1.0 | 5 | 4 | **20** | Data integrity |
-| 3 | Fuel tax credit defined but not applied (diesel costs overstated ~10%) | 4 | 5 | **20** | Calculator completeness |
-| 4 | Backend tests cannot run locally (pytest-asyncio incompatibility) | 5 | 4 | **20** | Test infrastructure |
-| 5 | Zero React component tests; Vitest env blocks component testing | 5 | 3 | **15** | Test coverage |
-| 6 | No mypy in CI; type errors in async Python code undetected | 4 | 3 | **12** | CI gaps |
-| 7 | Ruff version drift between local (0.0.290) and CI (latest) | 4 | 3 | **12** | CI reproducibility |
-| 8 | Python/TypeScript rebate calculation logic diverges (dormant) | 2 | 5 | **10** | Cross-language parity |
-| 9 | No `.dockerignore`; backend image contains tests, .git, archive | 4 | 2 | **8** | Docker |
-
-**Update (2026-02-06):** CALC-01 through CALC-08, FE-01 through FE-03, BE-01 through BE-05, and PERF-01 through PERF-04 have been completed and moved to the `DONE` section.
+| Area | Risk Level | Status |
+|------|------------|--------|
+| Test coverage and CI safety rails | **Medium** | Core parity/unit suites are strong, but CI type checking and E2E CI coverage remain incomplete. |
+| Deployment and operations | **Medium** | Replit deployment documentation and observability baselines remain incomplete. |
+| Code maintainability | **Low-Medium** | Major duplication/dead-code cleanup is complete; targeted AI-pattern refactors remain. |
 
 ---
 
 ## 4. Findings
 
-### 4.1 Correctness & Reliability
-
-Backend items `BE-01` through `BE-05` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
+Sections `4.1`, `4.3`, `4.4`, and `4.5` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
 
 ### 4.2 Security & Privacy
 
-#### SEC-01: Docker containers run as root
-- **Evidence:** Neither `backend/Dockerfile` nor `frontend/Dockerfile` contains a `USER` directive.
-- **Impact:** Container compromise gives root privileges. Production security concern.
-- **Recommendation:** Add non-root user directives to both Dockerfiles.
+Security items `SEC-01` through `SEC-08` are complete (or explicitly de-scoped) and are tracked in Section 10 (`DONE`) at the bottom of this document.
 
-#### SEC-02: No `.dockerignore` files
-- **Evidence:** No `.dockerignore` files exist anywhere in the project.
-- **Impact:** Backend image includes tests, `.git`, archive, `.env` files. Attack surface and image bloat.
-- **Recommendation:** Create `.dockerignore` in project root and `frontend/`.
-
-#### SEC-03: bcrypt 12 rounds excessive for high-entropy session secrets
-- **Evidence:** `backend/app/core/security.py:132`. Session secrets are 256-bit random tokens (not user-chosen passwords).
-- **Impact:** Each session create/verify adds ~250ms of bcrypt overhead. Unnecessary for high-entropy tokens.
-- **Recommendation:** Consider HMAC-SHA256 for session secret hashing, or reduce to 10 rounds.
-
-#### SEC-04: `vite.config.ts` sets `allowedHosts: true`
-- **Evidence:** `frontend/vite.config.ts:26`.
-- **Impact:** Disables Vite host header validation. Enables DNS rebinding attacks in development.
-- **Recommendation:** Change to `allowedHosts: ['localhost', '127.0.0.1']`.
-
-#### SEC-05: Broad `except Exception` in cache module masks programming errors
-- **Evidence:** `backend/app/core/cache.py:58,83,111`. All Redis operations catch `Exception` broadly.
-- **Impact:** A bug in cache serialization (e.g., `json.dumps` failure) is silently treated as a Redis connection issue.
-- **Recommendation:** Catch `redis.RedisError` specifically. Let programming errors propagate.
-
-#### SEC-06: Session secret echoed in both JSON body and HttpOnly cookie
-- **Evidence:** `backend/app/api/router.py:112-117`.
-- **Impact:** The JSON body is visible in dev tools and proxy logs. The cookie alone would suffice for browser re-submission.
-- **Decision:** Deferred. Needs further investigation before deciding. See "Deferred Items" in Section 8. Questions to resolve: Are there non-browser API consumers? Is the cookie migration complete? What breaks if JSON body is removed?
-
-#### SEC-07: Error response echoes user input
-- **Evidence:** `backend/app/api/router.py:69`. Error message includes the invalid `session_id`.
-- **Impact:** Low XSS risk since it is a JSON API, but poor practice.
-- **Recommendation:** Remove echoed input: `"Invalid session_id format. Expected a valid UUID v4."`
-
-#### SEC-08: bcrypt blocks the async event loop
-- **Evidence:** `backend/app/core/security.py:123,136`, `backend/app/services/sessions.py:46,98`. Synchronous bcrypt hash/verify called directly inside async request handlers.
-- **Impact:** CPU-bound hashing (~250ms per operation at 12 rounds) blocks the event loop under load, causing latency spikes across all concurrent requests. Potential DoS amplification vector.
-- **Recommendation:** Offload bcrypt operations to a worker thread via `anyio.to_thread.run_sync`. Alternatively, reduce rounds per SEC-03 (high-entropy secrets don't need 12 rounds) or switch to HMAC-SHA256 for session secrets.
-
-
-
-### 4.4 Maintainability
-
-#### MAINT-01: Ruff version drift between local and CI
-- **Evidence:** `requirements-dev.txt:12` pins `ruff==0.0.290`. CI at `ci.yml:34` installs `ruff` unpinned (gets latest 0.8.x+). The `0.0.x` series had different rule defaults.
-- **Impact:** Code can pass CI but fail locally, or vice versa.
-- **Recommendation:** Pin ruff to the same modern version everywhere.
-
-#### MAINT-02: Three overlapping Python linting ecosystems
-- **Evidence:** `requirements-dev.txt` includes ruff, flake8 (+3 plugins), and pylint. CI only runs ruff.
-- **Impact:** Confusing for developers. Wasted install time. Modern ruff subsumes flake8 + many pylint rules.
-- **Recommendation:** Consolidate on ruff. Remove flake8, flake8 plugins, and pylint.
-
-#### MAINT-03: Test dependencies missing from `requirements-dev.txt`
-- **Evidence:** CI installs `httpx` and `factory-boy` inline (`ci.yml:63`). Neither in `requirements-dev.txt`. Also `anyio`/`pytest-anyio` not listed but tests use `@pytest.mark.anyio`.
-- **Impact:** `pip install -r requirements-dev.txt && pytest` fails for developers.
-- **Recommendation:** Add `httpx`, `factory-boy`, and `anyio` to `requirements-dev.txt`.
-
-#### MAINT-04: `constants.future.ts` duplicates generated constants
-- **Evidence:** Every value in `FUTURE_CONSTANTS` also exists in `constants.generated.ts` with the same value.
-- **Impact:** If Python constants change, the generated file updates but `constants.future.ts` stays stale.
-- **Recommendation:** Remove duplicates from `constants.future.ts`.
-
-#### MAINT-05: Dead frontend component `WizardVehicleStep`
-- **Evidence:** `WizardVehicleStep.tsx` is not imported anywhere. Superseded by `WizardDieselStep` and `WizardElectricStep`.
-- **Impact:** Dead code.
-- **Recommendation:** Delete the file.
-
-#### MAINT-06: Duplicate payload-building logic in 3 locations
-- **Evidence:** `WizardCompareStep.tsx:15-53`, `AppShell.tsx:22-42`, and `payload.ts` utilities. Subtle differences exist (e.g., deduplication approach).
-- **Impact:** Payload shape change requires updating 3 locations.
-- **Recommendation:** Extract a single `buildComparisonPayload(wizardData)` utility.
-
-#### MAINT-07: ESLint missing `react-hooks/recommended`
-- **Evidence:** `.eslintrc.cjs:12` includes `'react-hooks'` in plugins but `extends` does not include `'plugin:react-hooks/recommended'`.
-- **Impact:** React hooks rules (exhaustive deps, rules of hooks) not enforced. Stale closure bugs go undetected.
-- **Recommendation:** Add to `extends` array.
-
-#### MAINT-08: `ConstantCatalog` provides no compile-time type safety
-- **Evidence:** `shared/types/tco.types.ts:13-15`. Typed as `Record<string, NestedValue>`. Every constant access requires runtime `asNumber()` casts.
-- **Impact:** No typo protection. `CONSTANTS.DISCONT_RATE` would be `undefined` at runtime.
-- **Recommendation:** Generate a strongly-typed interface from Python constants.
-
-#### MAINT-09: Redis cache key naming inconsistency (camel vs snake)
-- **Evidence:** `backend/app/core/cache.py:77` stores as `sessionSecretHash` (camelCase). `CachedSession` TypedDict uses `session_secret_hash`. Lines 100-107 translate.
-- **Impact:** Error-prone translation layer. Silent `None` returns on key mismatch.
-- **Recommendation:** Standardize on snake_case.
-
-#### MAINT-10: No documentation of financial formulas in calculator
-- **Evidence:** `tcoCalculator.ts` has no formula documentation for monthly payment (line 752), residual value (lines 772-786), or payload penalty (lines 667-682).
-- **Impact:** Domain-specific financial logic is hard to verify or maintain without formula references.
-- **Recommendation:** Add formula comments with mathematical notation and source references.
-
-#### MAINT-11: Calculator uses hard-coded override limits, not OVERRIDE_LIMITS
-- **Evidence:** `shared/calculator/tcoCalculator.ts:138`, `data/constants.py:85`. The calculator sanitizes overrides using inline numeric ranges instead of consuming the canonical `OVERRIDE_LIMITS` from generated constants.
-- **Impact:** Limits can drift between the calculator and the frontend/backend validators that do use `OVERRIDE_LIMITS`. Adding or changing a limit requires updating multiple locations.
-- **Recommendation:** Import and use `OVERRIDE_LIMITS` from `shared/data/constants.generated.ts` in the calculator's sanitization logic. This also supports the AI-01 refactor (data-driven sanitization).
-
-#### MAINT-12: Duty-cycle validation diverges across layers
-- **Evidence:** `frontend/src/state/tcoStore.ts:94` (store resets invalid values), `shared/calculator/tcoCalculator.ts:126` (normalizes to 100%), `backend/app/models/session.py:100` (rejects sums outside tolerance).
-- **Impact:** Inconsistent behaviour between UI, calculator, and API. A duty-cycle input that the store silently "fixes" might be rejected by the backend or silently re-normalised by the calculator.
-- **Recommendation:** Define a single shared validation policy (e.g., reject if sum deviates from 100% by more than a tolerance). Make corrections explicit and visible to users rather than silent.
-
-### 4.5 Duplication & Dead Code
-
-#### DEAD-01: Unused Python runtime dependencies
-- **Evidence:** `requirements.txt` includes numpy, numpy-financial, pandas, plotly, rich, click. Grep of active codebase (excluding `archive/`) shows no imports.
-- **Impact:** Docker image bloat. Vulnerability surface. ~115MB of unused libraries.
-- **Recommendation:** Move to `requirements-scripts.txt`.
-
-#### DEAD-02: Unused dev dependencies
-- **Evidence:** `requirements-dev.txt` includes sphinx, sphinx-rtd-theme, jupyter, ipykernel, memory-profiler, line-profiler, py-spy, tox (no `tox.ini`), safety, interrogate. None used in CI or config.
-- **Impact:** Excessive install time. `safety` has free API deprecation issues.
-- **Recommendation:** Remove. Re-add if actively needed.
-
-#### DEAD-03: `WizardVehicleStep` orphaned component
-- **Evidence:** Not imported anywhere. See MAINT-05.
-
-#### DEAD-04: `useVehicleCatalog` hook is vestigial
-- **Evidence:** `frontend/src/hooks/useVehicleCatalog.ts:1-10`. Wraps static import in `useMemo` with `isLoading: false` hardcoded. Designed for async pattern that was replaced.
-- **Impact:** Every consumer destructures `{ data: catalog, isLoading }` even though `isLoading` is always `false`.
-- **Recommendation:** Replace with direct import.
-
-#### DEAD-05: Audit reference codes throughout backend
-- **Evidence:** `SEC-004`, `API-002`, `SEC-007` etc. in docstrings across `main.py`, `router.py`, `middleware.py`, `security.py`, `session.py`, `calculation.py`.
-- **Impact:** Codes are meaningless without the audit plan. Read like checklist artifacts.
-- **Recommendation:** Consolidate into `docs/security-requirements.md`. In code, reference the doc.
-
-#### DEAD-06: Unused `fetchSession` API helper
-- **Evidence:** `frontend/src/services/api.ts:49`. Defined but not referenced anywhere else in the codebase.
-- **Impact:** Dead code. Maintenance noise.
-- **Recommendation:** Remove, or add usage in a session resume flow if that feature is planned.
-
-#### DEAD-07: Unused `ValueError` handler in router
-- **Evidence:** `backend/app/api/router.py:112`. Catches `ValueError` from session creation, but the service never raises it.
-- **Impact:** Dead exception branch. False sense of error handling coverage.
-- **Recommendation:** Remove the `ValueError` catch or document the code path that could raise it.
+#### SEC-05: Broad `except Exception` in cache module masks programming errors — **RESOLVED**
+- **Status (2026-02-06): DONE.** Cache error handling is narrowed to `RedisError` and no longer swallows non-Redis/programming failures.
+- **Resolution (2026-02-06):** Updated `backend/app/core/cache.py` to catch `RedisError` only for Redis I/O paths and added focused coverage in `tests/test_cache.py` for serialization/JSON error propagation and Redis failure fallback behavior.
 
 ### 4.6 Dependency Health
 
-#### DEP-01: ESLint 8 and @typescript-eslint v6 are end-of-life
-- **Evidence:** `package.json:42` has `eslint: ^8.57.0`, lines 37-38 have `@typescript-eslint v6`.
-- **Impact:** No new rules or bug fixes. Legacy `.eslintrc.cjs` format deprecated.
-- **Recommendation:** Plan migration to ESLint 9 flat config and @typescript-eslint v8.
+Dependency items `DEP-01` through `DEP-07` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
 
-#### DEP-02: Core Python dependencies moderately outdated
-- **Evidence:** SQLAlchemy 2.0.25 (current 2.0.36+), FastAPI 0.128 (current 0.115+), pytest 7.4 (8.x available), black 23.7 (24.x available), mypy 1.5 (1.13+ available).
-- **Impact:** Missing security patches and bug fixes.
-- **Recommendation:** Schedule dependency update sweep. FastAPI needs careful migration.
+#### DEP-05: CI uses `bun install` without `--frozen-lockfile` — **RESOLVED**
+- **Status (2026-02-06): DONE.** Added `--frozen-lockfile` to CI Bun installs in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`.
+- **Original impact:** CI could resolve different dependency versions than lockfile specifies.
 
-#### DEP-03: `greenlet` explicitly pinned
-- **Evidence:** `requirements.txt:25` pins `greenlet==3.3.0`.
-- **Impact:** Can cause resolution conflicts when SQLAlchemy is updated.
-- **Recommendation:** Remove explicit pin.
+#### DEP-06: `BUN_VERSION: 'latest'` in CI — **RESOLVED**
+- **Status (2026-02-06): DONE.** Pinned CI Bun runtime to `1.3.5` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`.
+- **Original impact:** Frontend builds were not reproducible.
 
-#### DEP-04: `prettier` installed but not enforced
-- **Evidence:** `package.json:46` lists prettier. No CI check, no format script, no ESLint integration.
-- **Impact:** Formatting not enforced. Inconsistent code style.
-- **Recommendation:** Add `format:check` to CI or remove prettier.
-
-#### DEP-05: CI uses `bun install` without `--frozen-lockfile`
-- **Evidence:** `ci.yml:99,135,156` all run `bun install` without `--frozen-lockfile`.
-- **Impact:** CI can resolve different dependency versions than lockfile specifies.
-- **Recommendation:** Add `--frozen-lockfile` to all CI `bun install` commands.
-
-#### DEP-06: `BUN_VERSION: 'latest'` in CI
-- **Evidence:** `ci.yml:15` and `dependency-audit.yml:20`.
-- **Impact:** Frontend builds not reproducible. Bun still makes breaking changes between minors.
-- **Recommendation:** Pin to specific version.
-
-#### DEP-07: No automated dependency update workflow
-- **Evidence:** No Dependabot or Renovate configuration found. Dependencies are pinned (Python) or caret-ranged (frontend) without update automation.
-- **Impact:** Security patches may be missed. Upgrades become batchy and risky over time.
-- **Recommendation:** Add Dependabot or Renovate with monthly cadence for runtime deps, weekly for security-only patches.
+#### DEP-07: No automated dependency update workflow — **RESOLVED**
+- **Status (2026-02-06): DONE.** Added `.github/dependabot.yml` to automate dependency updates:
+  - Monthly cadence for runtime version updates (pip + npm + GitHub Actions).
+  - Security updates grouped separately via Dependabot `applies-to: security-updates`.
+- **Original impact:** Security patches could be missed and upgrades could become high-risk batch changes.
 
 ### 4.7 Tests & Observability
 
-#### TEST-01: Backend tests broken locally
-- **Evidence:** `pytest-asyncio` incompatible with installed pytest version. `ImportError: cannot import name 'FixtureDef' from 'pytest'`.
-- **Impact:** Cannot run backend tests locally. Blocks development.
-- **Recommendation:** Reinstall venv deps. Ensure `requirements-dev.txt` versions are compatible.
-
-#### TEST-02: Two frontend test failures — **RESOLVED**
-- **Evidence:** `e2e/ui-redesign.spec.ts` loaded by Vitest (Playwright API conflict). `sessionLifecycle.test.ts:45` calls `vi.resetModules()` which doesn't exist.
-- **Impact:** 141/143 tests pass but CI will report failure.
-- **Recommendation:** Exclude `e2e/` from Vitest config. Fix the `resetModules` call.
-- **Resolution (2026-02-06):** Fixed. `e2e/` excluded in `vitest.config.ts:24`, `vi.resetModules` call corrected. 142/142 tests now pass.
-
-#### TEST-03: Vitest uses `node` environment, blocking component tests
-- **Evidence:** `vitest.config.ts:21` sets `environment: 'node'`.
-- **Impact:** Cannot test React components. Explains why zero component tests exist.
-- **Recommendation:** Change to `'jsdom'` or `'happy-dom'`.
-
-#### TEST-04: Verification tests cover only baseline scenario
-- **Evidence:** All 33 test cases in `verification_data.json` use `"scenario_name": "baseline"`. No `technology_breakthrough` or `oil_crisis` cases.
-- **Impact:** Python-TypeScript parity only guaranteed for baseline. Scenario trajectory code untested.
-- **Recommendation:** Generate fixtures for each scenario.
-
-#### TEST-05: Only one override test case in verification data
-- **Evidence:** `verification_data.json` has a single `"BEV001-overrides"` entry. No diesel override test, no vehicle override test, no financed purchase override test.
-- **Impact:** Override interaction logic barely covered.
-- **Recommendation:** Add 3-4 additional override combinations.
-
-#### TEST-06: No test for request size middleware
-- **Evidence:** No test file targets `RequestSizeLimitMiddleware`. Critical DoS protection feature untested.
-- **Recommendation:** Add tests for oversized requests (both Content-Length and chunked).
-
-#### TEST-07: No test for rate limiting behavior
-- **Evidence:** No test verifies rate limit enforcement.
-- **Recommendation:** Add integration test that exceeds rate limit and verifies 429 response.
-
-#### TEST-08: No test for session update authorization
-- **Evidence:** PUT tests always include the correct secret. Missing: PUT without secret (401), PUT with wrong secret (403).
-- **Recommendation:** Add both test cases.
-
-#### TEST-09: Carbon cost test mutates shared state
-- **Evidence:** `carbon-cost.test.ts:12-36` mutates `SCENARIO_DEFINITIONS.baseline` directly.
-- **Impact:** State leak risk between tests.
-- **Recommendation:** Deep-clone scenario before mutation.
-
-#### TEST-10: No mypy in CI
-- **Evidence:** No CI workflow runs mypy despite it being in `requirements-dev.txt`.
-- **Impact:** Python type errors undetected in CI.
-- **Recommendation:** Add `backend-typecheck` CI job.
-
-#### TEST-11: No E2E tests in CI
-- **Evidence:** Playwright installed and specs exist, but no CI workflow runs them.
-- **Impact:** UI regressions reach main branch undetected.
-- **Recommendation:** Add E2E job to CI.
+Test items `TEST-01` through `TEST-11` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
 
 #### OBS-01: No observability instrumentation
 - **Evidence:** No OpenTelemetry, Prometheus, or Sentry integration found in backend or frontend code. No structured logging beyond Python's default logger.
@@ -354,35 +135,33 @@ Backend items `BE-01` through `BE-05` are complete and have been moved to Sectio
 
 ### 4.8 Build/Deploy Ergonomics
 
-#### OPS-01: No production deployment configuration
-- **Evidence:** No production Dockerfile, no Kubernetes manifests, no Terraform, no Procfile. Only deployment hint is Replit URL in `.env.production.example`.
-- **Impact:** No documented production deployment process.
-- **Recommendation:** Create production Dockerfile and deployment guide.
+#### OPS-01: No documented Replit deployment runbook
+- **Evidence:** Replit deployment config exists in `.replit`, but no dedicated deployment runbook exists under `docs/`.
+- **Impact:** Operational setup and rollback steps remain tribal knowledge.
+- **Recommendation:** Document the Replit deployment process (env vars, DB migration flow, rollback path, and operational checks).
 
-#### OPS-02: No Python lockfile for transitive dependencies
-- **Evidence:** `requirements.txt` pins direct deps but not transitive ones.
-- **Impact:** Transitive deps can change between installs.
-- **Recommendation:** Use `pip-tools` or `uv` to generate fully-resolved lockfile.
+#### OPS-02: No Python lockfile for transitive dependencies — **RESOLVED**
+- **Status (2026-02-06): DONE.** Added lockfile-based Python dependency workflow using `uv pip compile`.
+- **Resolution (2026-02-06):** Added `requirements.lock.txt` and `requirements-dev.lock.txt`, updated install paths in `.github/workflows/ci.yml`, `.github/workflows/data-sync-check.yml`, `.github/workflows/dependency-audit.yml`, `.replit`, and `backend/requirements.txt`, and documented lockfile regeneration in `README.md`.
+- **Original impact:** Transitive deps could change between installs.
 
-#### OPS-03: No bun cache in CI
-- **Evidence:** CI caches pip but not bun/node_modules.
-- **Impact:** Every frontend CI job installs from scratch (30-60s per job).
-- **Recommendation:** Add `actions/cache` for `~/.bun/install/cache`.
+#### OPS-03: No bun cache in CI — **RESOLVED**
+- **Status (2026-02-06): DONE.** Added Bun install-cache restore/save in CI.
+- **Resolution (2026-02-06):** Added `actions/cache` entries for `~/.bun/install/cache` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`.
+- **Original impact:** Every frontend CI job installed dependencies from scratch.
 
-#### OPS-04: Backend test job depends on lint job unnecessarily
-- **Evidence:** `ci.yml:47` has `needs: backend-lint`. Tests and lint are independent.
-- **Impact:** Lint runtime added to critical path.
-- **Recommendation:** Remove dependency. `ci-success` gates on both already.
+#### OPS-04: Backend test job depends on lint job unnecessarily — **RESOLVED**
+- **Status (2026-02-06): DONE.** Removed backend test dependence on lint.
+- **Resolution (2026-02-06):** Removed `needs: backend-lint` from `backend-test` in `.github/workflows/ci.yml` so lint and tests run in parallel while `ci-success` still gates on both.
+- **Original impact:** Lint runtime was added to CI critical path.
 
-#### OPS-05: Docker compose `env_file` fails on fresh clone
-- **Evidence:** `docker-compose.yml:25` references `backend/.env` which is in `.gitignore`.
-- **Impact:** `docker compose up` fails after fresh clone.
-- **Recommendation:** Make `env_file` optional or add setup step to README.
+#### OPS-05: Docker compose `env_file` fails on fresh clone — **DE-SCOPED**
+- **Status (2026-02-06): DONE (DE-SCOPED).** Docker compose files are no longer active in this repository.
+- **Original impact:** `docker compose up` failed after fresh clone due to required local env file.
 
-#### OPS-06: No health checks on Docker services
-- **Evidence:** No `healthcheck` directives in `docker-compose.yml`. `depends_on` only checks container start.
-- **Impact:** Backend can start before postgres/redis are ready.
-- **Recommendation:** Add health checks for postgres and redis.
+#### OPS-06: No health checks on Docker services — **DE-SCOPED**
+- **Status (2026-02-06): DONE (DE-SCOPED).** Docker compose files are no longer active in this repository.
+- **Original impact:** Backend startup ordering was vulnerable to dependency readiness races.
 
 #### OPS-07: No automated staleness check for generated TypeScript files — **RESOLVED**
 - **Evidence:** Generation script must be run manually. No CI enforcement.
@@ -390,10 +169,9 @@ Backend items `BE-01` through `BE-05` are complete and have been moved to Sectio
 - **Recommendation:** Add CI step that regenerates and checks for uncommitted diffs.
 - **Resolution (2026-02-06):** Already implemented. `.github/workflows/data-sync-check.yml` runs the generation script and checks for uncommitted diffs.
 
-#### OPS-08: Single Docker Compose file serves dev and production
-- **Evidence:** `docker-compose.yml` uses `uvicorn --reload` and `bun run dev`. No separate production compose file exists.
-- **Impact:** Risk of deploying with dev servers (hot reload, weaker security defaults, lower performance). The `UVICORN_RELOAD` guard helps but `bun run dev` has no equivalent gate.
-- **Recommendation:** Split into `docker-compose.yml` (dev) and `docker-compose.prod.yml` with production-grade commands, or document the file as dev-only.
+#### OPS-08: Single Docker Compose file serves dev and production — **DE-SCOPED**
+- **Status (2026-02-06): DONE (DE-SCOPED).** Docker compose files are no longer active in this repository.
+- **Original impact:** Risk of shipping dev server settings in production container workflows.
 
 ### 4.9 AI-Generated Code Patterns
 
@@ -434,26 +212,11 @@ Backend items `BE-01` through `BE-05` are complete and have been moved to Sectio
 
 ### 4.10 Accessibility
 
-#### A11Y-01: Charts have no text alternative
-- **Evidence:** All 5 chart components in `frontend/src/components/results/` render SVG without text alternatives.
-- **Impact:** Primary output (cost comparisons) inaccessible to visually impaired users.
-- **Recommendation:** Add `aria-label` descriptions and a toggleable data table fallback.
-
-#### A11Y-02: `aria-current` misuse in wizard stepper
-- **Evidence:** `WizardStepper.tsx:33` uses `aria-current={isActive}` which evaluates to `"true"` or `"false"`.
-- **Impact:** Screen readers misinterpret current step.
-- **Recommendation:** Use `aria-current={isActive ? 'step' : undefined}`.
-
-#### A11Y-03: Error messages lack `role="alert"`
-- **Evidence:** `Field.tsx:27` and `Select.tsx:34` render errors as plain `<span>`.
-- **Impact:** Screen reader users not notified when validation errors appear.
-- **Recommendation:** Add `role="alert"` to error spans.
-
-#### A11Y-04: Color contrast failure for muted text
+#### A11Y-01: Color contrast failure for muted text
 - **Evidence:** `tailwind.config.js:13`. `brand-muted` (#666666) on `brand-background` (#F4F4F3) gives ~3.9:1 contrast ratio, below WCAG AA 4.5:1 requirement.
 - **Recommendation:** Darken to at least `#595959`.
 
-#### A11Y-05: Vehicle chips use `div role="button"` instead of `<button>`
+#### A11Y-02: Vehicle chips use `div role="button"` instead of `<button>`
 - **Evidence:** `WizardElectricStep.tsx:126-162`.
 - **Impact:** Custom keyboard handling duplicates native button behavior.
 - **Recommendation:** Replace with `<button>` element.
@@ -464,45 +227,11 @@ Backend items `BE-01` through `BE-05` are complete and have been moved to Sectio
 
 | ID | Title | Impact | Effort | Risk | Phase | Dependencies |
 |----|-------|--------|--------|------|-------|-------------|
-| TEST-01 | Fix backend test infrastructure (pytest-asyncio) | **High** | XS | Low | 1 | None |
-| TEST-03 | Change Vitest env to jsdom | **High** | XS | Low | 1 | None |
-| MAINT-01 | Pin ruff version consistently (local + CI) | **High** | XS | Low | 1 | None |
-| DEP-05 | Add `--frozen-lockfile` to CI bun install | **High** | XS | Low | 1 | None |
-| DEP-06 | Pin BUN_VERSION in CI | **High** | XS | Low | 1 | None |
-| MAINT-03 | Add missing test deps to requirements-dev.txt | **High** | XS | Low | 1 | None |
-| SEC-02 | Create .dockerignore files | **Med** | XS | Low | 1 | None |
-| OPS-06 | Add Docker health checks | **Med** | S | Low | 1 | None |
-| MAINT-07 | Enable react-hooks/recommended in ESLint | **Med** | XS | Low | 1 | None |
-| SEC-05 | Narrow cache.py exception handling | **Med** | S | Low | 2 | None |
-| CALC-05 | Align Python/TS rebate calculation logic | **Med** | S | Low | 2 | None |
-| CALC-07 | Add BATTERY_REPLACEMENT_YEAR to Python constants | **Med** | XS | Low | 2 | Regen TS |
-| CALC-08 | Remove per-vehicle maintenance_cost_per_km from catalog | **Med** | S | Low | 2 | Regen TS |
-| TEST-04 | Add verification fixtures for all scenarios | **Med** | M | Low | 2 | Regen from Python |
-| TEST-05 | Add override combination test cases | **Med** | M | Low | 2 | Regen from Python |
-| TEST-06 | Add middleware tests | **Med** | S | Low | 2 | None |
-| TEST-08 | Add session update auth tests | **Med** | S | Low | 2 | None |
-| TEST-10 | Add mypy to CI | **Med** | S | Low | 2 | Fix mypy config |
-| DEAD-01 | Remove unused Python runtime deps | **Med** | S | Low | 2 | Test Docker build |
-| MAINT-02 | Consolidate on ruff (remove flake8/pylint) | **Med** | S | Low | 2 | None |
 | AI-01 | Refactor repetitive sanitization to data-driven (preserve `clampOverrideAboveMin` special case for `annual_kms_variation`) | **Med** | M | Low | 2 | Test coverage first |
-| SEC-08 | Offload bcrypt to worker thread | **Med** | S | Low | 2 | None |
-| MAINT-11 | Centralize calculator override limits from OVERRIDE_LIMITS | **Med** | M | Low | 2 | AI-01, Regen TS |
-| MAINT-12 | Unify duty-cycle validation across layers | **Med** | M | Med | 2 | None |
-| DEP-07 | Add Dependabot/Renovate for dependency updates | **Med** | S | Low | 2 | None |
 | AI-07 | Surface frontend persist errors to users | **Med** | S | Low | 2 | None (FE-01 complete) |
-| CALC-06 | Restructure CostBreakdown into named groups | **Med** | L | Med | 2 | See CALC-06 sub-plan |
-| MAINT-08 | Generate strongly-typed constants interface | **Med** | M | Med | 3 | Update generator |
-| MAINT-04 | Remove duplicates from constants.future.ts | **Low** | XS | Low | 2 | None |
-| MAINT-05 | Delete dead WizardVehicleStep | **Low** | XS | Low | 2 | None |
-| DEAD-02 | Remove unused dev dependencies | **Low** | S | Low | 2 | None |
-| MAINT-06 | Extract buildComparisonPayload utility | **Low** | S | Low | 2 | None |
-| DEAD-06 | Remove unused fetchSession helper | **Low** | XS | Low | 2 | None |
-| DEAD-07 | Remove unused ValueError handler | **Low** | XS | Low | 2 | None |
 | A11Y-01 | Add chart text alternatives | **Low** | M | Low | 3 | None |
-| DEP-01 | Migrate ESLint 9 + @typescript-eslint v8 | **Low** | L | Med | 3 | None |
-| SEC-01 | Add non-root Docker users | **Low** | S | Low | 3 | Dev-only (Replit manages prod containers) |
+| A11Y-02 | Replace chip pseudo-buttons with `<button>` | **Low** | S | Low | 3 | None |
 | OPS-01 | Document Replit deployment process | **Low** | S | Low | 3 | None |
-| OPS-08 | Split dev/prod Docker Compose configs | **Low** | S | Low | 3 | Dev-only convenience |
 | OBS-01 | Add structured logging (Replit-compatible) | **Low** | M | Low | 3 | None |
 
 *Size: XS=<1hr, S=1-4hr, M=4-16hr, L=16hr+*
@@ -515,14 +244,15 @@ Backend items `BE-01` through `BE-05` are complete and have been moved to Sectio
 
 **Goal:** Fix broken infrastructure and add guardrails. All changes are additive or fix-only. Zero functional changes.
 
-1. Fix `requirements-dev.txt` (add httpx, factory-boy, anyio; pin compatible pytest-asyncio)
-2. Pin ruff to same version in `requirements-dev.txt` and `ci.yml`
-3. Pin `BUN_VERSION` in CI workflows
-4. Add `--frozen-lockfile` to CI `bun install` commands
-5. Change Vitest environment to `jsdom`
-6. Add `react-hooks/recommended` to ESLint extends
-7. Create `.dockerignore` files
-8. Add Docker health checks for postgres/redis
+Completed and moved to `DONE`:
+1. MAINT-01 (pin ruff version consistently)
+2. MAINT-03 (add missing test dependencies to `requirements-dev.txt`)
+3. MAINT-07 (add `react-hooks/recommended` to ESLint extends)
+4. DEP-05 (enforce `bun install --frozen-lockfile` in CI)
+5. DEP-06 (pin Bun version in CI)
+
+Remaining:
+1. None. Phase 1 items are complete.
 
 **Rollback:** All changes are independent. Any can be reverted individually.
 **Verification:** CI passes. `bun test` passes. `pytest tests/` passes locally.
@@ -538,60 +268,47 @@ Completed and moved to `DONE`:
 2. CALC-02 (articulated BEV charging mix)
 3. CALC-03 (fuel tax credit)
 4. CALC-04 (road user charge handling)
+5. CALC-05 (rebate parity alignment)
+6. CALC-06 (grouped cost breakdown migration)
+7. CALC-07 (battery replacement year constant)
+8. CALC-08 (remove misleading vehicle maintenance field)
+9. TEST-04/TEST-05 (expanded verification fixtures and override cases)
 
 Remaining:
-1. **Align CALC-05** (rebate logic): Fix whichever implementation is wrong
-2. Add BATTERY_REPLACEMENT_YEAR to Python constants
-3. **Fix CALC-08**: Remove `maintenance_cost_per_km` from vehicle catalog data (calculator already uses weight-class constants)
-4. Add verification fixtures for all scenarios and override combinations
-
-**CALC-06 sub-plan: Restructure CostBreakdown into named groups.**
-This is a breaking change that touches multiple layers. Implementation sequence:
-  - a. Define new `GroupedCostBreakdown` type in `shared/types/tco.types.ts` with `npv_costs`, `nominal_costs`, `upfront_costs` groups
-  - b. Update calculator output in `tcoCalculator.ts` to produce the new structure
-  - c. Update all 6 chart components in `frontend/src/components/results/` to consume the new structure
-  - d. Update backend API response shapes and session storage serialization
-  - e. Update or add migration for any stored session data that uses the old flat shape
-  - f. Update verification data and parity tests
-  - g. Remove old flat `CostBreakdown` type
-  - **Risk mitigation:** Do this as a single PR to avoid intermediate broken states. Write the new type alongside the old one first, migrate consumers, then remove the old type.
+1. None. Calculator accuracy items are complete.
 
 **Test and CI improvements:**
 
-1. Add middleware, rate limiting, and session auth tests
-2. Add mypy to CI (fix config first)
-3. Surface frontend persist/calculation errors to users (toast notifications)
+1. Surface frontend persist/calculation errors to users (`AI-07`)
 
 **Cleanup and maintenance:**
 
-1. Remove unused Python deps (runtime and dev)
-2. Consolidate on ruff
-3. Delete dead code (WizardVehicleStep, vestigial hook, constants.future.ts duplicates, fetchSession helper, unused ValueError handler)
-4. Refactor repetitive sanitization to data-driven
-5. Centralize calculator override limits from `OVERRIDE_LIMITS`
-6. Unify duty-cycle validation across layers. **Implementation note:** Must be coordinated across all three layers (store, calculator, backend) simultaneously to avoid introducing new inconsistencies between layers during the transition.
-7. Narrow cache module exception handling
-8. Offload bcrypt to worker thread (`anyio.to_thread.run_sync`)
-9. Add Dependabot/Renovate configuration
+Completed and moved to `DONE`:
+1. DEAD-01, DEAD-02, and DEAD-04 through DEAD-07 (dead-code/dependency cleanup)
+2. DEP-07 (Dependabot automation for dependency updates)
+3. SEC-05 (narrow cache exception handling)
+4. OPS-02 (Python transitive lockfile workflow)
+5. OPS-03 (Bun cache in CI)
+6. OPS-04 (remove backend lint->test CI coupling)
 
-**Rollback:** Each item is a separate PR (except CALC-06 which is one atomic PR). Revert any single PR if issues arise.
+Remaining:
+1. Refactor repetitive sanitization to data-driven
+
+**Rollback:** Each item is a separate PR. Revert any single PR if issues arise.
 **Verification:** Full CI pass. Calculator parity tests pass with updated verification data. Coverage increases.
 
 ### Phase 3: Structural Improvements (ongoing)
 
 **Goal:** Larger improvements that require more coordination. Execute as capacity allows.
 
-1. Generate strongly-typed constants interface from Python
-2. Add component tests using React Testing Library
-3. Migrate ESLint 9 + flat config
-4. Add accessibility improvements (charts, stepper, error messages)
-5. Document Replit deployment process
-6. Add E2E tests to CI
-7. Add structured logging (Replit-compatible)
+1. Add component tests using React Testing Library
+2. Add accessibility improvements (charts, stepper, error messages)
+3. Document Replit deployment process
+4. Add structured logging (Replit-compatible)
 
-**Approach:** Use Branch by Abstraction for the constants type change (add new typed interface alongside `ConstantCatalog`, migrate consumers, then remove the old type). Use feature flags or route-level code splitting for lazy loading.
+**Approach:** Use feature flags or route-level code splitting for lazy loading.
 
-**Note on deployment:** Production runs on Replit with a Replit-managed database. Docker hardening items (multi-stage builds, non-root users, dev/prod compose split) are lower priority since Replit manages the production container environment. Focus Docker improvements on local dev experience only.
+**Note on deployment:** Production runs on Replit with a Replit-managed database. Docker-compose-specific findings are de-scoped because Docker manifests are no longer active in this repository.
 
 ---
 
@@ -604,7 +321,7 @@ This is a breaking change that touches multiple layers. Implementation sequence:
 | Python type checking | mypy | Add `backend-typecheck` job |
 | SAST security scan | bandit | `bandit -r backend/ -ll` in lint job |
 | Generated file staleness | Custom script | Regenerate + `git diff --exit-code` |
-| Frontend formatting | prettier | `prettier --check src/` |
+| Frontend formatting | prettier | Optional: if Prettier is reintroduced, enforce with `prettier --check src/`; DEP-04 removed the unused formatter for now. |
 | Frozen lockfile | bun | `bun install --frozen-lockfile` |
 | Constants validation | Custom | Charging mix sums, rate ranges, trajectory lengths |
 
@@ -612,12 +329,13 @@ This is a breaking change that touches multiple layers. Implementation sequence:
 
 | Issue | Fix |
 |-------|-----|
-| Ruff version drift | Pin same version in CI and `requirements-dev.txt` |
-| BUN_VERSION: latest | Pin to specific version |
-| Missing frozen lockfile | Add `--frozen-lockfile` to all `bun install` |
-| Sequential backend jobs | Remove `needs: backend-lint` from `backend-test` |
-| No bun cache | Add `actions/cache` for bun install cache |
-| Vitest includes e2e | Exclude `e2e/` from Vitest glob |
+| Ruff version drift | **DONE:** pinned to `ruff==0.8.0` in CI and `requirements-dev.txt` |
+| BUN_VERSION: latest | **DONE:** pinned to `1.3.5` in CI workflows |
+| Missing frozen lockfile | **DONE:** `bun install --frozen-lockfile` applied to CI install steps |
+| No Python transitive lockfile | **DONE:** Added `requirements.lock.txt` and `requirements-dev.lock.txt` via `uv pip compile`; CI/Replit now install from lockfiles |
+| Sequential backend jobs | **DONE:** Removed `needs: backend-lint` from `backend-test` |
+| No bun cache | **DONE:** Added `actions/cache` for `~/.bun/install/cache` in CI workflows |
+| Vitest includes e2e | **DONE:** `e2e/` excluded from Vitest glob |
 
 ### Pre-commit hooks (recommended)
 
@@ -648,28 +366,23 @@ repos:
 | 2 | Annuity convention (CALC-01) | **Done.** Use annuity-due by multiplying result by `(1 + r)`. | More accurate for costs incurred throughout the year. ~5% correction to displayed annual costs. |
 | 3 | Road user charges (CALC-04) | **Done.** Implement as optional BEV toggle, default OFF. | Keeps current policy baseline unchanged while enabling configurable RUC modelling. |
 | 4 | Maintenance cost (CALC-08) | **Use weight-class constants.** Remove per-vehicle field from catalog. | Simpler. Eliminates the confusing mismatch between displayed and calculated values. |
-| 5 | Cost breakdown structure (CALC-06) | **Restructure into named groups.** | Breaking change, but eliminates a real source of confusion. Detailed sub-plan in Phase 2. |
+| 5 | Cost breakdown structure (CALC-06) | **Restructure into named groups.** | Breaking change completed and moved to `DONE`; it removed ambiguity from mixed-basis chart data. |
 | 6 | PaybackChart (FE-03) | **Year-by-year cash flows.** | Users are making $200k+ purchasing decisions. Accuracy matters. |
 | 7 | Deployment target | **Replit + Replit-managed database.** | Docker hardening items deprioritised accordingly. |
 
 ### Deferred Items (excluded from phased plan)
 
-These items need further investigation before a decision can be made. They are excluded from the Phase 1-3 migration plan.
-
-**Session secret flow (SEC-06/SEC-08):**
-The session secret is returned in both JSON body and HttpOnly cookie. The JSON body is visible in dev tools and logs.
-- *Questions to resolve:* Are there non-browser API consumers (scripts, Postman, tests) that rely on the JSON response? Is the cookie migration from localStorage complete? What breaks if the JSON body is removed? Is the dual-return a deliberate transitional design or an oversight?
-- *If resolved:* Cookie-only is more secure. But removing JSON may break existing consumers.
+None currently.
 
 ### Assumptions (verified or updated)
 
 - **Deployment target:** Replit with Replit-managed database. **Confirmed.** Docker hardening items are dev-environment-only improvements.
-- **User base scale:** Recommendations assume moderate traffic (tens to low hundreds of concurrent users). Analytics N+1 queries and bcrypt overhead are acceptable at low scale but would need attention at higher traffic.
-- **PostgreSQL version:** Docker compose uses `postgres:15-alpine`. Replit-managed DB version may differ.
+- **User base scale:** Recommendations assume moderate traffic (tens to low hundreds of concurrent users). Current implementation uses SHA-256 session-secret verification and avoids previous bcrypt CPU overhead in request paths.
+- **PostgreSQL version:** Replit-managed PostgreSQL version may vary by environment; no active Docker-compose pin exists in this repository.
 - **Browser support:** No browserslist config found beyond the env var workaround. Assumed modern browsers (Chrome/Firefox/Safari/Edge latest 2 versions).
-- **Session secret migration:** The code handles both cookie-based and header-based session secrets. Assumed this is transitional (see Deferred Items above).
+- **Session secret migration:** Completed. Session secret is cookie-only and not returned in JSON responses.
 - **Analytics performance targets:** No SLOs for analytics endpoints found. BE-03 was implemented with a single aggregate query; revisit only if business-level analytics SLOs are introduced.
-- **Dependency update tooling:** No Dependabot or Renovate config was found. Assumed no hidden update automation exists elsewhere.
+- **Dependency update tooling:** Dependabot automation is now configured via `.github/dependabot.yml` (pip, npm, and GitHub Actions ecosystems).
 
 ---
 
@@ -682,15 +395,15 @@ The session secret is returned in both JSON body and HttpOnly cookie. The JSON b
 | Ruff (Python lint) | **PASS** | Clean |
 | Black (formatting) | **PASS** | 43 files unchanged |
 | isort (imports) | **PASS** | Clean |
-| Backend tests (pytest) | **FAIL** | `ImportError: cannot import name 'FixtureDef' from 'pytest'` (pytest-asyncio incompatibility) |
+| Backend tests (pytest) | **PASS** | `.venv/bin/python -m pytest tests --cov` passes (`64 passed`) |
 | Data validation | **PASS** | 16 vehicles, 3 scenarios validated |
 | TypeScript typecheck | **PASS** | Clean |
 | ESLint (frontend) | **PASS** | Clean |
-| Frontend tests (Vitest) | **PASS** | 142/142 pass (e2e excluded, resetModules fixed) |
+| Frontend tests (Vitest) | **PASS** | `bun run test` passes (`216/216`) with `jsdom` environment and expanded verification fixtures |
 | Bandit (security) | **BROKEN** | Missing `pbr` module dependency |
 | pip-audit (vulns) | **PASS** | No known vulnerabilities |
 | Vulture (dead code) | **PASS** | Nothing detected at 80% confidence |
-| mypy (type check) | **FAIL** | Dual module name resolution conflict (config issue, not code error) |
+| mypy (type check) | **PASS** | `backend-typecheck` scope passes in CI path (`python -m mypy backend/app/core backend/app/api backend/app/main.py`) |
 
 ### Audit Sources
 
@@ -721,7 +434,6 @@ This audit was conducted using 5 parallel analysis agents:
 | Backend entry | `backend/app/main.py`, `backend/app/api/router.py` |
 | Backend services | `backend/app/services/sessions.py`, `backend/app/core/cache.py`, `backend/app/core/security.py` |
 | CI pipeline | `.github/workflows/ci.yml`, `.github/workflows/dependency-audit.yml` |
-| Docker | `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` |
 | Tests | `tests/`, `frontend/src/test/`, `shared/calculator/verification_data.json` |
 
 ---
@@ -740,6 +452,17 @@ Completed items moved from active backlog/planning lists.
 | CALC-06 | **DONE** | 2026-02-06 | Restructured cost breakdown into named groups (`npv_costs`, `nominal_costs`, `upfront_costs`). |
 | CALC-07 | **DONE** | 2026-02-06 | Added `BATTERY_REPLACEMENT_YEAR = 8` to `data/constants.py`. |
 | CALC-08 | **DONE** | 2026-02-06 | Removed the misleading `maintenance_cost_per_km` field from the vehicle catalog data to avoid showing users a number that doesn't drive calculations. |
+| TEST-01 | **DONE** | 2026-02-06 | Resolved local backend test infrastructure; `.venv/bin/python -m pytest tests --cov` now passes with `pytest==8.4.2` and `pytest-asyncio==1.3.0`. |
+| TEST-02 | **DONE** | 2026-02-06 | Excluded `e2e/` from Vitest and corrected module reset usage in frontend tests; suite now runs cleanly. |
+| TEST-03 | **DONE** | 2026-02-06 | Switched Vitest to `jsdom` in `frontend/vitest.config.ts` and added `jsdom` dev dependency; frontend tests continue to pass. |
+| TEST-04 | **DONE** | 2026-02-06 | Regenerated `shared/calculator/verification_data.json` to include all scenarios (`baseline`, `technology_breakthrough`, `oil_crisis`) with full vehicle/purchase coverage. |
+| TEST-05 | **DONE** | 2026-02-06 | Added multiple override fixture combinations (5 total) covering diesel/BEV, vehicle overrides, and financed/outright purchase methods. |
+| TEST-06 | **DONE** | 2026-02-06 | Added request-size middleware tests for oversized `Content-Length` and chunked bodies, including side-effect prevention checks (`tests/test_middleware.py`). |
+| TEST-07 | **DONE** | 2026-02-06 | Added rate-limit integration coverage to verify `429` when the vehicle endpoint exceeds configured per-minute limits (`tests/test_api.py`). |
+| TEST-08 | **DONE** | 2026-02-06 | Added session update authorization tests for missing secret cookie (`401`) and wrong secret cookie (`403`) (`tests/test_api.py`). |
+| TEST-09 | **DONE** | 2026-02-06 | Removed shared-state mutation risk in carbon-cost test by cloning the baseline scenario and restoring the original scenario reference (`frontend/src/test/calculator/carbon-cost.test.ts`). |
+| TEST-10 | **DONE** | 2026-02-06 | Added a dedicated `backend-typecheck` CI job in `.github/workflows/ci.yml` and configured mypy via `pyproject.toml` for explicit package bases and reproducible CI execution. |
+| TEST-11 | **DONE** | 2026-02-06 | Added a `frontend-e2e` CI job in `.github/workflows/ci.yml` that installs Chromium and runs Playwright smoke tests (`frontend/e2e/smoke.spec.ts`) with report artifact upload. |
 | FE-01 | **DONE** | 2026-02-06 | Added a top-level React error boundary with fallback and retry/reload actions (`frontend/src/components/shared/ErrorBoundary.tsx`, wired in `frontend/src/main.tsx`). |
 | FE-02 | **DONE** | 2026-02-06 | Integrated `VehicleParamsForm` into React Hook Form by adding `vehicleParamOverrides` to the shared schema and step validation flow (`frontend/src/forms/wizardForm.ts`, `frontend/src/pages/WizardPage.tsx`, `frontend/src/components/wizard/VehicleParamsForm.tsx`). |
 | FE-03 | **DONE** | 2026-02-06 | Replaced simplified payback interpolation with year-by-year nominal cash-flow timelines via shared calculator helper (`shared/calculator/tcoCalculator.ts`, `frontend/src/components/results/PaybackChart.tsx`). |
@@ -747,103 +470,49 @@ Completed items moved from active backlog/planning lists.
 | PERF-02 | **DONE** | 2026-02-06 | Added an `Intl.NumberFormat` cache keyed by normalized options to avoid per-render formatter creation (`frontend/src/utils/format.ts`). |
 | PERF-03 | **DONE** | 2026-02-06 | Removed per-chart Zustand subscriptions by lifting state reads into `ResultsPanel` and passing memoized props/data into chart components. |
 | PERF-04 | **DONE** | 2026-02-06 | Removed heavy optional analysis packages from runtime `requirements.txt` and moved them to `requirements-scripts.txt` (adapted from Docker framing, since Docker was removed). |
+| MAINT-01 | **DONE** | 2026-02-06 | Pinned ruff consistently to `ruff==0.8.0` in `requirements-dev.txt` and `.github/workflows/ci.yml`. |
+| MAINT-02 | **DONE** | 2026-02-06 | Consolidated Python lint tooling on ruff by removing `flake8` (+ plugins) and `pylint` from `requirements-dev.txt`. |
+| MAINT-03 | **DONE** | 2026-02-06 | Added missing test dependencies (`anyio`, `httpx`, `factory-boy`) to `requirements-dev.txt` so local test installs match CI needs. |
+| MAINT-04 | **DONE** | 2026-02-06 | Removed duplicated constants from `shared/data/constants.future.ts`; `FUTURE_CONSTANTS` now remains an empty reserved object until future-only constants are introduced. |
+| MAINT-05 | **DONE** | 2026-02-06 | Deleted unused `frontend/src/components/wizard/WizardVehicleStep.tsx` (orphaned component with no imports). |
+| MAINT-06 | **DONE** | 2026-02-06 | Extracted `buildComparisonPayload(wizardData)` in `frontend/src/utils/payload.ts` and updated `WizardCompareStep` + `AppShell` to consume the single shared builder; added payload utility tests for dedupe/compaction behavior. |
+| MAINT-07 | **DONE** | 2026-02-06 | Enabled `plugin:react-hooks/recommended` in `frontend/.eslintrc.cjs` and resolved the resulting exhaustive-deps warning in `frontend/src/components/results/PaybackChart.tsx`. |
+| MAINT-08 | **DONE** | 2026-02-06 | Updated `scripts/generate_vehicle_catalog_ts.py` to generate a strongly-typed `ConstantsSchema` interface directly from Python constants; `shared/data/constants.generated.ts` now exports typed schema + constants. |
+| MAINT-09 | **DONE** | 2026-02-06 | Standardized Redis cache entries to snake_case (`session_secret_hash`) in `backend/app/core/cache.py` with a legacy read fallback for existing camelCase cache entries. |
+| MAINT-10 | **DONE** | 2026-02-06 | Added formula documentation (mathematical notation + source references) for payload penalty, monthly finance payments, and residual value in `shared/calculator/tcoCalculator.ts`. |
+| MAINT-11 | **DONE** | 2026-02-06 | Replaced hard-coded calculator sanitization limits with shared `OVERRIDE_LIMITS` values in `shared/calculator/tcoCalculator.ts`, preserving the below-min reject behavior for `annual_kms_variation`. |
+| MAINT-12 | **DONE** | 2026-02-06 | Unified duty-cycle validation policy across store/form payload flow, shared calculator, and backend contract boundaries. Removed silent store corrections, blocked invalid payloads in frontend builders/autosave, and made calculator reject invalid duty cycles with explicit errors. |
+| DEAD-01 | **DONE** | 2026-02-06 | Confirmed runtime dependencies are slim and optional heavy analysis packages remain isolated in `requirements-scripts.txt` (`numpy`, `numpy-financial`, `pandas`, `plotly`, `rich`, `click`). |
+| DEAD-02 | **DONE** | 2026-02-06 | Removed unused dev-only dependencies from `requirements-dev.txt` (`tox`, `sphinx`, `sphinx-rtd-theme`, `jupyter`, `ipykernel`, `memory-profiler`, `line-profiler`, `py-spy`, `safety`, `interrogate`). |
+| DEAD-03 | **DONE (N/A IN THIS PLAN)** | 2026-02-06 | No standalone `DEAD-03` finding exists in this document; historical dependency cleanup (`orjson`, `marshmallow`, `cerberus`, `loguru`) is already reflected in current requirements files. |
+| DEAD-04 | **DONE** | 2026-02-06 | Removed vestigial `useVehicleCatalog` hook and replaced consumers with direct `VEHICLE_SUMMARIES` imports in `WizardDieselStep` and `WizardElectricStep`. |
+| DEAD-05 | **DONE** | 2026-02-06 | Consolidated backend security/audit requirements into `docs/security-requirements.md` and removed in-code audit reference tags (`SEC-*`, `API-*`) from backend docstrings/comments. |
+| DEAD-06 | **DONE** | 2026-02-06 | Removed unused `fetchSession` helper from `frontend/src/services/api.ts`. |
+| DEAD-07 | **DONE** | 2026-02-06 | Removed dead `ValueError` exception branch from session creation in `backend/app/api/router.py`. |
+| DEP-01 | **DONE** | 2026-02-06 | Migrated frontend linting to ESLint 9 + `typescript-eslint` v8 flat config (`frontend/eslint.config.js`), upgraded related ESLint packages, and removed legacy `.eslintrc.cjs`. |
+| DEP-02 | **DONE** | 2026-02-06 | Updated core Python dependency pins: `fastapi` (0.128.2), `sqlalchemy` (2.0.46), `pytest` (8.4.2), `black` (24.10.0), and `mypy` (1.19.1). |
+| DEP-03 | **DONE** | 2026-02-06 | Removed explicit `greenlet` runtime pin from `requirements.txt` to avoid SQLAlchemy upgrade resolver conflicts. |
+| DEP-04 | **DONE** | 2026-02-06 | Removed unused frontend Prettier dependency and config (`frontend/package.json`, `frontend/.prettierrc`) rather than carrying an unenforced formatter. |
+| DEP-05 | **DONE** | 2026-02-06 | Added `--frozen-lockfile` to all CI/frontend `bun install` steps in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`. |
+| DEP-06 | **DONE** | 2026-02-06 | Pinned `BUN_VERSION` to `1.3.5` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml` for reproducible builds. |
+| DEP-07 | **DONE** | 2026-02-06 | Added automated dependency update workflow via `.github/dependabot.yml` with monthly runtime updates and separate security update grouping. |
+| OPS-02 | **DONE** | 2026-02-06 | Introduced Python transitive lockfile workflow with `requirements.lock.txt` and `requirements-dev.lock.txt` generated via `uv pip compile`; updated CI/Replit/backend installs to consume lockfiles. |
+| OPS-03 | **DONE** | 2026-02-06 | Added Bun cache restore/save in CI for `~/.bun/install/cache` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`. |
+| OPS-04 | **DONE** | 2026-02-06 | Removed unnecessary `needs: backend-lint` from `backend-test` in `.github/workflows/ci.yml` to shorten CI critical path. |
+| OPS-05 | **DONE (DE-SCOPED)** | 2026-02-06 | Docker compose workflow finding archived because Docker compose manifests are no longer active in this repository. |
+| OPS-06 | **DONE (DE-SCOPED)** | 2026-02-06 | Docker service health-check finding archived because Docker compose manifests are no longer active in this repository. |
+| OPS-07 | **DONE** | 2026-02-06 | Added generated-file staleness CI guard in `.github/workflows/data-sync-check.yml` to prevent Python/TypeScript data drift. |
+| OPS-08 | **DONE (DE-SCOPED)** | 2026-02-06 | Dev/prod compose split finding archived because Docker compose manifests are no longer active in this repository. |
 | BE-01 | **DONE** | 2026-02-06 | Replaced request-size middleware with ASGI-level pre-handler enforcement for `Content-Length` and chunked bodies; added tests preventing side effects on oversized requests (`backend/app/core/middleware.py`, `tests/test_middleware.py`). |
 | BE-02 | **DONE** | 2026-02-06 | Refactored session response assembly to avoid double-fetch/refresh and use eager-loaded related records (`backend/app/services/sessions.py`). |
 | BE-03 | **DONE** | 2026-02-06 | Reworked BEV-vs-diesel analytics from per-pair query loop to a single aggregate query (`backend/app/services/sessions.py`). |
 | BE-04 | **DONE** | 2026-02-06 | Standardized scenario identifiers to canonical keys, preserved UI label display, and added migration backfill (`shared/calculator/tcoCalculator.ts`, `backend/app/services/sessions.py`, `backend/alembic/versions/20260206_000005_005_normalize_scenario_keys.py`, `frontend/src/utils/scenario.ts`). |
 | BE-05 | **DONE** | 2026-02-06 | Fixed offline migration SQL output file-handle leak with a context manager (`backend/app/db/session.py`). |
-
-
-#### CALC-01: `calculateAnnualisedCost` uses ordinary annuity instead of annuity-due
-- **Status (2026-02-06): DONE.** Updated to annuity-due annualisation and regenerated verification fixtures.
-- **Original evidence:** `shared/calculator/math.ts:69-85`. Uses `(totalNPV * r) / (1 - (1+r)^-n)` (payment at end of period). For a TCO tool where costs are incurred throughout each year, annuity-due `* (1+r)` is more accurate.
-- **Impact:** Inflates displayed `annual_cost` and `cost_per_km` by ~5% (one discount rate period). This is the primary comparison metric shown to users.
-- **Root cause:** Standard annuity formula applied without considering timing convention.
-- **Decision:** Fix to annuity-due. Multiply the result by `(1 + r)`.
-- **Tradeoffs:** This shifts all displayed annual costs downward by ~5%. Verification data must be regenerated. Need to check whether the Python reference uses the same formula (if so, fix both).
-- **Test plan:** Update `verification_data.json` from Python. All parity tests should pass with the new values. Add a unit test comparing the formula output against a known financial calculator result.
-
-#### CALC-02: Articulated BEV charging mix sums to 0.90
-- **Status (2026-02-06): DONE.** Fixed articulated BEV charging mix to sum to 1.0 and added validation in `scripts/validation.py`.
-- **Original evidence:** `data/constants.py:121-125`. Articulated BEV mix: `{depot_overnight: 0.40, depot_fast: 0.30, public_fast: 0.20}` = 0.90. All other weight classes sum to 1.0. The calculator at `tcoCalculator.ts:588-601` uses the mix as proportional weights for blended electricity cost.
-- **Impact:** 10% of articulated BEV charging cost is unaccounted for, systematically undercharging fuel costs for that weight class.
-- **Recommendation:** Fix the Python constant (likely `depot_overnight: 0.50` or distribute the missing 0.10). Add a validation check that charging mix sums to 1.0 per weight class.
-- **Test plan:** Add assertion in `scripts/validation.py`. Regenerate all downstream files. Parity tests will catch the calculation change.
-
-#### CALC-03: Fuel tax credit defined but never applied
-- **Status (2026-02-06): DONE.** Applied fuel tax credit in diesel fuel-cost calculation and regenerated verification fixtures.
-- **Original evidence:** `data/constants.py:166-168` defines `FUEL_TAX_CREDIT = 0.203`. Generated to TypeScript at `constants.generated.ts:54`. The calculator never references it. The diesel price is `$2.05/L` which "includes 2c for AdBlue." Heavy vehicle operators in Australia can claim the fuel tax credit ($0.203/L) as a rebate.
-- **Impact:** If the credit applies to these operators, effective diesel cost should be `$2.05 - $0.203 = $1.847/L`. Omitting this overstates diesel costs by ~10%, biasing results toward BEVs.
-- **Decision:** Apply the fuel tax credit. Subtract $0.203/L from diesel cost in `calculateFuelCostYear`. Effective diesel cost becomes $2.05 - $0.203 = $1.847/L.
-- **Test plan:** Regenerate verification data from Python and confirm parity. Add a unit test verifying the credit is applied.
-
-#### CALC-04: Road user charge defined but not applied
-- **Status (2026-02-06): DONE.** Implemented BEV road-user-charge as an optional override toggle, defaulting to OFF.
-- **Original evidence:** `data/constants.py:169-171` defines `ROAD_USER_CHARGE = 0.305`. Scenario types include `road_user_charge_bev_start_year` and `policy_phase_out_year` (`shared/types/tco.types.ts:31-32`). The calculator ignores all of these.
-- **Impact:** Planned feature infrastructure exists but is inactive. Road user charges for BEVs are active Australian policy. Not applying them understates BEV operating costs.
-- **Decision:** Implement as opt-in toggle (`apply_road_user_charge_bev`) with default OFF, so current policy settings remain reflected while enabling scenario testing.
-
-#### CALC-05: Python and TypeScript rebate calculation logic diverges
-- **Evidence:** TypeScript at `tcoCalculator.ts:694-711` applies fixed rebate before calculating percentage rebate base (`percentageBase = Math.max(0, msrp - rebate)`). Python at `policies.py:163-180` calculates percentage rebate on the full `vehicle_price`.
-- **Impact:** No current impact (both policies disabled). If both rebates are enabled simultaneously, the two implementations produce different results.
-- **Recommendation:** Align the logic. Most rebate schemes apply to the base price. Update whichever implementation is wrong.
-
-#### CALC-06: Mixed-basis cost breakdown can mislead users
-- **Evidence:** `shared/types/tco.types.ts:83-140`. The `CostBreakdown` struct mixes NPV-adjusted values (fuel, maintenance), nominal lifetime totals (insurance, registration), and upfront values (purchase). Returned as a flat object.
-- **Impact:** If anyone sums breakdown fields to reconstruct `total_cost`, they get a wrong answer. Chart components stacking these values may present misleading visualizations.
-- **Decision:** Restructure into named groups (`npv_costs`, `nominal_costs`, `upfront_costs`). This is a breaking change that touches the calculator output, all chart components, API response shapes, and session storage. Requires a comprehensive migration plan (see Phase 2 sub-plan for CALC-06).
-
-#### CALC-07: `BATTERY_REPLACEMENT_YEAR` not in Python constants
-- **Evidence:** `tcoCalculator.ts:318` uses `CONSTANTS.BATTERY_REPLACEMENT_YEAR ?? 8`. Not defined in `data/constants.py` or `constants.generated.ts`. The nullish coalescing silently falls back to 8.
-- **Impact:** Hidden magic number outside the generation pipeline.
-- **Recommendation:** Add `BATTERY_REPLACEMENT_YEAR = 8` to `data/constants.py`.
-
-#### CALC-08: Vehicle `maintenance_cost_per_km` field ignored by calculator
-- **Evidence:** Vehicle catalog has per-vehicle values (BEV001=0.05, DSL001=0.20). Calculator uses per-weight-class constants instead (BEV Light Rigid=0.10, Diesel Light Rigid=0.18). `tcoCalculator.ts:546-553`.
-- **Impact:** Users see one maintenance cost in vehicle specs, calculations use a different number. Confusing.
-- **Decision:** Use per-weight-class constants (current calculator behavior). Remove the misleading `maintenance_cost_per_km` field from the vehicle catalog data to avoid showing users a number that doesn't drive calculations.
-
-#### FE-01: Missing Error Boundary
-- **Status (2026-02-06): DONE.** Added a top-level React error boundary with fallback UI and retry/reload actions.
-- **Original evidence:** No `ErrorBoundary` component in `frontend/src/`. No `componentDidCatch` or `getDerivedStateFromError` usage.
-- **Impact:** Any React rendering error could crash the entire app with a white screen and no recovery path.
-- **Resolution:** Added `frontend/src/components/shared/ErrorBoundary.tsx` and wrapped the app tree in `frontend/src/main.tsx`.
-
-#### FE-02: `VehicleParamsForm` validation bypassed React Hook Form
-- **Status (2026-02-06): DONE.** Integrated vehicle parameter overrides into React Hook Form and wizard step validation.
-- **Original evidence:** `VehicleParamsForm.tsx` used local `useState` errors and manual Zod `safeParse` instead of RHF context.
-- **Impact:** Validation logic lived in a parallel path, making step-level validation architecture inconsistent.
-- **Resolution:** Added `vehicleParamOverrides` to `wizardFormSchema`, included it in `WizardPage` validation/sync, and refactored `VehicleParamsForm` to use RHF `Controller`.
-- **Note:** This was primarily an architecture consistency fix; field-level validation had already prevented invalid values from entering state.
-
-#### FE-03: PaybackChart used simplified linear interpolation
-- **Status (2026-02-06): DONE.** Switched payback calculation to year-by-year nominal cash-flow timelines.
-- **Original evidence:** `PaybackChart.tsx` inferred yearly costs from aggregated outputs and interpolated crossing points.
-- **Impact:** Payback timing could be materially inaccurate because financing timing, battery replacement, and residual value are non-linear across years.
-- **Resolution:** Added `calculateNominalCostTimeline` in `shared/calculator/tcoCalculator.ts` and used it in `frontend/src/components/results/PaybackChart.tsx` for cumulative timeline and payback interpolation.
-
-### 4.3 Performance
-
-#### PERF-01: No frontend code splitting
-- **Status (2026-02-06): DONE.** Added lazy loading for `ResultsPage` and results chart modules.
-- **Evidence:** `frontend/src/App.tsx:1-16`. No `React.lazy()` or dynamic imports. `chunkSizeWarningLimit` raised to 900KB in `vite.config.ts:21`.
-- **Impact:** Entire app (including Recharts for 5 chart components) loaded on initial page load.
-- **Recommendation:** Lazy-load `ResultsPage` and chart components.
-
-#### PERF-02: `Intl.NumberFormat` instantiated on every render
-- **Status (2026-02-06): DONE.** Added memoized formatter cache keyed by options signature in `frontend/src/utils/format.ts`.
-- **Evidence:** `frontend/src/utils/format.ts:7-24`. `formatCurrency` and `formatCurrencyCompact` create new instances per call.
-- **Impact:** `Intl.NumberFormat` construction involves locale resolution. Called dozens of times in chart components.
-- **Recommendation:** Cache instances by options signature.
-
-#### PERF-03: Six chart components each subscribe to full Zustand store
-- **Status (2026-02-06): DONE.** Lifted results data access into `ResultsPanel`, passed props to chart components, and memoized chart transformations.
-- **Evidence:** All chart components in `frontend/src/components/results/` independently subscribe to `state.results`.
-- **Impact:** A single results update triggers six re-renders, each with non-trivial data transformation.
-- **Recommendation:** Memoize chart data transformations with `useMemo`, or lift data preparation to a single parent.
-
-#### PERF-04: Docker backend installs heavy unused Python packages
-- **Status (2026-02-06): DONE (adapted to current repo state).** Moved heavy optional/legacy analysis dependencies from `requirements.txt` to `requirements-scripts.txt` after Docker removal.
-- **Evidence:** `requirements.txt` included numpy (25MB), pandas (60MB), plotly (30MB) used only in archived code.
-- **Impact:** Runtime dependency bloat and unnecessary install surface for backend/runtime environments.
-- **Recommendation:** Keep optional analysis tooling isolated in `requirements-scripts.txt`.
+| SEC-01 | **DONE (DE-SCOPED)** | 2026-02-06 | Docker hardening item is N/A for current Replit-managed deployment; no active Dockerfiles in repo. |
+| SEC-02 | **DONE (DE-SCOPED)** | 2026-02-06 | `.dockerignore` item is N/A while Docker build contexts are not in active use. |
+| SEC-03 | **DONE** | 2026-02-06 | Completed session-secret hashing migration to prefixed SHA-256 and removed bcrypt runtime dependency (`backend/app/core/security.py`, `requirements.txt`). |
+| SEC-04 | **DONE** | 2026-02-06 | Replaced `allowedHosts: true` with an explicit allowlist and env override in Vite (`frontend/vite.config.ts`). |
+| SEC-05 | **DONE** | 2026-02-06 | Narrowed cache exception handling to `RedisError` and added targeted cache tests to ensure programming errors are not silently swallowed (`backend/app/core/cache.py`, `tests/test_cache.py`). |
+| SEC-06 | **DONE** | 2026-02-06 | Removed session secret from JSON create responses; session auth is now cookie-only (`backend/app/models/session.py`, `backend/app/api/router.py`, `shared/types/tco.types.ts`, frontend session client code). |
+| SEC-07 | **DONE** | 2026-02-06 | Removed user-input echo from UUID validation error response (`backend/app/api/router.py`). |
+| SEC-08 | **DONE** | 2026-02-06 | Resolved event-loop blocking risk by removing bcrypt verification path and dead compatibility code; SHA-256 verification is now lightweight (`backend/app/core/security.py`, `tests/test_security.py`). |

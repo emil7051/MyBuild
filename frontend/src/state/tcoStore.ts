@@ -14,12 +14,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import { VEHICLE_BY_ID, VEHICLE_CATALOG_VERSION } from '@shared/data/vehicleCatalog';
-import type {
-  CalculationResponsePayload,
-  DutyCycle,
-  VehicleDetail,
-  WizardData,
-} from '@shared/types/tco.types';
+import type { CalculationResponsePayload, VehicleDetail, WizardData } from '@shared/types/tco.types';
 
 interface TCOStore {
   stepIndex: number;
@@ -28,7 +23,6 @@ interface TCOStore {
   isCalculating: boolean;
   vehicleDetails: Record<string, VehicleDetail>;
   sessionId?: string;
-  sessionSecret?: string;
   latestRequestId: number;
   _hasHydrated: boolean;
   updateWizard: (data: Partial<WizardData>) => void;
@@ -41,7 +35,6 @@ interface TCOStore {
   resetResults: () => void;
   setIsCalculating: (state: boolean) => void;
   setSessionId: (sessionId?: string) => void;
-  setSessionSecret: (sessionSecret?: string) => void;
   getNextRequestId: () => number;
   setHasHydrated: (state: boolean) => void;
 }
@@ -91,41 +84,6 @@ const getPersistStorage = (): StateStorage => {
   return memoryStorage;
 };
 
-/**
- * Validates duty cycle values, returning defaults only for clearly invalid data.
- * Does NOT normalize sums - let the form validation handle that.
- * Only rejects: NaN, non-numeric, negative values.
- */
-const validateDutyCycle = (dutyCycle?: DutyCycle): DutyCycle | undefined => {
-  if (!dutyCycle) return undefined;
-
-  const { urban, regional, longHaul } = dutyCycle;
-
-  // Check for NaN or non-numeric values - these are corrupted data
-  if ([urban, regional, longHaul].some(v => typeof v !== 'number' || isNaN(v))) {
-    console.warn('Invalid duty cycle values detected (NaN/non-numeric), using defaults');
-    return defaultWizardData.dutyCycle;
-  }
-
-  // Check for negative values - these are invalid
-  if ([urban, regional, longHaul].some(v => v < 0)) {
-    console.warn('Negative duty cycle values detected, using defaults');
-    return defaultWizardData.dutyCycle;
-  }
-
-  // Check for values > 100 - these are clearly invalid
-  if ([urban, regional, longHaul].some(v => v > 100)) {
-    console.warn('Duty cycle value > 100 detected, using defaults');
-    return defaultWizardData.dutyCycle;
-  }
-
-  // Do NOT normalize sums that don't equal 100
-  // The form's Zod validation will show an error to the user
-  // This allows users to see their actual input while being told it's invalid
-
-  return dutyCycle;
-};
-
 export const useTCOStore = create<TCOStore>()(
   persist(
     (set, get) => ({
@@ -135,19 +93,12 @@ export const useTCOStore = create<TCOStore>()(
       isCalculating: false,
       vehicleDetails: initialVehicleDetails,
       sessionId: undefined,
-      sessionSecret: undefined,
       latestRequestId: 0,
       _hasHydrated: false,
       updateWizard: (data) =>
         set((state) => {
-          const validatedData = { ...data };
-
-          if (data.dutyCycle) {
-            validatedData.dutyCycle = validateDutyCycle(data.dutyCycle);
-          }
-
           return {
-            wizardData: { ...state.wizardData, ...validatedData },
+            wizardData: { ...state.wizardData, ...data },
           };
         }),
       setStepIndex: (index) => set({ stepIndex: index }),
@@ -173,12 +124,7 @@ export const useTCOStore = create<TCOStore>()(
         }),
       resetResults: () => set({ results: [] }),
       setIsCalculating: (state) => set({ isCalculating: state }),
-      setSessionId: (sessionId) =>
-        set((state) => ({
-          sessionId,
-          sessionSecret: sessionId === state.sessionId ? state.sessionSecret : undefined,
-        })),
-      setSessionSecret: (sessionSecret) => set({ sessionSecret }),
+      setSessionId: (sessionId) => set({ sessionId }),
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
@@ -198,16 +144,6 @@ export const useTCOStore = create<TCOStore>()(
         }
 
         if (!state) return;
-
-        // Do not persist session secrets; drop legacy stored values while keeping
-        // them in memory for a one-time migration to cookies.
-        if (state.sessionSecret) {
-          if (state.sessionId && typeof state.setSessionId === 'function') {
-            state.setSessionId(state.sessionId);
-          } else {
-            state.sessionSecret = undefined;
-          }
-        }
 
         // Check vehicle catalog version and refresh if outdated
         const storedVersion = (state as { _vehicleCatalogVersion?: string })._vehicleCatalogVersion;
@@ -256,11 +192,6 @@ export const useTCOStore = create<TCOStore>()(
           }
         }
 
-        // Validate duty cycle values (checks for NaN, negative values, and values > 100)
-        const validatedDutyCycle = validateDutyCycle(state.wizardData.dutyCycle);
-        if (validatedDutyCycle !== state.wizardData.dutyCycle) {
-          state.wizardData.dutyCycle = validatedDutyCycle ?? defaultWizardData.dutyCycle;
-        }
       },
     }
   )

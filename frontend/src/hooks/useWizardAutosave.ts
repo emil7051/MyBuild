@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useTCOStore } from '@state/tcoStore';
 import { persistSessionUpdate } from '@services/sessionLifecycle';
-import { sanitizeWizardData } from '@utils/payload';
+import { hasValidWizardDutyCycle, sanitizeWizardData } from '@utils/payload';
 
 export const useWizardAutosave = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
@@ -18,6 +18,10 @@ export const useWizardAutosave = () => {
     // This prevents race conditions where we try to create a session
     // before the persisted sessionId is loaded from localStorage
     if (!hasHydrated) {
+      return;
+    }
+
+    if (!hasValidWizardDutyCycle(wizardData)) {
       return;
     }
 

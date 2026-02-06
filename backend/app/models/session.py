@@ -1,6 +1,6 @@
 """Pydantic models for session persistence and analytics endpoints.
 
-API-007: Server-side payload validation for vehicleId, scenario, email, length.
+Validation requirements are documented in `docs/security-requirements.md`.
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ VALID_SCENARIOS = set(SCENARIOS.keys())
 # Email regex pattern (RFC 5322 simplified)
 EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
-# Maximum lengths for freeform text fields (API-007)
+# Maximum lengths for freeform text fields.
 MAX_EMAIL_LENGTH = 255
 MAX_NOTES_LENGTH = 2000
 MAX_COMMENT_LENGTH = 1000
@@ -89,7 +89,7 @@ class WizardDataPayload(BaseModel):
     @field_validator("scenario")
     @classmethod
     def _validate_scenario(cls, value: str) -> str:
-        """Validate scenario against known scenarios (API-007)."""
+        """Validate scenario against known scenarios."""
         if value not in VALID_SCENARIOS:
             raise ValueError(
                 f"Invalid scenario '{value}'. "
@@ -105,7 +105,7 @@ class WizardDataPayload(BaseModel):
 
     @model_validator(mode="after")
     def _validate_vehicle_ids(self) -> "WizardDataPayload":
-        """Validate vehicle IDs exist in the catalog (API-007).
+        """Validate vehicle IDs exist in the catalog.
 
         Import is deferred to avoid circular imports.
         """
@@ -124,7 +124,7 @@ class WizardDataPayload(BaseModel):
 
 
 class OperatorProfilePayload(BaseModel):
-    """Operator profile with validated email and length-limited fields (API-007)."""
+    """Operator profile with validated email and length-limited fields."""
 
     operator_type: Optional[str] = Field(
         default=None,
@@ -154,7 +154,7 @@ class OperatorProfilePayload(BaseModel):
     @field_validator("contact_email")
     @classmethod
     def _validate_email(cls, value: Optional[str]) -> Optional[str]:
-        """Validate email format if provided (API-007)."""
+        """Validate email format if provided."""
         if value is None or value == "":
             return value
         if not EMAIL_PATTERN.match(value):
@@ -218,8 +218,6 @@ class SessionResponse(BaseModel):
 
 class SessionCreateResponse(SessionResponse):
     """Response for session creation."""
-
-    session_secret: str = Field(alias="sessionSecret")
 
 
 class AnalyticsSummary(BaseModel):

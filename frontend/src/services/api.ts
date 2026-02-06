@@ -13,15 +13,11 @@ const api = axios.create({
 });
 
 type SessionRequestOptions = {
-  sessionSecret?: string;
   signal?: AbortSignal;
 };
 
 const getSessionConfig = (options: SessionRequestOptions = {}) => {
-  const config: { headers?: Record<string, string>; signal?: AbortSignal } = {};
-  if (options.sessionSecret) {
-    config.headers = { 'X-Session-Secret': options.sessionSecret };
-  }
+  const config: { signal?: AbortSignal } = {};
   if (options.signal) {
     config.signal = options.signal;
   }
@@ -41,17 +37,6 @@ export const updateSession = async (
   const { data } = await api.put<SessionResponsePayload>(
     `/sessions/${sessionId}`,
     payload,
-    getSessionConfig(options)
-  );
-  return data;
-};
-
-export const fetchSession = async (
-  sessionId: string,
-  options: SessionRequestOptions = {}
-) => {
-  const { data } = await api.get<SessionResponsePayload>(
-    `/sessions/${sessionId}`,
     getSessionConfig(options)
   );
   return data;

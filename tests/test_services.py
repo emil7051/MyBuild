@@ -33,6 +33,14 @@ from tests.factories import (
 
 async def _create_session(session_factory, payload):
     async with session_factory() as session:
+        response, _session_secret = await SessionService().create_session(
+            session, payload
+        )
+        return response
+
+
+async def _create_session_with_secret(session_factory, payload):
+    async with session_factory() as session:
         return await SessionService().create_session(session, payload)
 
 
@@ -156,7 +164,9 @@ def test_session_service_create_persists_records(async_session_factory) -> None:
 
 def test_session_service_update_clears_results(async_session_factory) -> None:
     payload = make_session_create()
-    response = asyncio.run(_create_session(async_session_factory, payload))
+    response, session_secret = asyncio.run(
+        _create_session_with_secret(async_session_factory, payload)
+    )
 
     update_payload = make_session_update(results=[])
     updated = asyncio.run(
@@ -164,7 +174,7 @@ def test_session_service_update_clears_results(async_session_factory) -> None:
             async_session_factory,
             response.session_id,
             update_payload,
-            response.session_secret,
+            session_secret,
         )
     )
     assert updated.status == "draft"

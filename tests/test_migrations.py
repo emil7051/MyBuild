@@ -176,7 +176,7 @@ class TestSessionSecretHashColumn:
         assert column.nullable is True
 
     def test_session_secret_hash_has_sufficient_length(self) -> None:
-        """Verify session_secret_hash can store bcrypt hashes (60+ chars)."""
+        """Verify session_secret_hash can store prefixed hash formats."""
         column = SessionRecord.__table__.columns["session_secret_hash"]
-        # Bcrypt hashes are 60 characters, allow extra for future algorithms
+        # Prefixed SHA-256 values are much shorter; keep extra room for future formats.
         assert column.type.length >= 60

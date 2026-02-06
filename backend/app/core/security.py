@@ -1,15 +1,15 @@
 """Security utilities for rate limiting and optional access control helpers.
 
-SEC-008: Rate limiting configuration for session and analytics endpoints.
+See `docs/security-requirements.md` for policy details.
 """
 
 from __future__ import annotations
 
+import hashlib
 from ipaddress import ip_address, ip_network
 import logging
 import secrets
 
-import bcrypt
 from fastapi import HTTPException, Request, status
 
 logger = logging.getLogger(__name__)
@@ -20,11 +20,13 @@ try:
 
     _SLOWAPI_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency at runtime
-    Limiter = None  # type: ignore[assignment]
-    get_remote_address = None  # type: ignore[assignment]
+    Limiter = None
+    get_remote_address = None
     _SLOWAPI_AVAILABLE = False
 
 from backend.app.core.config import settings  # noqa: E402
+
+_SESSION_SECRET_SHA256_PREFIX = "sha256$"
 
 
 def _is_trusted_proxy(direct_ip: str) -> bool:
@@ -121,16 +123,16 @@ def generate_session_secret() -> str:
 
 
 def hash_secret(secret: str) -> str:
-    """Hash a session secret using bcrypt.
+    """Hash a session secret using SHA-256.
 
     Args:
         secret: The plaintext session secret to hash.
 
     Returns:
-        The bcrypt hash of the secret (60 characters).
+        A prefixed SHA-256 hash of the secret.
     """
-    salt = bcrypt.gensalt(rounds=12)
-    return bcrypt.hashpw(secret.encode("utf-8"), salt).decode("utf-8")
+    digest = hashlib.sha256(secret.encode("utf-8")).hexdigest()
+    return f"{_SESSION_SECRET_SHA256_PREFIX}{digest}"
 
 
 def verify_secret(secret: str, hashed: str) -> bool:
@@ -138,13 +140,19 @@ def verify_secret(secret: str, hashed: str) -> bool:
 
     Args:
         secret: The plaintext session secret to verify.
-        hashed: The bcrypt hash to verify against.
+        hashed: The stored hash to verify against.
 
     Returns:
         True if the secret matches the hash, False otherwise.
     """
     try:
-        return bcrypt.checkpw(secret.encode("utf-8"), hashed.encode("utf-8"))
+        if hashed.startswith(_SESSION_SECRET_SHA256_PREFIX):
+            expected_digest = hashed.removeprefix(_SESSION_SECRET_SHA256_PREFIX)
+            provided_digest = hashlib.sha256(secret.encode("utf-8")).hexdigest()
+            return secrets.compare_digest(provided_digest, expected_digest)
+
+        logger.warning("Unsupported session secret hash format.")
+        return False
     except (ValueError, TypeError) as exc:
         logger.warning("Invalid session secret hash: %s", exc)
         return False
@@ -154,7 +162,7 @@ def verify_secret(secret: str, hashed: str) -> bool:
 
 
 def verify_session_secret(provided: str | None, hashed: str | None) -> None:
-    """Verify session secret header against stored hash.
+    """Verify session secret cookie against stored hash.
 
     Raises HTTPException if the secret is required and missing/invalid.
     """
@@ -164,7 +172,7 @@ def verify_session_secret(provided: str | None, hashed: str | None) -> None:
     if not provided:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Session secret required. Provide X-Session-Secret header.",
+            detail="Session secret required. Missing session secret cookie.",
         )
 
     try:
@@ -183,7 +191,7 @@ def verify_session_secret(provided: str | None, hashed: str | None) -> None:
 
 
 def verify_analytics_api_key(request: Request) -> None:
-    """Verify the analytics API key (SEC-007).
+    """Verify the analytics API key.
 
     Raises HTTPException 403 if the endpoint is disabled (no key configured),
     or 401 if the key is missing/invalid.

@@ -1,12 +1,16 @@
 # TCO Web Platform - Runtime Dependencies
 # ========================================
-# Install with: pip install -r requirements.txt
-# For development tools: pip install -r requirements-dev.txt
+# Source-of-truth direct runtime dependencies.
+# Install reproducibly with: pip install -r requirements.lock.txt
+# For development tooling, use: pip install -r requirements-dev.lock.txt
+# Update lockfiles with:
+#   uv pip compile requirements.txt --output-file requirements.lock.txt --python-version 3.11 --universal
+#   uv pip compile requirements.txt requirements-dev.txt --output-file requirements-dev.lock.txt --python-version 3.11 --universal --no-emit-package pip
 
 # --- Backend Runtime (canonical list; backend/requirements.txt re-exports this) ---
 
 # Web framework
-fastapi==0.128.0
+fastapi==0.128.2
 uvicorn[standard]==0.34.0
 
 # Data validation
@@ -17,16 +21,14 @@ pydantic-settings==2.7.1
 python-dotenv==1.0.0
 
 # Database
-sqlalchemy==2.0.25
+sqlalchemy==2.0.46
 alembic==1.13.1
 asyncpg==0.29.0
 psycopg2-binary==2.9.9
 aiosqlite==0.19.0
-greenlet==3.3.0
 
 # Cache
 redis==5.0.1
 
 # Security (Phase 4)
-bcrypt==4.1.2
 slowapi==0.1.9

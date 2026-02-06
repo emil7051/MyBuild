@@ -1,20 +1,19 @@
 import { useMemo } from 'react';
 import Card from '@components/shared/Card';
 import Select from '@components/shared/Select';
-import { useVehicleCatalog } from '@hooks/useVehicleCatalog';
+import { VEHICLE_SUMMARIES } from '@shared/data/vehicleCatalog';
 import { useTCOStore } from '@state/tcoStore';
 import VehicleParamsForm from './VehicleParamsForm';
 import { formatCurrency } from '@utils/format';
 
 const WizardDieselStep = () => {
-  const { data: catalog } = useVehicleCatalog();
   const wizardData = useTCOStore((state) => state.wizardData);
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
   const updateWizard = useTCOStore((state) => state.updateWizard);
 
   const dieselOptions = useMemo(
-    () => (catalog ?? []).filter((vehicle) => vehicle.drivetrain_type === 'Diesel'),
-    [catalog]
+    () => VEHICLE_SUMMARIES.filter((vehicle) => vehicle.drivetrain_type === 'Diesel'),
+    []
   );
 
   const selected = wizardData.currentVehicle

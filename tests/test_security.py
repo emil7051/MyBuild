@@ -299,16 +299,16 @@ async def test_no_overrides_stored_as_none(
 def test_verify_session_secret_returns_500_on_unexpected_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Unexpected bcrypt errors should surface as 500s."""
+    """Unexpected secret verification errors should surface as 500s."""
     from backend.app.core import security
 
     def _boom(*_args, **_kwargs):
-        raise RuntimeError("bcrypt failure")
+        raise RuntimeError("verification failure")
 
-    monkeypatch.setattr(security.bcrypt, "checkpw", _boom)
+    monkeypatch.setattr(security, "verify_secret", _boom)
 
     with pytest.raises(HTTPException) as exc_info:
-        security.verify_session_secret("secret", "hash")
+        security.verify_session_secret("secret", "sha256$hash")
 
     assert exc_info.value.status_code == 500
 

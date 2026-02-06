@@ -36,7 +36,7 @@ The TCO Web Platform helps truck operators get five-minute TCO insights through:
 
 ```bash
 # Install Python dependencies
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements-dev.lock.txt
 
 # Set up environment variables
 cp backend/.env.example backend/.env
@@ -74,6 +74,15 @@ The TypeScript calculator consumes generated data from the Python sources:
 ```bash
 # Generate vehicle catalog and constants
 python scripts/generate_vehicle_catalog_ts.py
+```
+
+#### Regenerate Python Lockfiles
+
+When you change `requirements.txt` or `requirements-dev.txt`, regenerate lockfiles:
+
+```bash
+uv pip compile requirements.txt --output-file requirements.lock.txt --python-version 3.11 --universal
+uv pip compile requirements.txt requirements-dev.txt --output-file requirements-dev.lock.txt --python-version 3.11 --universal --no-emit-package pip
 ```
 
 ## Project Structure
@@ -241,10 +250,10 @@ Dependencies are automatically audited in CI on every push and PR:
 
 ```bash
 # Run Python dependency audit locally
-pip-audit -r requirements.txt
+pip-audit -r requirements.lock.txt
 
 # Run frontend dependency audit locally
-cd frontend && bun pm audit
+cd frontend && bun audit
 ```
 
 The CI workflow runs weekly scheduled scans to detect newly disclosed vulnerabilities.

@@ -9,14 +9,14 @@ This document outlines the security practices for the TCO Web Platform, includin
 The project uses automated dependency vulnerability scanning in CI/CD:
 
 - **Python dependencies**: Scanned using `pip-audit` on every push and PR to main
-- **Frontend dependencies**: Scanned using `npm audit` on every push and PR to main
+- **Frontend dependencies**: Scanned using `bun audit` on every push and PR to main
 - **Scheduled scans**: Weekly scans run on Mondays at 9am UTC to detect newly disclosed vulnerabilities
 
 ### Fail Policy
 
 | Stack | Severity Threshold | Action |
 |-------|-------------------|--------|
-| Python | Any vulnerability | CI fails (strict mode) |
+| Python | Any vulnerability in `requirements.lock.txt` | CI fails (strict mode) |
 | Frontend | High or Critical | CI fails |
 | Frontend | Moderate or Low | Warning only (logged) |
 
@@ -45,9 +45,9 @@ vulnerabilities:
     expires: 2024-12-31  # Re-review date
 ```
 
-#### Frontend (npm)
+#### Frontend (Bun)
 
-Use `.nsprc` or `npm audit` resolution in `package.json`:
+Use `bun audit --ignore=<CVE_ID>` for temporary local suppression while triaging. For durable remediation, pin/override patched transitive versions in `package.json`:
 
 ```json
 {
@@ -85,7 +85,7 @@ We aim to acknowledge reports within 48 hours and provide a fix timeline within 
 - Input validation on all API endpoints
 - Parameterized queries (SQLAlchemy ORM)
 - Rate limiting on session/analytics endpoints
-- Session access for read/update requires `sessionId` + `X-Session-Secret`
+- Session access for read/update requires `sessionId` + HttpOnly session secret cookie
 - Analytics endpoint requires `ANALYTICS_API_KEY` and is disabled if unset
 - Path traversal protection for static file serving
 - CORS configuration restricts allowed origins
@@ -94,7 +94,7 @@ We aim to acknowledge reports within 48 hours and provide a fix timeline within 
 
 - Input sanitization in forms
 - Content Security Policy headers (when deployed)
-- Session IDs and session secrets are stored in localStorage for resume; no PII is stored in localStorage by the frontend
+- Session ID is stored in localStorage for resume; session secret is stored in an HttpOnly cookie
 
 ### Data Layer
 

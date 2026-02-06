@@ -9,6 +9,7 @@ import time
 from typing import Any, Optional, TypedDict
 
 import redis.asyncio as redis
+from redis.exceptions import RedisError
 
 from backend.app.core.config import settings
 
@@ -26,7 +27,7 @@ _next_retry_at = 0.0
 _retry_backoff_seconds = 5.0
 
 
-def _mark_redis_unavailable(exc: Exception) -> None:
+def _mark_redis_unavailable(exc: RedisError) -> None:
     global _redis_client, _next_retry_at
     _redis_client = None
     _next_retry_at = time.monotonic() + _retry_backoff_seconds
@@ -55,7 +56,7 @@ async def _get_redis_client() -> Optional[redis.Redis]:
         try:
             _redis_client = redis.from_url(settings.redis_url, decode_responses=True)
             return _redis_client
-        except Exception as exc:
+        except RedisError as exc:
             _mark_redis_unavailable(exc)
             return None
 
@@ -70,17 +71,19 @@ async def cache_session(
         logger.debug("Redis not available, skipping cache for session %s", session_id)
         return
 
+    cache_entry = {
+        "payload": payload,
+        "session_secret_hash": session_secret_hash,
+    }
+    serialized_entry = json.dumps(cache_entry)
+
     try:
-        cache_entry = {
-            "payload": payload,
-            "sessionSecretHash": session_secret_hash,
-        }
         await client.setex(
             f"session:{session_id}",
             settings.session_ttl_seconds,
-            json.dumps(cache_entry),
+            serialized_entry,
         )
-    except Exception as exc:  # pragma: no cover - cache failures shouldn't break flow
+    except RedisError as exc:  # pragma: no cover - cache failures shouldn't break flow
         _mark_redis_unavailable(exc)
 
 
@@ -94,20 +97,23 @@ async def get_cached_session(session_id: str) -> Optional[CachedSession]:
 
     try:
         raw = await client.get(f"session:{session_id}")
-        if not raw:
-            return None
-        decoded = json.loads(raw)
-        if (
-            isinstance(decoded, dict)
-            and "payload" in decoded
-            and "sessionSecretHash" in decoded
-        ):
-            return {
-                "payload": decoded["payload"],
-                "session_secret_hash": decoded.get("sessionSecretHash"),
-            }
-        # Legacy cache entries without secret hash should be refreshed from DB
-        return None
-    except Exception as exc:  # pragma: no cover
+    except RedisError as exc:  # pragma: no cover
         _mark_redis_unavailable(exc)
         return None
+
+    if not raw:
+        return None
+
+    decoded = json.loads(raw)
+    if isinstance(decoded, dict) and "payload" in decoded:
+        session_hash = decoded.get("session_secret_hash")
+        # Backward compatibility for legacy cache entries.
+        if session_hash is None and "sessionSecretHash" in decoded:
+            session_hash = decoded.get("sessionSecretHash")
+        if "session_secret_hash" in decoded or "sessionSecretHash" in decoded:
+            return {
+                "payload": decoded["payload"],
+                "session_secret_hash": session_hash,
+            }
+    # Legacy cache entries without secret hash should be refreshed from DB
+    return None

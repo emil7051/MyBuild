@@ -126,7 +126,7 @@ const PaybackChart = ({ results, vehicleDetails, wizardData }: PaybackChartProps
       horizonYears: memoHorizonYears,
       totalSavings: memoTotalSavings,
     };
-  }, [bevResult?.vehicle_id, dieselResult?.vehicle_id, wizardData]);
+  }, [bevResult, dieselResult, wizardData]);
 
   if (!results.length) {
     return (

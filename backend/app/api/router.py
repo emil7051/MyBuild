@@ -1,14 +1,13 @@
 """Versioned API router that wires endpoints to services.
 
-API-002: UUID validation for session_id path parameters.
-SEC-007: Analytics endpoint restricted to backend-only access via API key.
-SEC-008: Rate limiting for session, analytics, and vehicle catalog endpoints.
+See `docs/security-requirements.md` for request validation, auth, and rate-limit
+requirements.
 """
 
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.config import settings
@@ -37,9 +36,7 @@ _vehicle_service = VehicleCatalogService()
 _session_service = SessionService()
 
 
-def _get_session_secret(request: Request, header_secret: str | None) -> str | None:
-    if header_secret:
-        return header_secret
+def _get_session_secret(request: Request) -> str | None:
     return request.cookies.get(settings.session_secret_cookie_name)
 
 
@@ -56,7 +53,7 @@ def _set_session_secret_cookie(response: Response, session_secret: str) -> None:
 
 
 def validate_uuid(session_id: str) -> str:
-    """Validate session_id is a valid UUID format (API-002).
+    """Validate session_id is a valid UUID format.
 
     Raises HTTPException 422 for invalid UUIDs.
     """
@@ -66,7 +63,7 @@ def validate_uuid(session_id: str) -> str:
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid session_id format. Expected UUID, got: {session_id}",
+            detail="Invalid session_id format. Expected a valid UUID v4.",
         )
 
 
@@ -109,12 +106,9 @@ async def create_session(
 
     Returns the session data for persistence and resume.
     """
-    try:
-        created = await _session_service.create_session(db, payload)
-        _set_session_secret_cookie(response, created.session_secret)
-        return created
-    except ValueError as exc:  # pragma: no cover
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    created, session_secret = await _session_service.create_session(db, payload)
+    _set_session_secret_cookie(response, session_secret)
+    return created
 
 
 @api_router.put(
@@ -128,15 +122,14 @@ async def update_session(
     session_id: str,
     payload: SessionUpdate,
     response: Response,
-    session_secret: str | None = Header(default=None, alias="X-Session-Secret"),
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
     """Update an existing session."""
-    # Validate UUID format (API-002)
+    # Validate UUID format before service lookup.
     validate_uuid(session_id)
 
     try:
-        resolved_secret = _get_session_secret(request, session_secret)
+        resolved_secret = _get_session_secret(request)
         updated = await _session_service.update_session(
             db, session_id, payload, resolved_secret
         )
@@ -157,15 +150,14 @@ async def get_session(
     request: Request,
     session_id: str,
     response: Response,
-    session_secret: str | None = Header(default=None, alias="X-Session-Secret"),
     db: AsyncSession = Depends(get_db_session),
 ) -> SessionResponse:
     """Retrieve an existing session."""
-    # Validate UUID format (API-002)
+    # Validate UUID format before service lookup.
     validate_uuid(session_id)
 
     try:
-        resolved_secret = _get_session_secret(request, session_secret)
+        resolved_secret = _get_session_secret(request)
         fetched = await _session_service.get_session(db, session_id, resolved_secret)
         if resolved_secret:
             _set_session_secret_cookie(response, resolved_secret)
@@ -184,11 +176,11 @@ async def analytics_summary(
     request: Request,
     db: AsyncSession = Depends(get_db_session),
 ) -> AnalyticsSummary:
-    """Get analytics summary (SEC-007: restricted to backend-only access).
+    """Get analytics summary.
 
     Requires X-Analytics-Key header. Endpoint disabled if key is not configured.
     """
-    # Verify API key if configured (SEC-007)
+    # Verify API key if configured.
     verify_analytics_api_key(request)
 
     return await _session_service.analytics_summary(db)

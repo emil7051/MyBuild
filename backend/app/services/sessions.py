@@ -1,7 +1,6 @@
 """Session persistence and analytics services.
 
-API-003: Override shape normalization for consistent storage.
-API-006: SQL-optimized analytics aggregation.
+See `docs/security-requirements.md` for persistence and analytics requirements.
 """
 
 from __future__ import annotations
@@ -63,7 +62,7 @@ class SessionService:
 
     async def create_session(
         self, db: AsyncSession, payload: SessionCreate
-    ) -> SessionCreateResponse:
+    ) -> tuple[SessionCreateResponse, str]:
         """Create a new session."""
         now = datetime.now(timezone.utc)
         session_secret = generate_session_secret()
@@ -100,9 +99,10 @@ class SessionService:
             loaded_record.session_secret_hash,
         )
 
-        create_payload = response.model_dump(by_alias=True)
-        create_payload["sessionSecret"] = session_secret
-        return SessionCreateResponse.model_validate(create_payload)
+        created = SessionCreateResponse.model_validate(
+            response.model_dump(by_alias=True)
+        )
+        return created, session_secret
 
     async def update_session(
         self,
@@ -184,7 +184,7 @@ class SessionService:
         return response
 
     async def analytics_summary(self, db: AsyncSession) -> AnalyticsSummary:
-        """Get analytics summary using SQL aggregation (API-006)."""
+        """Get analytics summary using SQL aggregation."""
         # Basic session counts
         total_sessions = await db.scalar(select(func.count(SessionRecord.id))) or 0
         completed_sessions = (
@@ -217,7 +217,7 @@ class SessionService:
         )
         top_vehicles = {vehicle_id: runs for vehicle_id, runs in top_rows.all()}
 
-        # BEV vs Diesel comparison metrics (API-006: SQL optimization)
+        # BEV vs Diesel comparison metrics using aggregate SQL.
         (
             bev_win_rate,
             avg_payback,
@@ -361,15 +361,14 @@ class SessionService:
     async def _replace_inputs(
         self, db: AsyncSession, session_id: str, wizard_data: WizardDataPayload
     ) -> None:
-        """Replace user inputs with normalized override shape (API-003)."""
+        """Replace user inputs with normalized override shape."""
         await db.execute(
             delete(UserInputRecord).where(UserInputRecord.session_id == session_id)
         )
 
         vehicle_ids = self._unique_vehicle_ids(wizard_data)
 
-        # Normalize overrides shape (API-003)
-        # Store cost overrides and vehicle param overrides separately for clarity
+        # Store cost overrides and vehicle param overrides separately.
         shared_cost_overrides = (
             wizard_data.overrides.model_dump(exclude_none=True)
             if wizard_data.overrides
@@ -385,8 +384,7 @@ class SessionService:
         )
 
         for vehicle_id in vehicle_ids:
-            # Normalize override structure (API-003):
-            # Store as { "cost": {...}, "vehicle": {...} } for consistency
+            # Store normalized structure as {"cost": {...}, "vehicle": {...}}.
             combined_overrides: Optional[dict] = None
             vehicle_specific = per_vehicle_overrides.get(vehicle_id)
 

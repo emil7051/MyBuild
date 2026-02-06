@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { DUTY_CYCLE_TOTAL_TOLERANCE, OVERRIDE_LIMITS } from '@shared/data/constants';
+import { OVERRIDE_LIMITS } from '@shared/data/constants';
+import { getDutyCycleErrorMessage, validateDutyCycle } from '@shared/types/dutyCycle';
 import { SCENARIO_DEFINITIONS } from '@shared/data/scenarios';
 import type { DutyCycle, PurchaseMethod, ScenarioKey } from '@shared/types/tco.types';
 
@@ -49,11 +50,11 @@ const dutyCycleSchema = z
       .max(100, 'Cannot exceed 100%.'),
   })
   .superRefine((values, ctx) => {
-    const total = values.urban + values.regional + values.longHaul;
-    if (Math.abs(total - 100) > DUTY_CYCLE_TOTAL_TOLERANCE) {
+    const validation = validateDutyCycle(values);
+    if (!validation.valid) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Duty cycle must add up to 100%.',
+        message: getDutyCycleErrorMessage(validation),
         path: ['longHaul'],
       });
     }

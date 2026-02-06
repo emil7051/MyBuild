@@ -5,7 +5,7 @@ Revises: 001
 Create Date: 2025-01-19
 
 This migration adds the session_secret_hash column to the sessions table.
-This column stores a bcrypt hash of a per-session access secret, enabling
+This column stores a hash of a per-session access secret, enabling
 session access control where knowing the sessionId alone is not sufficient
 to read or update session data containing PII.
 
@@ -42,7 +42,7 @@ def upgrade() -> None:
                     "session_secret_hash",
                     sa.String(128),
                     nullable=True,
-                    comment="Bcrypt hash of session access secret for PII protection",
+                    comment="Hash of session access secret for PII protection",
                 )
             )
 

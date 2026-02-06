@@ -1,8 +1,6 @@
 """Schema definitions for calculation requests and responses.
 
-SEC-003: Backend bounds checking aligned with frontend Zod validation
-(frontend/src/forms/wizardForm.ts) to prevent invalid values from
-non-UI clients or corrupted persisted state.
+Validation requirements are documented in `docs/security-requirements.md`.
 """
 
 from __future__ import annotations
@@ -21,7 +19,7 @@ class CostOverride(BaseModel):
     """Optional override hooks that align with shared TypeScript calculator inputs.
 
     All multiplier fields are constrained to match frontend validation ranges
-    to ensure consistent behavior across API clients (SEC-003).
+    to ensure consistent behavior across API clients.
     """
 
     annual_kms_variation: Optional[float] = Field(
@@ -82,8 +80,8 @@ class CostOverride(BaseModel):
 class VehicleParamOverride(BaseModel):
     """Optional per-vehicle structural overrides.
 
-    Bounds aligned with frontend Zod validation (SEC-003). Values outside
-    these ranges will be rejected with 422 validation errors.
+    Bounds aligned with frontend Zod validation. Values outside these ranges
+    will be rejected with 422 validation errors.
     """
 
     msrp_override: Optional[float] = Field(

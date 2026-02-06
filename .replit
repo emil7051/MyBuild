@@ -26,7 +26,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pip install -q -r requirements.txt && DATABASE_URL=postgresql+asyncpg://postgres:password@helium/heliumdb?ssl=disable uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload"
+args = "pip install -q -r requirements.lock.txt && DATABASE_URL=postgresql+asyncpg://postgres:password@helium/heliumdb?ssl=disable uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload"
 waitForPort = 8000
 
 [workflows.workflow.metadata]
@@ -38,7 +38,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd frontend && npm install && npm run dev"
+args = "cd frontend && bun install && bun run dev"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -51,7 +51,7 @@ integrations = ["python_database:1.0.0"]
 [deployment]
 deploymentTarget = "autoscale"
 run = ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-build = ["sh", "-c", "cd frontend && npm install && npm run build"]
+build = ["sh", "-c", "cd frontend && bun install --frozen-lockfile && bun run build"]
 
 [[ports]]
 localPort = 5000

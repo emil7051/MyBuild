@@ -3,15 +3,23 @@ import { calculateTco } from '@shared/calculator';
 import { SCENARIO_DEFINITIONS } from '@shared/data/scenarios';
 import type { CalculationRequestPayload } from '@shared/types/tco.types';
 
+const cloneJson = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
 describe('Carbon cost calculations', () => {
   it('should apply diesel efficiency improvements to carbon cost', () => {
-    const baselineScenario = SCENARIO_DEFINITIONS.baseline;
-    const originalCarbon = [...baselineScenario.carbon_price_trajectory];
-    const originalEfficiency = [...baselineScenario.diesel_efficiency_improvement];
+    const scenarios = SCENARIO_DEFINITIONS as Record<
+      string,
+      (typeof SCENARIO_DEFINITIONS)['baseline']
+    >;
+    const originalBaseline = scenarios.baseline;
+    const baselineScenario = cloneJson(originalBaseline);
+    scenarios.baseline = baselineScenario;
 
     try {
-      baselineScenario.carbon_price_trajectory = originalCarbon.map(() => 100);
-      baselineScenario.diesel_efficiency_improvement = originalEfficiency.map(() => 1);
+      baselineScenario.carbon_price_trajectory = baselineScenario.carbon_price_trajectory.map(() => 100);
+      baselineScenario.diesel_efficiency_improvement = baselineScenario.diesel_efficiency_improvement.map(
+        () => 1
+      );
 
       const payload: CalculationRequestPayload = {
         vehicle_id: 'DSL001',
@@ -22,7 +30,9 @@ describe('Carbon cost calculations', () => {
 
       const noImprovement = calculateTco(payload);
 
-      baselineScenario.diesel_efficiency_improvement = originalEfficiency.map(() => 0.8);
+      baselineScenario.diesel_efficiency_improvement = baselineScenario.diesel_efficiency_improvement.map(
+        () => 0.8
+      );
       const withImprovement = calculateTco(payload);
 
       expect(withImprovement.breakdown.npv_costs.carbon_cost).toBeGreaterThan(0);
@@ -30,8 +40,7 @@ describe('Carbon cost calculations', () => {
         noImprovement.breakdown.npv_costs.carbon_cost
       );
     } finally {
-      baselineScenario.carbon_price_trajectory = originalCarbon;
-      baselineScenario.diesel_efficiency_improvement = originalEfficiency;
+      scenarios.baseline = originalBaseline;
     }
   });
 });

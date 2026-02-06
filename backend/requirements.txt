@@ -1,5 +1,6 @@
 # Backend Runtime Dependencies
-# This file delegates to the root requirements.txt to keep a single source of truth.
-# For development tools, see requirements-dev.txt in the project root.
+# This file delegates to the root runtime lockfile for deterministic installs.
+# Direct dependency declarations live in ../requirements.txt.
+# For development tools, use requirements-dev.lock.txt in the project root.
 
--r ../requirements.txt
+-r ../requirements.lock.txt

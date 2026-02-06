@@ -6,6 +6,7 @@ from __future__ import annotations
 from dataclasses import asdict
 import hashlib
 import json
+import keyword
 from pathlib import Path
 import sys
 from typing import Any, Dict, List
@@ -81,6 +82,41 @@ def build_constants_payload() -> Dict[str, Any]:
     return payload
 
 
+def _format_ts_property_name(name: str) -> str:
+    if name.isidentifier() and not keyword.iskeyword(name):
+        return name
+    return json.dumps(name)
+
+
+def _render_ts_type(value: Any, indent_level: int = 0) -> str:
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, (int, float)):
+        return "number"
+    if isinstance(value, str):
+        return "string"
+    if value is None:
+        return "null"
+    if isinstance(value, list):
+        if not value:
+            return "unknown[]"
+        item_types = sorted({_render_ts_type(item, indent_level + 1) for item in value})
+        if len(item_types) == 1:
+            return f"{item_types[0]}[]"
+        return f"Array<{' | '.join(item_types)}>"
+    if isinstance(value, dict):
+        indent = "  " * indent_level
+        child_indent = "  " * (indent_level + 1)
+        lines = ["{"]
+        for key in sorted(value):
+            property_name = _format_ts_property_name(str(key))
+            property_type = _render_ts_type(value[key], indent_level + 1)
+            lines.append(f"{child_indent}{property_name}: {property_type};")
+        lines.append(f"{indent}}}")
+        return "\n".join(lines)
+    return "unknown"
+
+
 def build_scenarios_payload() -> Dict[str, Dict[str, Any]]:
     scenarios: Dict[str, Dict[str, Any]] = {}
     for key, scenario in SCENARIOS.items():
@@ -131,10 +167,13 @@ def render_vehicle_ts(details: list[dict[str, float | str]], version: str) -> st
 
 def render_constants_ts(constants: Dict[str, Any]) -> str:
     json_blob = json.dumps(constants, indent=2, sort_keys=True)
+    constants_schema = _render_ts_type(constants)
     return (
         f"{HEADER}"
-        "import type { ConstantCatalog } from '../types/tco.types';\n\n"
-        f"export const CONSTANTS: ConstantCatalog = {json_blob} as const;\n"
+        "export interface ConstantsSchema "
+        f"{constants_schema}\n\n"
+        "export type ConstantCatalog = ConstantsSchema;\n\n"
+        f"export const CONSTANTS: ConstantsSchema = {json_blob} as const;\n"
     )
 
 

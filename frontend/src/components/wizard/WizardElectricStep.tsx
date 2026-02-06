@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import Card from '@components/shared/Card';
 import Select from '@components/shared/Select';
-import { useVehicleCatalog } from '@hooks/useVehicleCatalog';
+import { VEHICLE_SUMMARIES } from '@shared/data/vehicleCatalog';
 import { useTCOStore } from '@state/tcoStore';
 import VehicleParamsForm from './VehicleParamsForm';
 import { formatCurrency } from '@utils/format';
 
 const WizardElectricStep = () => {
-  const { data: catalog } = useVehicleCatalog();
   const wizardData = useTCOStore((state) => state.wizardData);
   const updateWizard = useTCOStore((state) => state.updateWizard);
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
@@ -23,11 +22,11 @@ const WizardElectricStep = () => {
     if (!baseline) {
       return [];
     }
-    return (catalog ?? []).filter(
+    return VEHICLE_SUMMARIES.filter(
       (vehicle) =>
         vehicle.drivetrain_type === 'BEV' && vehicle.weight_class === baseline.weight_class
     );
-  }, [baseline, catalog]);
+  }, [baseline]);
 
   useEffect(() => {
     if (!wizardData.comparisonVehicles.length) {

@@ -1,10 +1,12 @@
 import type {
   CalculationResponsePayload,
+  ComparisonRequestPayload,
   CostOverrides,
   SessionCreatePayload,
   VehicleParamOverrides,
   WizardData,
 } from '@shared/types/tco.types';
+import { validateDutyCycle } from '@shared/types/dutyCycle';
 
 export const compactOverrides = (overrides?: CostOverrides) =>
   Object.fromEntries(
@@ -41,6 +43,50 @@ export const sanitizeWizardData = (wizardData: WizardData): WizardData => {
       ? vehicleOverrides
       : undefined,
   };
+};
+
+export const hasValidWizardDutyCycle = (wizardData: WizardData): boolean =>
+  validateDutyCycle(wizardData.dutyCycle).valid;
+
+export const buildComparisonPayload = (
+  wizardData: WizardData
+): ComparisonRequestPayload | null => {
+  if (!wizardData.currentVehicle) {
+    return null;
+  }
+
+  const vehicleIds = Array.from(
+    new Set([wizardData.currentVehicle, ...wizardData.comparisonVehicles])
+  ).filter(Boolean) as string[];
+
+  if (!vehicleIds.length) {
+    return null;
+  }
+
+  if (!hasValidWizardDutyCycle(wizardData)) {
+    return null;
+  }
+
+  const overrides = compactOverrides(wizardData.overrides ?? {});
+  const vehicleOverrides = compactVehicleParamOverrides(
+    wizardData.vehicleParamOverrides ?? {}
+  );
+
+  const payload: ComparisonRequestPayload = {
+    vehicle_ids: vehicleIds,
+    scenario_name: wizardData.scenario,
+    purchase_method: wizardData.purchaseMethod,
+    duty_cycle: wizardData.dutyCycle,
+  };
+
+  if (Object.keys(overrides).length) {
+    payload.overrides = overrides;
+  }
+  if (Object.keys(vehicleOverrides).length) {
+    payload.vehicle_param_overrides = vehicleOverrides;
+  }
+
+  return payload;
 };
 
 export const buildSessionPayload = (

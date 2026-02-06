@@ -33,3 +33,11 @@ extend-exclude = [
     "attached_assets",
 ]
 per-file-ignores = { "data/*.py" = ["E501"], "data/**/*.py" = ["E501"], "scripts/*.py" = ["E501"], "scripts/**/*.py" = ["E501"] }
+
+[tool.mypy]
+python_version = "3.11"
+explicit_package_bases = true
+follow_imports = "skip"
+ignore_missing_imports = true
+show_error_codes = true
+warn_unused_ignores = true

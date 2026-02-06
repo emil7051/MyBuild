@@ -1,0 +1,74 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: '/'
+    schedule:
+      interval: monthly
+      day: monday
+      time: '09:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - python
+    commit-message:
+      prefix: deps(python)
+    groups:
+      python-runtime-monthly:
+        applies-to: version-updates
+        dependency-type: production
+        patterns:
+          - '*'
+      python-security:
+        applies-to: security-updates
+        dependency-type: production
+        patterns:
+          - '*'
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: monthly
+      day: monday
+      time: '09:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - frontend
+    commit-message:
+      prefix: deps(frontend)
+    groups:
+      frontend-runtime-monthly:
+        applies-to: version-updates
+        dependency-type: production
+        patterns:
+          - '*'
+      frontend-security:
+        applies-to: security-updates
+        dependency-type: production
+        patterns:
+          - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+      time: '09:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: deps(ci)
+    groups:
+      github-actions-monthly:
+        applies-to: version-updates
+        patterns:
+          - '*'
+      github-actions-security:
+        applies-to: security-updates
+        patterns:
+          - '*'

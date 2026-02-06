@@ -26,7 +26,7 @@ The project follows a monorepo structure: the TypeScript calculator in `shared/c
 - Visit `http://localhost:5000` for frontend and `http://localhost:8000/docs` for API docs
 
 **Python Setup:**
-- `python -m pip install -r requirements.txt -r requirements-dev.txt && pre-commit install` primes Python tooling
+- `python -m pip install -r requirements-dev.lock.txt && pre-commit install` primes Python tooling
 - `python scripts/generate_vehicle_catalog_ts.py` refreshes the shared SDK before frontend or API work
 - `uvicorn backend.app.main:app --reload` boots FastAPI standalone
 

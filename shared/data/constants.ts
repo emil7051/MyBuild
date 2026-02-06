@@ -18,7 +18,7 @@
 // Re-export auto-generated constants (from Python data/constants.py)
 import { CONSTANTS } from './constants.generated';
 export { CONSTANTS };
-export type { ConstantCatalog } from '../types/tco.types';
+export type { ConstantCatalog, ConstantsSchema } from './constants.generated';
 
 export const DUTY_CYCLE_TOTAL_TOLERANCE =
   typeof CONSTANTS.DUTY_CYCLE_TOTAL_TOLERANCE === 'number'

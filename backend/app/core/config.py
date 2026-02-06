@@ -58,7 +58,7 @@ class Settings(BaseSettings):
         ),
     )
 
-    # Security settings (Phase 4 / SEC-004, SEC-007, SEC-008)
+    # Security and traffic-control settings.
     max_request_body_size: int = Field(
         default=1_048_576,  # 1 MB
         ge=1024,

@@ -156,7 +156,10 @@ class DataValidator:
             comparison_pairs=comparison_issues,
             constants=constants_issues,
             is_valid=not (
-                vehicle_issues or scenario_issues or comparison_issues or constants_issues
+                vehicle_issues
+                or scenario_issues
+                or comparison_issues
+                or constants_issues
             ),
         )
 

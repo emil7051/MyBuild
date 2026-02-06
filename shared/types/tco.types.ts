@@ -10,10 +10,6 @@
 export type ScenarioKey = 'baseline' | 'technology_breakthrough' | 'oil_crisis';
 export type PurchaseMethod = 'financed' | 'outright';
 
-type Primitive = string | number | boolean | null;
-type NestedValue = Primitive | NestedValue[] | { [key: string]: NestedValue };
-export type ConstantCatalog = Record<string, NestedValue>;
-
 export interface EconomicScenarioDefinition {
   key: string;
   name: string;
@@ -208,9 +204,7 @@ export interface SessionResponsePayload extends SessionCreatePayload {
   lastCalculatedAt?: string | null;
 }
 
-export interface SessionCreateResponsePayload extends SessionResponsePayload {
-  sessionSecret: string;
-}
+export type SessionCreateResponsePayload = SessionResponsePayload;
 
 export type SessionUpdatePayload = Partial<SessionCreatePayload>;
 

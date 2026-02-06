@@ -34,8 +34,7 @@ const enqueuePendingUpdate = (payload: SessionUpdatePayload) => {
 };
 
 const flushPendingUpdates = async (
-  sessionId: string,
-  sessionSecret: string
+  sessionId: string
 ): Promise<void> => {
   const resultsUpdate = pendingResultsUpdate;
   const wizardUpdate = pendingWizardUpdate;
@@ -45,7 +44,7 @@ const flushPendingUpdates = async (
 
   const safeUpdate = async (payload: SessionUpdatePayload) => {
     try {
-      await updateSession(sessionId, payload, { sessionSecret });
+      await updateSession(sessionId, payload);
     } catch (error) {
       console.warn('Failed to flush pending session update', error);
     }
@@ -76,12 +75,10 @@ export const persistSessionUpdate = async (
   createPayload: SessionCreatePayload,
   options: { signal?: AbortSignal } = {}
 ) => {
-  const { sessionId, sessionSecret, setSessionId, setSessionSecret } =
-    useTCOStore.getState();
+  const { sessionId, setSessionId } = useTCOStore.getState();
 
   if (sessionId) {
     return updateSession(sessionId, updatePayload, {
-      sessionSecret,
       signal: options.signal,
     });
   }
@@ -94,11 +91,10 @@ export const persistSessionUpdate = async (
   createInFlight = createSession(createPayload)
     .then((response) => {
       setSessionId(response.sessionId);
-      setSessionSecret(response.sessionSecret);
       return response;
     })
     .then(async (response) => {
-      await flushPendingUpdates(response.sessionId, response.sessionSecret);
+      await flushPendingUpdates(response.sessionId);
       return response;
     })
     .finally(() => {

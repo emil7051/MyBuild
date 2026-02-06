@@ -89,6 +89,24 @@ async def test_vehicle_not_found(client: httpx.AsyncClient) -> None:
 
 
 @pytest.mark.anyio
+async def test_vehicle_endpoint_rate_limit_enforced(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from backend.app.core import config
+
+    monkeypatch.setattr(config.settings, "rate_limit_vehicles_per_minute", 1)
+    monkeypatch.setattr(config.settings, "trusted_proxies", ["127.0.0.1"])
+    headers = {"X-Forwarded-For": "203.0.113.77"}
+
+    first_response = await client.get("/api/v1/vehicles", headers=headers)
+    second_response = await client.get("/api/v1/vehicles", headers=headers)
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 429
+    assert "rate limit exceeded" in second_response.text.lower()
+
+
+@pytest.mark.anyio
 async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
     from backend.app.core import config
 
@@ -97,15 +115,16 @@ async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
     assert create_response.status_code == 201
     created = create_response.json()
     assert created["status"] == "completed"
-    assert created["sessionSecret"]
+    assert "sessionSecret" not in created
 
     session_id = created["sessionId"]
-    session_secret = created["sessionSecret"]
 
     cookie_name = config.settings.session_secret_cookie_name
+    session_secret = client.cookies.get(cookie_name)
+    assert session_secret
     assert client.cookies.get(cookie_name) == session_secret
 
-    # Clear cookies to confirm secret is still required without header/cookie
+    # Clear cookies to confirm secret is still required
     client.cookies.clear()
     get_response_missing = await client.get(f"/api/v1/sessions/{session_id}")
     assert get_response_missing.status_code == 401
@@ -114,15 +133,8 @@ async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
     client.cookies.set(cookie_name, session_secret)
     get_response_cookie = await client.get(f"/api/v1/sessions/{session_id}")
     assert get_response_cookie.status_code == 200
-
-    # Header-based access still works
-    get_response = await client.get(
-        f"/api/v1/sessions/{session_id}",
-        headers={"X-Session-Secret": session_secret},
-    )
-    assert get_response.status_code == 200
-    assert get_response.json()["sessionId"] == session_id
-    assert "sessionSecret" not in get_response.json()
+    assert get_response_cookie.json()["sessionId"] == session_id
+    assert "sessionSecret" not in get_response_cookie.json()
 
 
 @pytest.mark.anyio
@@ -132,16 +144,61 @@ async def test_session_update_clears_results(client: httpx.AsyncClient) -> None:
     )
     created = create_response.json()
     session_id = created["sessionId"]
-    session_secret = created["sessionSecret"]
 
     update_payload = make_session_update_payload_dict(results=[])
     update_response = await client.put(
         f"/api/v1/sessions/{session_id}",
         json=update_payload,
-        headers={"X-Session-Secret": session_secret},
     )
     assert update_response.status_code == 200
     assert update_response.json()["status"] == "draft"
+
+
+@pytest.mark.anyio
+async def test_session_update_requires_secret_cookie(client: httpx.AsyncClient) -> None:
+    from backend.app.core import config
+
+    create_response = await client.post(
+        "/api/v1/sessions", json=make_session_payload_dict()
+    )
+    assert create_response.status_code == 201
+    session_id = create_response.json()["sessionId"]
+
+    client.cookies.clear()
+    update_response = await client.put(
+        f"/api/v1/sessions/{session_id}",
+        json=make_session_update_payload_dict(),
+    )
+
+    assert update_response.status_code == 401
+    assert "session secret required" in update_response.json()["detail"].lower()
+
+    cookie_name = config.settings.session_secret_cookie_name
+    assert client.cookies.get(cookie_name) is None
+
+
+@pytest.mark.anyio
+async def test_session_update_rejects_wrong_secret_cookie(
+    client: httpx.AsyncClient,
+) -> None:
+    from backend.app.core import config
+
+    create_response = await client.post(
+        "/api/v1/sessions", json=make_session_payload_dict()
+    )
+    assert create_response.status_code == 201
+    session_id = create_response.json()["sessionId"]
+
+    cookie_name = config.settings.session_secret_cookie_name
+    client.cookies.set(cookie_name, "incorrect-session-secret")
+
+    update_response = await client.put(
+        f"/api/v1/sessions/{session_id}",
+        json=make_session_update_payload_dict(),
+    )
+
+    assert update_response.status_code == 403
+    assert "invalid session secret" in update_response.json()["detail"].lower()
 
 
 @pytest.mark.anyio

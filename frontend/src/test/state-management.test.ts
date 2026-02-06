@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { useTCOStore } from '@state/tcoStore';
 import type { CalculationResponsePayload } from '@shared/types/tco.types';
 
@@ -19,52 +19,11 @@ describe('TCO Store State Management', () => {
       results: [],
       isCalculating: false,
       sessionId: undefined,
-      sessionSecret: undefined,
       latestRequestId: 0,
     });
   });
 
-  describe('Duty Cycle Validation', () => {
-    let warnSpy: ReturnType<typeof vi.spyOn>;
-
-    beforeEach(() => {
-      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    });
-
-    afterEach(() => {
-      warnSpy.mockRestore();
-    });
-
-    it('should replace NaN duty cycle values with defaults', () => {
-      const store = useTCOStore.getState();
-
-      store.updateWizard({
-        dutyCycle: { urban: NaN, regional: 25, longHaul: 15 },
-      });
-
-      const updated = useTCOStore.getState();
-      // Should fallback to defaults when any value is NaN
-      expect(updated.wizardData.dutyCycle.urban).toBe(60);
-      expect(updated.wizardData.dutyCycle.regional).toBe(25);
-      expect(updated.wizardData.dutyCycle.longHaul).toBe(15);
-      expect(warnSpy).toHaveBeenCalled();
-    });
-
-    it('should reset negative duty cycle values to defaults', () => {
-      const store = useTCOStore.getState();
-
-      store.updateWizard({
-        dutyCycle: { urban: -10, regional: 25, longHaul: 15 },
-      });
-
-      const updated = useTCOStore.getState();
-      // Should reset to defaults when any value is negative
-      expect(updated.wizardData.dutyCycle.urban).toBe(60);
-      expect(updated.wizardData.dutyCycle.regional).toBe(25);
-      expect(updated.wizardData.dutyCycle.longHaul).toBe(15);
-      expect(warnSpy).toHaveBeenCalled();
-    });
-
+  describe('Duty Cycle Updates', () => {
     it('should accept valid duty cycle values', () => {
       const store = useTCOStore.getState();
 
@@ -76,44 +35,9 @@ describe('TCO Store State Management', () => {
       expect(updated.wizardData.dutyCycle.urban).toBe(50);
       expect(updated.wizardData.dutyCycle.regional).toBe(30);
       expect(updated.wizardData.dutyCycle.longHaul).toBe(20);
-      expect(warnSpy).not.toHaveBeenCalled();
     });
 
-    it('should handle all-NaN duty cycle values', () => {
-      const store = useTCOStore.getState();
-
-      store.updateWizard({
-        dutyCycle: { urban: NaN, regional: NaN, longHaul: NaN },
-      });
-
-      const updated = useTCOStore.getState();
-      // Should fallback to all defaults
-      expect(updated.wizardData.dutyCycle).toEqual({
-        urban: 60,
-        regional: 25,
-        longHaul: 15,
-      });
-      expect(warnSpy).toHaveBeenCalled();
-    });
-
-    it('should reset all negative values to defaults', () => {
-      const store = useTCOStore.getState();
-
-      store.updateWizard({
-        dutyCycle: { urban: -5, regional: -10, longHaul: -15 },
-      });
-
-      const updated = useTCOStore.getState();
-      // Should reset to defaults when any value is negative
-      expect(updated.wizardData.dutyCycle).toEqual({
-        urban: 60,
-        regional: 25,
-        longHaul: 15,
-      });
-      expect(warnSpy).toHaveBeenCalled();
-    });
-
-    it('should keep duty cycle values as-is when sum is not 100 (validation handled by form)', () => {
+    it('should keep duty cycle values as-is when sum is not 100', () => {
       const store = useTCOStore.getState();
 
       store.updateWizard({
@@ -121,13 +45,22 @@ describe('TCO Store State Management', () => {
       });
 
       const updated = useTCOStore.getState();
-      // Store no longer normalizes - it keeps values as-is
-      // Form validation will show an error to the user about sum != 100
       expect(updated.wizardData.dutyCycle.urban).toBe(50);
       expect(updated.wizardData.dutyCycle.regional).toBe(30);
       expect(updated.wizardData.dutyCycle.longHaul).toBe(10);
-      // No warning should be logged for non-normalized sums
-      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not silently replace invalid values with defaults', () => {
+      const store = useTCOStore.getState();
+
+      store.updateWizard({
+        dutyCycle: { urban: NaN, regional: -10, longHaul: 200 },
+      });
+
+      const updated = useTCOStore.getState();
+      expect(Number.isNaN(updated.wizardData.dutyCycle.urban)).toBe(true);
+      expect(updated.wizardData.dutyCycle.regional).toBe(-10);
+      expect(updated.wizardData.dutyCycle.longHaul).toBe(200);
     });
   });
 
@@ -242,23 +175,6 @@ describe('TCO Store State Management', () => {
       expect(useTCOStore.getState().sessionId).toBeUndefined();
     });
 
-    it('should set session secret', () => {
-      const store = useTCOStore.getState();
-
-      store.setSessionSecret('test-secret-abc');
-
-      expect(useTCOStore.getState().sessionSecret).toBe('test-secret-abc');
-    });
-
-    it('should clear session secret when session is cleared', () => {
-      const store = useTCOStore.getState();
-
-      store.setSessionId('test-session-123');
-      store.setSessionSecret('test-secret-abc');
-      store.setSessionId(undefined);
-
-      expect(useTCOStore.getState().sessionSecret).toBeUndefined();
-    });
   });
 
   describe('Calculating State', () => {

@@ -1,5 +1,5 @@
 # Optional script and archived-analysis dependencies.
-# Install with: pip install -r requirements.txt -r requirements-scripts.txt
+# Install with: pip install -r requirements.lock.txt -r requirements-scripts.txt
 
 # Numeric computation
 numpy==1.24.0
