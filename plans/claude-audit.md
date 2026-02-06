@@ -112,35 +112,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 
 ### 4.1 Correctness & Reliability
 
-#### CALC-01: `calculateAnnualisedCost` uses ordinary annuity instead of annuity-due
-- **Status (2026-02-06): DONE.** Updated to annuity-due annualisation and regenerated verification fixtures.
-- **Original evidence:** `shared/calculator/math.ts:69-85`. Uses `(totalNPV * r) / (1 - (1+r)^-n)` (payment at end of period). For a TCO tool where costs are incurred throughout each year, annuity-due `* (1+r)` is more accurate.
-- **Impact:** Inflates displayed `annual_cost` and `cost_per_km` by ~5% (one discount rate period). This is the primary comparison metric shown to users.
-- **Root cause:** Standard annuity formula applied without considering timing convention.
-- **Decision:** Fix to annuity-due. Multiply the result by `(1 + r)`.
-- **Tradeoffs:** This shifts all displayed annual costs downward by ~5%. Verification data must be regenerated. Need to check whether the Python reference uses the same formula (if so, fix both).
-- **Test plan:** Update `verification_data.json` from Python. All parity tests should pass with the new values. Add a unit test comparing the formula output against a known financial calculator result.
-
-#### CALC-02: Articulated BEV charging mix sums to 0.90
-- **Status (2026-02-06): DONE.** Fixed articulated BEV charging mix to sum to 1.0 and added validation in `scripts/validation.py`.
-- **Original evidence:** `data/constants.py:121-125`. Articulated BEV mix: `{depot_overnight: 0.40, depot_fast: 0.30, public_fast: 0.20}` = 0.90. All other weight classes sum to 1.0. The calculator at `tcoCalculator.ts:588-601` uses the mix as proportional weights for blended electricity cost.
-- **Impact:** 10% of articulated BEV charging cost is unaccounted for, systematically undercharging fuel costs for that weight class.
-- **Recommendation:** Fix the Python constant (likely `depot_overnight: 0.50` or distribute the missing 0.10). Add a validation check that charging mix sums to 1.0 per weight class.
-- **Test plan:** Add assertion in `scripts/validation.py`. Regenerate all downstream files. Parity tests will catch the calculation change.
-
-#### CALC-03: Fuel tax credit defined but never applied
-- **Status (2026-02-06): DONE.** Applied fuel tax credit in diesel fuel-cost calculation and regenerated verification fixtures.
-- **Original evidence:** `data/constants.py:166-168` defines `FUEL_TAX_CREDIT = 0.203`. Generated to TypeScript at `constants.generated.ts:54`. The calculator never references it. The diesel price is `$2.05/L` which "includes 2c for AdBlue." Heavy vehicle operators in Australia can claim the fuel tax credit ($0.203/L) as a rebate.
-- **Impact:** If the credit applies to these operators, effective diesel cost should be `$2.05 - $0.203 = $1.847/L`. Omitting this overstates diesel costs by ~10%, biasing results toward BEVs.
-- **Decision:** Apply the fuel tax credit. Subtract $0.203/L from diesel cost in `calculateFuelCostYear`. Effective diesel cost becomes $2.05 - $0.203 = $1.847/L.
-- **Test plan:** Regenerate verification data from Python and confirm parity. Add a unit test verifying the credit is applied.
-
-#### CALC-04: Road user charge defined but not applied
-- **Status (2026-02-06): DONE.** Implemented BEV road-user-charge as an optional override toggle, defaulting to OFF.
-- **Original evidence:** `data/constants.py:169-171` defines `ROAD_USER_CHARGE = 0.305`. Scenario types include `road_user_charge_bev_start_year` and `policy_phase_out_year` (`shared/types/tco.types.ts:31-32`). The calculator ignores all of these.
-- **Impact:** Planned feature infrastructure exists but is inactive. Road user charges for BEVs are active Australian policy. Not applying them understates BEV operating costs.
-- **Decision:** Implement as opt-in toggle (`apply_road_user_charge_bev`) with default OFF, so current policy settings remain reflected while enabling scenario testing.
-
 #### CALC-05: Python and TypeScript rebate calculation logic diverges
 - **Evidence:** TypeScript at `tcoCalculator.ts:694-711` applies fixed rebate before calculating percentage rebate base (`percentageBase = Math.max(0, msrp - rebate)`). Python at `policies.py:163-180` calculates percentage rebate on the full `vehicle_price`.
 - **Impact:** No current impact (both policies disabled). If both rebates are enabled simultaneously, the two implementations produce different results.
@@ -861,3 +832,34 @@ Completed items moved from active backlog/planning lists.
 | CALC-02 | **DONE** | 2026-02-06 | Fixed articulated BEV charging mix sum to 1.0 in `data/constants.py`; added charging-mix validation in `scripts/validation.py`. |
 | CALC-03 | **DONE** | 2026-02-06 | Applied diesel fuel tax credit in `shared/calculator/tcoCalculator.ts`; refreshed verification fixtures/tests. |
 | CALC-04 | **DONE** | 2026-02-06 | Implemented BEV road user charge as a toggleable override (default OFF) across shared types, frontend, backend model, and calculator logic. |
+
+
+#### CALC-01: `calculateAnnualisedCost` uses ordinary annuity instead of annuity-due
+- **Status (2026-02-06): DONE.** Updated to annuity-due annualisation and regenerated verification fixtures.
+- **Original evidence:** `shared/calculator/math.ts:69-85`. Uses `(totalNPV * r) / (1 - (1+r)^-n)` (payment at end of period). For a TCO tool where costs are incurred throughout each year, annuity-due `* (1+r)` is more accurate.
+- **Impact:** Inflates displayed `annual_cost` and `cost_per_km` by ~5% (one discount rate period). This is the primary comparison metric shown to users.
+- **Root cause:** Standard annuity formula applied without considering timing convention.
+- **Decision:** Fix to annuity-due. Multiply the result by `(1 + r)`.
+- **Tradeoffs:** This shifts all displayed annual costs downward by ~5%. Verification data must be regenerated. Need to check whether the Python reference uses the same formula (if so, fix both).
+- **Test plan:** Update `verification_data.json` from Python. All parity tests should pass with the new values. Add a unit test comparing the formula output against a known financial calculator result.
+
+#### CALC-02: Articulated BEV charging mix sums to 0.90
+- **Status (2026-02-06): DONE.** Fixed articulated BEV charging mix to sum to 1.0 and added validation in `scripts/validation.py`.
+- **Original evidence:** `data/constants.py:121-125`. Articulated BEV mix: `{depot_overnight: 0.40, depot_fast: 0.30, public_fast: 0.20}` = 0.90. All other weight classes sum to 1.0. The calculator at `tcoCalculator.ts:588-601` uses the mix as proportional weights for blended electricity cost.
+- **Impact:** 10% of articulated BEV charging cost is unaccounted for, systematically undercharging fuel costs for that weight class.
+- **Recommendation:** Fix the Python constant (likely `depot_overnight: 0.50` or distribute the missing 0.10). Add a validation check that charging mix sums to 1.0 per weight class.
+- **Test plan:** Add assertion in `scripts/validation.py`. Regenerate all downstream files. Parity tests will catch the calculation change.
+
+#### CALC-03: Fuel tax credit defined but never applied
+- **Status (2026-02-06): DONE.** Applied fuel tax credit in diesel fuel-cost calculation and regenerated verification fixtures.
+- **Original evidence:** `data/constants.py:166-168` defines `FUEL_TAX_CREDIT = 0.203`. Generated to TypeScript at `constants.generated.ts:54`. The calculator never references it. The diesel price is `$2.05/L` which "includes 2c for AdBlue." Heavy vehicle operators in Australia can claim the fuel tax credit ($0.203/L) as a rebate.
+- **Impact:** If the credit applies to these operators, effective diesel cost should be `$2.05 - $0.203 = $1.847/L`. Omitting this overstates diesel costs by ~10%, biasing results toward BEVs.
+- **Decision:** Apply the fuel tax credit. Subtract $0.203/L from diesel cost in `calculateFuelCostYear`. Effective diesel cost becomes $2.05 - $0.203 = $1.847/L.
+- **Test plan:** Regenerate verification data from Python and confirm parity. Add a unit test verifying the credit is applied.
+
+#### CALC-04: Road user charge defined but not applied
+- **Status (2026-02-06): DONE.** Implemented BEV road-user-charge as an optional override toggle, defaulting to OFF.
+- **Original evidence:** `data/constants.py:169-171` defines `ROAD_USER_CHARGE = 0.305`. Scenario types include `road_user_charge_bev_start_year` and `policy_phase_out_year` (`shared/types/tco.types.ts:31-32`). The calculator ignores all of these.
+- **Impact:** Planned feature infrastructure exists but is inactive. Road user charges for BEVs are active Australian policy. Not applying them understates BEV operating costs.
+- **Decision:** Implement as opt-in toggle (`apply_road_user_charge_bev`) with default OFF, so current policy settings remain reflected while enabling scenario testing.
+
