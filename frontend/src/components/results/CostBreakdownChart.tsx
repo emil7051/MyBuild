@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import Card from '@components/shared/Card';
-import { useTCOStore } from '@state/tcoStore';
 import type { CalculationResponsePayload } from '@shared/types/tco.types';
+import type { VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency } from '@utils/format';
 import {
   Bar,
@@ -139,9 +140,32 @@ const MixedBasesInfo = () => (
   </span>
 );
 
-const CostBreakdownChart = () => {
-  const results = useTCOStore((state) => state.results);
-  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
+interface CostBreakdownChartProps {
+  results: CalculationResponsePayload[];
+  vehicleDetails: Record<string, VehicleDetail>;
+}
+
+const CostBreakdownChart = ({ results, vehicleDetails }: CostBreakdownChartProps) => {
+  const data = useMemo(
+    () => {
+      if (!results.length) {
+        return [];
+      }
+
+      return results.map((result) => {
+        const entry: Record<string, number | string> = {
+          vehicle: vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id,
+        };
+
+        breakdownSeries.forEach((series) => {
+          entry[series.key] = series.getValue(result);
+        });
+
+        return entry;
+      });
+    },
+    [results, vehicleDetails]
+  );
 
   if (!results.length) {
     return (
@@ -155,18 +179,6 @@ const CostBreakdownChart = () => {
       </Card>
     );
   }
-
-  const data = results.map((result) => {
-    const entry: Record<string, number | string> = {
-      vehicle: vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id,
-    };
-
-    breakdownSeries.forEach((series) => {
-      entry[series.key] = series.getValue(result);
-    });
-
-    return entry;
-  });
 
   return (
     <Card

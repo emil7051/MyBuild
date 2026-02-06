@@ -1,29 +1,61 @@
+import { useMemo } from 'react';
 import Card from '@components/shared/Card';
-import { useTCOStore } from '@state/tcoStore';
+import type { CalculationResponsePayload, VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency, formatCurrencyCompact, formatPerKilometre } from '@utils/format';
 import { getScenarioLabel } from '@utils/scenario';
 
-const ComparisonHighlights = () => {
-  const results = useTCOStore((state) => state.results);
-  const baselineId = useTCOStore((state) => state.wizardData.currentVehicle);
-  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
+interface ComparisonHighlightsProps {
+  results: CalculationResponsePayload[];
+  baselineId?: string;
+  vehicleDetails: Record<string, VehicleDetail>;
+}
 
-  if (!results.length) {
+const ComparisonHighlights = ({
+  results,
+  baselineId,
+  vehicleDetails,
+}: ComparisonHighlightsProps) => {
+  const highlightData = useMemo(() => {
+    if (!results.length) {
+      return undefined;
+    }
+
+    const sorted = [...results].sort((a, b) => a.total_cost - b.total_cost);
+    const memoLeader = sorted[0];
+    const memoRunnerUp = sorted.length > 1 ? sorted[1] : undefined;
+    const baselineResult = baselineId
+      ? results.find((result) => result.vehicle_id === baselineId)
+      : undefined;
+    const memoBaseline = baselineResult ?? memoLeader;
+    const memoBaselineIsLeader = memoBaseline.vehicle_id === memoLeader.vehicle_id;
+    const memoLifetimeDelta = memoBaselineIsLeader ? 0 : memoBaseline.total_cost - memoLeader.total_cost;
+    const memoAnnualDelta = memoBaselineIsLeader ? 0 : memoBaseline.annual_cost - memoLeader.annual_cost;
+    const memoRunnerDelta = memoRunnerUp ? memoRunnerUp.total_cost - memoLeader.total_cost : undefined;
+
+    return {
+      leader: memoLeader,
+      runnerUp: memoRunnerUp,
+      baseline: memoBaseline,
+      baselineIsLeader: memoBaselineIsLeader,
+      lifetimeDelta: memoLifetimeDelta,
+      annualDelta: memoAnnualDelta,
+      runnerDelta: memoRunnerDelta,
+    };
+  }, [baselineId, results]);
+
+  if (!highlightData) {
     return null;
   }
 
-  const sorted = [...results].sort((a, b) => a.total_cost - b.total_cost);
-  const leader = sorted[0];
-  const runnerUp = sorted.length > 1 ? sorted[1] : undefined;
-  const baselineResult = baselineId
-    ? results.find((result) => result.vehicle_id === baselineId)
-    : undefined;
-  const baseline = baselineResult ?? leader;
-
-  const baselineIsLeader = baseline.vehicle_id === leader.vehicle_id;
-  const lifetimeDelta = baselineIsLeader ? 0 : baseline.total_cost - leader.total_cost;
-  const annualDelta = baselineIsLeader ? 0 : baseline.annual_cost - leader.annual_cost;
-  const runnerDelta = runnerUp ? runnerUp.total_cost - leader.total_cost : undefined;
+  const {
+    leader,
+    runnerUp,
+    baseline,
+    baselineIsLeader,
+    lifetimeDelta,
+    annualDelta,
+    runnerDelta,
+  } = highlightData;
 
   const getDisplayName = (vehicleId: string) =>
     vehicleDetails[vehicleId]?.model_name ?? vehicleId;

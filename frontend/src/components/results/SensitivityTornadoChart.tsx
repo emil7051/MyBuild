@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import Card from '@components/shared/Card';
-import { useTCOStore } from '@state/tcoStore';
+import type { CalculationResponsePayload, VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency } from '@utils/format';
 import {
   Bar,
@@ -24,7 +25,6 @@ interface SensitivityItem {
   parameter: string;
   lowDelta: number;
   highDelta: number;
-  baselineSavings: number;
 }
 
 interface TornadoBarData {
@@ -33,6 +33,11 @@ interface TornadoBarData {
   highValue: number;
   lowDelta: number;
   highDelta: number;
+}
+
+interface SensitivityTornadoChartProps {
+  results: CalculationResponsePayload[];
+  vehicleDetails: Record<string, VehicleDetail>;
 }
 
 const TornadoTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
@@ -56,9 +61,96 @@ const TornadoTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) 
   );
 };
 
-const SensitivityTornadoChart = () => {
-  const results = useTCOStore((state) => state.results);
-  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
+const SensitivityTornadoChart = ({
+  results,
+  vehicleDetails,
+}: SensitivityTornadoChartProps) => {
+  const chartAnalysis = useMemo(() => {
+    const dieselResult = results.find(
+      (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'Diesel'
+    );
+    const bevResult = results.find(
+      (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'BEV'
+    );
+    if (!dieselResult || !bevResult) {
+      return undefined;
+    }
+
+    const sensitivities: SensitivityItem[] = [
+      {
+        parameter: 'Fuel price',
+        lowDelta: -(dieselResult.breakdown.npv_costs.fuel_cost * 0.2),
+        highDelta: dieselResult.breakdown.npv_costs.fuel_cost * 0.2,
+      },
+      {
+        parameter: 'Electricity price',
+        lowDelta: bevResult.breakdown.npv_costs.fuel_cost * 0.2,
+        highDelta: -(bevResult.breakdown.npv_costs.fuel_cost * 0.2),
+      },
+      {
+        parameter: 'Annual kms',
+        lowDelta: -(
+          (dieselResult.breakdown.npv_costs.fuel_cost - bevResult.breakdown.npv_costs.fuel_cost) *
+          0.2
+        ),
+        highDelta:
+          (dieselResult.breakdown.npv_costs.fuel_cost - bevResult.breakdown.npv_costs.fuel_cost) *
+          0.2,
+      },
+      {
+        parameter: 'Maintenance cost',
+        lowDelta: -(
+          (dieselResult.breakdown.npv_costs.maintenance_cost -
+            bevResult.breakdown.npv_costs.maintenance_cost) *
+          0.2
+        ),
+        highDelta:
+          (dieselResult.breakdown.npv_costs.maintenance_cost -
+            bevResult.breakdown.npv_costs.maintenance_cost) *
+          0.2,
+      },
+      {
+        parameter: 'Battery replacement',
+        lowDelta: bevResult.breakdown.npv_costs.battery_replacement_cost * 0.2,
+        highDelta: -(bevResult.breakdown.npv_costs.battery_replacement_cost * 0.2),
+      },
+      {
+        parameter: 'Purchase price',
+        lowDelta: bevResult.breakdown.upfront_costs.purchase_cost * 0.2,
+        highDelta: -(bevResult.breakdown.upfront_costs.purchase_cost * 0.2),
+      },
+    ];
+
+    const significantSensitivities = sensitivities
+      .filter((sensitivity) =>
+        Math.abs(sensitivity.lowDelta) > 500 || Math.abs(sensitivity.highDelta) > 500
+      )
+      .sort((left, right) => {
+        const leftSpread = Math.abs(left.highDelta - left.lowDelta);
+        const rightSpread = Math.abs(right.highDelta - right.lowDelta);
+        return rightSpread - leftSpread;
+      })
+      .slice(0, 6);
+
+    const data: TornadoBarData[] = significantSensitivities.map((sensitivity) => ({
+      parameter: sensitivity.parameter,
+      lowValue: sensitivity.lowDelta < 0 ? sensitivity.lowDelta : 0,
+      highValue: sensitivity.highDelta > 0 ? sensitivity.highDelta : 0,
+      lowDelta: sensitivity.lowDelta,
+      highDelta: sensitivity.highDelta,
+    }));
+
+    const allValues = data.flatMap((entry) => [entry.lowDelta, entry.highDelta]);
+    const minVal = Math.min(...allValues, 0);
+    const maxVal = Math.max(...allValues, 0);
+    const absMax = Math.max(Math.abs(minVal), Math.abs(maxVal));
+
+    return {
+      data,
+      absMax,
+      domainPadding: absMax * 0.15,
+    };
+  }, [results, vehicleDetails]);
 
   if (!results.length) {
     return (
@@ -73,11 +165,7 @@ const SensitivityTornadoChart = () => {
     );
   }
 
-  // Find diesel and BEV results
-  const dieselResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'Diesel');
-  const bevResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'BEV');
-
-  if (!dieselResult || !bevResult) {
+  if (!chartAnalysis) {
     return (
       <Card
         title="Sensitivity analysis"
@@ -92,82 +180,7 @@ const SensitivityTornadoChart = () => {
     );
   }
 
-  // Baseline savings (positive = BEV cheaper)
-  const baselineSavings = dieselResult.total_cost - bevResult.total_cost;
-
-  // Calculate sensitivity for each parameter
-  // We estimate how +/- 20% change affects the BEV vs Diesel comparison
-  const sensitivities: SensitivityItem[] = [
-    {
-      parameter: 'Fuel price',
-      // Higher fuel price benefits BEV (more diesel savings)
-      lowDelta: -(dieselResult.breakdown.npv_costs.fuel_cost * 0.2),
-      highDelta: dieselResult.breakdown.npv_costs.fuel_cost * 0.2,
-      baselineSavings,
-    },
-    {
-      parameter: 'Electricity price',
-      // Higher electricity price hurts BEV
-      lowDelta: bevResult.breakdown.npv_costs.fuel_cost * 0.2,
-      highDelta: -(bevResult.breakdown.npv_costs.fuel_cost * 0.2),
-      baselineSavings,
-    },
-    {
-      parameter: 'Annual kms',
-      // More kms amplifies operating cost differences
-      // If BEV has lower operating costs, more kms = more savings
-      lowDelta: -((dieselResult.breakdown.npv_costs.fuel_cost - bevResult.breakdown.npv_costs.fuel_cost) * 0.2),
-      highDelta: (dieselResult.breakdown.npv_costs.fuel_cost - bevResult.breakdown.npv_costs.fuel_cost) * 0.2,
-      baselineSavings,
-    },
-    {
-      parameter: 'Maintenance cost',
-      // Higher maintenance costs hurt diesel more (they're higher baseline)
-      lowDelta: -(dieselResult.breakdown.npv_costs.maintenance_cost - bevResult.breakdown.npv_costs.maintenance_cost) * 0.2,
-      highDelta: (dieselResult.breakdown.npv_costs.maintenance_cost - bevResult.breakdown.npv_costs.maintenance_cost) * 0.2,
-      baselineSavings,
-    },
-    {
-      parameter: 'Battery replacement',
-      // Only affects BEV
-      lowDelta: bevResult.breakdown.npv_costs.battery_replacement_cost * 0.2,
-      highDelta: -(bevResult.breakdown.npv_costs.battery_replacement_cost * 0.2),
-      baselineSavings,
-    },
-    {
-      parameter: 'Purchase price',
-      // BEV usually more expensive, so lower price helps BEV
-      lowDelta: bevResult.breakdown.upfront_costs.purchase_cost * 0.2,
-      highDelta: -(bevResult.breakdown.upfront_costs.purchase_cost * 0.2),
-      baselineSavings,
-    },
-  ];
-
-  // Filter to significant sensitivities and sort by impact
-  const significantSensitivities = sensitivities
-    .filter((s) => Math.abs(s.lowDelta) > 500 || Math.abs(s.highDelta) > 500)
-    .sort((a, b) => {
-      const aSpread = Math.abs(a.highDelta - a.lowDelta);
-      const bSpread = Math.abs(b.highDelta - b.lowDelta);
-      return bSpread - aSpread;
-    })
-    .slice(0, 6); // Top 6 most impactful
-
-  // Build tornado chart data
-  const data: TornadoBarData[] = significantSensitivities.map((s) => ({
-    parameter: s.parameter,
-    lowValue: s.lowDelta < 0 ? s.lowDelta : 0,
-    highValue: s.highDelta > 0 ? s.highDelta : 0,
-    lowDelta: s.lowDelta,
-    highDelta: s.highDelta,
-  }));
-
-  // Calculate domain
-  const allValues = data.flatMap((d) => [d.lowDelta, d.highDelta]);
-  const minVal = Math.min(...allValues, 0);
-  const maxVal = Math.max(...allValues, 0);
-  const absMax = Math.max(Math.abs(minVal), Math.abs(maxVal));
-  const domainPadding = absMax * 0.15;
+  const { data, absMax, domainPadding } = chartAnalysis;
 
   return (
     <Card

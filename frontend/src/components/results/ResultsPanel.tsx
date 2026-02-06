@@ -1,17 +1,33 @@
+import { Suspense, lazy } from 'react';
 import Card from '@components/shared/Card';
-import ComparisonHighlights from '@components/results/ComparisonHighlights';
-import CostBreakdownChart from '@components/results/CostBreakdownChart';
-import CostPerKmChart from '@components/results/CostPerKmChart';
-import PaybackChart from '@components/results/PaybackChart';
-import SavingsWaterfallChart from '@components/results/SavingsWaterfallChart';
-import SensitivityTornadoChart from '@components/results/SensitivityTornadoChart';
 import { useTCOStore } from '@state/tcoStore';
 import { formatCurrency } from '@utils/format';
 import { getScenarioLabel } from '@utils/scenario';
 
+const ComparisonHighlights = lazy(() => import('@components/results/ComparisonHighlights'));
+const CostBreakdownChart = lazy(() => import('@components/results/CostBreakdownChart'));
+const CostPerKmChart = lazy(() => import('@components/results/CostPerKmChart'));
+const PaybackChart = lazy(() => import('@components/results/PaybackChart'));
+const SavingsWaterfallChart = lazy(() => import('@components/results/SavingsWaterfallChart'));
+const SensitivityTornadoChart = lazy(() => import('@components/results/SensitivityTornadoChart'));
+
+interface ChartFallbackProps {
+  title: string;
+  subtitle: string;
+}
+
+const ChartFallback = ({ title, subtitle }: ChartFallbackProps) => (
+  <Card title={title} subtitle={subtitle}>
+    <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-brand-primary" />
+    </div>
+  </Card>
+);
+
 const ResultsPanel = () => {
   const results = useTCOStore((state) => state.results);
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
+  const wizardData = useTCOStore((state) => state.wizardData);
   const isCalculating = useTCOStore((state) => state.isCalculating);
 
   if (isCalculating) {
@@ -58,11 +74,10 @@ const ResultsPanel = () => {
               subtitle="Cost per kilometre"
             >
               <p className="text-3xl font-semibold text-brand-700">
-                {new Intl.NumberFormat('en-AU', {
-                  style: 'currency',
-                  currency: 'AUD',
+                {formatCurrency(result.cost_per_km, {
                   minimumFractionDigits: 2,
-                }).format(result.cost_per_km)}
+                  maximumFractionDigits: 2,
+                })}
                 <span className="text-base font-normal text-slate-500"> / km</span>
               </p>
               <p className="mt-2 text-sm text-slate-500">
@@ -74,11 +89,42 @@ const ResultsPanel = () => {
         })}
       </div>
 
-      <ComparisonHighlights />
+      <Suspense
+        fallback={(
+          <ChartFallback
+            title="Key findings"
+            subtitle="Key takeaways from the latest comparison."
+          />
+        )}
+      >
+        <ComparisonHighlights
+          results={results}
+          baselineId={wizardData.currentVehicle}
+          vehicleDetails={vehicleDetails}
+        />
+      </Suspense>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <CostPerKmChart />
-        <CostBreakdownChart />
+        <Suspense
+          fallback={(
+            <ChartFallback
+              title="Cost per kilometre"
+              subtitle="Lower bars indicate cheaper ownership under the selected scenario."
+            />
+          )}
+        >
+          <CostPerKmChart results={results} vehicleDetails={vehicleDetails} />
+        </Suspense>
+        <Suspense
+          fallback={(
+            <ChartFallback
+              title="Cost components"
+              subtitle="Grouped cost-basis components for each vehicle."
+            />
+          )}
+        >
+          <CostBreakdownChart results={results} vehicleDetails={vehicleDetails} />
+        </Suspense>
       </div>
 
       {showDeeperAnalysis && (
@@ -91,11 +137,42 @@ const ResultsPanel = () => {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <PaybackChart />
-            <SavingsWaterfallChart />
+            <Suspense
+              fallback={(
+                <ChartFallback
+                  title="Payback timeline"
+                  subtitle="When does switching to electric break even?"
+                />
+              )}
+            >
+              <PaybackChart
+                results={results}
+                vehicleDetails={vehicleDetails}
+                wizardData={wizardData}
+              />
+            </Suspense>
+            <Suspense
+              fallback={(
+                <ChartFallback
+                  title="Savings breakdown"
+                  subtitle="What drives the cost difference?"
+                />
+              )}
+            >
+              <SavingsWaterfallChart results={results} vehicleDetails={vehicleDetails} />
+            </Suspense>
           </div>
 
-          <SensitivityTornadoChart />
+          <Suspense
+            fallback={(
+              <ChartFallback
+                title="Sensitivity analysis (approximate)"
+                subtitle="How do assumptions affect the comparison?"
+              />
+            )}
+          >
+            <SensitivityTornadoChart results={results} vehicleDetails={vehicleDetails} />
+          </Suspense>
         </>
       )}
     </div>

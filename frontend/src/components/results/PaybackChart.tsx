@@ -1,7 +1,12 @@
+import { useMemo } from 'react';
 import Card from '@components/shared/Card';
 import { calculateNominalCostTimeline } from '@shared/calculator';
-import type { CalculationRequestPayload } from '@shared/types/tco.types';
-import { useTCOStore } from '@state/tcoStore';
+import type {
+  CalculationRequestPayload,
+  CalculationResponsePayload,
+  VehicleDetail,
+  WizardData,
+} from '@shared/types/tco.types';
 import { formatCurrency } from '@utils/format';
 import {
   CartesianGrid,
@@ -27,6 +32,12 @@ interface CumulativeCostData {
   bev: number;
 }
 
+interface PaybackChartProps {
+  results: CalculationResponsePayload[];
+  vehicleDetails: Record<string, VehicleDetail>;
+  wizardData: WizardData;
+}
+
 const PaybackTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (!active || !payload?.length) {
     return null;
@@ -44,10 +55,78 @@ const PaybackTooltip = ({ active, payload, label }: TooltipProps<ValueType, Name
   );
 };
 
-const PaybackChart = () => {
-  const results = useTCOStore((state) => state.results);
-  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
-  const wizardData = useTCOStore((state) => state.wizardData);
+const PaybackChart = ({ results, vehicleDetails, wizardData }: PaybackChartProps) => {
+  const dieselResult = results.find(
+    (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'Diesel'
+  );
+  const bevResult = results.find(
+    (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'BEV'
+  );
+
+  const paybackAnalysis = useMemo(() => {
+    if (!dieselResult || !bevResult) {
+      return undefined;
+    }
+
+    const commonPayload = {
+      scenario_name: wizardData.scenario,
+      purchase_method: wizardData.purchaseMethod,
+      duty_cycle: wizardData.dutyCycle,
+      overrides: wizardData.overrides,
+    } as const;
+
+    const dieselPayload: CalculationRequestPayload = {
+      vehicle_id: dieselResult.vehicle_id,
+      ...commonPayload,
+      vehicle_overrides: wizardData.vehicleParamOverrides?.[dieselResult.vehicle_id],
+    };
+    const bevPayload: CalculationRequestPayload = {
+      vehicle_id: bevResult.vehicle_id,
+      ...commonPayload,
+      vehicle_overrides: wizardData.vehicleParamOverrides?.[bevResult.vehicle_id],
+    };
+
+    const dieselTimeline = calculateNominalCostTimeline(dieselPayload);
+    const bevTimeline = calculateNominalCostTimeline(bevPayload);
+    const pointCount = Math.min(dieselTimeline.length, bevTimeline.length);
+    const memoData: CumulativeCostData[] = Array.from({ length: pointCount }, (_, idx) => ({
+      year: dieselTimeline[idx].year,
+      diesel: dieselTimeline[idx].cumulativeCost,
+      bev: bevTimeline[idx].cumulativeCost,
+    }));
+
+    let memoPaybackYear: number | null = null;
+    if (memoData.length) {
+      if (memoData[0].bev <= memoData[0].diesel) {
+        memoPaybackYear = 0;
+      } else {
+        for (let i = 1; i < memoData.length; i += 1) {
+          const prev = memoData[i - 1];
+          const curr = memoData[i];
+          const prevDiff = prev.bev - prev.diesel;
+          const currDiff = curr.bev - curr.diesel;
+
+          if (prevDiff > 0 && currDiff <= 0) {
+            const diffDelta = prevDiff - currDiff;
+            memoPaybackYear =
+              Math.abs(diffDelta) < 1e-9 ? curr.year : prev.year + prevDiff / diffDelta;
+            break;
+          }
+        }
+      }
+    }
+
+    const finalPoint = memoData[memoData.length - 1];
+    const memoHorizonYears = finalPoint?.year ?? 0;
+    const memoTotalSavings = finalPoint ? finalPoint.diesel - finalPoint.bev : 0;
+
+    return {
+      data: memoData,
+      paybackYear: memoPaybackYear,
+      horizonYears: memoHorizonYears,
+      totalSavings: memoTotalSavings,
+    };
+  }, [bevResult?.vehicle_id, dieselResult?.vehicle_id, wizardData]);
 
   if (!results.length) {
     return (
@@ -58,9 +137,6 @@ const PaybackChart = () => {
       </Card>
     );
   }
-
-  const dieselResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'Diesel');
-  const bevResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'BEV');
 
   if (!dieselResult || !bevResult) {
     return (
@@ -74,34 +150,7 @@ const PaybackChart = () => {
     );
   }
 
-  const commonPayload = {
-    scenario_name: wizardData.scenario,
-    purchase_method: wizardData.purchaseMethod,
-    duty_cycle: wizardData.dutyCycle,
-    overrides: wizardData.overrides,
-  } as const;
-
-  const dieselPayload: CalculationRequestPayload = {
-    vehicle_id: dieselResult.vehicle_id,
-    ...commonPayload,
-    vehicle_overrides: wizardData.vehicleParamOverrides?.[dieselResult.vehicle_id],
-  };
-  const bevPayload: CalculationRequestPayload = {
-    vehicle_id: bevResult.vehicle_id,
-    ...commonPayload,
-    vehicle_overrides: wizardData.vehicleParamOverrides?.[bevResult.vehicle_id],
-  };
-
-  const dieselTimeline = calculateNominalCostTimeline(dieselPayload);
-  const bevTimeline = calculateNominalCostTimeline(bevPayload);
-  const pointCount = Math.min(dieselTimeline.length, bevTimeline.length);
-  const data: CumulativeCostData[] = Array.from({ length: pointCount }, (_, idx) => ({
-    year: dieselTimeline[idx].year,
-    diesel: dieselTimeline[idx].cumulativeCost,
-    bev: bevTimeline[idx].cumulativeCost,
-  }));
-
-  if (!data.length) {
+  if (!paybackAnalysis || !paybackAnalysis.data.length) {
     return (
       <Card title="Payback timeline" subtitle="When does switching to electric break even?">
         <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
@@ -111,30 +160,9 @@ const PaybackChart = () => {
     );
   }
 
-  let paybackYear: number | null = null;
-  if (data[0].bev <= data[0].diesel) {
-    paybackYear = 0;
-  } else {
-    for (let i = 1; i < data.length; i += 1) {
-      const prev = data[i - 1];
-      const curr = data[i];
-      const prevDiff = prev.bev - prev.diesel;
-      const currDiff = curr.bev - curr.diesel;
-
-      if (prevDiff > 0 && currDiff <= 0) {
-        const diffDelta = prevDiff - currDiff;
-        paybackYear =
-          Math.abs(diffDelta) < 1e-9 ? curr.year : prev.year + prevDiff / diffDelta;
-        break;
-      }
-    }
-  }
-
+  const { data, paybackYear, horizonYears, totalSavings } = paybackAnalysis;
   const dieselName = vehicleDetails[dieselResult.vehicle_id]?.model_name ?? 'Diesel';
   const bevName = vehicleDetails[bevResult.vehicle_id]?.model_name ?? 'Electric';
-  const finalPoint = data[data.length - 1];
-  const horizonYears = finalPoint.year;
-  const totalSavings = finalPoint.diesel - finalPoint.bev;
 
   return (
     <Card

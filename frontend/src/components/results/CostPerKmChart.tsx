@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import Card from '@components/shared/Card';
-import { useTCOStore } from '@state/tcoStore';
+import type { CalculationResponsePayload, VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency, formatPerKilometre } from '@utils/format';
 import {
   Bar,
@@ -41,9 +42,33 @@ const CostTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => 
   );
 };
 
-const CostPerKmChart = () => {
-  const results = useTCOStore((state) => state.results);
-  const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
+interface CostPerKmChartProps {
+  results: CalculationResponsePayload[];
+  vehicleDetails: Record<string, VehicleDetail>;
+}
+
+const CostPerKmChart = ({ results, vehicleDetails }: CostPerKmChartProps) => {
+  const data = useMemo(() => {
+    if (!results.length) {
+      return [];
+    }
+
+    const minCostPerKm = Math.min(...results.map((result) => result.cost_per_km));
+    return results.map((result) => {
+      const detail = vehicleDetails[result.vehicle_id];
+      const drivetrainType = detail?.drivetrain_type ?? 'Diesel';
+      const isWinner = result.cost_per_km === minCostPerKm;
+
+      return {
+        vehicle: detail?.model_name ?? result.vehicle_id,
+        costPerKm: Number(result.cost_per_km.toFixed(4)),
+        annualCost: result.annual_cost,
+        totalCost: result.total_cost,
+        drivetrainType,
+        isWinner,
+      };
+    });
+  }, [results, vehicleDetails]);
 
   if (!results.length) {
     return (
@@ -57,24 +82,6 @@ const CostPerKmChart = () => {
       </Card>
     );
   }
-
-  // Determine the winner (lowest cost per km)
-  const minCostPerKm = Math.min(...results.map((r) => r.cost_per_km));
-
-  const data = results.map((result) => {
-    const detail = vehicleDetails[result.vehicle_id];
-    const drivetrainType = detail?.drivetrain_type ?? 'Diesel';
-    const isWinner = result.cost_per_km === minCostPerKm;
-
-    return {
-      vehicle: detail?.model_name ?? result.vehicle_id,
-      costPerKm: Number(result.cost_per_km.toFixed(4)),
-      annualCost: result.annual_cost,
-      totalCost: result.total_cost,
-      drivetrainType,
-      isWinner,
-    };
-  });
 
   const getBarColor = (entry: (typeof data)[number]) => {
     if (entry.isWinner) return WINNER_COLOR;

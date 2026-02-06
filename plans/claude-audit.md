@@ -104,7 +104,7 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | 8 | Python/TypeScript rebate calculation logic diverges (dormant) | 2 | 5 | **10** | Cross-language parity |
 | 9 | No `.dockerignore`; backend image contains tests, .git, archive | 4 | 2 | **8** | Docker |
 
-**Update (2026-02-06):** CALC-01 through CALC-08, FE-01 through FE-03, and BE-01 through BE-05 have been completed and moved to the `DONE` section.
+**Update (2026-02-06):** CALC-01 through CALC-08, FE-01 through FE-03, BE-01 through BE-05, and PERF-01 through PERF-04 have been completed and moved to the `DONE` section.
 
 ---
 
@@ -156,27 +156,7 @@ Backend items `BE-01` through `BE-05` are complete and have been moved to Sectio
 - **Impact:** CPU-bound hashing (~250ms per operation at 12 rounds) blocks the event loop under load, causing latency spikes across all concurrent requests. Potential DoS amplification vector.
 - **Recommendation:** Offload bcrypt operations to a worker thread via `anyio.to_thread.run_sync`. Alternatively, reduce rounds per SEC-03 (high-entropy secrets don't need 12 rounds) or switch to HMAC-SHA256 for session secrets.
 
-### 4.3 Performance
 
-#### PERF-01: No frontend code splitting
-- **Evidence:** `frontend/src/App.tsx:1-16`. No `React.lazy()` or dynamic imports. `chunkSizeWarningLimit` raised to 900KB in `vite.config.ts:21`.
-- **Impact:** Entire app (including Recharts for 5 chart components) loaded on initial page load.
-- **Recommendation:** Lazy-load `ResultsPage` and chart components.
-
-#### PERF-02: `Intl.NumberFormat` instantiated on every render
-- **Evidence:** `frontend/src/utils/format.ts:7-24`. `formatCurrency` and `formatCurrencyCompact` create new instances per call.
-- **Impact:** `Intl.NumberFormat` construction involves locale resolution. Called dozens of times in chart components.
-- **Recommendation:** Cache instances by options signature.
-
-#### PERF-03: Six chart components each subscribe to full Zustand store
-- **Evidence:** All chart components in `frontend/src/components/results/` independently subscribe to `state.results`.
-- **Impact:** A single results update triggers six re-renders, each with non-trivial data transformation.
-- **Recommendation:** Memoize chart data transformations with `useMemo`, or lift data preparation to a single parent.
-
-#### PERF-04: Docker backend installs heavy unused Python packages
-- **Evidence:** `requirements.txt` includes numpy (25MB), pandas (60MB), plotly (30MB) used only in archived code.
-- **Impact:** Backend Docker image bloat (~115MB of unused libraries).
-- **Recommendation:** Move to a separate `requirements-scripts.txt`.
 
 ### 4.4 Maintainability
 
@@ -505,7 +485,6 @@ Backend items `BE-01` through `BE-05` are complete and have been moved to Sectio
 | DEAD-01 | Remove unused Python runtime deps | **Med** | S | Low | 2 | Test Docker build |
 | MAINT-02 | Consolidate on ruff (remove flake8/pylint) | **Med** | S | Low | 2 | None |
 | AI-01 | Refactor repetitive sanitization to data-driven (preserve `clampOverrideAboveMin` special case for `annual_kms_variation`) | **Med** | M | Low | 2 | Test coverage first |
-| PERF-01 | Add code splitting for ResultsPage | **Med** | M | Low | 2 | None |
 | SEC-08 | Offload bcrypt to worker thread | **Med** | S | Low | 2 | None |
 | MAINT-11 | Centralize calculator override limits from OVERRIDE_LIMITS | **Med** | M | Low | 2 | AI-01, Regen TS |
 | MAINT-12 | Unify duty-cycle validation across layers | **Med** | M | Med | 2 | None |
@@ -603,13 +582,12 @@ This is a breaking change that touches multiple layers. Implementation sequence:
 **Goal:** Larger improvements that require more coordination. Execute as capacity allows.
 
 1. Generate strongly-typed constants interface from Python
-2. Add code splitting for ResultsPage/charts
-3. Add component tests using React Testing Library
-4. Migrate ESLint 9 + flat config
-5. Add accessibility improvements (charts, stepper, error messages)
-6. Document Replit deployment process
-7. Add E2E tests to CI
-8. Add structured logging (Replit-compatible)
+2. Add component tests using React Testing Library
+3. Migrate ESLint 9 + flat config
+4. Add accessibility improvements (charts, stepper, error messages)
+5. Document Replit deployment process
+6. Add E2E tests to CI
+7. Add structured logging (Replit-compatible)
 
 **Approach:** Use Branch by Abstraction for the constants type change (add new typed interface alongside `ConstantCatalog`, migrate consumers, then remove the old type). Use feature flags or route-level code splitting for lazy loading.
 
@@ -765,6 +743,10 @@ Completed items moved from active backlog/planning lists.
 | FE-01 | **DONE** | 2026-02-06 | Added a top-level React error boundary with fallback and retry/reload actions (`frontend/src/components/shared/ErrorBoundary.tsx`, wired in `frontend/src/main.tsx`). |
 | FE-02 | **DONE** | 2026-02-06 | Integrated `VehicleParamsForm` into React Hook Form by adding `vehicleParamOverrides` to the shared schema and step validation flow (`frontend/src/forms/wizardForm.ts`, `frontend/src/pages/WizardPage.tsx`, `frontend/src/components/wizard/VehicleParamsForm.tsx`). |
 | FE-03 | **DONE** | 2026-02-06 | Replaced simplified payback interpolation with year-by-year nominal cash-flow timelines via shared calculator helper (`shared/calculator/tcoCalculator.ts`, `frontend/src/components/results/PaybackChart.tsx`). |
+| PERF-01 | **DONE** | 2026-02-06 | Added route/component code splitting via `React.lazy` + `Suspense` for `ResultsPage` and results chart modules (`frontend/src/App.tsx`, `frontend/src/components/results/ResultsPanel.tsx`). |
+| PERF-02 | **DONE** | 2026-02-06 | Added an `Intl.NumberFormat` cache keyed by normalized options to avoid per-render formatter creation (`frontend/src/utils/format.ts`). |
+| PERF-03 | **DONE** | 2026-02-06 | Removed per-chart Zustand subscriptions by lifting state reads into `ResultsPanel` and passing memoized props/data into chart components. |
+| PERF-04 | **DONE** | 2026-02-06 | Removed heavy optional analysis packages from runtime `requirements.txt` and moved them to `requirements-scripts.txt` (adapted from Docker framing, since Docker was removed). |
 | BE-01 | **DONE** | 2026-02-06 | Replaced request-size middleware with ASGI-level pre-handler enforcement for `Content-Length` and chunked bodies; added tests preventing side effects on oversized requests (`backend/app/core/middleware.py`, `tests/test_middleware.py`). |
 | BE-02 | **DONE** | 2026-02-06 | Refactored session response assembly to avoid double-fetch/refresh and use eager-loaded related records (`backend/app/services/sessions.py`). |
 | BE-03 | **DONE** | 2026-02-06 | Reworked BEV-vs-diesel analytics from per-pair query loop to a single aggregate query (`backend/app/services/sessions.py`). |
@@ -839,3 +821,29 @@ Completed items moved from active backlog/planning lists.
 - **Original evidence:** `PaybackChart.tsx` inferred yearly costs from aggregated outputs and interpolated crossing points.
 - **Impact:** Payback timing could be materially inaccurate because financing timing, battery replacement, and residual value are non-linear across years.
 - **Resolution:** Added `calculateNominalCostTimeline` in `shared/calculator/tcoCalculator.ts` and used it in `frontend/src/components/results/PaybackChart.tsx` for cumulative timeline and payback interpolation.
+
+### 4.3 Performance
+
+#### PERF-01: No frontend code splitting
+- **Status (2026-02-06): DONE.** Added lazy loading for `ResultsPage` and results chart modules.
+- **Evidence:** `frontend/src/App.tsx:1-16`. No `React.lazy()` or dynamic imports. `chunkSizeWarningLimit` raised to 900KB in `vite.config.ts:21`.
+- **Impact:** Entire app (including Recharts for 5 chart components) loaded on initial page load.
+- **Recommendation:** Lazy-load `ResultsPage` and chart components.
+
+#### PERF-02: `Intl.NumberFormat` instantiated on every render
+- **Status (2026-02-06): DONE.** Added memoized formatter cache keyed by options signature in `frontend/src/utils/format.ts`.
+- **Evidence:** `frontend/src/utils/format.ts:7-24`. `formatCurrency` and `formatCurrencyCompact` create new instances per call.
+- **Impact:** `Intl.NumberFormat` construction involves locale resolution. Called dozens of times in chart components.
+- **Recommendation:** Cache instances by options signature.
+
+#### PERF-03: Six chart components each subscribe to full Zustand store
+- **Status (2026-02-06): DONE.** Lifted results data access into `ResultsPanel`, passed props to chart components, and memoized chart transformations.
+- **Evidence:** All chart components in `frontend/src/components/results/` independently subscribe to `state.results`.
+- **Impact:** A single results update triggers six re-renders, each with non-trivial data transformation.
+- **Recommendation:** Memoize chart data transformations with `useMemo`, or lift data preparation to a single parent.
+
+#### PERF-04: Docker backend installs heavy unused Python packages
+- **Status (2026-02-06): DONE (adapted to current repo state).** Moved heavy optional/legacy analysis dependencies from `requirements.txt` to `requirements-scripts.txt` after Docker removal.
+- **Evidence:** `requirements.txt` included numpy (25MB), pandas (60MB), plotly (30MB) used only in archived code.
+- **Impact:** Runtime dependency bloat and unnecessary install surface for backend/runtime environments.
+- **Recommendation:** Keep optional analysis tooling isolated in `requirements-scripts.txt`.

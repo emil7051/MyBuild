@@ -27,26 +27,6 @@ greenlet==3.3.0
 # Cache
 redis==5.0.1
 
-# --- Data Analysis & Generation ---
-
-# Numeric computation
-numpy==1.24.0
-numpy-financial==1.0.0
-
-# Data analysis (used for data generation scripts)
-pandas==2.0.0
-
-# Visualization (used for data exploration)
-plotly==5.15.0
-
-# --- CLI & Utilities ---
-
-# Terminal output
-rich==13.5.0
-
-# CLI framework
-click==8.1.0
-
 # Security (Phase 4)
 bcrypt==4.1.2
 slowapi==0.1.9
