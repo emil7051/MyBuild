@@ -204,7 +204,7 @@ pygments==2.19.2
     #   rich
 pyparsing==3.3.2
     # via pip-requirements-parser
-pytest==8.4.2
+pytest==9.0.2
     # via
     #   -r requirements-dev.txt
     #   pytest-asyncio
