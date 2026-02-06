@@ -26,10 +26,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -58,7 +58,7 @@ jobs:
 
       - name: Upload Python SBOM
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sbom-python
           path: sbom-python.json
@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -79,7 +79,7 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: Cache Bun install cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ env.BUN_VERSION }}-${{ hashFiles('frontend/bun.lock') }}
@@ -121,7 +121,7 @@ jobs:
 
       - name: Upload audit report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-audit-report
           path: frontend/audit-report.json
