@@ -44,7 +44,6 @@ None. All items from this audit plan have been implemented and moved to the Comp
 
 **Open Questions / Assumptions**
 - Session secrets are now enforced for new sessions; should we backfill/rotate secrets for legacy sessions (null `session_secret_hash`) and enforce universally?
-- Analytics access is server-side only (API key required); do we want an internal/admin UI or a separate reporting workflow to view analytics?
 - Should session secret cookies use a different TTL or rotation strategy for long-lived resumes?
 
 **Completed Work (Implemented)**
