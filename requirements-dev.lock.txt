@@ -20,7 +20,7 @@ async-timeout==5.0.1 ; python_full_version < '3.12'
     #   redis
 asyncpg==0.29.0
     # via -r requirements.txt
-bandit==1.7.0
+bandit==1.9.3
     # via -r requirements-dev.txt
 black==24.10.0
     # via -r requirements-dev.txt
