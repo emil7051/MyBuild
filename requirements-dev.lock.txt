@@ -205,7 +205,7 @@ requests==2.32.5
     #   pip-audit
 rich==14.3.2
     # via pip-audit
-ruff==0.8.0
+ruff==0.15.0
     # via -r requirements-dev.txt
 six==1.17.0
     # via
