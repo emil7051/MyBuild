@@ -61,7 +61,7 @@ distlib==0.4.0
     # via virtualenv
 execnet==2.1.2
     # via pytest-xdist
-factory-boy==3.3.0
+factory-boy==3.3.3
     # via -r requirements-dev.txt
 faker==40.1.2
     # via factory-boy

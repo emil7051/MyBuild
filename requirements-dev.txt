@@ -22,7 +22,7 @@ vulture==2.9.0
 # Test runtime dependencies
 anyio==4.12.1
 httpx==0.28.1
-factory-boy==3.3.0
+factory-boy==3.3.3
 
 # Type checking
 mypy==1.19.1
