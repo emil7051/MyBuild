@@ -49,12 +49,16 @@ From repo root:
 ```bash
 # Backend quality gates
 python -m pytest tests --cov
+python -m mypy backend/app/core backend/app/api backend/app/main.py
 
 # Frontend quality gates
 cd frontend
 bun run test
 bun run typecheck
 bun run lint
+# Optional but recommended smoke check (installs browser if needed)
+bunx playwright install chromium
+bun run test:e2e
 bun run build
 cd ..
 ```

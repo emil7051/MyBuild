@@ -55,6 +55,18 @@ Primary implementation:
 - `backend/app/main.py`
 - `backend/app/core/config.py`
 
+## Observability and Alerting Controls
+
+- API responses include `x-request-id` for request correlation.
+- Sampled traced requests include `x-trace-id` when tracing is enabled.
+- Route-grouped request metrics are emitted as structured logs.
+- Threshold breaches emit structured `http.alert` events, with optional webhook forwarding.
+
+Primary implementation:
+- `backend/app/core/observability.py`
+- `backend/app/core/config.py`
+- `backend/app/main.py`
+
 ## Persistence and Analytics Consistency
 
 - Wizard overrides are normalized into a stable structure before storage:

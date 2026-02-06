@@ -93,19 +93,19 @@ Always use `bun` instead of `npm` or `yarn` for frontend operations.
 **Development:**
 ```bash
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
-cd frontend && bun install && bun run dev -- --host 0.0.0.0 --port 5000
+cd frontend && bun install --frozen-lockfile && bun run dev -- --host 0.0.0.0 --port 5000
 # Frontend: http://localhost:5000
 # Backend API: http://localhost:8000/docs
 ```
 
 **Frontend:**
 ```bash
-cd frontend && bun install         # Install dependencies
+cd frontend && bun install --frozen-lockfile   # Install dependencies
 bun run dev                        # Start dev server
 bun run build                      # Production build
 bun run lint                       # ESLint
 bun run typecheck                  # TypeScript check
-bun test                           # Run tests
+bun run test                       # Run tests
 ```
 
 **Backend:**
@@ -140,22 +140,18 @@ python scripts/generate_vehicle_catalog_ts.py
 ## Testing Requirements
 
 - Calculator parity tests validate TypeScript matches Python reference (within 5 cents for dollar amounts, 0.05 cents for cost_per_km)
-- Run `bun test` before committing frontend changes
+- Run `bun run test` before committing frontend changes
 - Run `pytest tests/` before committing backend changes
 
 ## Chart Conventions (Important)
 
-The `CostBreakdown` type has **mixed value bases** - see `shared/types/tco.types.ts`:
+The `CostBreakdown` type is grouped into:
 
-**NPV-adjusted fields:** fuel_cost, maintenance_cost, battery_replacement_cost, carbon_cost, charging_labour_cost, payload_penalty_cost, residual_value
+- `npv_costs` (discounted values): `fuel_cost`, `maintenance_cost`, `battery_replacement_cost`, `carbon_cost`, `charging_labour_cost`, `payload_penalty_cost`, `residual_value`
+- `nominal_costs` (non-discounted totals): `insurance_cost`, `registration_cost`, `financing_cost`, `depreciation`
+- `upfront_costs`: `purchase_cost`, `taxes_and_fees`
 
-**Nominal lifetime totals (NOT discounted):** insurance_cost, registration_cost, depreciation
-
-**Upfront values:** purchase_cost, taxes_and_fees
-
-**Note:** `financing_cost` is total loan interest over the term, NOT an upfront payment.
-
-The `total_cost` in `CalculationResponsePayload` IS fully NPV-adjusted and represents the true economic comparison.
+`financing_cost` is total nominal interest paid over the loan term (not an upfront payment). `total_cost` in `CalculationResponsePayload` remains the authoritative fully NPV-adjusted comparison metric.
 
 ## Serena MCP Best Practices
 
@@ -187,6 +183,6 @@ Use `think_about_collected_information` after research and `think_about_task_adh
 ## Merge Gate Checklist
 
 - [ ] Backend: `pytest tests/ --cov`
-- [ ] Frontend: `cd frontend && bun test`
+- [ ] Frontend: `cd frontend && bun run test`
 - [ ] Lint: `bun run lint && bun run typecheck`
 - [ ] Data regen (if touching `data/*.py`): `python scripts/generate_vehicle_catalog_ts.py`

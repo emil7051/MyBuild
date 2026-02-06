@@ -1,25 +1,35 @@
 # API Documentation
 
-The TCO Web Platform provides a RESTful API for calculating Total Cost of Ownership, managing sessions, and accessing analytics.
+The TCO Web Platform exposes a REST API for vehicle catalog access, session persistence, and analytics.
 
 ## Base URL
 
-- **Development**: `http://localhost:8000/api/v1`
-- **Production**: `https://your-domain.com/api/v1`
+- Development: `http://localhost:8000/api/v1`
+- Production: `https://<your-domain>/api/v1`
 
-## Authentication
+## Authentication and Access Control
 
-### Session Access
+### Session endpoints
 
-Session endpoints do not require authentication. Clients can create, fetch, and update sessions using the `sessionId` returned on creation.
+- `POST /sessions` does not require an existing session cookie.
+- `GET /sessions/{session_id}` and `PUT /sessions/{session_id}` require the HttpOnly session-secret cookie that is issued when the session is created.
+- Session secrets are stored server-side as SHA-256 hashes and are never returned in JSON responses.
 
-### Analytics API Key
+Expected failures on protected session routes:
+- `401 Unauthorized`: session secret cookie is missing.
+- `403 Forbidden`: session secret cookie is present but invalid.
 
-The `/analytics/summary` endpoint requires an API key:
+### Analytics endpoint
 
-- Set the `ANALYTICS_API_KEY` environment variable to enable access
-- Requests must include the `X-Analytics-Key` header
-- If not configured, the endpoint is disabled
+`GET /analytics/summary` requires `X-Analytics-Key`.
+
+- If `ANALYTICS_API_KEY` is not configured, the endpoint is disabled (`403`).
+- If configured but missing/invalid in the request, the endpoint returns `401`.
+
+## Response Headers
+
+- `x-request-id`: Included on API responses for request correlation.
+- `x-trace-id`: Included when tracing is enabled and the request is sampled.
 
 ## Endpoints
 
@@ -31,9 +41,8 @@ The `/analytics/summary` endpoint requires an API key:
 GET /api/v1/health
 ```
 
-Check if the API is running and retrieve environment information.
+Response:
 
-**Response:**
 ```json
 {
   "status": "ok",
@@ -41,19 +50,16 @@ Check if the API is running and retrieve environment information.
 }
 ```
 
----
-
 ### Vehicles
 
-#### List All Vehicles
+#### List Vehicles
 
 ```http
 GET /api/v1/vehicles
 ```
 
-Retrieve a list of all available vehicles with summary information.
+Response (example):
 
-**Response:**
 ```json
 [
   {
@@ -62,29 +68,18 @@ Retrieve a list of all available vehicles with summary information.
     "drivetrain_type": "BEV",
     "weight_class": "Light Rigid",
     "comparison_pair": "DSL001"
-  },
-  {
-    "vehicle_id": "DSL001",
-    "model_name": "Hino 300",
-    "drivetrain_type": "Diesel",
-    "weight_class": "Light Rigid",
-    "comparison_pair": "BEV001"
   }
 ]
 ```
 
-#### Get Vehicle Details
+#### Get Vehicle Detail
 
 ```http
 GET /api/v1/vehicles/{vehicle_id}
 ```
 
-Retrieve detailed specifications for a specific vehicle.
+Response (example):
 
-**Parameters:**
-- `vehicle_id` (path): Vehicle identifier (e.g., "BEV001")
-
-**Response:**
 ```json
 {
   "vehicle_id": "BEV001",
@@ -92,28 +87,23 @@ Retrieve detailed specifications for a specific vehicle.
   "drivetrain_type": "BEV",
   "weight_class": "Light Rigid",
   "comparison_pair": "DSL001",
-  "payload": 2650.0,
-  "msrp": 145000.0,
-  "range_km": 300.0,
-  "battery_capacity_kwh": 89.0,
-  "kwh_per_km": 0.6,
+  "payload": 4.0,
+  "msrp": 176500.0,
+  "range_km": 220.0,
+  "battery_capacity_kwh": 100.0,
+  "kwh_per_km": 0.48,
   "litres_per_km": 0.0,
-  "maintenance_cost_per_km": 0.18,
-  "annual_registration": 800.0,
-  "annual_kms": 50000.0
+  "annual_registration": 653.0,
+  "annual_kms": 23000.0
 }
 ```
 
-**Error Responses:**
-- `404 Not Found` - Vehicle ID does not exist
-
----
-
-> Note: TCO calculations now execute in the shared TypeScript engine on the frontend. Backend endpoints currently cover vehicles, sessions, and analytics only.
+Errors:
+- `404 Not Found`: unknown vehicle ID.
 
 ### Sessions
 
-Session endpoints allow you to persist calculation sessions for later retrieval.
+Session payloads use frontend-style camelCase field names.
 
 #### Create Session
 
@@ -121,28 +111,28 @@ Session endpoints allow you to persist calculation sessions for later retrieval.
 POST /api/v1/sessions
 ```
 
-Create a new calculation session with inputs and results.
+Request body (example):
 
-**Request Body:**
 ```json
 {
   "wizardData": {
-    "currentVehicle": "BEV001",
-    "comparisonVehicles": ["DSL001"],
+    "currentVehicle": "DSL001",
+    "comparisonVehicles": ["BEV001"],
     "scenario": "baseline",
     "purchaseMethod": "financed",
     "dutyCycle": {
       "urban": 60,
-      "regional": 30,
-      "longHaul": 10
+      "regional": 25,
+      "longHaul": 15
     },
     "overrides": {
-      "annual_kms_variation": 5000,
-      "fuel_price_variation": 1.05
+      "annual_kms_variation": 50000,
+      "fuel_price_variation": 1.05,
+      "apply_road_user_charge_bev": true
     },
     "vehicleParamOverrides": {
       "BEV001": {
-        "msrp_override": 180000
+        "msrp_override": 185000
       }
     }
   },
@@ -150,57 +140,39 @@ Create a new calculation session with inputs and results.
     {
       "vehicle_id": "BEV001",
       "scenario_name": "baseline",
-      "total_cost": 523750.25,
-      "annual_cost": 34916.68,
-      "cost_per_km": 0.62,
+      "total_cost": 500000.0,
+      "annual_cost": 33333.33,
+      "cost_per_km": 1.45,
       "breakdown": {
-        "purchase_cost": 176500,
-        "fuel_cost": 0,
-        "maintenance_cost": 11250,
-        "insurance_cost": 9260,
-        "registration_cost": 4200,
-        "battery_replacement_cost": 0,
-        "financing_cost": 14600,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 45000,
-        "depreciation": 120000,
-        "taxes_and_fees": 6000
+        "npv_costs": {
+          "fuel_cost": 0,
+          "maintenance_cost": 15000,
+          "battery_replacement_cost": 10000,
+          "carbon_cost": 0,
+          "charging_labour_cost": 12000,
+          "payload_penalty_cost": 30000,
+          "residual_value": 45000
+        },
+        "nominal_costs": {
+          "insurance_cost": 12000,
+          "registration_cost": 9795,
+          "financing_cost": 28000,
+          "depreciation": 130000
+        },
+        "upfront_costs": {
+          "purchase_cost": 176500,
+          "taxes_and_fees": 5295
+        }
       }
     }
-  ],
-  "operatorProfile": {
-    "operatorType": "owner_driver",
-    "fleetSize": "1",
-    "contactEmail": "operator@example.com",
-    "consentToContact": true,
-    "notes": "Prefers email follow-up"
-  },
-  "feedback": {
-    "rating": 4,
-    "comment": "Useful comparison."
-  }
+  ]
 }
 ```
 
-Duty cycle values are percentages (0-100) and must sum to ~100.
-
-**Response:**
-```json
-{
-  "sessionId": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "completed",
-  "wizardData": {...},
-  "results": [...],
-  "operatorProfile": {...},
-  "feedback": {...},
-  "updatedAt": "2025-11-10T21:30:00Z",
-  "lastCalculatedAt": "2025-11-10T21:30:00Z"
-}
-```
-
-**Status Code:** `201 Created`
+Response:
+- `201 Created`
+- Sets an HttpOnly session-secret cookie.
+- Returns a session payload (without session secret in JSON).
 
 #### Get Session
 
@@ -208,28 +180,13 @@ Duty cycle values are percentages (0-100) and must sum to ~100.
 GET /api/v1/sessions/{session_id}
 ```
 
-Retrieve a saved session by ID.
+Requires valid session-secret cookie.
 
-**Parameters:**
-- `session_id` (path): UUID of the session
-
-**Response:**
-```json
-{
-  "sessionId": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "completed",
-  "wizardData": {...},
-  "results": [...],
-  "operatorProfile": {...},
-  "feedback": {...},
-  "updatedAt": "2025-11-10T21:30:00Z",
-  "lastCalculatedAt": "2025-11-10T21:30:00Z"
-}
-```
-
-**Error Responses:**
-- `404 Not Found` - Session ID does not exist
-- `422 Unprocessable Entity` - Invalid UUID format
+Errors:
+- `401 Unauthorized`: missing session cookie.
+- `403 Forbidden`: invalid session cookie.
+- `404 Not Found`: unknown session ID.
+- `422 Unprocessable Entity`: invalid UUID format.
 
 #### Update Session
 
@@ -237,57 +194,29 @@ Retrieve a saved session by ID.
 PUT /api/v1/sessions/{session_id}
 ```
 
-Update an existing session with new data.
+Requires valid session-secret cookie.
 
-**Parameters:**
-- `session_id` (path): UUID of the session
+Body fields are optional (`wizardData`, `results`, `operatorProfile`, `feedback`).
 
-**Request Body:**
-```json
-{
-  "wizardData": {...},
-  "results": [...],
-  "operatorProfile": {...},
-  "feedback": {...}
-}
-```
-
-**Response:**
-```json
-{
-  "sessionId": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "completed",
-  "wizardData": {...},
-  "results": [...],
-  "operatorProfile": {...},
-  "feedback": {...},
-  "updatedAt": "2025-11-10T21:45:00Z",
-  "lastCalculatedAt": "2025-11-10T21:45:00Z"
-}
-```
-
-**Error Responses:**
-- `404 Not Found` - Session ID does not exist
-- `422 Unprocessable Entity` - Invalid UUID format or validation error
-
----
+Errors:
+- `401 Unauthorized`: missing session cookie.
+- `403 Forbidden`: invalid session cookie.
+- `404 Not Found`: unknown session ID.
+- `422 Unprocessable Entity`: invalid UUID or payload validation error.
 
 ### Analytics
 
-#### Get Analytics Summary
+#### Analytics Summary
 
 ```http
 GET /api/v1/analytics/summary
 ```
 
-Retrieve aggregated analytics across all sessions.
+Headers:
+- `X-Analytics-Key: <configured-key>`
 
-**Headers:**
-- `X-Analytics-Key` (required): The configured analytics API key
+Response (example):
 
-If `ANALYTICS_API_KEY` is not configured, the endpoint is disabled and returns `403`.
-
-**Response:**
 ```json
 {
   "totalSessions": 1250,
@@ -303,94 +232,41 @@ If `ANALYTICS_API_KEY` is not configured, the endpoint is disabled and returns `
 }
 ```
 
----
+## Error Format
 
-## Error Handling
-
-All errors follow a consistent format:
+All errors follow:
 
 ```json
 {
-  "detail": "Error message describing what went wrong"
+  "detail": "Error message"
 }
 ```
 
-### HTTP Status Codes
+## Status Codes
 
-- `200 OK` - Request succeeded
-- `201 Created` - Resource created successfully
-- `400 Bad Request` - Invalid request parameters
-- `404 Not Found` - Resource not found
-- `413 Request Entity Too Large` - Request body exceeds 1MB limit
-- `422 Unprocessable Entity` - Validation error (invalid UUID format, invalid vehicle ID, invalid scenario, etc.)
-- `429 Too Many Requests` - Rate limit exceeded
-- `500 Internal Server Error` - Server error
-
----
+- `200 OK`
+- `201 Created`
+- `401 Unauthorized`
+- `403 Forbidden`
+- `404 Not Found`
+- `413 Content Too Large` (request body exceeds configured maximum)
+- `422 Unprocessable Entity`
+- `429 Too Many Requests`
+- `500 Internal Server Error`
 
 ## Rate Limiting
 
-Rate limiting is implemented via [slowapi](https://github.com/laurentS/slowapi) with configurable limits per endpoint type:
+Rate limits are enforced per client IP:
 
-| Endpoint Type | Default Limit | Environment Variable |
-|---------------|---------------|---------------------|
-| Sessions | 30/minute | `RATE_LIMIT_SESSIONS_PER_MINUTE` |
-| Analytics | 10/minute | `RATE_LIMIT_ANALYTICS_PER_MINUTE` |
-| Vehicles | 60/minute | `RATE_LIMIT_VEHICLES_PER_MINUTE` |
+| Endpoint Group | Default | Environment Variable |
+|---|---:|---|
+| Sessions | `30/minute` | `RATE_LIMIT_SESSIONS_PER_MINUTE` |
+| Vehicles | `60/minute` | `RATE_LIMIT_VEHICLES_PER_MINUTE` |
+| Analytics | `10/minute` | `RATE_LIMIT_ANALYTICS_PER_MINUTE` |
 
-When rate limited, the API returns `429 Too Many Requests` with a `Retry-After` header.
+Trusted proxy forwarding behavior is controlled with `TRUSTED_PROXIES`.
 
-### Request Size Limits
+## Notes
 
-A maximum request body size of 1MB is enforced. Requests exceeding this limit receive `413 Request Entity Too Large`.
-
----
-
-## CORS
-
-The API supports CORS for browser-based clients. Allowed origins can be configured via the `BACKEND_CORS_ORIGINS` environment variable.
-
-Default development origins:
-- `http://localhost:5000`
-- `http://127.0.0.1:5000`
-
----
-
-## Examples
-
-### Python Example
-
-```python
-import requests
-
-BASE_URL = "http://localhost:8000/api/v1"
-
-# Get all vehicles
-vehicles = requests.get(f"{BASE_URL}/vehicles").json()
-print(f"Loaded {len(vehicles)} vehicles")
-
-```
-
-### JavaScript Example
-
-```javascript
-const BASE_URL = 'http://localhost:8000/api/v1';
-
-async function loadCatalog() {
-  const vehiclesRes = await fetch(`${BASE_URL}/vehicles`);
-  const vehicles = await vehiclesRes.json();
-
-  console.log(`Loaded ${vehicles.length} vehicles`);
-}
-```
-
----
-
-## Interactive API Documentation
-
-When the backend server is running, you can access interactive API documentation:
-
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-
-These provide interactive documentation where you can test endpoints directly in the browser.
+- The authoritative calculation engine is `shared/calculator` (TypeScript).
+- The backend does not expose a public calculation endpoint in this API surface.

@@ -51,6 +51,34 @@ uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 
 Ensure PostgreSQL and Redis are running before starting the backend.
 
+#### Observability Production Defaults (OBS-02)
+
+For production (including Replit deployments), start with these backend environment values:
+
+```bash
+OBSERVABILITY_TRACING_ENABLED=true
+OBSERVABILITY_TRACING_SAMPLE_RATE=0.05
+OBSERVABILITY_TRACING_SERVICE_NAME=tco-web-platform-api
+# Optional: set to OTLP collector endpoint; leave unset to emit sampled spans to stdout logs
+OBSERVABILITY_TRACING_OTLP_ENDPOINT=
+OBSERVABILITY_TRACING_OTLP_HEADERS=
+
+OBSERVABILITY_ALERT_MIN_REQUESTS=20
+OBSERVABILITY_ALERT_ERROR_RATE_THRESHOLD=0.2
+OBSERVABILITY_ALERT_AVG_DURATION_MS_THRESHOLD=1500
+OBSERVABILITY_ALERT_COOLDOWN_SECONDS=300
+# Optional: set to Slack/Teams/Pager bridge webhook
+OBSERVABILITY_ALERT_WEBHOOK_URL=
+OBSERVABILITY_ALERT_WEBHOOK_TIMEOUT_SECONDS=2.0
+```
+
+Operational behavior:
+- API responses include `x-request-id`; sampled traced requests also include `x-trace-id`.
+- Alerts are emitted as structured log events with `event=http.alert`; optional webhook forwarding is supported.
+- Start with the defaults above and tune thresholds after observing live traffic patterns.
+
+See `docs/replit-deployment-runbook.md` for full deployment and alerting workflow details.
+
 #### Frontend Setup
 
 ```bash
@@ -58,7 +86,7 @@ Ensure PostgreSQL and Redis are running before starting the backend.
 cd frontend
 
 # Install dependencies
-bun install
+bun install --frozen-lockfile
 
 # Set up environment (if needed)
 cp .env.example .env
@@ -174,10 +202,10 @@ The test suite includes:
 Run all tests:
 ```bash
 # Unit tests
-cd frontend && bun test
+cd frontend && bun run test
 
 # E2E tests (requires dev server running)
-cd frontend && bunx playwright test
+cd frontend && bun run test:e2e
 ```
 
 ## Database Migrations
@@ -268,19 +296,19 @@ pytest tests/ --cov
 
 # Frontend unit tests (all)
 cd frontend
-bun test
+bun run test
 
 # Calculator verification tests only
 cd frontend
-bun test verification.test.ts
+bun run test -- verification.test.ts
 
 # Run with coverage
 cd frontend
-bun test --coverage
+bunx vitest run --coverage
 
 # E2E tests (requires dev server running on localhost:5000)
 cd frontend
-bunx playwright test
+bun run test:e2e
 
 # E2E tests with UI mode (for debugging)
 cd frontend
@@ -294,7 +322,7 @@ bunx playwright test --ui
 ruff check .
 black .
 isort .
-mypy .
+mypy backend/app/core backend/app/api backend/app/main.py
 
 # TypeScript linting and type checking
 cd frontend
@@ -312,7 +340,7 @@ python scripts/generate_vehicle_catalog_ts.py
 
 # Run verification tests to ensure consistency
 cd frontend
-bun test
+bun run test
 ```
 
 ## API Documentation
@@ -320,7 +348,7 @@ bun test
 See [API.md](./API.md) for complete API documentation including:
 - Available endpoints
 - Request/response schemas
-- Authentication (if applicable)
+- Session authorization and analytics API key requirements
 - Usage examples
 
 ## Documentation

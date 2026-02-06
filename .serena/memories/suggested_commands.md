@@ -1,33 +1,28 @@
-# Suggested Commands
+# Suggested Commands (updated 2026-02-06)
 
-**Note**: Use `bun` instead of `npm` per project conventions.
-
----
-
-# Suggested commands
+Use `bun` for frontend tasks.
 
 Quick start:
-- docker compose up --build
-- python scripts/generate_vehicle_catalog_ts.py
+- `python -m pip install -r requirements-dev.lock.txt`
+- `python scripts/generate_vehicle_catalog_ts.py`
+- `python scripts/validation.py`
+- `uvicorn backend.app.main:app --reload`
+- `cd frontend && bun install --frozen-lockfile && bun run dev`
 
-Backend:
-- python -m pip install -r requirements.txt
-- uvicorn backend.app.main:app --reload
+Backend quality gates:
+- `python -m pytest tests --cov`
+- `mypy backend/app/core backend/app/api backend/app/main.py`
+- `ruff check .`
+- `black .`
+- `isort .`
 
-Frontend:
-- cd frontend && bun install && bun run dev
-- bun run build
-- bun run lint
-- bun run typecheck
+Frontend quality gates:
+- `cd frontend && bun run test`
+- `cd frontend && bun run lint`
+- `cd frontend && bun run typecheck`
+- `cd frontend && bun run build`
+- `cd frontend && bun run test:e2e` (optional local smoke)
 
-Testing:
-- python -m pytest tests --cov
-- cd frontend && bun run test
-
-Lint/format (Python):
-- ruff check .
-- black .
-- isort .
-
-Validation:
-- python scripts/validation.py
+Dependency/security checks:
+- `pip-audit -r requirements.lock.txt`
+- `cd frontend && bun audit`
