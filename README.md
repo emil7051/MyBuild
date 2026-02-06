@@ -27,21 +27,8 @@ The TCO Web Platform helps truck operators get five-minute TCO insights through:
 
 - Python 3.11+
 - Node.js 20+ and Bun 1.0+
-- PostgreSQL 15+ (or use included Docker setup)
-- Redis 7+ (or use included Docker setup)
-
-### Local Development with Docker
-
-The fastest way to get started:
-
-```bash
-# Start all services (frontend, backend, database, cache)
-docker compose up --build
-
-# Access the application
-# Frontend: http://localhost:5000
-# Backend API: http://localhost:8000/api/v1/health
-```
+- PostgreSQL 15+
+- Redis 7+
 
 ### Manual Setup
 
@@ -61,6 +48,8 @@ cd backend && alembic upgrade head
 # Start the backend server
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+Ensure PostgreSQL and Redis are running before starting the backend.
 
 #### Frontend Setup
 
@@ -118,8 +107,7 @@ python scripts/generate_vehicle_catalog_ts.py
 │   └── vehicles.py       # Vehicle specifications
 ├── scripts/              # Code generation and utilities
 ├── tests/                # Backend test suite
-├── archive/              # Historical documentation and legacy Python engine
-└── docker-compose.yml    # Local development orchestration
+└── archive/              # Historical documentation and legacy Python engine
 ```
 
 ## Key Technologies

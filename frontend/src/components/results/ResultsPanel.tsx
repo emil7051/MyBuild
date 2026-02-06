@@ -7,6 +7,7 @@ import SavingsWaterfallChart from '@components/results/SavingsWaterfallChart';
 import SensitivityTornadoChart from '@components/results/SensitivityTornadoChart';
 import { useTCOStore } from '@state/tcoStore';
 import { formatCurrency } from '@utils/format';
+import { getScenarioLabel } from '@utils/scenario';
 
 const ResultsPanel = () => {
   const results = useTCOStore((state) => state.results);
@@ -53,7 +54,7 @@ const ResultsPanel = () => {
           return (
             <Card
               key={result.vehicle_id}
-              title={`${modelName} - ${result.scenario_name}`}
+              title={`${modelName} - ${getScenarioLabel(result.scenario_name)}`}
               subtitle="Cost per kilometre"
             >
               <p className="text-3xl font-semibold text-brand-700">

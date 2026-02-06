@@ -66,6 +66,16 @@ async def _fetch_counts(session_factory):
         return sessions, results, feedback
 
 
+async def _fetch_result_rows(session_factory, session_id):
+    async with session_factory() as session:
+        result = await session.execute(
+            select(CalculationResultRecord).where(
+                CalculationResultRecord.session_id == session_id
+            )
+        )
+        return result.scalars().all()
+
+
 async def _fetch_session(session_factory, session_id):
     async with session_factory() as session:
         return await session.get(SessionRecord, session_id)
@@ -199,6 +209,34 @@ def test_session_service_analytics_summary(async_session_factory) -> None:
     record = asyncio.run(_fetch_session(async_session_factory, response.session_id))
     assert record is not None
     assert record.status == "completed"
+
+
+def test_session_service_normalizes_scenario_label_to_key(
+    async_session_factory,
+) -> None:
+    labelled_results = make_default_results()
+    for result in labelled_results:
+        result.scenario_name = "Baseline"
+
+    payload = make_session_create(results=labelled_results)
+    response = asyncio.run(_create_session(async_session_factory, payload))
+
+    assert all(result.scenario_name == "baseline" for result in response.results)
+
+    stored_rows = asyncio.run(
+        _fetch_result_rows(async_session_factory, response.session_id)
+    )
+    assert stored_rows
+    assert all(row.scenario_name == "baseline" for row in stored_rows)
+
+    session_record = asyncio.run(
+        _fetch_session(async_session_factory, response.session_id)
+    )
+    assert session_record is not None
+    assert all(
+        result["scenario_name"] == "baseline"
+        for result in (session_record.cached_results or [])
+    )
 
 
 def test_session_service_get_session_uses_cache_before_db(

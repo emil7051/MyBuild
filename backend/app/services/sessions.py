@@ -11,7 +11,7 @@ from typing import Iterable, List, Optional
 
 from sqlalchemy import case, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, joinedload
 
 from backend.app.core.cache import cache_session, get_cached_session
 from backend.app.core.security import (
@@ -37,7 +37,25 @@ from backend.app.models.session import (
     SessionUpdate,
     WizardDataPayload,
 )
+from data.scenarios import SCENARIOS
 from data.vehicles import BY_ID
+
+
+_SCENARIO_LABEL_TO_KEY = {
+    scenario.name.casefold(): key for key, scenario in SCENARIOS.items()
+}
+
+
+def _normalize_scenario_identifier(value: str | None, fallback: str) -> str:
+    """Normalize scenario labels/keys to canonical scenario keys."""
+    if not value:
+        return fallback
+
+    normalized_value = value.strip()
+    if normalized_value in SCENARIOS:
+        return normalized_value
+
+    return _SCENARIO_LABEL_TO_KEY.get(normalized_value.casefold(), fallback)
 
 
 class SessionService:
@@ -53,7 +71,10 @@ class SessionService:
         record = SessionRecord(
             status="completed" if payload.results else "draft",
             wizard_state=self._wizard_to_json(payload.wizard_data),
-            cached_results=self._results_to_json(payload.results or []),
+            cached_results=self._results_to_json(
+                payload.results or [],
+                payload.wizard_data.scenario,
+            ),
             last_calculated_at=now if payload.results else None,
             session_secret_hash=hash_secret(session_secret),
         )
@@ -71,13 +92,12 @@ class SessionService:
             await self._insert_feedback(db, record.id, payload.feedback)
 
         await db.commit()
-        await db.refresh(record)
-
-        response = await self._build_response(db, record.id)
+        loaded_record = await self._fetch_session_with_related(db, record.id)
+        response = self._build_response(loaded_record)
         await cache_session(
-            record.id,
+            loaded_record.id,
             response.model_dump(by_alias=True),
-            record.session_secret_hash,
+            loaded_record.session_secret_hash,
         )
 
         create_payload = response.model_dump(by_alias=True)
@@ -106,7 +126,10 @@ class SessionService:
         )
 
         if payload.results is not None:
-            record.cached_results = self._results_to_json(payload.results)
+            record.cached_results = self._results_to_json(
+                payload.results,
+                resolved_wizard.scenario,
+            )
             if payload.results:
                 record.status = "completed"
                 record.last_calculated_at = datetime.now(timezone.utc)
@@ -128,11 +151,12 @@ class SessionService:
 
         await db.commit()
 
-        response = await self._build_response(db, session_id)
+        loaded_record = await self._fetch_session_with_related(db, session_id)
+        response = self._build_response(loaded_record)
         await cache_session(
             session_id,
             response.model_dump(by_alias=True),
-            record.session_secret_hash,
+            loaded_record.session_secret_hash,
         )
         return response
 
@@ -148,14 +172,10 @@ class SessionService:
             verify_session_secret(session_secret, cached["session_secret_hash"])
             return SessionResponse.model_validate(cached["payload"])
 
-        record = await db.get(SessionRecord, session_id)
-        if not record:
-            raise KeyError(f"Unknown session_id '{session_id}'.")
+        record = await self._fetch_session_with_related(db, session_id)
         verify_session_secret(session_secret, record.session_secret_hash)
 
-        await db.refresh(record)
-
-        response = await self._build_response(db, session_id)
+        response = self._build_response(record)
         await cache_session(
             session_id,
             response.model_dump(by_alias=True),
@@ -198,7 +218,6 @@ class SessionService:
         top_vehicles = {vehicle_id: runs for vehicle_id, runs in top_rows.all()}
 
         # BEV vs Diesel comparison metrics (API-006: SQL optimization)
-        # For this we still need to fetch results but we can be more efficient
         (
             bev_win_rate,
             avg_payback,
@@ -218,108 +237,118 @@ class SessionService:
     async def _compute_outcomes_optimized(
         self, db: AsyncSession
     ) -> tuple[Optional[float], Optional[float], Optional[float]]:
-        """Compute BEV vs Diesel outcomes with optimized queries (API-006).
+        """Compute BEV vs Diesel outcomes in a single aggregate query."""
+        bev_pairs: list[tuple[str, str, float]] = []
+        for bev_id, bev_vehicle in BY_ID.items():
+            if bev_vehicle.drivetrain_type != "BEV":
+                continue
+            diesel_id = bev_vehicle.comparison_pair
+            diesel_vehicle = BY_ID.get(diesel_id)
+            if not diesel_vehicle:
+                continue
+            bev_pairs.append(
+                (bev_id, diesel_id, bev_vehicle.msrp - diesel_vehicle.msrp)
+            )
 
-        Uses separate queries for aggregation to minimize memory usage.
-        """
-        # Get BEV vehicle IDs and their diesel comparison pairs
-        bev_vehicles = {
-            vid: v.comparison_pair
-            for vid, v in BY_ID.items()
-            if v.drivetrain_type == "BEV"
-        }
-
-        if not bev_vehicles:
+        if not bev_pairs:
             return None, None, None
-
-        bev_wins = 0
-        comparisons = 0
-        cost_delta_sum = 0.0
-        payback_sum = 0.0
-        payback_count = 0
 
         bev = aliased(CalculationResultRecord)
         diesel = aliased(CalculationResultRecord)
 
-        for bev_id, diesel_id in bev_vehicles.items():
-            bev_vehicle = BY_ID.get(bev_id)
-            diesel_vehicle = BY_ID.get(diesel_id)
-            if not bev_vehicle or not diesel_vehicle:
-                continue
+        diesel_lookup = case(
+            {bev_id: diesel_id for bev_id, diesel_id, _ in bev_pairs},
+            value=bev.vehicle_id,
+            else_=None,
+        )
+        initial_gap_lookup = case(
+            {bev_id: initial_gap for bev_id, _, initial_gap in bev_pairs},
+            value=bev.vehicle_id,
+            else_=None,
+        )
+        annual_savings = diesel.annual_cost - bev.annual_cost
+        payback_expr = case(
+            (annual_savings > 0, initial_gap_lookup / annual_savings),
+            else_=None,
+        )
 
-            initial_gap = bev_vehicle.msrp - diesel_vehicle.msrp
-            annual_savings = diesel.annual_cost - bev.annual_cost
-            payback_expr = case(
-                (annual_savings > 0, initial_gap / annual_savings),
-                else_=None,
+        stmt = (
+            select(
+                func.count().label("comparisons"),
+                func.sum(case((bev.total_cost < diesel.total_cost, 1), else_=0)).label(
+                    "bev_wins"
+                ),
+                func.sum(diesel.total_cost - bev.total_cost).label("cost_delta_sum"),
+                func.sum(payback_expr).label("payback_sum"),
+                func.count(payback_expr).label("payback_count"),
             )
-
-            stmt = (
-                select(
-                    func.count().label("comparisons"),
-                    func.sum(
-                        case((bev.total_cost < diesel.total_cost, 1), else_=0)
-                    ).label("bev_wins"),
-                    func.sum(diesel.total_cost - bev.total_cost).label(
-                        "cost_delta_sum"
-                    ),
-                    func.sum(payback_expr).label("payback_sum"),
-                    func.count(payback_expr).label("payback_count"),
-                )
-                .select_from(bev)
-                .join(diesel, bev.session_id == diesel.session_id)
-                .where(bev.vehicle_id == bev_id, diesel.vehicle_id == diesel_id)
+            .select_from(bev)
+            .join(
+                diesel,
+                (bev.session_id == diesel.session_id)
+                & (diesel.vehicle_id == diesel_lookup),
             )
+            .where(bev.vehicle_id.in_([bev_id for bev_id, _, _ in bev_pairs]))
+        )
 
-            row = (await db.execute(stmt)).one()
-            if row.comparisons:
-                comparisons += row.comparisons
-                bev_wins += row.bev_wins or 0
-                cost_delta_sum += row.cost_delta_sum or 0.0
-                payback_sum += row.payback_sum or 0.0
-                payback_count += row.payback_count or 0
+        row = (await db.execute(stmt)).one()
+        comparisons = row.comparisons or 0
+        bev_wins = row.bev_wins or 0
+        cost_delta_sum = row.cost_delta_sum or 0.0
+        payback_sum = row.payback_sum or 0.0
+        payback_count = row.payback_count or 0
 
         bev_win_rate = (bev_wins / comparisons) if comparisons else None
         avg_payback = (payback_sum / payback_count) if payback_count else None
         avg_cost_delta = (cost_delta_sum / comparisons) if comparisons else None
         return bev_win_rate, avg_payback, avg_cost_delta
 
-    async def _build_response(
+    async def _fetch_session_with_related(
         self, db: AsyncSession, session_id: str
-    ) -> SessionResponse:
-        record = await db.get(SessionRecord, session_id)
+    ) -> SessionRecord:
+        """Load session with related profile/feedback in one DB round trip."""
+        stmt = (
+            select(SessionRecord)
+            .options(
+                joinedload(SessionRecord.operator_profile),
+                joinedload(SessionRecord.feedback_entries),
+            )
+            .where(SessionRecord.id == session_id)
+        )
+        record = (await db.execute(stmt)).unique().scalar_one_or_none()
         if not record:
             raise KeyError(f"Unknown session_id '{session_id}'.")
-        await db.refresh(record)
+        return record
 
+    def _build_response(self, record: SessionRecord) -> SessionResponse:
         wizard_data = WizardDataPayload.model_validate(record.wizard_state)
-        results = [
-            CalculationResponse.model_validate(result)
-            for result in (record.cached_results or [])
-        ]
-
-        operator_profile_record = await db.scalar(
-            select(OperatorProfileRecord).where(
-                OperatorProfileRecord.session_id == session_id
+        results = []
+        for stored_result in record.cached_results or []:
+            normalized_result = dict(stored_result)
+            normalized_result["scenario_name"] = _normalize_scenario_identifier(
+                normalized_result.get("scenario_name"),
+                wizard_data.scenario,
             )
-        )
-        feedback_record = await db.scalars(
-            select(FeedbackRecord)
-            .where(FeedbackRecord.session_id == session_id)
-            .order_by(FeedbackRecord.created_at.desc())
-            .limit(1)
-        )
-        feedback = feedback_record.first()
+            results.append(CalculationResponse.model_validate(normalized_result))
+
+        feedback_record = None
+        if record.feedback_entries:
+            feedback_record = max(
+                record.feedback_entries,
+                key=lambda item: item.created_at,
+            )
 
         operator_profile = (
-            self._map_operator_profile(operator_profile_record)
-            if operator_profile_record
+            self._map_operator_profile(record.operator_profile)
+            if record.operator_profile
             else None
         )
-        feedback_payload = self._map_feedback(feedback) if feedback else None
+        feedback_payload = (
+            self._map_feedback(feedback_record) if feedback_record else None
+        )
 
         return SessionResponse(
-            session_id=session_id,
+            session_id=record.id,
             status=record.status,
             wizard_data=wizard_data,
             results=results,
@@ -391,13 +420,19 @@ class SessionService:
             )
         )
         for result in results:
+            scenario_key = _normalize_scenario_identifier(
+                result.scenario_name,
+                wizard_data.scenario,
+            )
+            serialized_result = result.model_dump(mode="json")
+            serialized_result["scenario_name"] = scenario_key
             db.add(
                 CalculationResultRecord(
                     session_id=session_id,
                     vehicle_id=result.vehicle_id,
-                    scenario_name=result.scenario_name,
+                    scenario_name=scenario_key,
                     purchase_method=wizard_data.purchase_method,
-                    result_payload=result.model_dump(mode="json"),
+                    result_payload=serialized_result,
                     total_cost=result.total_cost,
                     annual_cost=result.annual_cost,
                     cost_per_km=result.cost_per_km,
@@ -446,8 +481,19 @@ class SessionService:
         return payload.model_dump(by_alias=True, exclude_none=True)
 
     @staticmethod
-    def _results_to_json(results: Iterable[CalculationResponse]) -> List[dict]:
-        return [result.model_dump(by_alias=True) for result in results]
+    def _results_to_json(
+        results: Iterable[CalculationResponse],
+        fallback_scenario_key: str,
+    ) -> List[dict]:
+        normalized_results: List[dict] = []
+        for result in results:
+            serialized_result = result.model_dump(by_alias=True)
+            serialized_result["scenario_name"] = _normalize_scenario_identifier(
+                result.scenario_name,
+                fallback_scenario_key,
+            )
+            normalized_results.append(serialized_result)
+        return normalized_results
 
     @staticmethod
     def _unique_vehicle_ids(wizard_data: WizardDataPayload) -> List[str]:

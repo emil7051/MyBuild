@@ -15,13 +15,15 @@ Historical documentation and legacy code are archived in the `archive/` folder:
 
 ## Project Structure & Module Organization
 
-The project follows a monorepo structure: the TypeScript calculator in `shared/calculator` is the source-of-truth engine, backed by Python data under `data/` and regenerated TypeScript contracts in `shared/types`. `scripts/` carries `generate_vehicle_catalog_ts.py` and `validation.py`, and Docker assets keep the Postgres/Redis topology reproducible.
+The project follows a monorepo structure: the TypeScript calculator in `shared/calculator` is the source-of-truth engine, backed by Python data under `data/` and regenerated TypeScript contracts in `shared/types`. `scripts/` carries `generate_vehicle_catalog_ts.py` and `validation.py`.
 
 ## Build, Test, and Development Commands
 
 **Quick Start:**
-- `docker compose up --build` - Start all services (recommended for development)
-- Visit `http://localhost:5000` for frontend, `http://localhost:8000/docs` for API docs
+- Ensure PostgreSQL and Redis are running
+- Start backend: `uvicorn backend.app.main:app --reload`
+- Start frontend: `cd frontend && bun install && bun run dev`
+- Visit `http://localhost:5000` for frontend and `http://localhost:8000/docs` for API docs
 
 **Python Setup:**
 - `python -m pip install -r requirements.txt -r requirements-dev.txt && pre-commit install` primes Python tooling
@@ -58,7 +60,7 @@ Commits stay concise and imperative ("Add web app backend, frontend, and shared 
 
 ## Security & Configuration Tips
 
-Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI, scripts, and Docker read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit` and `bandit` for Python; use `bun pm untrusted` or equivalent to audit frontend dependencies when dependencies change. Regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.
+Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI and scripts read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit` and `bandit` for Python; use `bun pm untrusted` or equivalent to audit frontend dependencies when dependencies change. Regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.
 
 ## Serena MCP Best Practices
 

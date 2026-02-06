@@ -89,5 +89,8 @@ def run_migrations_offline(output_file: str | None = None) -> None:
     """
     config = _get_alembic_config()
     if output_file:
-        config.output_buffer = open(output_file, "w")
+        with open(output_file, "w", encoding="utf-8") as output_buffer:
+            config.output_buffer = output_buffer
+            command.upgrade(config, "head", sql=True)
+        return
     command.upgrade(config, "head", sql=True)

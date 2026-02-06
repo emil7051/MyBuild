@@ -980,7 +980,7 @@ const calculateTcoWithDetails = (payload: CalculationRequestPayload): TcoComputa
   return {
     response: {
       vehicle_id: vehicle.vehicle_id,
-      scenario_name: scenario.name,
+      scenario_name: sanitizedPayload.scenario_name,
       total_cost: totalCost,
       annual_cost: annualCost,
       cost_per_km: costPerKm,

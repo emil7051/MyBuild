@@ -104,7 +104,7 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | 8 | Python/TypeScript rebate calculation logic diverges (dormant) | 2 | 5 | **10** | Cross-language parity |
 | 9 | No `.dockerignore`; backend image contains tests, .git, archive | 4 | 2 | **8** | Docker |
 
-**Update (2026-02-06):** CALC-01 through CALC-08 and FE-01 through FE-03 have been completed and moved to the `DONE` section.
+**Update (2026-02-06):** CALC-01 through CALC-08, FE-01 through FE-03, and BE-01 through BE-05 have been completed and moved to the `DONE` section.
 
 ---
 
@@ -112,31 +112,7 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 
 ### 4.1 Correctness & Reliability
 
-
-#### BE-01: Request size middleware allows side effects before rejection
-- **Evidence:** `backend/app/core/middleware.py:24,66,68,72`. The middleware calls `call_next` before checking `size_exceeded`, so handlers can run and commit side effects on partial/truncated bodies before the 413 is returned. For chunked requests without `Content-Length`, the header-based size check is bypassed entirely. The implementation also relies on a private `request._receive` override that could break on ASGI framework upgrades.
-- **Impact:** Oversized or malicious payloads can trigger partial writes or inconsistent state. Chunked requests can bypass the size check entirely.
-- **Decision:** Deferred. The risk is low given the app's threat model (small JSON payloads for a TCO calculator). See "Deferred Items" in Section 8. Questions to resolve: What is the actual threat model at current scale? Does Replit's infrastructure provide any upstream request size limits? Is the partial-write risk real given the current endpoint behavior?
-
-#### BE-02: `_build_response` double-fetches session records
-- **Evidence:** `backend/app/services/sessions.py:290-330`. Calls `db.get()` then `db.refresh()` (two DB round trips), then makes separate queries for operator profile and feedback. Total: 4-5 queries per response.
-- **Impact:** Each session read/update involves multiple unnecessary database round trips.
-- **Recommendation:** Pass the already-loaded record. Use eager loading (`selectinload`/`joinedload`) for related records.
-
-#### BE-03: Analytics executes N queries per BEV-diesel pair
-- **Evidence:** `backend/app/services/sessions.py:244-280`. Loop executes one query per BEV-diesel comparison pair. With 8 BEV vehicles, that is 8 queries per analytics call.
-- **Impact:** At least 12 queries per analytics summary call.
-- **Recommendation:** Rewrite as a single query with `UNION ALL` or conditional aggregation.
-
-#### BE-04: Scenario identifier drift in stored results
-- **Evidence:** `shared/types/tco.types.ts:74`, `shared/calculator/tcoCalculator.ts:899`, `backend/app/services/sessions.py:395`. Calculator returns `scenario.name` (display label) in results. Request payloads and other parts of the system use scenario keys.
-- **Impact:** Stored results contain mixed identifiers, complicating analytics filters, data exports, or future migrations that assume a consistent key.
-- **Recommendation:** Store both `scenario_key` and `scenario_label`, or change calculator to return the key and derive the label in the UI. If changing stored values, backfill existing rows or version the API.
-
-#### BE-05: File handle leak in offline migration generator
-- **Evidence:** `backend/app/db/session.py:81-92`. `run_migrations_offline` opens a file with `open(output_file, "w")` but never closes it (no context manager or explicit `close()`).
-- **Impact:** Minor resource leak in CLI tooling. Could matter in long-lived processes or repeated invocations.
-- **Recommendation:** Wrap with `with open(...) as f:` context manager.
+Backend items `BE-01` through `BE-05` are complete and have been moved to Section 10 (`DONE`) at the bottom of this document.
 
 ### 4.2 Security & Privacy
 
@@ -541,14 +517,12 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | MAINT-05 | Delete dead WizardVehicleStep | **Low** | XS | Low | 2 | None |
 | DEAD-02 | Remove unused dev dependencies | **Low** | S | Low | 2 | None |
 | MAINT-06 | Extract buildComparisonPayload utility | **Low** | S | Low | 2 | None |
-| BE-05 | Fix file handle leak in offline migration | **Low** | XS | Low | 2 | None |
 | DEAD-06 | Remove unused fetchSession helper | **Low** | XS | Low | 2 | None |
 | DEAD-07 | Remove unused ValueError handler | **Low** | XS | Low | 2 | None |
 | A11Y-01 | Add chart text alternatives | **Low** | M | Low | 3 | None |
 | DEP-01 | Migrate ESLint 9 + @typescript-eslint v8 | **Low** | L | Med | 3 | None |
 | SEC-01 | Add non-root Docker users | **Low** | S | Low | 3 | Dev-only (Replit manages prod containers) |
 | OPS-01 | Document Replit deployment process | **Low** | S | Low | 3 | None |
-| BE-04 | Fix scenario identifier drift (key vs label) | **Med** | M | Med | 3 | DB migration |
 | OPS-08 | Split dev/prod Docker Compose configs | **Low** | S | Low | 3 | Dev-only convenience |
 | OBS-01 | Add structured logging (Replit-compatible) | **Low** | M | Low | 3 | None |
 
@@ -614,13 +588,12 @@ This is a breaking change that touches multiple layers. Implementation sequence:
 1. Remove unused Python deps (runtime and dev)
 2. Consolidate on ruff
 3. Delete dead code (WizardVehicleStep, vestigial hook, constants.future.ts duplicates, fetchSession helper, unused ValueError handler)
-4. Fix file handle leak in offline migration
-5. Refactor repetitive sanitization to data-driven
-6. Centralize calculator override limits from `OVERRIDE_LIMITS`
-7. Unify duty-cycle validation across layers. **Implementation note:** Must be coordinated across all three layers (store, calculator, backend) simultaneously to avoid introducing new inconsistencies between layers during the transition.
-8. Narrow cache module exception handling
-9. Offload bcrypt to worker thread (`anyio.to_thread.run_sync`)
-10. Add Dependabot/Renovate configuration
+4. Refactor repetitive sanitization to data-driven
+5. Centralize calculator override limits from `OVERRIDE_LIMITS`
+6. Unify duty-cycle validation across layers. **Implementation note:** Must be coordinated across all three layers (store, calculator, backend) simultaneously to avoid introducing new inconsistencies between layers during the transition.
+7. Narrow cache module exception handling
+8. Offload bcrypt to worker thread (`anyio.to_thread.run_sync`)
+9. Add Dependabot/Renovate configuration
 
 **Rollback:** Each item is a separate PR (except CALC-06 which is one atomic PR). Revert any single PR if issues arise.
 **Verification:** Full CI pass. Calculator parity tests pass with updated verification data. Coverage increases.
@@ -636,8 +609,7 @@ This is a breaking change that touches multiple layers. Implementation sequence:
 5. Add accessibility improvements (charts, stepper, error messages)
 6. Document Replit deployment process
 7. Add E2E tests to CI
-8. Fix scenario identifier drift (store key alongside label, backfill existing rows)
-9. Add structured logging (Replit-compatible)
+8. Add structured logging (Replit-compatible)
 
 **Approach:** Use Branch by Abstraction for the constants type change (add new typed interface alongside `ConstantCatalog`, migrate consumers, then remove the old type). Use feature flags or route-level code splitting for lazy loading.
 
@@ -711,11 +683,6 @@ The session secret is returned in both JSON body and HttpOnly cookie. The JSON b
 - *Questions to resolve:* Are there non-browser API consumers (scripts, Postman, tests) that rely on the JSON response? Is the cookie migration from localStorage complete? What breaks if the JSON body is removed? Is the dual-return a deliberate transitional design or an oversight?
 - *If resolved:* Cookie-only is more secure. But removing JSON may break existing consumers.
 
-**Request size middleware (BE-01):**
-The middleware lets handlers run before rejecting oversized payloads (413). Chunked requests bypass the size check.
-- *Questions to resolve:* What is the realistic threat model for a TCO calculator? Does Replit provide upstream request size limits that make this redundant? Do any endpoints write to the database before reading the full body (making partial writes a real risk)? Is the current behavior actually causing issues?
-- *If resolved:* Fix is straightforward (abort before `call_next`) but may not be worth the effort given low risk at current scale.
-
 ### Assumptions (verified or updated)
 
 - **Deployment target:** Replit with Replit-managed database. **Confirmed.** Docker hardening items are dev-environment-only improvements.
@@ -723,7 +690,7 @@ The middleware lets handlers run before rejecting oversized payloads (413). Chun
 - **PostgreSQL version:** Docker compose uses `postgres:15-alpine`. Replit-managed DB version may differ.
 - **Browser support:** No browserslist config found beyond the env var workaround. Assumed modern browsers (Chrome/Firefox/Safari/Edge latest 2 versions).
 - **Session secret migration:** The code handles both cookie-based and header-based session secrets. Assumed this is transitional (see Deferred Items above).
-- **Analytics performance targets:** No SLOs for analytics endpoints found. Current N-query approach (BE-03) is acceptable at current scale (~8 BEVs) but needs attention if the vehicle catalog grows.
+- **Analytics performance targets:** No SLOs for analytics endpoints found. BE-03 was implemented with a single aggregate query; revisit only if business-level analytics SLOs are introduced.
 - **Dependency update tooling:** No Dependabot or Renovate config was found. Assumed no hidden update automation exists elsewhere.
 
 ---
@@ -798,6 +765,11 @@ Completed items moved from active backlog/planning lists.
 | FE-01 | **DONE** | 2026-02-06 | Added a top-level React error boundary with fallback and retry/reload actions (`frontend/src/components/shared/ErrorBoundary.tsx`, wired in `frontend/src/main.tsx`). |
 | FE-02 | **DONE** | 2026-02-06 | Integrated `VehicleParamsForm` into React Hook Form by adding `vehicleParamOverrides` to the shared schema and step validation flow (`frontend/src/forms/wizardForm.ts`, `frontend/src/pages/WizardPage.tsx`, `frontend/src/components/wizard/VehicleParamsForm.tsx`). |
 | FE-03 | **DONE** | 2026-02-06 | Replaced simplified payback interpolation with year-by-year nominal cash-flow timelines via shared calculator helper (`shared/calculator/tcoCalculator.ts`, `frontend/src/components/results/PaybackChart.tsx`). |
+| BE-01 | **DONE** | 2026-02-06 | Replaced request-size middleware with ASGI-level pre-handler enforcement for `Content-Length` and chunked bodies; added tests preventing side effects on oversized requests (`backend/app/core/middleware.py`, `tests/test_middleware.py`). |
+| BE-02 | **DONE** | 2026-02-06 | Refactored session response assembly to avoid double-fetch/refresh and use eager-loaded related records (`backend/app/services/sessions.py`). |
+| BE-03 | **DONE** | 2026-02-06 | Reworked BEV-vs-diesel analytics from per-pair query loop to a single aggregate query (`backend/app/services/sessions.py`). |
+| BE-04 | **DONE** | 2026-02-06 | Standardized scenario identifiers to canonical keys, preserved UI label display, and added migration backfill (`shared/calculator/tcoCalculator.ts`, `backend/app/services/sessions.py`, `backend/alembic/versions/20260206_000005_005_normalize_scenario_keys.py`, `frontend/src/utils/scenario.ts`). |
+| BE-05 | **DONE** | 2026-02-06 | Fixed offline migration SQL output file-handle leak with a context manager (`backend/app/db/session.py`). |
 
 
 #### CALC-01: `calculateAnnualisedCost` uses ordinary annuity instead of annuity-due

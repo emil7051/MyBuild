@@ -97,5 +97,4 @@ SQLAlchemy Async Models define the database schema, including `SessionRecord`, `
 ## Development Tools
 
 **Pre-commit Hooks**: Enforce code quality standards.
-**Docker Compose**: Orchestrates frontend, backend, Postgres, and Redis.
 **CI/CD**: GitHub Actions for linting, type checking, and testing.

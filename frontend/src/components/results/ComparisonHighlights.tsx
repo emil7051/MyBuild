@@ -1,6 +1,7 @@
 import Card from '@components/shared/Card';
 import { useTCOStore } from '@state/tcoStore';
 import { formatCurrency, formatCurrencyCompact, formatPerKilometre } from '@utils/format';
+import { getScenarioLabel } from '@utils/scenario';
 
 const ComparisonHighlights = () => {
   const results = useTCOStore((state) => state.results);
@@ -43,7 +44,7 @@ const ComparisonHighlights = () => {
           </p>
           <p className="text-2xl font-heading font-bold text-black">{leaderName}</p>
           <p className="text-sm font-medium text-slate-800 mt-2">
-            {formatPerKilometre(leader.cost_per_km)} · {leader.scenario_name}
+            {formatPerKilometre(leader.cost_per_km)} · {getScenarioLabel(leader.scenario_name)}
           </p>
           <p className="text-xs text-slate-500 mt-1">
             Total cost {formatCurrencyCompact(leader.total_cost)}

@@ -92,7 +92,8 @@ Always use `bun` instead of `npm` or `yarn` for frontend operations.
 
 **Development:**
 ```bash
-docker compose up --build          # Start all services
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+cd frontend && bun install && bun run dev -- --host 0.0.0.0 --port 5000
 # Frontend: http://localhost:5000
 # Backend API: http://localhost:8000/docs
 ```
