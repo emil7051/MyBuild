@@ -19,8 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def _normalize_table_scenarios(table_name: str) -> None:
-    op.execute(
-        f"""
+    op.execute(f"""
         UPDATE {table_name}
         SET scenario_name = CASE
             WHEN lower(trim(scenario_name)) = 'baseline' THEN 'baseline'
@@ -29,8 +28,7 @@ def _normalize_table_scenarios(table_name: str) -> None:
             WHEN lower(trim(scenario_name)) = 'oil crisis' THEN 'oil_crisis'
             ELSE scenario_name
         END
-        """
-    )
+        """)
 
 
 def upgrade() -> None:
