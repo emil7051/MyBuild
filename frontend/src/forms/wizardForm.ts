@@ -171,6 +171,7 @@ export const wizardFormSchema = z.object({
     longHaul: 15,
   } satisfies DutyCycle),
   overrides: overridesSchema.default({}),
+  vehicleParamOverrides: z.record(vehicleParamOverridesSchema).default({}),
 });
 
 export type WizardFormValues = z.infer<typeof wizardFormSchema>;

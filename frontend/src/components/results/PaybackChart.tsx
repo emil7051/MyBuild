@@ -1,4 +1,6 @@
 import Card from '@components/shared/Card';
+import { calculateNominalCostTimeline } from '@shared/calculator';
+import type { CalculationRequestPayload } from '@shared/types/tco.types';
 import { useTCOStore } from '@state/tcoStore';
 import { formatCurrency } from '@utils/format';
 import {
@@ -15,13 +17,9 @@ import {
 import type { TooltipProps } from 'recharts';
 import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
-// Brand colors
 const DIESEL_COLOR = '#EA5300';
 const ELECTRIC_COLOR = '#00FFC7';
 const PAYBACK_COLOR = '#FFC700';
-
-// 15-year vehicle life (from constants)
-const VEHICLE_LIFE = 15;
 
 interface CumulativeCostData {
   year: number;
@@ -49,31 +47,25 @@ const PaybackTooltip = ({ active, payload, label }: TooltipProps<ValueType, Name
 const PaybackChart = () => {
   const results = useTCOStore((state) => state.results);
   const vehicleDetails = useTCOStore((state) => state.vehicleDetails);
+  const wizardData = useTCOStore((state) => state.wizardData);
 
   if (!results.length) {
     return (
-      <Card
-        title="Payback timeline"
-        subtitle="When does switching to electric break even?"
-      >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
+      <Card title="Payback timeline" subtitle="When does switching to electric break even?">
+        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
           <p className="text-sm text-slate-500">No results to display</p>
         </div>
       </Card>
     );
   }
 
-  // Find diesel and BEV results
   const dieselResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'Diesel');
   const bevResult = results.find((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'BEV');
 
   if (!dieselResult || !bevResult) {
     return (
-      <Card
-        title="Payback timeline"
-        subtitle="When does switching to electric break even?"
-      >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
+      <Card title="Payback timeline" subtitle="When does switching to electric break even?">
+        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
           <p className="text-sm text-slate-500">
             Compare both diesel and electric vehicles to see payback timeline
           </p>
@@ -82,89 +74,92 @@ const PaybackChart = () => {
     );
   }
 
+  const commonPayload = {
+    scenario_name: wizardData.scenario,
+    purchase_method: wizardData.purchaseMethod,
+    duty_cycle: wizardData.dutyCycle,
+    overrides: wizardData.overrides,
+  } as const;
+
+  const dieselPayload: CalculationRequestPayload = {
+    vehicle_id: dieselResult.vehicle_id,
+    ...commonPayload,
+    vehicle_overrides: wizardData.vehicleParamOverrides?.[dieselResult.vehicle_id],
+  };
+  const bevPayload: CalculationRequestPayload = {
+    vehicle_id: bevResult.vehicle_id,
+    ...commonPayload,
+    vehicle_overrides: wizardData.vehicleParamOverrides?.[bevResult.vehicle_id],
+  };
+
+  const dieselTimeline = calculateNominalCostTimeline(dieselPayload);
+  const bevTimeline = calculateNominalCostTimeline(bevPayload);
+  const pointCount = Math.min(dieselTimeline.length, bevTimeline.length);
+  const data: CumulativeCostData[] = Array.from({ length: pointCount }, (_, idx) => ({
+    year: dieselTimeline[idx].year,
+    diesel: dieselTimeline[idx].cumulativeCost,
+    bev: bevTimeline[idx].cumulativeCost,
+  }));
+
+  if (!data.length) {
+    return (
+      <Card title="Payback timeline" subtitle="When does switching to electric break even?">
+        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
+          <p className="text-sm text-slate-500">Unable to build payback timeline.</p>
+        </div>
+      </Card>
+    );
+  }
+
+  let paybackYear: number | null = null;
+  if (data[0].bev <= data[0].diesel) {
+    paybackYear = 0;
+  } else {
+    for (let i = 1; i < data.length; i += 1) {
+      const prev = data[i - 1];
+      const curr = data[i];
+      const prevDiff = prev.bev - prev.diesel;
+      const currDiff = curr.bev - curr.diesel;
+
+      if (prevDiff > 0 && currDiff <= 0) {
+        const diffDelta = prevDiff - currDiff;
+        paybackYear =
+          Math.abs(diffDelta) < 1e-9 ? curr.year : prev.year + prevDiff / diffDelta;
+        break;
+      }
+    }
+  }
+
   const dieselName = vehicleDetails[dieselResult.vehicle_id]?.model_name ?? 'Diesel';
   const bevName = vehicleDetails[bevResult.vehicle_id]?.model_name ?? 'Electric';
-
-  // Calculate cumulative costs for each year
-  // Using annual_cost as the yearly operating cost, scaled from total_cost
-  const dieselAnnualCost = dieselResult.annual_cost;
-  const bevAnnualCost = bevResult.annual_cost;
-
-  // Upfront costs are purchase_cost only (which includes stamp duty but excludes financing_cost).
-  // financing_cost is the total nominal interest over the loan term, NOT an upfront amount.
-  const dieselUpfront = dieselResult.breakdown.upfront_costs.purchase_cost;
-  const bevUpfront = bevResult.breakdown.upfront_costs.purchase_cost;
-
-  // Calculate cumulative costs over the vehicle life
-  const data: CumulativeCostData[] = [];
-  let dieselCumulative = dieselUpfront;
-  let bevCumulative = bevUpfront;
-
-  for (let year = 0; year <= VEHICLE_LIFE; year++) {
-    if (year === 0) {
-      data.push({ year, diesel: dieselUpfront, bev: bevUpfront });
-    } else {
-      dieselCumulative += dieselAnnualCost;
-      bevCumulative += bevAnnualCost;
-      data.push({ year, diesel: dieselCumulative, bev: bevCumulative });
-    }
-  }
-
-  // Find payback year (where BEV becomes cheaper)
-  let paybackYear: number | null = null;
-  for (let i = 1; i < data.length; i++) {
-    const prev = data[i - 1];
-    const curr = data[i];
-    // Check if BEV crosses below diesel in this year
-    if (prev.bev >= prev.diesel && curr.bev < curr.diesel) {
-      // Linear interpolation for more accurate payback point
-      const dieselSlope = curr.diesel - prev.diesel;
-      const bevSlope = curr.bev - prev.bev;
-      const slopeDiff = dieselSlope - bevSlope;
-
-      // Guard against equal slopes (parallel lines) which would cause division by zero
-      // This should be rare since we already detected a crossing, but guard defensively
-      if (Math.abs(slopeDiff) < 0.01) {
-        // Lines are nearly parallel - use the midpoint of the crossing year
-        paybackYear = prev.year + 0.5;
-      } else {
-        const yearFraction = (prev.bev - prev.diesel) / slopeDiff;
-        paybackYear = prev.year + yearFraction;
-      }
-      break;
-    }
-  }
-
-  // If BEV starts cheaper, payback is immediate
-  if (data[0].bev < data[0].diesel) {
-    paybackYear = 0;
-  }
-
-  // Calculate total savings at end of life
-  const finalDiesel = data[data.length - 1].diesel;
-  const finalBev = data[data.length - 1].bev;
-  const totalSavings = finalDiesel - finalBev;
+  const finalPoint = data[data.length - 1];
+  const horizonYears = finalPoint.year;
+  const totalSavings = finalPoint.diesel - finalPoint.bev;
 
   return (
     <Card
       title="Payback timeline"
-      subtitle="Cumulative cost comparison (upfront purchase + annual operating costs)"
+      subtitle="Cumulative nominal cash costs (upfront purchase, financing schedule, annual operating costs, and residual value)"
     >
       <div className="mb-4">
         {paybackYear !== null ? (
           <p className="text-sm text-slate-600">
             Electric breaks even at <span className="font-semibold text-black">year {paybackYear.toFixed(1)}</span>
             {totalSavings > 0 && (
-              <>, saving <span className="font-semibold text-black">{formatCurrency(totalSavings)}</span> over {VEHICLE_LIFE} years</>
+              <>
+                , saving <span className="font-semibold text-black">{formatCurrency(totalSavings)}</span> over{' '}
+                {horizonYears} years
+              </>
             )}
           </p>
         ) : totalSavings > 0 ? (
           <p className="text-sm text-slate-600">
-            Electric saves <span className="font-semibold text-black">{formatCurrency(totalSavings)}</span> over {VEHICLE_LIFE} years
+            Electric saves <span className="font-semibold text-black">{formatCurrency(totalSavings)}</span> over{' '}
+            {horizonYears} years
           </p>
         ) : (
           <p className="text-sm text-slate-600">
-            Diesel remains cheaper over the {VEHICLE_LIFE}-year horizon
+            Diesel remains cheaper over the {horizonYears}-year horizon
           </p>
         )}
       </div>
@@ -184,7 +179,7 @@ const PaybackChart = () => {
           <Tooltip content={<PaybackTooltip />} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
 
-          {paybackYear !== null && paybackYear > 0 && paybackYear < VEHICLE_LIFE && (
+          {paybackYear !== null && paybackYear > 0 && paybackYear < horizonYears && (
             <ReferenceLine
               x={paybackYear}
               stroke={PAYBACK_COLOR}

@@ -104,7 +104,7 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | 8 | Python/TypeScript rebate calculation logic diverges (dormant) | 2 | 5 | **10** | Cross-language parity |
 | 9 | No `.dockerignore`; backend image contains tests, .git, archive | 4 | 2 | **8** | Docker |
 
-**Update (2026-02-06):** CALC-01, CALC-02, CALC-03, and CALC-04 have been completed and moved to the `DONE` section.
+**Update (2026-02-06):** CALC-01 through CALC-08 and FE-01 through FE-03 have been completed and moved to the `DONE` section.
 
 ---
 
@@ -112,22 +112,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 
 ### 4.1 Correctness & Reliability
 
-
-#### FE-01: Missing Error Boundary
-- **Evidence:** No `ErrorBoundary` component in `frontend/src/`. No `componentDidCatch` or `getDerivedStateFromError` usage. Searched entire `src/`.
-- **Impact:** Any React rendering error crashes the entire app with a white screen. No recovery path.
-- **Recommendation:** Add a top-level error boundary with a user-friendly fallback UI and retry mechanism.
-
-#### FE-02: `VehicleParamsForm` validation bypasses React Hook Form
-- **Evidence:** `VehicleParamsForm.tsx:28-83` uses its own `useState<FieldErrors>` and manual Zod validation instead of integrating with the React Hook Form context.
-- **Impact:** The wizard "Next" button validation doesn't check vehicle parameter overrides. Users can proceed with invalid overrides.
-- **Recommendation:** Integrate vehicle param overrides into the React Hook Form schema.
-- **Codex verification note (2026-02-06):** Field-level Zod `safeParse` at `VehicleParamsForm.tsx:52` prevents invalid overrides from entering state. The bypass concern is an architecture consistency issue (parallel validation systems), not a user-facing correctness bug. Downgraded from risk table accordingly.
-
-#### FE-03: PaybackChart uses simplified linear interpolation on NPV data
-- **Evidence:** `PaybackChart.tsx:18-50`. Calculates payback by dividing `total_cost` by `VEHICLE_LIFE` to get a per-year cost rate. This assumes costs are evenly distributed, but early years have higher financing costs and later years have battery replacement.
-- **Impact:** Payback year displayed could be materially inaccurate for users making purchasing decisions.
-- **Decision:** Compute year-by-year nominal cash flows for accurate payback period. The calculator already computes per-year values internally, so the data is available.
 
 #### BE-01: Request size middleware allows side effects before rejection
 - **Evidence:** `backend/app/core/middleware.py:24,66,68,72`. The middleware calls `call_next` before checking `size_exceeded`, so handlers can run and commit side effects on partial/truncated bodies before the 413 is returned. For chunked requests without `Content-Length`, the header-based size check is bypassed entirely. The implementation also relies on a private `request._receive` override that could break on ASGI framework upgrades.
@@ -532,7 +516,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | MAINT-03 | Add missing test deps to requirements-dev.txt | **High** | XS | Low | 1 | None |
 | SEC-02 | Create .dockerignore files | **Med** | XS | Low | 1 | None |
 | OPS-06 | Add Docker health checks | **Med** | S | Low | 1 | None |
-| FE-01 | Add React Error Boundary | **Med** | S | Low | 1 | None |
 | MAINT-07 | Enable react-hooks/recommended in ESLint | **Med** | XS | Low | 1 | None |
 | SEC-05 | Narrow cache.py exception handling | **Med** | S | Low | 2 | None |
 | CALC-05 | Align Python/TS rebate calculation logic | **Med** | S | Low | 2 | None |
@@ -551,8 +534,7 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | MAINT-11 | Centralize calculator override limits from OVERRIDE_LIMITS | **Med** | M | Low | 2 | AI-01, Regen TS |
 | MAINT-12 | Unify duty-cycle validation across layers | **Med** | M | Med | 2 | None |
 | DEP-07 | Add Dependabot/Renovate for dependency updates | **Med** | S | Low | 2 | None |
-| AI-07 | Surface frontend persist errors to users | **Med** | S | Low | 2 | FE-01 |
-| FE-03 | PaybackChart: compute year-by-year cash flows | **Med** | M | Low | 2 | None |
+| AI-07 | Surface frontend persist errors to users | **Med** | S | Low | 2 | None (FE-01 complete) |
 | CALC-06 | Restructure CostBreakdown into named groups | **Med** | L | Med | 2 | See CALC-06 sub-plan |
 | MAINT-08 | Generate strongly-typed constants interface | **Med** | M | Med | 3 | Update generator |
 | MAINT-04 | Remove duplicates from constants.future.ts | **Low** | XS | Low | 2 | None |
@@ -562,7 +544,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | BE-05 | Fix file handle leak in offline migration | **Low** | XS | Low | 2 | None |
 | DEAD-06 | Remove unused fetchSession helper | **Low** | XS | Low | 2 | None |
 | DEAD-07 | Remove unused ValueError handler | **Low** | XS | Low | 2 | None |
-| FE-02 | Integrate VehicleParamsForm with RHF (architecture consistency, not correctness bug) | **Low** | M | Med | 3 | None |
 | A11Y-01 | Add chart text alternatives | **Low** | M | Low | 3 | None |
 | DEP-01 | Migrate ESLint 9 + @typescript-eslint v8 | **Low** | L | Med | 3 | None |
 | SEC-01 | Add non-root Docker users | **Low** | S | Low | 3 | Dev-only (Replit manages prod containers) |
@@ -589,7 +570,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 6. Add `react-hooks/recommended` to ESLint extends
 7. Create `.dockerignore` files
 8. Add Docker health checks for postgres/redis
-9. Add Error Boundary to frontend
 
 **Rollback:** All changes are independent. Any can be reverted individually.
 **Verification:** CI passes. `bun test` passes. `pytest tests/` passes locally.
@@ -610,8 +590,7 @@ Remaining:
 1. **Align CALC-05** (rebate logic): Fix whichever implementation is wrong
 2. Add BATTERY_REPLACEMENT_YEAR to Python constants
 3. **Fix CALC-08**: Remove `maintenance_cost_per_km` from vehicle catalog data (calculator already uses weight-class constants)
-4. **Fix FE-03** (PaybackChart): Replace linear interpolation with year-by-year nominal cash flows
-5. Add verification fixtures for all scenarios and override combinations
+4. Add verification fixtures for all scenarios and override combinations
 
 **CALC-06 sub-plan: Restructure CostBreakdown into named groups.**
 This is a breaking change that touches multiple layers. Implementation sequence:
@@ -651,15 +630,14 @@ This is a breaking change that touches multiple layers. Implementation sequence:
 **Goal:** Larger improvements that require more coordination. Execute as capacity allows.
 
 1. Generate strongly-typed constants interface from Python
-2. Integrate VehicleParamsForm with React Hook Form
-3. Add code splitting for ResultsPage/charts
-4. Add component tests using React Testing Library
-5. Migrate ESLint 9 + flat config
-6. Add accessibility improvements (charts, stepper, error messages)
-7. Document Replit deployment process
-8. Add E2E tests to CI
-9. Fix scenario identifier drift (store key alongside label, backfill existing rows)
-10. Add structured logging (Replit-compatible)
+2. Add code splitting for ResultsPage/charts
+3. Add component tests using React Testing Library
+4. Migrate ESLint 9 + flat config
+5. Add accessibility improvements (charts, stepper, error messages)
+6. Document Replit deployment process
+7. Add E2E tests to CI
+8. Fix scenario identifier drift (store key alongside label, backfill existing rows)
+9. Add structured logging (Replit-compatible)
 
 **Approach:** Use Branch by Abstraction for the constants type change (add new typed interface alongside `ConstantCatalog`, migrate consumers, then remove the old type). Use feature flags or route-level code splitting for lazy loading.
 
@@ -817,6 +795,9 @@ Completed items moved from active backlog/planning lists.
 | CALC-06 | **DONE** | 2026-02-06 | Restructured cost breakdown into named groups (`npv_costs`, `nominal_costs`, `upfront_costs`). |
 | CALC-07 | **DONE** | 2026-02-06 | Added `BATTERY_REPLACEMENT_YEAR = 8` to `data/constants.py`. |
 | CALC-08 | **DONE** | 2026-02-06 | Removed the misleading `maintenance_cost_per_km` field from the vehicle catalog data to avoid showing users a number that doesn't drive calculations. |
+| FE-01 | **DONE** | 2026-02-06 | Added a top-level React error boundary with fallback and retry/reload actions (`frontend/src/components/shared/ErrorBoundary.tsx`, wired in `frontend/src/main.tsx`). |
+| FE-02 | **DONE** | 2026-02-06 | Integrated `VehicleParamsForm` into React Hook Form by adding `vehicleParamOverrides` to the shared schema and step validation flow (`frontend/src/forms/wizardForm.ts`, `frontend/src/pages/WizardPage.tsx`, `frontend/src/components/wizard/VehicleParamsForm.tsx`). |
+| FE-03 | **DONE** | 2026-02-06 | Replaced simplified payback interpolation with year-by-year nominal cash-flow timelines via shared calculator helper (`shared/calculator/tcoCalculator.ts`, `frontend/src/components/results/PaybackChart.tsx`). |
 
 
 #### CALC-01: `calculateAnnualisedCost` uses ordinary annuity instead of annuity-due
@@ -867,3 +848,22 @@ Completed items moved from active backlog/planning lists.
 - **Evidence:** Vehicle catalog has per-vehicle values (BEV001=0.05, DSL001=0.20). Calculator uses per-weight-class constants instead (BEV Light Rigid=0.10, Diesel Light Rigid=0.18). `tcoCalculator.ts:546-553`.
 - **Impact:** Users see one maintenance cost in vehicle specs, calculations use a different number. Confusing.
 - **Decision:** Use per-weight-class constants (current calculator behavior). Remove the misleading `maintenance_cost_per_km` field from the vehicle catalog data to avoid showing users a number that doesn't drive calculations.
+
+#### FE-01: Missing Error Boundary
+- **Status (2026-02-06): DONE.** Added a top-level React error boundary with fallback UI and retry/reload actions.
+- **Original evidence:** No `ErrorBoundary` component in `frontend/src/`. No `componentDidCatch` or `getDerivedStateFromError` usage.
+- **Impact:** Any React rendering error could crash the entire app with a white screen and no recovery path.
+- **Resolution:** Added `frontend/src/components/shared/ErrorBoundary.tsx` and wrapped the app tree in `frontend/src/main.tsx`.
+
+#### FE-02: `VehicleParamsForm` validation bypassed React Hook Form
+- **Status (2026-02-06): DONE.** Integrated vehicle parameter overrides into React Hook Form and wizard step validation.
+- **Original evidence:** `VehicleParamsForm.tsx` used local `useState` errors and manual Zod `safeParse` instead of RHF context.
+- **Impact:** Validation logic lived in a parallel path, making step-level validation architecture inconsistent.
+- **Resolution:** Added `vehicleParamOverrides` to `wizardFormSchema`, included it in `WizardPage` validation/sync, and refactored `VehicleParamsForm` to use RHF `Controller`.
+- **Note:** This was primarily an architecture consistency fix; field-level validation had already prevented invalid values from entering state.
+
+#### FE-03: PaybackChart used simplified linear interpolation
+- **Status (2026-02-06): DONE.** Switched payback calculation to year-by-year nominal cash-flow timelines.
+- **Original evidence:** `PaybackChart.tsx` inferred yearly costs from aggregated outputs and interpolated crossing points.
+- **Impact:** Payback timing could be materially inaccurate because financing timing, battery replacement, and residual value are non-linear across years.
+- **Resolution:** Added `calculateNominalCostTimeline` in `shared/calculator/tcoCalculator.ts` and used it in `frontend/src/components/results/PaybackChart.tsx` for cumulative timeline and payback interpolation.

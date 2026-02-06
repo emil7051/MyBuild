@@ -29,8 +29,8 @@ const steps: WizardStep[] = [
 ];
 
 const stepFieldMap: FieldPath<WizardFormValues>[][] = [
-  [],
-  [],
+  ['vehicleParamOverrides'],
+  ['vehicleParamOverrides'],
   [
     'scenario',
     'purchaseMethod',
@@ -45,6 +45,7 @@ const stepFieldMap: FieldPath<WizardFormValues>[][] = [
     'overrides.battery_life_variation',
     'overrides.charging_efficiency_variation',
     'overrides.apply_road_user_charge_bev',
+    'vehicleParamOverrides',
   ],
 ];
 
@@ -65,8 +66,15 @@ const WizardPage = () => {
       purchaseMethod: wizardData.purchaseMethod,
       dutyCycle: wizardData.dutyCycle,
       overrides: wizardData.overrides ?? {},
+      vehicleParamOverrides: wizardData.vehicleParamOverrides ?? {},
     }),
-    [wizardData.scenario, wizardData.purchaseMethod, wizardData.dutyCycle, wizardData.overrides]
+    [
+      wizardData.scenario,
+      wizardData.purchaseMethod,
+      wizardData.dutyCycle,
+      wizardData.overrides,
+      wizardData.vehicleParamOverrides,
+    ]
   );
 
   const formMethods = useForm<WizardFormValues>({
@@ -100,6 +108,7 @@ const WizardPage = () => {
         purchaseMethod: values.purchaseMethod,
         dutyCycle: values.dutyCycle,
         overrides: values.overrides ?? {},
+        vehicleParamOverrides: values.vehicleParamOverrides ?? {},
       });
     },
     [updateWizard]

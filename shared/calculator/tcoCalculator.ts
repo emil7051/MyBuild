@@ -835,7 +835,19 @@ const getAnnualInsuranceCost = (vehicle: VehicleDetail): number => {
   return vehicle.msrp * rate + OTHER_INSURANCE;
 };
 
-export const calculateTco = (payload: CalculationRequestPayload): CalculationResponsePayload => {
+interface TcoComputationDetails {
+  response: CalculationResponsePayload;
+  upfrontNominalCost: number;
+  annualNominalCashflows: number[];
+}
+
+export interface NominalCostTimelinePoint {
+  year: number;
+  annualCost: number;
+  cumulativeCost: number;
+}
+
+const calculateTcoWithDetails = (payload: CalculationRequestPayload): TcoComputationDetails => {
   // Sanitize payload to prevent NaN and invalid values
   const sanitizedPayload = sanitizePayload(payload);
 
@@ -907,6 +919,25 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
   );
   const residualValuePv = discountToPresent(residualFuture, VEHICLE_LIFE, DISCOUNT_RATE);
 
+  const annualFinancingPayments = Array.from({ length: VEHICLE_LIFE }, (_, idx) =>
+    sanitizedPayload.purchase_method === 'financed' && idx < FINANCING_TERM
+      ? financing.monthlyPayment * 12
+      : 0
+  );
+  const annualNominalCashflows = Array.from({ length: VEHICLE_LIFE }, (_, idx) => {
+    const annualOperatingCost =
+      annualFuelCosts[idx] +
+      annualMaintenanceCosts[idx] +
+      annualBatteryCosts[idx] +
+      annualCarbonCosts[idx] +
+      annualChargingLabourCosts[idx] +
+      annualPayloadPenalties[idx];
+    const annualFixedCost = annualInsuranceCost + vehicle.annual_registration;
+    const residualCredit = idx === VEHICLE_LIFE - 1 ? residualFuture : 0;
+
+    return annualOperatingCost + annualFixedCost + annualFinancingPayments[idx] - residualCredit;
+  });
+
   const totalCost =
     financing.npvPurchasePayments +
     totalFuelCost +
@@ -947,13 +978,46 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
   };
 
   return {
-    vehicle_id: vehicle.vehicle_id,
-    scenario_name: scenario.name,
-    total_cost: totalCost,
-    annual_cost: annualCost,
-    cost_per_km: costPerKm,
-    breakdown,
+    response: {
+      vehicle_id: vehicle.vehicle_id,
+      scenario_name: scenario.name,
+      total_cost: totalCost,
+      annual_cost: annualCost,
+      cost_per_km: costPerKm,
+      breakdown,
+    },
+    upfrontNominalCost: financing.upfrontCost,
+    annualNominalCashflows,
   };
+};
+
+export const calculateTco = (payload: CalculationRequestPayload): CalculationResponsePayload => {
+  return calculateTcoWithDetails(payload).response;
+};
+
+export const calculateNominalCostTimeline = (
+  payload: CalculationRequestPayload
+): NominalCostTimelinePoint[] => {
+  const { upfrontNominalCost, annualNominalCashflows } = calculateTcoWithDetails(payload);
+  const timeline: NominalCostTimelinePoint[] = [
+    {
+      year: 0,
+      annualCost: upfrontNominalCost,
+      cumulativeCost: upfrontNominalCost,
+    },
+  ];
+
+  let cumulativeCost = upfrontNominalCost;
+  annualNominalCashflows.forEach((annualCost, index) => {
+    cumulativeCost += annualCost;
+    timeline.push({
+      year: index + 1,
+      annualCost,
+      cumulativeCost,
+    });
+  });
+
+  return timeline;
 };
 
 export const calculateComparison = (
