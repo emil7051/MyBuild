@@ -81,11 +81,18 @@ describe('Calculator Math Utilities', () => {
   describe('calculateAnnualisedCost', () => {
     it('should convert NPV to equivalent annual cost', () => {
       const annual = calculateAnnualisedCost(10000, 10, 0.05);
-      expect(annual).toBeCloseTo(1295.05, 0);
+      expect(annual).toBeCloseTo(1233.38, 0);
     });
 
     it('should handle zero NPV', () => {
       expect(calculateAnnualisedCost(0, 10, 0.05)).toBe(0);
+    });
+
+    it('should invert calculatePresentValue under annuity-due convention', () => {
+      const annualAmount = 1000;
+      const pv = calculatePresentValue(annualAmount, 10, 0.05);
+      const annualised = calculateAnnualisedCost(pv, 10, 0.05);
+      expect(annualised).toBeCloseTo(annualAmount, 6);
     });
   });
 });

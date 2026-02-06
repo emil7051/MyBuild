@@ -44,6 +44,7 @@ const stepFieldMap: FieldPath<WizardFormValues>[][] = [
     'overrides.electricity_price_variation',
     'overrides.battery_life_variation',
     'overrides.charging_efficiency_variation',
+    'overrides.apply_road_user_charge_bev',
   ],
 ];
 

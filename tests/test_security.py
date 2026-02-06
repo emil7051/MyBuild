@@ -130,6 +130,7 @@ async def test_valid_overrides_accepted(client: httpx.AsyncClient) -> None:
         "annual_kms_variation": 50000,
         "residual_value_variation": 1.0,
         "fuel_price_variation": 1.5,
+        "apply_road_user_charge_bev": False,
     }
     payload["wizardData"]["vehicleParamOverrides"] = {
         BEV_VEHICLE_ID: {

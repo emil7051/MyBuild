@@ -12,6 +12,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from data.constants import (  # noqa: E402  # Requires repo root on sys.path for CLI execution
+    CHARGING_MIX_PROPORTIONS,
     VEHICLE_LIFE,
 )
 from data.scenarios import (  # noqa: E402  # Requires repo root on sys.path for CLI execution
@@ -32,6 +33,7 @@ class ValidationReport:
     vehicles: Dict[str, List[str]]
     scenarios: Dict[str, List[str]]
     comparison_pairs: List[str]
+    constants: List[str]
     is_valid: bool
 
 
@@ -116,6 +118,23 @@ class DataValidator:
                 )
         return issues
 
+    @staticmethod
+    def validate_charging_mix() -> List[str]:
+        issues: List[str] = []
+        for drivetrain, mixes in CHARGING_MIX_PROPORTIONS.items():
+            for weight_class, mix in mixes.items():
+                total = sum(float(value) for value in mix.values())
+                if abs(total - 1.0) > 1e-6:
+                    issues.append(
+                        f"{drivetrain}/{weight_class}: Charging mix sums to {total:.4f}; expected 1.0000."
+                    )
+                for source, value in mix.items():
+                    if value < 0:
+                        issues.append(
+                            f"{drivetrain}/{weight_class}: Charging mix '{source}' is negative ({value})."
+                        )
+        return issues
+
     @classmethod
     def validate_all(cls) -> ValidationReport:
         vehicle_issues = {
@@ -129,12 +148,16 @@ class DataValidator:
             if (issues := cls.validate_scenario(scenario))
         }
         comparison_issues = cls.validate_comparison_pairs()
+        constants_issues = cls.validate_charging_mix()
 
         return ValidationReport(
             vehicles=vehicle_issues,
             scenarios=scenario_issues,
             comparison_pairs=comparison_issues,
-            is_valid=not (vehicle_issues or scenario_issues or comparison_issues),
+            constants=constants_issues,
+            is_valid=not (
+                vehicle_issues or scenario_issues or comparison_issues or constants_issues
+            ),
         )
 
 
@@ -172,6 +195,7 @@ def main() -> None:
     _print_dict_issues("Vehicle issues", report.vehicles)
     _print_dict_issues("Scenario issues", report.scenarios)
     _print_list_issues("Comparison pair issues", report.comparison_pairs)
+    _print_list_issues("Constants issues", report.constants)
     sys.exit(1)
 
 

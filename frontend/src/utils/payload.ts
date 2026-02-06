@@ -8,9 +8,7 @@ import type {
 
 export const compactOverrides = (overrides?: CostOverrides) =>
   Object.fromEntries(
-    Object.entries(overrides ?? {}).filter(
-      ([, value]) => value !== undefined && value !== null
-    ) as [string, number][]
+    Object.entries(overrides ?? {}).filter(([, value]) => value !== undefined && value !== null)
   ) as CostOverrides;
 
 export const compactVehicleParamOverrides = (

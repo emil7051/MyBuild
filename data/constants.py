@@ -24,7 +24,7 @@ CHARGING_MIX_PROPORTIONS = {
         },
         "Articulated": {
             "retail": 0.00,  # (Assuming most charging takes place on overnight cycles)
-            "offpeak": 0.33,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
+            "offpeak": 0.43,  # (A weighted average calculated by using the trip proportions indicated by the Survey of Motor Vehicle Use, and typical charging strategies from Scania eMobility Hub)
             "public": 0.57,  # (Using industry consultation data from ARENA/AECOM information)
             "solar": 0.00,  # (Assuming no investment in solar infrastructure)
         },

@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { calculateTco } from '@shared/calculator';
+import { CONSTANTS } from '@shared/data/constants';
+import { SCENARIO_DEFINITIONS } from '@shared/data/scenarios';
+import { VEHICLE_BY_ID } from '@shared/data/vehicleCatalog';
 import type { CalculationRequestPayload } from '@shared/types/tco.types';
 
 describe('Vehicle Parameter Overrides', () => {
@@ -131,6 +134,31 @@ describe('Cost Overrides', () => {
         standard.breakdown.fuel_cost
       );
     });
+
+    it('should apply fuel tax credit to diesel fuel costs', () => {
+      const diesel = VEHICLE_BY_ID.DSL001;
+      const scenario = SCENARIO_DEFINITIONS.baseline;
+      const vehicleLife = CONSTANTS.VEHICLE_LIFE as number;
+      const discountRate = CONSTANTS.DISCOUNT_RATE as number;
+      const dieselPrice = CONSTANTS.DIESEL_PRICE as number;
+      const fuelTaxCredit = CONSTANTS.FUEL_TAX_CREDIT as number;
+      const effectiveDieselPrice = dieselPrice - fuelTaxCredit;
+
+      const expectedFuelCost = Array.from({ length: vehicleLife }, (_, index) => {
+        const efficiencyMultiplier = scenario.diesel_efficiency_improvement[index] ?? 1;
+        const priceMultiplier = scenario.diesel_price_trajectory[index] ?? 1;
+        const annualFuelCost =
+          diesel.litres_per_km * efficiencyMultiplier * diesel.annual_kms * effectiveDieselPrice * priceMultiplier;
+        return annualFuelCost / (1 + discountRate) ** index;
+      }).reduce((sum, value) => sum + value, 0);
+
+      const result = calculateTco({
+        ...basePayload,
+        vehicle_id: 'DSL001',
+      });
+
+      expect(result.breakdown.fuel_cost).toBeCloseTo(expectedFuelCost, 6);
+    });
   });
 
   describe('Electricity Price Variation', () => {
@@ -144,6 +172,42 @@ describe('Cost Overrides', () => {
       expect(higherElectricity.breakdown.fuel_cost).toBeGreaterThan(
         standard.breakdown.fuel_cost
       );
+    });
+  });
+
+  describe('BEV Road User Charge Toggle', () => {
+    it('should remain off by default', () => {
+      const defaultResult = calculateTco(basePayload);
+      const explicitOff = calculateTco({
+        ...basePayload,
+        overrides: { apply_road_user_charge_bev: false },
+      });
+
+      expect(explicitOff.breakdown.fuel_cost).toBeCloseTo(defaultResult.breakdown.fuel_cost, 6);
+    });
+
+    it('should increase BEV fuel/energy costs when enabled', () => {
+      const defaultResult = calculateTco(basePayload);
+      const withRoadUserCharge = calculateTco({
+        ...basePayload,
+        overrides: { apply_road_user_charge_bev: true },
+      });
+
+      expect(withRoadUserCharge.breakdown.fuel_cost).toBeGreaterThan(defaultResult.breakdown.fuel_cost);
+    });
+
+    it('should not affect diesel vehicles when enabled', () => {
+      const dieselDefault = calculateTco({
+        ...basePayload,
+        vehicle_id: 'DSL001',
+      });
+      const dieselWithToggle = calculateTco({
+        ...basePayload,
+        vehicle_id: 'DSL001',
+        overrides: { apply_road_user_charge_bev: true },
+      });
+
+      expect(dieselWithToggle.breakdown.fuel_cost).toBeCloseTo(dieselDefault.breakdown.fuel_cost, 6);
     });
   });
 });

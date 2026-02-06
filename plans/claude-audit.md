@@ -104,6 +104,8 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | 8 | Python/TypeScript rebate calculation logic diverges (dormant) | 2 | 5 | **10** | Cross-language parity |
 | 9 | No `.dockerignore`; backend image contains tests, .git, archive | 4 | 2 | **8** | Docker |
 
+**Update (2026-02-06):** CALC-01, CALC-02, CALC-03, and CALC-04 have been completed and moved to the `DONE` section.
+
 ---
 
 ## 4. Findings
@@ -111,7 +113,8 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 ### 4.1 Correctness & Reliability
 
 #### CALC-01: `calculateAnnualisedCost` uses ordinary annuity instead of annuity-due
-- **Evidence:** `shared/calculator/math.ts:69-85`. Uses `(totalNPV * r) / (1 - (1+r)^-n)` (payment at end of period). For a TCO tool where costs are incurred throughout each year, annuity-due `* (1+r)` is more accurate.
+- **Status (2026-02-06): DONE.** Updated to annuity-due annualisation and regenerated verification fixtures.
+- **Original evidence:** `shared/calculator/math.ts:69-85`. Uses `(totalNPV * r) / (1 - (1+r)^-n)` (payment at end of period). For a TCO tool where costs are incurred throughout each year, annuity-due `* (1+r)` is more accurate.
 - **Impact:** Inflates displayed `annual_cost` and `cost_per_km` by ~5% (one discount rate period). This is the primary comparison metric shown to users.
 - **Root cause:** Standard annuity formula applied without considering timing convention.
 - **Decision:** Fix to annuity-due. Multiply the result by `(1 + r)`.
@@ -119,21 +122,24 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 - **Test plan:** Update `verification_data.json` from Python. All parity tests should pass with the new values. Add a unit test comparing the formula output against a known financial calculator result.
 
 #### CALC-02: Articulated BEV charging mix sums to 0.90
-- **Evidence:** `data/constants.py:121-125`. Articulated BEV mix: `{depot_overnight: 0.40, depot_fast: 0.30, public_fast: 0.20}` = 0.90. All other weight classes sum to 1.0. The calculator at `tcoCalculator.ts:588-601` uses the mix as proportional weights for blended electricity cost.
+- **Status (2026-02-06): DONE.** Fixed articulated BEV charging mix to sum to 1.0 and added validation in `scripts/validation.py`.
+- **Original evidence:** `data/constants.py:121-125`. Articulated BEV mix: `{depot_overnight: 0.40, depot_fast: 0.30, public_fast: 0.20}` = 0.90. All other weight classes sum to 1.0. The calculator at `tcoCalculator.ts:588-601` uses the mix as proportional weights for blended electricity cost.
 - **Impact:** 10% of articulated BEV charging cost is unaccounted for, systematically undercharging fuel costs for that weight class.
 - **Recommendation:** Fix the Python constant (likely `depot_overnight: 0.50` or distribute the missing 0.10). Add a validation check that charging mix sums to 1.0 per weight class.
 - **Test plan:** Add assertion in `scripts/validation.py`. Regenerate all downstream files. Parity tests will catch the calculation change.
 
 #### CALC-03: Fuel tax credit defined but never applied
-- **Evidence:** `data/constants.py:166-168` defines `FUEL_TAX_CREDIT = 0.203`. Generated to TypeScript at `constants.generated.ts:54`. The calculator never references it. The diesel price is `$2.05/L` which "includes 2c for AdBlue." Heavy vehicle operators in Australia can claim the fuel tax credit ($0.203/L) as a rebate.
+- **Status (2026-02-06): DONE.** Applied fuel tax credit in diesel fuel-cost calculation and regenerated verification fixtures.
+- **Original evidence:** `data/constants.py:166-168` defines `FUEL_TAX_CREDIT = 0.203`. Generated to TypeScript at `constants.generated.ts:54`. The calculator never references it. The diesel price is `$2.05/L` which "includes 2c for AdBlue." Heavy vehicle operators in Australia can claim the fuel tax credit ($0.203/L) as a rebate.
 - **Impact:** If the credit applies to these operators, effective diesel cost should be `$2.05 - $0.203 = $1.847/L`. Omitting this overstates diesel costs by ~10%, biasing results toward BEVs.
 - **Decision:** Apply the fuel tax credit. Subtract $0.203/L from diesel cost in `calculateFuelCostYear`. Effective diesel cost becomes $2.05 - $0.203 = $1.847/L.
 - **Test plan:** Regenerate verification data from Python and confirm parity. Add a unit test verifying the credit is applied.
 
 #### CALC-04: Road user charge defined but not applied
-- **Evidence:** `data/constants.py:169-171` defines `ROAD_USER_CHARGE = 0.305`. Scenario types include `road_user_charge_bev_start_year` and `policy_phase_out_year` (`shared/types/tco.types.ts:31-32`). The calculator ignores all of these.
+- **Status (2026-02-06): DONE.** Implemented BEV road-user-charge as an optional override toggle, defaulting to OFF.
+- **Original evidence:** `data/constants.py:169-171` defines `ROAD_USER_CHARGE = 0.305`. Scenario types include `road_user_charge_bev_start_year` and `policy_phase_out_year` (`shared/types/tco.types.ts:31-32`). The calculator ignores all of these.
 - **Impact:** Planned feature infrastructure exists but is inactive. Road user charges for BEVs are active Australian policy. Not applying them understates BEV operating costs.
-- **Decision:** Defer. Move fields to clearly-marked "future" status. Road user charge policy is still evolving. Revisit when policy stabilises.
+- **Decision:** Implement as opt-in toggle (`apply_road_user_charge_bev`) with default OFF, so current policy settings remain reflected while enabling scenario testing.
 
 #### CALC-05: Python and TypeScript rebate calculation logic diverges
 - **Evidence:** TypeScript at `tcoCalculator.ts:694-711` applies fixed rebate before calculating percentage rebate base (`percentageBase = Math.max(0, msrp - rebate)`). Python at `policies.py:163-180` calculates percentage rebate on the full `vehicle_price`.
@@ -566,9 +572,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 
 | ID | Title | Impact | Effort | Risk | Phase | Dependencies |
 |----|-------|--------|--------|------|-------|-------------|
-| CALC-01 | Fix annualised cost formula (annuity-due) | **Critical** | S | Med | 1 | Regen verification data |
-| CALC-02 | Fix articulated charging mix sum (0.90 to 1.0) | **Critical** | XS | Low | 1 | Add validation check |
-| CALC-03 | Apply fuel tax credit to diesel costs | **Critical** | S | Med | 1 | Regen verification data |
 | TEST-01 | Fix backend test infrastructure (pytest-asyncio) | **High** | XS | Low | 1 | None |
 | TEST-03 | Change Vitest env to jsdom | **High** | XS | Low | 1 | None |
 | MAINT-01 | Pin ruff version consistently (local + CI) | **High** | XS | Low | 1 | None |
@@ -599,7 +602,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 | AI-07 | Surface frontend persist errors to users | **Med** | S | Low | 2 | FE-01 |
 | FE-03 | PaybackChart: compute year-by-year cash flows | **Med** | M | Low | 2 | None |
 | CALC-06 | Restructure CostBreakdown into named groups | **Med** | L | Med | 2 | See CALC-06 sub-plan |
-| CALC-04 | Move road user charge fields to future status | **Low** | XS | Low | 2 | None |
 | MAINT-08 | Generate strongly-typed constants interface | **Med** | M | Med | 3 | Update generator |
 | MAINT-04 | Remove duplicates from constants.future.ts | **Low** | XS | Low | 2 | None |
 | MAINT-05 | Delete dead WizardVehicleStep | **Low** | XS | Low | 2 | None |
@@ -644,17 +646,20 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 
 **Goal:** Fix calculation accuracy issues, improve test coverage, clean up dead code. Each change is well-tested and reversible.
 
-**Calculator accuracy fixes (do these first, they change verification data):**
+**Calculator accuracy fixes (remaining):**
 
-1. **Fix CALC-01** (annuity-due formula): Multiply result by `(1 + r)` in `math.ts`, regenerate verification data, update tests
-2. **Fix CALC-02** (charging mix): Fix `data/constants.py` articulated BEV mix to sum to 1.0, add validation, regenerate everything
-3. **Fix CALC-03** (fuel tax credit): Apply $0.203/L credit in `calculateFuelCostYear`, regenerate verification data
-4. **Align CALC-05** (rebate logic): Fix whichever implementation is wrong
-5. Add BATTERY_REPLACEMENT_YEAR to Python constants
-6. **Fix CALC-08**: Remove `maintenance_cost_per_km` from vehicle catalog data (calculator already uses weight-class constants)
-7. **Fix FE-03** (PaybackChart): Replace linear interpolation with year-by-year nominal cash flows
-8. **CALC-04**: Move road user charge fields to clearly-marked future status
-9. Add verification fixtures for all scenarios and override combinations
+Completed and moved to `DONE`:
+1. CALC-01 (annuity-due formula)
+2. CALC-02 (articulated BEV charging mix)
+3. CALC-03 (fuel tax credit)
+4. CALC-04 (road user charge handling)
+
+Remaining:
+1. **Align CALC-05** (rebate logic): Fix whichever implementation is wrong
+2. Add BATTERY_REPLACEMENT_YEAR to Python constants
+3. **Fix CALC-08**: Remove `maintenance_cost_per_km` from vehicle catalog data (calculator already uses weight-class constants)
+4. **Fix FE-03** (PaybackChart): Replace linear interpolation with year-by-year nominal cash flows
+5. Add verification fixtures for all scenarios and override combinations
 
 **CALC-06 sub-plan: Restructure CostBreakdown into named groups.**
 This is a breaking change that touches multiple layers. Implementation sequence:
@@ -669,22 +674,22 @@ This is a breaking change that touches multiple layers. Implementation sequence:
 
 **Test and CI improvements:**
 
-10. Add middleware, rate limiting, and session auth tests
-11. Add mypy to CI (fix config first)
-12. Surface frontend persist/calculation errors to users (toast notifications)
+1. Add middleware, rate limiting, and session auth tests
+2. Add mypy to CI (fix config first)
+3. Surface frontend persist/calculation errors to users (toast notifications)
 
 **Cleanup and maintenance:**
 
-13. Remove unused Python deps (runtime and dev)
-14. Consolidate on ruff
-15. Delete dead code (WizardVehicleStep, vestigial hook, constants.future.ts duplicates, fetchSession helper, unused ValueError handler)
-16. Fix file handle leak in offline migration
-17. Refactor repetitive sanitization to data-driven
-18. Centralize calculator override limits from `OVERRIDE_LIMITS`
-19. Unify duty-cycle validation across layers. **Implementation note:** Must be coordinated across all three layers (store, calculator, backend) simultaneously to avoid introducing new inconsistencies between layers during the transition.
-20. Narrow cache module exception handling
-21. Offload bcrypt to worker thread (`anyio.to_thread.run_sync`)
-22. Add Dependabot/Renovate configuration
+1. Remove unused Python deps (runtime and dev)
+2. Consolidate on ruff
+3. Delete dead code (WizardVehicleStep, vestigial hook, constants.future.ts duplicates, fetchSession helper, unused ValueError handler)
+4. Fix file handle leak in offline migration
+5. Refactor repetitive sanitization to data-driven
+6. Centralize calculator override limits from `OVERRIDE_LIMITS`
+7. Unify duty-cycle validation across layers. **Implementation note:** Must be coordinated across all three layers (store, calculator, backend) simultaneously to avoid introducing new inconsistencies between layers during the transition.
+8. Narrow cache module exception handling
+9. Offload bcrypt to worker thread (`anyio.to_thread.run_sync`)
+10. Add Dependabot/Renovate configuration
 
 **Rollback:** Each item is a separate PR (except CALC-06 which is one atomic PR). Revert any single PR if issues arise.
 **Verification:** Full CI pass. Calculator parity tests pass with updated verification data. Coverage increases.
@@ -759,9 +764,9 @@ repos:
 
 | # | Question | Decision | Rationale |
 |---|----------|----------|-----------|
-| 1 | Fuel tax credit (CALC-03) | **Apply it.** Subtract $0.203/L from diesel cost. | Heavy vehicle operators can claim the credit. Not applying it overstates diesel costs by ~10%. |
-| 2 | Annuity convention (CALC-01) | **Fix to annuity-due.** Multiply result by `(1 + r)`. | More accurate for costs incurred throughout the year. ~5% correction to displayed annual costs. |
-| 3 | Road user charges (CALC-04) | **Defer.** Move fields to future status. | Policy still evolving. Revisit when it stabilises. |
+| 1 | Fuel tax credit (CALC-03) | **Done.** Subtract $0.203/L from diesel cost. | Heavy vehicle operators can claim the credit. Not applying it overstates diesel costs by ~10%. |
+| 2 | Annuity convention (CALC-01) | **Done.** Use annuity-due by multiplying result by `(1 + r)`. | More accurate for costs incurred throughout the year. ~5% correction to displayed annual costs. |
+| 3 | Road user charges (CALC-04) | **Done.** Implement as optional BEV toggle, default OFF. | Keeps current policy baseline unchanged while enabling configurable RUC modelling. |
 | 4 | Maintenance cost (CALC-08) | **Use weight-class constants.** Remove per-vehicle field from catalog. | Simpler. Eliminates the confusing mismatch between displayed and calculated values. |
 | 5 | Cost breakdown structure (CALC-06) | **Restructure into named groups.** | Breaking change, but eliminates a real source of confusion. Detailed sub-plan in Phase 2. |
 | 6 | PaybackChart (FE-03) | **Year-by-year cash flows.** | Users are making $200k+ purchasing decisions. Accuracy matters. |
@@ -843,3 +848,16 @@ This audit was conducted using 5 parallel analysis agents:
 | CI pipeline | `.github/workflows/ci.yml`, `.github/workflows/dependency-audit.yml` |
 | Docker | `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` |
 | Tests | `tests/`, `frontend/src/test/`, `shared/calculator/verification_data.json` |
+
+---
+
+## 10. DONE
+
+Completed items moved from active backlog/planning lists.
+
+| ID | Status | Completed | Notes |
+|----|--------|-----------|-------|
+| CALC-01 | **DONE** | 2026-02-06 | Updated annualisation to annuity-due in `shared/calculator/math.ts`; refreshed verification fixtures/tests. |
+| CALC-02 | **DONE** | 2026-02-06 | Fixed articulated BEV charging mix sum to 1.0 in `data/constants.py`; added charging-mix validation in `scripts/validation.py`. |
+| CALC-03 | **DONE** | 2026-02-06 | Applied diesel fuel tax credit in `shared/calculator/tcoCalculator.ts`; refreshed verification fixtures/tests. |
+| CALC-04 | **DONE** | 2026-02-06 | Implemented BEV road user charge as a toggleable override (default OFF) across shared types, frontend, backend model, and calculator logic. |

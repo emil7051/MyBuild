@@ -91,5 +91,5 @@ export const calculateAnnualisedCost = (
     return totalCost / years;
   }
 
-  return totalCost / ((1 - (1 + discountRate) ** -years) / discountRate);
+  return totalCost / (((1 - (1 + discountRate) ** -years) / discountRate) * (1 + discountRate));
 };

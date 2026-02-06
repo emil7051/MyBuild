@@ -13,7 +13,7 @@ export const CONSTANTS: ConstantCatalog = {
   "CHARGING_MIX_PROPORTIONS": {
     "BEV": {
       "Articulated": {
-        "offpeak": 0.33,
+        "offpeak": 0.43,
         "public": 0.57,
         "retail": 0.0,
         "solar": 0.0

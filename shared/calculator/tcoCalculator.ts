@@ -103,6 +103,13 @@ const toFiniteNumber = (value: unknown): number | undefined => {
   return value;
 };
 
+const toBoolean = (value: unknown): boolean | undefined => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  return undefined;
+};
+
 const clampOverrideValue = (value: unknown, min: number, max: number): number | undefined => {
   const numeric = toFiniteNumber(value);
   if (numeric === undefined) {
@@ -193,6 +200,10 @@ const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequest
     );
     if (chargingEfficiencyVariation !== undefined) {
       cleanOverrides.charging_efficiency_variation = chargingEfficiencyVariation;
+    }
+    const applyRoadUserChargeBev = toBoolean(sanitized.overrides.apply_road_user_charge_bev);
+    if (applyRoadUserChargeBev !== undefined) {
+      cleanOverrides.apply_road_user_charge_bev = applyRoadUserChargeBev;
     }
     sanitized.overrides = cleanOverrides;
   }
@@ -317,6 +328,8 @@ const BATTERY_RECYCLE_VALUE = asNumber(CONSTANTS.BATTERY_RECYCLE_VALUE, 'BATTERY
 const BATTERY_LIFE_VARIATION_BASE = asNumber(CONSTANTS.BATTERY_LIFE_VARIATION_BASE, 'BATTERY_LIFE_VARIATION_BASE');
 const BATTERY_REPLACEMENT_YEAR = CONSTANTS.BATTERY_REPLACEMENT_YEAR ?? 8;
 const DIESEL_PRICE = asNumber(CONSTANTS.DIESEL_PRICE, 'DIESEL_PRICE');
+const FUEL_TAX_CREDIT = asNumber(CONSTANTS.FUEL_TAX_CREDIT, 'FUEL_TAX_CREDIT');
+const ROAD_USER_CHARGE = asNumber(CONSTANTS.ROAD_USER_CHARGE, 'ROAD_USER_CHARGE');
 const DIESEL_EMISSIONS = asNumber(CONSTANTS.DIESEL_EMISSIONS, 'DIESEL_EMISSIONS');
 const INSURANCE_RATE_BEV = asNumber(CONSTANTS.INSURANCE_RATE_BEV, 'INSURANCE_RATE_BEV');
 const INSURANCE_RATE_DSL = asNumber(CONSTANTS.INSURANCE_RATE_DSL, 'INSURANCE_RATE_DSL');
@@ -552,6 +565,32 @@ const getMaintenanceBaseCost = (vehicle: VehicleDetail): number => {
   return vehicle.annual_kms * costPerKm;
 };
 
+const shouldApplyRoadUserChargeToBev = (
+  scenario: EconomicScenarioDefinition,
+  year: number,
+  overrides?: CostOverrides
+): boolean => {
+  if (overrides?.apply_road_user_charge_bev !== true) {
+    return false;
+  }
+  const startYear = scenario.road_user_charge_bev_start_year;
+  return startYear === null ? true : year >= startYear;
+};
+
+const getBevRoadUserChargeRate = (
+  vehicle: VehicleDetail,
+  scenario: EconomicScenarioDefinition,
+  year: number
+): number => {
+  const pairedDiesel = vehicle.comparison_pair ? VEHICLE_BY_ID[vehicle.comparison_pair] : undefined;
+  if (!pairedDiesel || pairedDiesel.drivetrain_type !== 'Diesel' || pairedDiesel.litres_per_km <= 0) {
+    return 0;
+  }
+  const efficiencyMultiplier = getSeriesValue(scenario.diesel_efficiency_improvement, year, 1);
+  const adjustedLitresPerKm = pairedDiesel.litres_per_km * efficiencyMultiplier;
+  return Math.max(0, adjustedLitresPerKm * ROAD_USER_CHARGE);
+};
+
 const calculateFuelCostYear = (
   vehicle: VehicleDetail,
   scenario: EconomicScenarioDefinition,
@@ -571,12 +610,18 @@ const calculateFuelCostYear = (
     if (overrides?.electricity_price_variation) {
       priceMultiplier *= overrides.electricity_price_variation;
     }
-    return baseCost * priceMultiplier;
+    const electricityCost = baseCost * priceMultiplier;
+    const roadUserCharge =
+      shouldApplyRoadUserChargeToBev(scenario, year, overrides)
+        ? vehicle.annual_kms * getBevRoadUserChargeRate(vehicle, scenario, year)
+        : 0;
+    return electricityCost + roadUserCharge;
   }
 
   const efficiencyMultiplier = getSeriesValue(scenario.diesel_efficiency_improvement, year, 1);
   const adjustedLitresPerKm = vehicle.litres_per_km * efficiencyMultiplier;
-  const baseCost = adjustedLitresPerKm * vehicle.annual_kms * DIESEL_PRICE;
+  const effectiveDieselPrice = Math.max(0, DIESEL_PRICE - FUEL_TAX_CREDIT);
+  const baseCost = adjustedLitresPerKm * vehicle.annual_kms * effectiveDieselPrice;
   let priceMultiplier = getSeriesValue(scenario.diesel_price_trajectory, year, 1);
   if (overrides?.fuel_price_variation) {
     priceMultiplier *= overrides.fuel_price_variation;

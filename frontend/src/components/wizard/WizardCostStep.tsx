@@ -60,6 +60,21 @@ const WizardCostStep = () => {
             })}
           />
         </div>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+          <label className="flex items-start gap-3 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-primary focus:ring-brand-primary"
+              {...register('overrides.apply_road_user_charge_bev')}
+            />
+            <span>
+              <span className="micro-heading text-black">Apply BEV road user charge</span>
+              <span className="mt-1 block text-xs text-slate-500">
+                Optional. Off by default while there is no BEV road user charge in effect.
+              </span>
+            </span>
+          </label>
+        </div>
       </div>
     </Card>
   );

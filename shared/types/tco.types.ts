@@ -57,6 +57,7 @@ export interface CostOverrides {
   maintenance_cost_variation?: number;
   battery_life_variation?: number;
   charging_efficiency_variation?: number;
+  apply_road_user_charge_bev?: boolean;
 }
 
 export interface VehicleParamOverrides {

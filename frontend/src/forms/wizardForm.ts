@@ -109,6 +109,7 @@ const overridesSchema = z.object({
     .min(costLimits.charging_efficiency_variation.min, 'Minimum multiplier is 0.7x.')
     .max(costLimits.charging_efficiency_variation.max, 'Maximum multiplier is 1.3x.')
     .optional(),
+  apply_road_user_charge_bev: z.boolean().optional(),
 });
 
 export const vehicleParamOverridesSchema = z.object({

@@ -66,6 +66,13 @@ class CostOverride(BaseModel):
         le=COST_LIMITS["charging_efficiency_variation"]["max"],
         description="Multiplier applied to BEV charging efficiency (0.7–1.3).",
     )
+    apply_road_user_charge_bev: Optional[bool] = Field(
+        default=None,
+        description=(
+            "When true, applies BEV road-user-charge operating costs. "
+            "Defaults to false/off."
+        ),
+    )
 
     model_config = {
         "extra": "forbid",
