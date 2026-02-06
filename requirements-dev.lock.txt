@@ -179,7 +179,7 @@ platformdirs==4.5.1
     #   virtualenv
 pluggy==1.6.0
     # via pytest
-pre-commit==3.3.0
+pre-commit==4.5.1
     # via -r requirements-dev.txt
 protobuf==5.29.6
     # via
