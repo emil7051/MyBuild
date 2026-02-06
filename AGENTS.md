@@ -22,7 +22,7 @@ The project follows a monorepo structure: the TypeScript calculator in `shared/c
 **Quick Start:**
 - Ensure PostgreSQL and Redis are running
 - Start backend: `uvicorn backend.app.main:app --reload`
-- Start frontend: `cd frontend && bun install && bun run dev`
+- Start frontend: `cd frontend && bun install --frozen-lockfile && bun run dev`
 - Visit `http://localhost:5000` for frontend and `http://localhost:8000/docs` for API docs
 
 **Python Setup:**
@@ -31,7 +31,7 @@ The project follows a monorepo structure: the TypeScript calculator in `shared/c
 - `uvicorn backend.app.main:app --reload` boots FastAPI standalone
 
 **Frontend Setup:**
-- `cd frontend && bun install && bun run dev` starts the wizard
+- `cd frontend && bun install --frozen-lockfile && bun run dev` starts the wizard
 - `bun run build|lint|typecheck` satisfy CI gates
 
 **Testing:**
@@ -42,7 +42,7 @@ See [README.md](./README.md) for complete development setup instructions.
 
 ## Coding Style & Naming Conventions
 
-Python files use 4-space indents, type hints, and Google-style docstrings; run `ruff check .`, `black .`, and `isort .` pre-push. TypeScript remains in strict mode with ESLint/Prettier defaults (2-space indent, single quotes). Keep components `PascalCase`, hooks `useCamelCase`, and import DTOs from `shared/types` to keep every layer on the same contract.
+Python files use 4-space indents, type hints, and Google-style docstrings; run `ruff check .`, `black .`, and `isort .` pre-push. TypeScript remains in strict mode with ESLint flat config defaults (2-space indent, single quotes). Keep components `PascalCase`, hooks `useCamelCase`, and import DTOs from `shared/types` to keep every layer on the same contract.
 
 ## Testing & Parity Guidelines
 
@@ -52,6 +52,7 @@ Use `python scripts/validation.py` whenever vehicle, scenario, or policy data ch
 
 - [ ] Backend: `python -m pytest tests --cov`
 - [ ] Frontend/unit: `cd frontend && bun run test`
+- [ ] Frontend/lint+types: `cd frontend && bun run lint && bun run typecheck`
 - [ ] Data regen: if touching `data/*.py` or `scripts/*`, run `python scripts/generate_vehicle_catalog_ts.py` and ensure generated TS stays in sync
 
 ## Commit & Pull Request Guidelines
@@ -60,7 +61,7 @@ Commits stay concise and imperative ("Add web app backend, frontend, and shared 
 
 ## Security & Configuration Tips
 
-Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI and scripts read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit` and `bandit` for Python; use `bun pm untrusted` or equivalent to audit frontend dependencies when dependencies change. Regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.
+Use `.env.example` as the template for secrets; load variables via `python-dotenv`/`pydantic-settings` so FastAPI and scripts read the same source. Never commit operator data or credentials inside `data/` or `frontend/public`. Run `pip-audit` for Python and `bun pm untrusted` (or equivalent) for frontend dependencies when dependencies change. `bandit` is also recommended for Python when local tooling dependencies are available. Regenerate shared types when `data/*.py` changes. Historical data revisions are documented in `archive/Transition Docs/TRANSFORMATION_EXECUTION_LOG.md`.
 
 ## Serena MCP Best Practices
 

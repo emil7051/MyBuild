@@ -38,7 +38,16 @@ interface PaybackChartProps {
   wizardData: WizardData;
 }
 
-const PaybackTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+type PaybackTooltipProps = TooltipProps<ValueType, NameType> & {
+  label?: string | number;
+  payload?: Array<{
+    name?: string;
+    value?: number | string;
+    color?: string;
+  }>;
+};
+
+const PaybackTooltip = ({ active, payload, label }: PaybackTooltipProps) => {
   if (!active || !payload?.length) {
     return null;
   }
@@ -46,8 +55,8 @@ const PaybackTooltip = ({ active, payload, label }: TooltipProps<ValueType, Name
   return (
     <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 shadow">
       <p className="text-sm font-semibold text-slate-900">Year {label}</p>
-      {payload.map((entry) => (
-        <p key={entry.name} style={{ color: entry.color }}>
+      {payload.map((entry, index) => (
+        <p key={entry.name ?? `series-${index}`} style={{ color: entry.color }}>
           {entry.name}: {formatCurrency(entry.value as number)}
         </p>
       ))}

@@ -85,7 +85,7 @@ We aim to acknowledge reports within 48 hours and provide a fix timeline within 
 - Input validation on all API endpoints
 - Parameterized queries (SQLAlchemy ORM)
 - Rate limiting on session/analytics endpoints
-- Session access for read/update requires `sessionId` + HttpOnly session secret cookie
+- Session creation issues an HttpOnly session-secret cookie; session read/update requires that cookie
 - Analytics endpoint requires `ANALYTICS_API_KEY` and is disabled if unset
 - Path traversal protection for static file serving
 - CORS configuration restricts allowed origins
@@ -108,9 +108,12 @@ We aim to acknowledge reports within 48 hours and provide a fix timeline within 
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `CORS_ORIGINS` | Allowed CORS origins | `http://localhost:5000` |
+| `BACKEND_CORS_ORIGINS` | Allowed backend CORS origins | `http://localhost:5000,http://127.0.0.1:5000` |
 | `RATE_LIMIT_*` | Rate limiting thresholds | See `backend/app/core/config.py` |
-| `DATABASE_URL` | Database connection | SQLite in dev |
+| `TRUSTED_PROXIES` | CIDRs/IPs allowed to supply trusted `X-Forwarded-For` | empty (trust none) |
+| `DATABASE_URL` | Database connection | `sqlite+aiosqlite:///./tco.db` (dev) |
+| `REDIS_URL` | Redis session cache connection | `redis://localhost:6379/0` (dev) |
+| `ANALYTICS_API_KEY` | Enables `/api/v1/analytics/summary` access | disabled when unset |
 
 ### Sensitive Data Handling
 

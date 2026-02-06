@@ -32,19 +32,19 @@ const dutyCycleSchema = z
   .object({
     urban: z
       .number({
-        invalid_type_error: 'Urban % must be a number.',
+        error: 'Urban % must be a number.',
       })
       .min(0, 'Cannot be negative.')
       .max(100, 'Cannot exceed 100%.'),
     regional: z
       .number({
-        invalid_type_error: 'Regional % must be a number.',
+        error: 'Regional % must be a number.',
       })
       .min(0, 'Cannot be negative.')
       .max(100, 'Cannot exceed 100%.'),
     longHaul: z
       .number({
-        invalid_type_error: 'Long-haul % must be a number.',
+        error: 'Long-haul % must be a number.',
       })
       .min(0, 'Cannot be negative.')
       .max(100, 'Cannot exceed 100%.'),
@@ -63,49 +63,49 @@ const dutyCycleSchema = z
 const overridesSchema = z.object({
   annual_kms_variation: z
     .number({
-      invalid_type_error: 'Annual kilometres must be a number.',
+      error: 'Annual kilometres must be a number.',
     })
     .min(costLimits.annual_kms_variation.min, 'Minimum 5,000 km per year.')
     .max(costLimits.annual_kms_variation.max, 'Maximum 250,000 km per year.')
     .optional(),
   residual_value_variation: z
     .number({
-      invalid_type_error: 'Residual value must be a number.',
+      error: 'Residual value must be a number.',
     })
     .min(costLimits.residual_value_variation.min, 'Too low — at least 0.5x the base residual.')
     .max(costLimits.residual_value_variation.max, 'Too high — maximum 1.5x the base residual.')
     .optional(),
   maintenance_cost_variation: z
     .number({
-      invalid_type_error: 'Maintenance multiplier must be a number.',
+      error: 'Maintenance multiplier must be a number.',
     })
     .min(costLimits.maintenance_cost_variation.min, 'Minimum multiplier is 0.5x.')
     .max(costLimits.maintenance_cost_variation.max, 'Maximum multiplier is 1.5x.')
     .optional(),
   fuel_price_variation: z
     .number({
-      invalid_type_error: 'Diesel multiplier must be a number.',
+      error: 'Diesel multiplier must be a number.',
     })
     .min(costLimits.fuel_price_variation.min, 'Minimum multiplier is 0.5x.')
     .max(costLimits.fuel_price_variation.max, 'Maximum multiplier is 2.0x.')
     .optional(),
   electricity_price_variation: z
     .number({
-      invalid_type_error: 'Electricity multiplier must be a number.',
+      error: 'Electricity multiplier must be a number.',
     })
     .min(costLimits.electricity_price_variation.min, 'Minimum multiplier is 0.5x.')
     .max(costLimits.electricity_price_variation.max, 'Maximum multiplier is 2.0x.')
     .optional(),
   battery_life_variation: z
     .number({
-      invalid_type_error: 'Battery life multiplier must be a number.',
+      error: 'Battery life multiplier must be a number.',
     })
     .min(costLimits.battery_life_variation.min, 'Minimum multiplier is 0.5x.')
     .max(costLimits.battery_life_variation.max, 'Maximum multiplier is 1.5x.')
     .optional(),
   charging_efficiency_variation: z
     .number({
-      invalid_type_error: 'Charging efficiency multiplier must be a number.',
+      error: 'Charging efficiency multiplier must be a number.',
     })
     .min(costLimits.charging_efficiency_variation.min, 'Minimum multiplier is 0.7x.')
     .max(costLimits.charging_efficiency_variation.max, 'Maximum multiplier is 1.3x.')
@@ -172,7 +172,8 @@ export const wizardFormSchema = z.object({
     longHaul: 15,
   } satisfies DutyCycle),
   overrides: overridesSchema.default({}),
-  vehicleParamOverrides: z.record(vehicleParamOverridesSchema).default({}),
+  vehicleParamOverrides: z.record(z.string(), vehicleParamOverridesSchema).default({}),
 });
 
-export type WizardFormValues = z.infer<typeof wizardFormSchema>;
+export type WizardFormInputValues = z.input<typeof wizardFormSchema>;
+export type WizardFormValues = z.output<typeof wizardFormSchema>;

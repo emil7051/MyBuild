@@ -20,7 +20,18 @@ const DIESEL_COLOR = '#EA5300';
 const ELECTRIC_COLOR = '#00FFC7';
 const WINNER_COLOR = '#FFC700';
 
-const CostTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) => {
+type CostTooltipProps = TooltipProps<ValueType, NameType> & {
+  payload?: Array<{
+    payload: {
+      vehicle: string;
+      costPerKm: number;
+      annualCost: number;
+      totalCost: number;
+    };
+  }>;
+};
+
+const CostTooltip = ({ active, payload }: CostTooltipProps) => {
   if (!active || !payload?.length) {
     return null;
   }
