@@ -1,11 +1,4 @@
-"""Tests for Phase 4 security features.
-
-TEST-005: Override shape normalization
-SEC-003: Backend bounds checking
-API-002: UUID validation
-API-007: Payload validation
-SEC-007: Analytics API key protection
-"""
+"""Tests for security and validation behaviors."""
 
 from __future__ import annotations
 
@@ -20,7 +13,7 @@ from tests.factories import (
 )
 
 # ============================================================================
-# API-002: UUID validation tests
+# UUID validation tests
 # ============================================================================
 
 
@@ -44,7 +37,7 @@ async def test_invalid_uuid_session_put_returns_422(client: httpx.AsyncClient) -
 
 
 # ============================================================================
-# API-007: Payload validation tests
+# Payload validation tests
 # ============================================================================
 
 
@@ -94,7 +87,7 @@ async def test_duty_cycle_must_sum_to_100(client: httpx.AsyncClient) -> None:
 
 
 # ============================================================================
-# SEC-003: Backend bounds checking tests
+# Backend bounds checking tests
 # ============================================================================
 
 
@@ -143,7 +136,7 @@ async def test_valid_overrides_accepted(client: httpx.AsyncClient) -> None:
 
 
 # ============================================================================
-# SEC-007: Analytics API key protection tests
+# Analytics API key protection tests
 # ============================================================================
 
 
@@ -191,7 +184,7 @@ async def test_analytics_without_api_key_configured(
 
 
 # ============================================================================
-# TEST-005: Override shape normalization tests
+# Override shape normalization tests
 # ============================================================================
 
 

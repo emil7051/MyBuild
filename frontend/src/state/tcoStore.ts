@@ -97,8 +97,16 @@ export const useTCOStore = create<TCOStore>()(
       _hasHydrated: false,
       updateWizard: (data) =>
         set((state) => {
+          const wizardData = { ...state.wizardData, ...data };
+          if (!wizardData.overrides) {
+            wizardData.overrides = {};
+          }
+          if (!wizardData.vehicleParamOverrides) {
+            wizardData.vehicleParamOverrides = {};
+          }
+
           return {
-            wizardData: { ...state.wizardData, ...data },
+            wizardData,
           };
         }),
       setStepIndex: (index) => set({ stepIndex: index }),
@@ -144,6 +152,12 @@ export const useTCOStore = create<TCOStore>()(
         }
 
         if (!state) return;
+        if (!state.wizardData.overrides) {
+          state.wizardData.overrides = {};
+        }
+        if (!state.wizardData.vehicleParamOverrides) {
+          state.wizardData.vehicleParamOverrides = {};
+        }
 
         // Check vehicle catalog version and refresh if outdated
         const storedVersion = (state as { _vehicleCatalogVersion?: string })._vehicleCatalogVersion;

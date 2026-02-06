@@ -20,11 +20,12 @@ const AppShell = ({ children }: PropsWithChildren) => {
     }
 
     try {
-      await runComparison(payload);
-      toast.success('Comparison complete.');
+      const result = await runComparison(payload);
+      if (result) {
+        toast.success('Comparison complete.');
+      }
     } catch (error) {
       console.error('Calculation failed', error);
-      toast.error('Calculation failed. Please try again.');
     }
   };
 

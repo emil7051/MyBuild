@@ -132,6 +132,27 @@ const clampOverrideAboveMin = (value: unknown, min: number, max: number): number
 const COST_OVERRIDE_LIMITS = OVERRIDE_LIMITS.cost;
 const VEHICLE_OVERRIDE_LIMITS = OVERRIDE_LIMITS.vehicle;
 
+type NumericOverrideLimits = Record<string, { min: number; max: number }>;
+type OverrideClamp = (value: unknown, min: number, max: number) => number | undefined;
+
+const sanitizeNumericOverrides = (
+  source: Record<string, unknown>,
+  limits: NumericOverrideLimits,
+  clampByKey: Partial<Record<string, OverrideClamp>> = {}
+): Record<string, number> => {
+  const sanitized: Record<string, number> = {};
+
+  Object.entries(limits).forEach(([key, { min, max }]) => {
+    const clamp = clampByKey[key] ?? clampOverrideValue;
+    const value = clamp(source[key], min, max);
+    if (value !== undefined) {
+      sanitized[key] = value;
+    }
+  });
+
+  return sanitized;
+};
+
 /**
  * Sanitizes override sections to prevent NaN and invalid values from reaching calculations.
  * Duty-cycle validation is handled explicitly via shared validation policy.
@@ -139,147 +160,27 @@ const VEHICLE_OVERRIDE_LIMITS = OVERRIDE_LIMITS.vehicle;
 const sanitizePayload = (payload: CalculationRequestPayload): CalculationRequestPayload => {
   const sanitized = { ...payload };
 
-  // Sanitize cost overrides - ensure they're positive numbers or undefined
   if (sanitized.overrides) {
-    const cleanOverrides: CostOverrides = {};
-    const annualKmsVariation = clampOverrideAboveMin(
-      sanitized.overrides.annual_kms_variation,
-      COST_OVERRIDE_LIMITS.annual_kms_variation.min,
-      COST_OVERRIDE_LIMITS.annual_kms_variation.max
-    );
-    if (annualKmsVariation !== undefined) {
-      cleanOverrides.annual_kms_variation = annualKmsVariation;
-    }
-    const residualValueVariation = clampOverrideValue(
-      sanitized.overrides.residual_value_variation,
-      COST_OVERRIDE_LIMITS.residual_value_variation.min,
-      COST_OVERRIDE_LIMITS.residual_value_variation.max
-    );
-    if (residualValueVariation !== undefined) {
-      cleanOverrides.residual_value_variation = residualValueVariation;
-    }
-    const fuelPriceVariation = clampOverrideValue(
-      sanitized.overrides.fuel_price_variation,
-      COST_OVERRIDE_LIMITS.fuel_price_variation.min,
-      COST_OVERRIDE_LIMITS.fuel_price_variation.max
-    );
-    if (fuelPriceVariation !== undefined) {
-      cleanOverrides.fuel_price_variation = fuelPriceVariation;
-    }
-    const electricityPriceVariation = clampOverrideValue(
-      sanitized.overrides.electricity_price_variation,
-      COST_OVERRIDE_LIMITS.electricity_price_variation.min,
-      COST_OVERRIDE_LIMITS.electricity_price_variation.max
-    );
-    if (electricityPriceVariation !== undefined) {
-      cleanOverrides.electricity_price_variation = electricityPriceVariation;
-    }
-    const maintenanceCostVariation = clampOverrideValue(
-      sanitized.overrides.maintenance_cost_variation,
-      COST_OVERRIDE_LIMITS.maintenance_cost_variation.min,
-      COST_OVERRIDE_LIMITS.maintenance_cost_variation.max
-    );
-    if (maintenanceCostVariation !== undefined) {
-      cleanOverrides.maintenance_cost_variation = maintenanceCostVariation;
-    }
-    const batteryLifeVariation = clampOverrideValue(
-      sanitized.overrides.battery_life_variation,
-      COST_OVERRIDE_LIMITS.battery_life_variation.min,
-      COST_OVERRIDE_LIMITS.battery_life_variation.max
-    );
-    if (batteryLifeVariation !== undefined) {
-      cleanOverrides.battery_life_variation = batteryLifeVariation;
-    }
-    const chargingEfficiencyVariation = clampOverrideValue(
-      sanitized.overrides.charging_efficiency_variation,
-      COST_OVERRIDE_LIMITS.charging_efficiency_variation.min,
-      COST_OVERRIDE_LIMITS.charging_efficiency_variation.max
-    );
-    if (chargingEfficiencyVariation !== undefined) {
-      cleanOverrides.charging_efficiency_variation = chargingEfficiencyVariation;
-    }
+    const cleanOverrides = sanitizeNumericOverrides(
+      sanitized.overrides as Record<string, unknown>,
+      COST_OVERRIDE_LIMITS,
+      { annual_kms_variation: clampOverrideAboveMin }
+    ) as CostOverrides;
+
     const applyRoadUserChargeBev = toBoolean(sanitized.overrides.apply_road_user_charge_bev);
     if (applyRoadUserChargeBev !== undefined) {
       cleanOverrides.apply_road_user_charge_bev = applyRoadUserChargeBev;
     }
+
     sanitized.overrides = cleanOverrides;
   }
 
-  // Sanitize vehicle param overrides - ensure they're positive numbers or undefined
   if (sanitized.vehicle_overrides) {
-    const cleanVehicleOverrides: VehicleParamOverrides = {};
-    const msrpOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.msrp_override,
-      VEHICLE_OVERRIDE_LIMITS.msrp_override.min,
-      VEHICLE_OVERRIDE_LIMITS.msrp_override.max
-    );
-    if (msrpOverride !== undefined) {
-      cleanVehicleOverrides.msrp_override = msrpOverride;
-    }
-    const payloadOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.payload_override,
-      VEHICLE_OVERRIDE_LIMITS.payload_override.min,
-      VEHICLE_OVERRIDE_LIMITS.payload_override.max
-    );
-    if (payloadOverride !== undefined) {
-      cleanVehicleOverrides.payload_override = payloadOverride;
-    }
-    const rangeOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.range_km_override,
-      VEHICLE_OVERRIDE_LIMITS.range_km_override.min,
-      VEHICLE_OVERRIDE_LIMITS.range_km_override.max
-    );
-    if (rangeOverride !== undefined) {
-      cleanVehicleOverrides.range_km_override = rangeOverride;
-    }
-    const batteryCapacityOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.battery_capacity_kwh_override,
-      VEHICLE_OVERRIDE_LIMITS.battery_capacity_kwh_override.min,
-      VEHICLE_OVERRIDE_LIMITS.battery_capacity_kwh_override.max
-    );
-    if (batteryCapacityOverride !== undefined) {
-      cleanVehicleOverrides.battery_capacity_kwh_override = batteryCapacityOverride;
-    }
-    const kwhPerKmOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.kwh_per_km_override,
-      VEHICLE_OVERRIDE_LIMITS.kwh_per_km_override.min,
-      VEHICLE_OVERRIDE_LIMITS.kwh_per_km_override.max
-    );
-    if (kwhPerKmOverride !== undefined) {
-      cleanVehicleOverrides.kwh_per_km_override = kwhPerKmOverride;
-    }
-    const litresPerKmOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.litres_per_km_override,
-      VEHICLE_OVERRIDE_LIMITS.litres_per_km_override.min,
-      VEHICLE_OVERRIDE_LIMITS.litres_per_km_override.max
-    );
-    if (litresPerKmOverride !== undefined) {
-      cleanVehicleOverrides.litres_per_km_override = litresPerKmOverride;
-    }
-    const annualRegistrationOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.annual_registration_override,
-      VEHICLE_OVERRIDE_LIMITS.annual_registration_override.min,
-      VEHICLE_OVERRIDE_LIMITS.annual_registration_override.max
-    );
-    if (annualRegistrationOverride !== undefined) {
-      cleanVehicleOverrides.annual_registration_override = annualRegistrationOverride;
-    }
-    const interestRateOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.interest_rate_override,
-      VEHICLE_OVERRIDE_LIMITS.interest_rate_override.min,
-      VEHICLE_OVERRIDE_LIMITS.interest_rate_override.max
-    );
-    if (interestRateOverride !== undefined) {
-      cleanVehicleOverrides.interest_rate_override = interestRateOverride;
-    }
-    const chargingTimeOverride = clampOverrideValue(
-      sanitized.vehicle_overrides.charging_time_hours_override,
-      VEHICLE_OVERRIDE_LIMITS.charging_time_hours_override.min,
-      VEHICLE_OVERRIDE_LIMITS.charging_time_hours_override.max
-    );
-    if (chargingTimeOverride !== undefined) {
-      cleanVehicleOverrides.charging_time_hours_override = chargingTimeOverride;
-    }
+    const cleanVehicleOverrides = sanitizeNumericOverrides(
+      sanitized.vehicle_overrides as Record<string, unknown>,
+      VEHICLE_OVERRIDE_LIMITS
+    ) as VehicleParamOverrides;
+
     sanitized.vehicle_overrides = cleanVehicleOverrides;
   }
 

@@ -85,7 +85,7 @@ def list_vehicles(request: Request) -> List[VehicleSummary]:
 def get_vehicle(request: Request, vehicle_id: str) -> VehicleDetail:
     try:
         return _vehicle_service.get(vehicle_id)
-    except KeyError as exc:  # pragma: no cover
+    except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
@@ -136,7 +136,7 @@ async def update_session(
         if resolved_secret:
             _set_session_secret_cookie(response, resolved_secret)
         return updated
-    except KeyError as exc:  # pragma: no cover
+    except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
@@ -162,7 +162,7 @@ async def get_session(
         if resolved_secret:
             _set_session_secret_cookie(response, resolved_secret)
         return fetched
-    except KeyError as exc:  # pragma: no cover
+    except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 

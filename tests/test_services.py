@@ -140,7 +140,6 @@ def test_session_service_create_persists_records(async_session_factory) -> None:
         DIESEL_VEHICLE_ID,
     ]
 
-    # API-003: Verify normalized override structure { cost: {}, vehicle: {} }
     bev_overrides = next(
         record.overrides for record in inputs if record.vehicle_id == BEV_VEHICLE_ID
     )
@@ -207,9 +206,7 @@ def test_session_service_analytics_summary(async_session_factory) -> None:
     assert summary.completed_sessions == 1
     assert summary.calculations_last_24h == len(payload.results or [])
     assert summary.bev_win_rate == 1.0
-    # API-006: Payback calculated from MSRP difference (not result payload)
-    # (BEV001.msrp - DSL001.msrp) / annual_savings
-    # The exact value depends on actual MSRP data, so just check it's reasonable
+    # Payback is derived from MSRP gap and annual savings; exact value depends on fixture data.
     assert summary.average_payback_years is not None
     assert summary.average_payback_years > 0
     assert summary.average_cost_delta == 20000.0

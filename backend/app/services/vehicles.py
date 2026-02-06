@@ -20,7 +20,7 @@ class VehicleCatalogService:
     def get(self, vehicle_id: str) -> VehicleDetail:
         try:
             model = self._vehicles[vehicle_id]
-        except KeyError as exc:  # pragma: no cover
+        except KeyError as exc:
             raise KeyError(f"Unknown vehicle_id '{vehicle_id}'.") from exc
         return self._to_detail(model)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from uuid import uuid4
 
 import httpx
 import pytest
@@ -86,6 +87,25 @@ async def test_vehicle_endpoints(client: httpx.AsyncClient) -> None:
 async def test_vehicle_not_found(client: httpx.AsyncClient) -> None:
     response = await client.get("/api/v1/vehicles/UNKNOWN")
     assert response.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_get_session_not_found_returns_404(client: httpx.AsyncClient) -> None:
+    missing_session_id = str(uuid4())
+    response = await client.get(f"/api/v1/sessions/{missing_session_id}")
+    assert response.status_code == 404
+    assert "Unknown session_id" in response.json()["detail"]
+
+
+@pytest.mark.anyio
+async def test_update_session_not_found_returns_404(client: httpx.AsyncClient) -> None:
+    missing_session_id = str(uuid4())
+    response = await client.put(
+        f"/api/v1/sessions/{missing_session_id}",
+        json=make_session_update_payload_dict(),
+    )
+    assert response.status_code == 404
+    assert "Unknown session_id" in response.json()["detail"]
 
 
 @pytest.mark.anyio

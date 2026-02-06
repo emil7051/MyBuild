@@ -39,6 +39,25 @@ describe('Override sanitization', () => {
     expect(underMin.cost_per_km).toBeCloseTo(base.cost_per_km, 6);
   });
 
+  it('should clamp non-annual overrides below the minimum to the minimum', () => {
+    const minFuelVariation = OVERRIDE_LIMITS.cost.fuel_price_variation.min;
+    const underMin = calculateTco({
+      ...basePayload,
+      vehicle_id: 'DSL001',
+      overrides: { fuel_price_variation: minFuelVariation - 0.25 },
+    });
+    const atMin = calculateTco({
+      ...basePayload,
+      vehicle_id: 'DSL001',
+      overrides: { fuel_price_variation: minFuelVariation },
+    });
+
+    expect(underMin.breakdown.npv_costs.fuel_cost).toBeCloseTo(
+      atMin.breakdown.npv_costs.fuel_cost,
+      5
+    );
+  });
+
   it('should keep charging labour costs finite for invalid BEV overrides', () => {
     const result = calculateTco({
       ...basePayload,

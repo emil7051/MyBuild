@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+import logging
 
 from fastapi import FastAPI
 import httpx
@@ -10,7 +11,14 @@ import pytest
 
 from backend.app.core import config
 from backend.app.core.middleware import RequestSizeLimitMiddleware
-from backend.app.core.observability import ObservabilityMiddleware, request_metrics
+from backend.app.core.observability import (
+    OTEL_AVAILABLE,
+    ObservabilityMiddleware,
+    RequestAlertPolicy,
+    TRACE_ID_HEADER,
+    observability_logger,
+    request_metrics,
+)
 
 
 class _ChunkedBody(httpx.AsyncByteStream):
@@ -150,6 +158,19 @@ async def test_observability_adds_request_id_header_and_tracks_api_metrics(
 
 
 @pytest.mark.anyio
+@pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry runtime not installed.")
+async def test_observability_adds_trace_id_header(
+    observability_client: httpx.AsyncClient,
+) -> None:
+    response = await observability_client.post("/api/v1/sessions")
+
+    assert response.status_code == 200
+    trace_id = response.headers.get(TRACE_ID_HEADER)
+    assert trace_id is not None
+    assert len(trace_id) == 32
+
+
+@pytest.mark.anyio
 async def test_observability_skips_non_api_paths(
     observability_client: httpx.AsyncClient,
 ) -> None:
@@ -170,3 +191,47 @@ async def test_observability_counts_server_errors(
     snapshot = request_metrics.snapshot()
     assert snapshot["requests"] == 1
     assert snapshot["errors"] == 1
+
+
+@pytest.mark.anyio
+async def test_observability_emits_alert_event_for_error_rate_breach(
+    observability_client: httpx.AsyncClient,
+) -> None:
+    captured_records: list[logging.LogRecord] = []
+
+    class _CaptureHandler(logging.Handler):
+        def emit(self, record: logging.LogRecord) -> None:
+            captured_records.append(record)
+
+    capture_handler = _CaptureHandler()
+    observability_logger.addHandler(capture_handler)
+
+    original_policy = request_metrics.alert_policy
+    original_dispatcher = request_metrics.alert_dispatcher
+    original_emit_at = request_metrics._next_emit_at
+
+    try:
+        request_metrics.alert_policy = RequestAlertPolicy(
+            min_requests=1,
+            error_rate_threshold=0.5,
+            avg_duration_ms_threshold=100_000,
+            cooldown_seconds=60,
+        )
+        request_metrics.alert_dispatcher = None
+        request_metrics._next_emit_at = 0.0
+
+        response = await observability_client.get("/api/v1/error")
+        assert response.status_code == 500
+    finally:
+        request_metrics.alert_policy = original_policy
+        request_metrics.alert_dispatcher = original_dispatcher
+        request_metrics._next_emit_at = original_emit_at
+        observability_logger.removeHandler(capture_handler)
+        request_metrics.reset()
+
+    alert_records = [
+        record
+        for record in captured_records
+        if getattr(record, "event", "") == "http.alert"
+    ]
+    assert alert_records

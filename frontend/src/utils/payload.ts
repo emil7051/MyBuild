@@ -8,17 +8,17 @@ import type {
 } from '@shared/types/tco.types';
 import { validateDutyCycle } from '@shared/types/dutyCycle';
 
-export const compactOverrides = (overrides?: CostOverrides) =>
+export const compactOverrides = (overrides: CostOverrides) =>
   Object.fromEntries(
-    Object.entries(overrides ?? {}).filter(([, value]) => value !== undefined && value !== null)
+    Object.entries(overrides).filter(([, value]) => value !== undefined && value !== null)
   ) as CostOverrides;
 
 export const compactVehicleParamOverrides = (
-  overrides?: Record<string, VehicleParamOverrides>
+  overrides: Record<string, VehicleParamOverrides>
 ) => {
   const cleaned: Record<string, VehicleParamOverrides> = {};
-  Object.entries(overrides ?? {}).forEach(([vehicleId, fields]) => {
-    const filteredEntries = Object.entries(fields ?? {}).filter(
+  Object.entries(overrides).forEach(([vehicleId, fields]) => {
+    const filteredEntries = Object.entries(fields).filter(
       ([, value]) => value !== undefined && value !== null
     );
     if (filteredEntries.length) {
@@ -31,10 +31,8 @@ export const compactVehicleParamOverrides = (
 };
 
 export const sanitizeWizardData = (wizardData: WizardData): WizardData => {
-  const overrides = compactOverrides(wizardData.overrides ?? {});
-  const vehicleOverrides = compactVehicleParamOverrides(
-    wizardData.vehicleParamOverrides ?? {}
-  );
+  const overrides = compactOverrides(wizardData.overrides!);
+  const vehicleOverrides = compactVehicleParamOverrides(wizardData.vehicleParamOverrides!);
 
   return {
     ...wizardData,
@@ -67,10 +65,8 @@ export const buildComparisonPayload = (
     return null;
   }
 
-  const overrides = compactOverrides(wizardData.overrides ?? {});
-  const vehicleOverrides = compactVehicleParamOverrides(
-    wizardData.vehicleParamOverrides ?? {}
-  );
+  const overrides = compactOverrides(wizardData.overrides!);
+  const vehicleOverrides = compactVehicleParamOverrides(wizardData.vehicleParamOverrides!);
 
   const payload: ComparisonRequestPayload = {
     vehicle_ids: vehicleIds,

@@ -1,5 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
+import toast from 'react-hot-toast';
+import stableStringify from 'fast-json-stable-stringify';
 import { calculateComparison, calculateTco } from '@shared/calculator';
 import type {
   CalculationRequestPayload,
@@ -10,23 +12,31 @@ import { persistSessionUpdate } from '@services/sessionLifecycle';
 import { useTCOStore } from '@state/tcoStore';
 import { buildSessionPayload } from '@utils/payload';
 
-const stableStringify = (value: unknown): string => {
-  if (value === undefined || value === null) {
-    return 'null';
+const UNDEFINED_SENTINEL = '__undefined__';
+
+const normalizeForStableHash = (value: unknown): unknown => {
+  if (value === undefined) {
+    return UNDEFINED_SENTINEL;
   }
+
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
   if (Array.isArray(value)) {
-    return `[${value.map(stableStringify).join(',')}]`;
+    return value.map((item) => normalizeForStableHash(item));
   }
-  if (typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) =>
-      a.localeCompare(b)
-    );
-    return `{${entries
-      .map(([key, val]) => `${JSON.stringify(key)}:${stableStringify(val)}`)
-      .join(',')}}`;
-  }
-  return JSON.stringify(value);
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, currentValue]) => [
+      key,
+      normalizeForStableHash(currentValue),
+    ])
+  );
 };
+
+const serializeForHash = (value: unknown): string =>
+  stableStringify(normalizeForStableHash(value));
 
 export const useCalculationRunner = () => {
   const setResults = useTCOStore((state) => state.setResults);
@@ -49,6 +59,10 @@ export const useCalculationRunner = () => {
         await persistSessionUpdate(payload, payload);
       } catch (error) {
         console.warn('Failed to persist session', error);
+        toast.error('Results calculated, but saving failed. We will retry automatically.', {
+          id: 'persist-session-error',
+          duration: 5000,
+        });
       }
     },
     [wizardData]
@@ -69,6 +83,13 @@ export const useCalculationRunner = () => {
       setResults(data, requestId, vehicleOrder);
       void persistSession(data);
     },
+    onError: (error) => {
+      console.warn('Comparison calculation failed', error);
+      toast.error('Comparison failed. Please try again.', {
+        id: 'comparison-error',
+        duration: 5000,
+      });
+    },
     onSettled: () => {
       setIsCalculating(false);
     },
@@ -87,13 +108,20 @@ export const useCalculationRunner = () => {
       setResults([data], requestId, vehicleOrder);
       void persistSession([data]);
     },
+    onError: (error) => {
+      console.warn('Single-vehicle calculation failed', error);
+      toast.error('Calculation failed. Please try again.', {
+        id: 'single-calculation-error',
+        duration: 5000,
+      });
+    },
     onSettled: () => setIsCalculating(false),
   });
 
   return {
     runComparison: useCallback(
       async (payload: ComparisonRequestPayload) => {
-        const hash = stableStringify(payload);
+        const hash = serializeForHash(payload);
         if (hash === lastComparisonHash.current || hash === inflightComparisonHash.current) {
           return;
         }
@@ -112,7 +140,7 @@ export const useCalculationRunner = () => {
     ),
     runSingle: useCallback(
       async (payload: CalculationRequestPayload) => {
-        const hash = stableStringify(payload);
+        const hash = serializeForHash(payload);
         if (hash === lastSingleHash.current || hash === inflightSingleHash.current) {
           return;
         }

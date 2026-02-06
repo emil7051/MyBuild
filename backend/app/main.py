@@ -28,6 +28,7 @@ from backend.app.core.middleware import RequestSizeLimitMiddleware
 from backend.app.core.observability import (
     ObservabilityMiddleware,
     configure_observability_logger,
+    configure_tracing,
 )
 from backend.app.db.session import init_db
 
@@ -44,6 +45,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     configure_observability_logger()
+    configure_tracing()
 
     # Add rate limiter state.
     if _rate_limit_exceeded_handler and RateLimitExceeded:

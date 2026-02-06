@@ -57,7 +57,6 @@ const ResultsPanel = () => {
     );
   }
 
-  // Check if we have both diesel and BEV for deeper analysis
   const hasDiesel = results.some((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'Diesel');
   const hasBev = results.some((r) => vehicleDetails[r.vehicle_id]?.drivetrain_type === 'BEV');
   const showDeeperAnalysis = hasDiesel && hasBev;

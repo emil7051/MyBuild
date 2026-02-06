@@ -86,6 +86,72 @@ class Settings(BaseSettings):
         ge=1,
         description="Max vehicle catalog requests per IP per minute.",
     )
+    observability_tracing_enabled: bool = Field(
+        default=True,
+        description="Enable sampled distributed tracing for API requests.",
+    )
+    observability_tracing_sample_rate: float = Field(
+        default=0.1,
+        ge=0.0,
+        le=1.0,
+        description="Trace sampling ratio (0.0-1.0) for new root requests.",
+    )
+    observability_tracing_service_name: str = Field(
+        default="tco-web-platform-api",
+        description="Service name attached to emitted trace resources.",
+    )
+    observability_tracing_otlp_endpoint: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional OTLP/HTTP endpoint for traces. "
+            "If omitted, traces are written to stdout."
+        ),
+    )
+    observability_tracing_otlp_headers: Optional[str] = Field(
+        default=None,
+        description=("Optional comma-separated OTLP headers in key=value format."),
+    )
+    observability_metrics_emit_interval_seconds: int = Field(
+        default=60,
+        ge=10,
+        description="Seconds between in-memory HTTP metric summary log windows.",
+    )
+    observability_slow_request_threshold_ms: float = Field(
+        default=750.0,
+        ge=1.0,
+        description="Request duration threshold (ms) for slow-request log entries.",
+    )
+    observability_alert_min_requests: int = Field(
+        default=20,
+        ge=1,
+        description="Minimum requests in a metrics window before alerting can trigger.",
+    )
+    observability_alert_error_rate_threshold: float = Field(
+        default=0.2,
+        ge=0.0,
+        le=1.0,
+        description="Error-rate threshold for request-window alert events.",
+    )
+    observability_alert_avg_duration_ms_threshold: float = Field(
+        default=1500.0,
+        ge=1.0,
+        description="Average duration threshold (ms) for request-window alert events.",
+    )
+    observability_alert_cooldown_seconds: int = Field(
+        default=300,
+        ge=10,
+        description="Cooldown window between repeated alert emissions.",
+    )
+    observability_alert_webhook_url: Optional[str] = Field(
+        default=None,
+        description="Optional webhook URL for forwarding structured alert payloads.",
+    )
+    observability_alert_webhook_timeout_seconds: float = Field(
+        default=2.0,
+        ge=0.1,
+        le=10.0,
+        description="Webhook timeout (seconds) for alert dispatch.",
+    )
     analytics_api_key: Optional[str] = Field(
         default=None,
         description="API key for analytics endpoint. If None, endpoint is disabled.",

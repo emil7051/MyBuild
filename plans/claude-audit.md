@@ -14,7 +14,7 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 
 1. **Test infrastructure and coverage still need work.** Core parity/unit suites are strong and CI now includes dedicated backend type-check and frontend E2E jobs, but component-test coverage remains thin.
 
-2. **Deployment and observability guidance is still thin.** There is no formal production runbook for Replit deployment. A low-overhead structured logging + request-metrics baseline now exists, but distributed tracing and alerting workflows are still immature.
+2. **Deployment and observability guidance has improved, with remaining gaps.** A formal Replit deployment runbook now exists, and a low-overhead structured logging + request-metrics baseline is in place. Distributed tracing and alerting workflows remain the primary observability gap.
 
 3. **AI-generated code patterns** are present but manageable. Repetitive sanitization code, defensive null checks on guaranteed types, and silent error swallowing add maintenance burden and UX risk.
 
@@ -89,7 +89,7 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 | Area | Risk Level | Status |
 |------|------------|--------|
 | Test coverage and CI safety rails | **Medium** | Core parity/unit suites are strong and CI now runs backend type-check + frontend E2E, but component and broader integration coverage remain limited. |
-| Deployment and operations | **Medium** | Replit deployment documentation remains incomplete; observability baseline exists but tracing/alerting maturity is still limited. |
+| Deployment and operations | **Low-Medium** | Replit deployment runbook is now documented; observability baseline exists but tracing/alerting maturity is still limited. |
 | Code maintainability | **Low-Medium** | Major duplication/dead-code cleanup is complete; targeted AI-pattern refactors remain. |
 
 ---
@@ -103,61 +103,12 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 - **Impact:** Request-level troubleshooting is improved with low overhead on key API paths. Cross-service traces and production alerting remain limited.
 - **Recommendation:** Keep the current low-overhead logging baseline; add sampled distributed tracing and alerting workflows as a separate follow-up when operational maturity requires it.
 
-### 4.2 Build/Deploy Ergonomics
-
-#### OPS-01: No documented Replit deployment runbook
-- **Evidence:** Replit deployment config exists in `.replit`, but no dedicated deployment runbook exists under `docs/`.
-- **Impact:** Operational setup and rollback steps remain tribal knowledge.
-- **Recommendation:** Document the Replit deployment process (env vars, DB migration flow, rollback path, and operational checks).
-
-### 4.3 AI-Generated Code Patterns
-
-#### AI-01: Repetitive sanitization code in `tcoCalculator.ts`
-- **Evidence:** `tcoCalculator.ts:126-267`. Each of 16 override fields gets its own 5-6 line block with identical pattern. ~140 lines of repetitive code.
-- **Impact:** Adding a new override requires copying a block exactly. Brittle.
-- **Recommendation:** Refactor to iterate over `OVERRIDE_LIMITS` dynamically. Reduces to ~20 lines.
-- **Refactor warning (2026-02-06):** `annual_kms_variation` uses `clampOverrideAboveMin()` (rejects sub-minimum values) while all other overrides use `clampOverrideValue()` (clamps to range). Any data-driven refactor must preserve this distinction or the two clamping behaviours will be silently unified.
-
-#### AI-02: Overly defensive null checks on guaranteed types
-- **Evidence:** `WizardDieselStep.tsx:16` uses `(catalog ?? [])` when `useVehicleCatalog` always returns array. `wizardData.overrides ?? {}` in 5+ locations despite `defaultWizardData` initializing it.
-- **Impact:** Masks potential bugs. If `overrides` is unexpectedly `undefined`, the `?? {}` silently creates an empty object instead of surfacing the issue.
-- **Recommendation:** Trust the type system. Remove unnecessary fallbacks.
-
-#### AI-03: Verbose comments restating code
-- **Evidence:** Throughout. `// Determine the winner (lowest cost per km)` before `Math.min(...)`. `// Debounced form-to-store sync` before debounced sync code.
-- **Impact:** Clutter. Maintenance burden when code changes but comments don't.
-- **Recommendation:** Keep "why" comments, remove "what" comments.
-
-#### AI-04: Audit reference codes as code comments
-- **Evidence:** `SEC-004`, `API-002`, etc. in docstrings across most backend files.
-- **Impact:** Read like AI-generated checklist artifacts. See DEAD-05.
-
-#### AI-05: `# pragma: no cover` on reachable error branches
-- **Evidence:** `router.py:91,116,146,173` and `vehicles.py:23`. These are real error paths that should be tested.
-- **Impact:** Suppresses coverage for important error handling code.
-- **Recommendation:** Remove pragmas. Write explicit tests for error paths.
-
-#### AI-06: `stableStringify` re-implements a common library pattern
-- **Evidence:** `useCalculations.ts:13-29`. Hand-rolled deterministic JSON stringify. Maps both `undefined` and `null` to `'null'`.
-- **Impact:** Fragile edge cases. `undefined` vs `null` conflation could cause dedup failures.
-- **Recommendation:** Use `fast-json-stable-stringify` or document intentional conflation.
-
-#### AI-07: Frontend silently swallows persist/calculation errors
-- **Evidence:** `frontend/src/hooks/useCalculations.ts:47`, `frontend/src/services/sessionLifecycle.ts:46`. Errors caught and logged to console without user notification or recovery path.
-- **Impact:** Users may believe state was saved when it wasn't. Silent failures leave the UI in an inconsistent state with no indication anything went wrong.
-- **Recommendation:** Surface errors via toast notifications (react-hot-toast is already a dependency). Add retry strategy for transient failures. Pairs well with FE-01 (Error Boundary).
-
----
-
 ## 5. Prioritized Backlog
 
 | ID | Title | Impact | Effort | Risk | Phase | Dependencies |
 |----|-------|--------|--------|------|-------|-------------|
-| AI-01 | Refactor repetitive sanitization to data-driven (preserve `clampOverrideAboveMin` special case for `annual_kms_variation`) | **Med** | M | Low | 2 | Test coverage first |
-| AI-07 | Surface frontend persist errors to users | **Med** | S | Low | 2 | None (FE-01 complete) |
 | A11Y-01 | Add chart text alternatives | **Low** | M | Low | 3 | None |
 | A11Y-02 | Replace chip pseudo-buttons with `<button>` | **Low** | S | Low | 3 | None |
-| OPS-01 | Document Replit deployment process | **Low** | S | Low | 3 | None |
 | OBS-02 | Add sampled tracing + alerting workflow (Replit-compatible) | **Low** | M | Low | 3 | Build on OBS-01 baseline |
 
 *Size: XS=<1hr, S=1-4hr, M=4-16hr, L=16hr+*
@@ -171,12 +122,12 @@ This audit identified **86 findings** across the TCO Web Platform (75 from autom
 **Test and CI improvements:**
 
 Remaining:
-1. Surface frontend persist/calculation errors to users (`AI-07`)
+1. None
 
 **Cleanup and maintenance:**
 
 Remaining:
-1. Refactor repetitive sanitization to data-driven
+1. None
 
 ### Phase 3: Structural Improvements (ongoing)
 
@@ -184,8 +135,7 @@ Remaining:
 
 1. Add component tests using React Testing Library
 2. Add accessibility improvements (charts, stepper, error messages)
-3. Document Replit deployment process
-4. Add sampled distributed tracing and operational alerting
+3. Add sampled distributed tracing and operational alerting
 
 **Approach:** Use feature flags or route-level code splitting for lazy loading.
 
@@ -331,6 +281,13 @@ Completed items moved from active backlog/planning lists.
 | MAINT-10 | **DONE** | 2026-02-06 | Added formula documentation (mathematical notation + source references) for payload penalty, monthly finance payments, and residual value in `shared/calculator/tcoCalculator.ts`. |
 | MAINT-11 | **DONE** | 2026-02-06 | Replaced hard-coded calculator sanitization limits with shared `OVERRIDE_LIMITS` values in `shared/calculator/tcoCalculator.ts`, preserving the below-min reject behavior for `annual_kms_variation`. |
 | MAINT-12 | **DONE** | 2026-02-06 | Unified duty-cycle validation policy across store/form payload flow, shared calculator, and backend contract boundaries. Removed silent store corrections, blocked invalid payloads in frontend builders/autosave, and made calculator reject invalid duty cycles with explicit errors. |
+| AI-01 | **DONE** | 2026-02-06 | Refactored calculator override sanitization to a data-driven helper over `OVERRIDE_LIMITS`, preserving `annual_kms_variation` special handling via `clampOverrideAboveMin` (`shared/calculator/tcoCalculator.ts`), and added regression coverage (`frontend/src/test/calculator/override-sanitization.test.ts`). |
+| AI-02 | **DONE** | 2026-02-06 | Removed defensive wizard override fallbacks in frontend form/payload paths and enforced initialized override objects in store updates/rehydration (`frontend/src/pages/WizardPage.tsx`, `frontend/src/utils/payload.ts`, `frontend/src/state/tcoStore.ts`). |
+| AI-03 | **DONE** | 2026-02-06 | Removed low-signal comments that restated implementation details in touched frontend files (`frontend/src/pages/WizardPage.tsx`, `frontend/src/components/results/ResultsPanel.tsx`). |
+| AI-04 | **DONE** | 2026-02-06 | Removed audit reference code tags from test comments/docstrings to keep code narrative focused (`tests/test_security.py`, `tests/test_services.py`). |
+| AI-05 | **DONE** | 2026-02-06 | Removed reachable-branch `# pragma: no cover` markers and added explicit 404 coverage for unknown session get/update paths (`backend/app/api/router.py`, `backend/app/services/vehicles.py`, `tests/test_api.py`). |
+| AI-06 | **DONE** | 2026-02-06 | Replaced hand-rolled payload hashing with `fast-json-stable-stringify` in calculation dedupe logic and preserved `undefined`/`null` distinction with a sentinel replacer (`frontend/src/hooks/useCalculations.ts`, `frontend/package.json`). |
+| AI-07 | **DONE** | 2026-02-06 | Surfaced calculation/persist failures via toast notifications and added transient retry behavior for session create/update calls (including pending flushes), with retry coverage tests (`frontend/src/hooks/useCalculations.ts`, `frontend/src/services/sessionLifecycle.ts`, `frontend/src/test/sessionLifecycle.test.ts`). |
 | DEAD-01 | **DONE** | 2026-02-06 | Confirmed runtime dependencies are slim and optional heavy analysis packages remain isolated in `requirements-scripts.txt` (`numpy`, `numpy-financial`, `pandas`, `plotly`, `rich`, `click`). |
 | DEAD-02 | **DONE** | 2026-02-06 | Removed unused dev-only dependencies from `requirements-dev.txt` (`tox`, `sphinx`, `sphinx-rtd-theme`, `jupyter`, `ipykernel`, `memory-profiler`, `line-profiler`, `py-spy`, `safety`, `interrogate`). |
 | DEAD-03 | **DONE (N/A IN THIS PLAN)** | 2026-02-06 | No standalone `DEAD-03` finding exists in this document; historical dependency cleanup (`orjson`, `marshmallow`, `cerberus`, `loguru`) is already reflected in current requirements files. |
@@ -345,6 +302,7 @@ Completed items moved from active backlog/planning lists.
 | DEP-05 | **DONE** | 2026-02-06 | Added `--frozen-lockfile` to all CI/frontend `bun install` steps in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`. |
 | DEP-06 | **DONE** | 2026-02-06 | Pinned `BUN_VERSION` to `1.3.5` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml` for reproducible builds. |
 | DEP-07 | **DONE** | 2026-02-06 | Added automated dependency update workflow via `.github/dependabot.yml` with monthly runtime updates and separate security update grouping. |
+| OPS-01 | **DONE** | 2026-02-06 | Added a dedicated Replit deployment runbook with required env vars, migration flow, rollback procedure, and operational checks (`docs/replit-deployment-runbook.md`). |
 | OPS-02 | **DONE** | 2026-02-06 | Introduced Python transitive lockfile workflow with `requirements.lock.txt` and `requirements-dev.lock.txt` generated via `uv pip compile`; updated CI/Replit/backend installs to consume lockfiles. |
 | OPS-03 | **DONE** | 2026-02-06 | Added Bun cache restore/save in CI for `~/.bun/install/cache` in `.github/workflows/ci.yml` and `.github/workflows/dependency-audit.yml`. |
 | OPS-04 | **DONE** | 2026-02-06 | Removed unnecessary `needs: backend-lint` from `backend-test` in `.github/workflows/ci.yml` to shorten CI critical path. |
@@ -353,6 +311,7 @@ Completed items moved from active backlog/planning lists.
 | OPS-07 | **DONE** | 2026-02-06 | Added generated-file staleness CI guard in `.github/workflows/data-sync-check.yml` to prevent Python/TypeScript data drift. |
 | OPS-08 | **DONE (DE-SCOPED)** | 2026-02-06 | Dev/prod compose split finding archived because Docker compose manifests are no longer active in this repository. |
 | OBS-01 | **DONE** | 2026-02-06 | Added low-overhead backend observability baseline: structured JSON request logs, API `x-request-id` propagation, route-grouped request metrics, and middleware wiring/tests (`backend/app/core/observability.py`, `backend/app/main.py`, `tests/test_middleware.py`). |
+| OBS-02 | **DONE** | 2026-02-06 | Added sampled tracing + alerting workflow for Replit deployments: OpenTelemetry trace sampling/export (OTLP or stdout), `x-trace-id` propagation, threshold-based `http.alert` events with optional webhook dispatch, new runtime settings, and middleware/config/runbook test coverage (`backend/app/core/observability.py`, `backend/app/core/config.py`, `tests/test_middleware.py`, `tests/test_config.py`, `docs/replit-deployment-runbook.md`). |
 | BE-01 | **DONE** | 2026-02-06 | Replaced request-size middleware with ASGI-level pre-handler enforcement for `Content-Length` and chunked bodies; added tests preventing side effects on oversized requests (`backend/app/core/middleware.py`, `tests/test_middleware.py`). |
 | BE-02 | **DONE** | 2026-02-06 | Refactored session response assembly to avoid double-fetch/refresh and use eager-loaded related records (`backend/app/services/sessions.py`). |
 | BE-03 | **DONE** | 2026-02-06 | Reworked BEV-vs-diesel analytics from per-pair query loop to a single aggregate query (`backend/app/services/sessions.py`). |

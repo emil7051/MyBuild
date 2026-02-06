@@ -12,7 +12,6 @@ import { useTCOStore } from '@state/tcoStore';
 import type { WizardFormValues } from '@forms/wizardForm';
 import { wizardFormSchema } from '@forms/wizardForm';
 
-
 const steps: WizardStep[] = [
   {
     title: 'Your current truck',
@@ -55,18 +54,16 @@ const WizardPage = () => {
   const wizardData = useTCOStore((state) => state.wizardData);
   const isCalculating = useTCOStore((state) => state.isCalculating);
   const updateWizard = useTCOStore((state) => state.updateWizard);
-  
+
   useWizardAutosave();
 
-  // Memoize form values to prevent unnecessary re-renders
-  // This is the single source of truth flowing FROM the store TO the form
   const formValues = useMemo<WizardFormValues>(
     () => ({
       scenario: wizardData.scenario,
       purchaseMethod: wizardData.purchaseMethod,
       dutyCycle: wizardData.dutyCycle,
-      overrides: wizardData.overrides ?? {},
-      vehicleParamOverrides: wizardData.vehicleParamOverrides ?? {},
+      overrides: wizardData.overrides!,
+      vehicleParamOverrides: wizardData.vehicleParamOverrides!,
     }),
     [
       wizardData.scenario,
@@ -80,10 +77,7 @@ const WizardPage = () => {
   const formMethods = useForm<WizardFormValues>({
     resolver: zodResolver(wizardFormSchema),
     mode: 'onTouched',
-    // Use 'values' for reactive sync from store (not 'defaultValues')
-    // This automatically updates form state when store changes
     values: formValues,
-    // Keep dirty field values when external values change
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -99,16 +93,14 @@ const WizardPage = () => {
   ];
   const activeComponent = stepComponents[stepIndex];
 
-  // Debounced form-to-store sync
-  // Only syncs user changes back to store, with debounce to avoid rapid updates
   const syncToStore = useCallback(
     (values: WizardFormValues) => {
       updateWizard({
         scenario: values.scenario,
         purchaseMethod: values.purchaseMethod,
         dutyCycle: values.dutyCycle,
-        overrides: values.overrides ?? {},
-        vehicleParamOverrides: values.vehicleParamOverrides ?? {},
+        overrides: values.overrides,
+        vehicleParamOverrides: values.vehicleParamOverrides,
       });
     },
     [updateWizard]
@@ -116,13 +108,11 @@ const WizardPage = () => {
 
   useEffect(() => {
     const subscription = formMethods.watch((values) => {
-      // Always cancel pending debounce on any watch event
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
         debounceRef.current = null;
       }
 
-      // Skip if any duty cycle value is undefined (fields not yet registered or cleared)
       if (
         values.dutyCycle?.urban === undefined ||
         values.dutyCycle?.regional === undefined ||
@@ -131,7 +121,6 @@ const WizardPage = () => {
         return;
       }
 
-      // Debounce store updates to avoid rapid re-renders during typing
       debounceRef.current = setTimeout(() => {
         syncToStore(values as WizardFormValues);
       }, 150);

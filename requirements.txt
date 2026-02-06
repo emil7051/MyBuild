@@ -30,5 +30,10 @@ aiosqlite==0.19.0
 # Cache
 redis==5.0.1
 
+# Observability
+opentelemetry-api==1.31.1
+opentelemetry-sdk==1.31.1
+opentelemetry-exporter-otlp-proto-http==1.31.1
+
 # Security (Phase 4)
 slowapi==0.1.9

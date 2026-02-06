@@ -30,3 +30,13 @@ def test_normalize_database_url_non_postgres() -> None:
     url = "sqlite+aiosqlite:///./local.db"
     settings = Settings(database_url=url)
     assert settings.database_url == url
+
+
+def test_reject_invalid_tracing_sample_rate() -> None:
+    with pytest.raises(ValueError, match="observability_tracing_sample_rate"):
+        Settings(observability_tracing_sample_rate=1.5)
+
+
+def test_reject_invalid_alert_error_rate_threshold() -> None:
+    with pytest.raises(ValueError, match="observability_alert_error_rate_threshold"):
+        Settings(observability_alert_error_rate_threshold=-0.1)

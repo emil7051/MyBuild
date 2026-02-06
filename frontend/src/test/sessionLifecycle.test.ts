@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTCOStore } from '@state/tcoStore';
 import type { CalculationResponsePayload, SessionCreateResponsePayload, WizardData } from '@shared/types/tco.types';
+import type { AxiosError } from 'axios';
 
 vi.mock('@services/api', () => ({
   createSession: vi.fn(),
@@ -46,10 +47,25 @@ const sampleResult: CalculationResponsePayload = {
   },
 };
 
+const makeSessionResponse = () => ({
+  sessionId: 'session-123',
+  status: 'completed' as const,
+  wizardData,
+  results: [sampleResult],
+  updatedAt: new Date().toISOString(),
+  lastCalculatedAt: new Date().toISOString(),
+});
+
+const makeAxiosStatusError = (status: number) =>
+  ({
+    isAxiosError: true,
+    response: { status },
+  }) as AxiosError;
+
 describe('sessionLifecycle', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     useTCOStore.setState({ sessionId: undefined });
   });
 
@@ -65,14 +81,7 @@ describe('sessionLifecycle', () => {
     const updateSessionMock = vi.mocked(updateSession);
 
     createSessionMock.mockReturnValue(createPromise);
-    updateSessionMock.mockResolvedValue({
-      sessionId: 'session-123',
-      status: 'completed',
-      wizardData,
-      results: [sampleResult],
-      updatedAt: new Date().toISOString(),
-      lastCalculatedAt: new Date().toISOString(),
-    });
+    updateSessionMock.mockResolvedValue(makeSessionResponse());
 
     const { persistSessionUpdate } = await import('@services/sessionLifecycle');
 
@@ -103,5 +112,40 @@ describe('sessionLifecycle', () => {
       'session-123',
       { wizardData, results: [sampleResult] }
     );
+  });
+
+  it('retries transient session update failures', async () => {
+    const { updateSession } = await import('@services/api');
+    const { useTCOStore: lifecycleStore } = await import('@state/tcoStore');
+    const updateSessionMock = vi.mocked(updateSession);
+    const transientError = makeAxiosStatusError(503);
+
+    lifecycleStore.setState({ sessionId: 'session-123' });
+    updateSessionMock
+      .mockRejectedValueOnce(transientError)
+      .mockResolvedValueOnce(makeSessionResponse());
+
+    const { persistSessionUpdate } = await import('@services/sessionLifecycle');
+
+    await persistSessionUpdate({ wizardData }, { wizardData });
+
+    expect(updateSessionMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry non-transient session update failures', async () => {
+    const { updateSession } = await import('@services/api');
+    const { useTCOStore: lifecycleStore } = await import('@state/tcoStore');
+    const updateSessionMock = vi.mocked(updateSession);
+    const validationError = makeAxiosStatusError(400);
+
+    lifecycleStore.setState({ sessionId: 'session-123' });
+    updateSessionMock.mockRejectedValue(validationError);
+
+    const { persistSessionUpdate } = await import('@services/sessionLifecycle');
+
+    await expect(
+      persistSessionUpdate({ wizardData }, { wizardData })
+    ).rejects.toBe(validationError);
+    expect(updateSessionMock).toHaveBeenCalledTimes(1);
   });
 });
