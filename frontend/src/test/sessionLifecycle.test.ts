@@ -24,19 +24,25 @@ const sampleResult: CalculationResponsePayload = {
   annual_cost: 100,
   cost_per_km: 1,
   breakdown: {
-    purchase_cost: 0,
-    fuel_cost: 0,
-    maintenance_cost: 0,
-    insurance_cost: 0,
-    registration_cost: 0,
-    battery_replacement_cost: 0,
-    financing_cost: 0,
-    carbon_cost: 0,
-    charging_labour_cost: 0,
-    payload_penalty_cost: 0,
-    residual_value: 0,
-    depreciation: 0,
-    taxes_and_fees: 0,
+    npv_costs: {
+      fuel_cost: 0,
+      maintenance_cost: 0,
+      battery_replacement_cost: 0,
+      carbon_cost: 0,
+      charging_labour_cost: 0,
+      payload_penalty_cost: 0,
+      residual_value: 0,
+    },
+    nominal_costs: {
+      insurance_cost: 0,
+      registration_cost: 0,
+      financing_cost: 0,
+      depreciation: 0,
+    },
+    upfront_costs: {
+      purchase_cost: 0,
+      taxes_and_fees: 0,
+    },
   },
 };
 

@@ -101,44 +101,44 @@ const SensitivityTornadoChart = () => {
     {
       parameter: 'Fuel price',
       // Higher fuel price benefits BEV (more diesel savings)
-      lowDelta: -(dieselResult.breakdown.fuel_cost * 0.2),
-      highDelta: dieselResult.breakdown.fuel_cost * 0.2,
+      lowDelta: -(dieselResult.breakdown.npv_costs.fuel_cost * 0.2),
+      highDelta: dieselResult.breakdown.npv_costs.fuel_cost * 0.2,
       baselineSavings,
     },
     {
       parameter: 'Electricity price',
       // Higher electricity price hurts BEV
-      lowDelta: bevResult.breakdown.fuel_cost * 0.2,
-      highDelta: -(bevResult.breakdown.fuel_cost * 0.2),
+      lowDelta: bevResult.breakdown.npv_costs.fuel_cost * 0.2,
+      highDelta: -(bevResult.breakdown.npv_costs.fuel_cost * 0.2),
       baselineSavings,
     },
     {
       parameter: 'Annual kms',
       // More kms amplifies operating cost differences
       // If BEV has lower operating costs, more kms = more savings
-      lowDelta: -((dieselResult.breakdown.fuel_cost - bevResult.breakdown.fuel_cost) * 0.2),
-      highDelta: (dieselResult.breakdown.fuel_cost - bevResult.breakdown.fuel_cost) * 0.2,
+      lowDelta: -((dieselResult.breakdown.npv_costs.fuel_cost - bevResult.breakdown.npv_costs.fuel_cost) * 0.2),
+      highDelta: (dieselResult.breakdown.npv_costs.fuel_cost - bevResult.breakdown.npv_costs.fuel_cost) * 0.2,
       baselineSavings,
     },
     {
       parameter: 'Maintenance cost',
       // Higher maintenance costs hurt diesel more (they're higher baseline)
-      lowDelta: -(dieselResult.breakdown.maintenance_cost - bevResult.breakdown.maintenance_cost) * 0.2,
-      highDelta: (dieselResult.breakdown.maintenance_cost - bevResult.breakdown.maintenance_cost) * 0.2,
+      lowDelta: -(dieselResult.breakdown.npv_costs.maintenance_cost - bevResult.breakdown.npv_costs.maintenance_cost) * 0.2,
+      highDelta: (dieselResult.breakdown.npv_costs.maintenance_cost - bevResult.breakdown.npv_costs.maintenance_cost) * 0.2,
       baselineSavings,
     },
     {
       parameter: 'Battery replacement',
       // Only affects BEV
-      lowDelta: bevResult.breakdown.battery_replacement_cost * 0.2,
-      highDelta: -(bevResult.breakdown.battery_replacement_cost * 0.2),
+      lowDelta: bevResult.breakdown.npv_costs.battery_replacement_cost * 0.2,
+      highDelta: -(bevResult.breakdown.npv_costs.battery_replacement_cost * 0.2),
       baselineSavings,
     },
     {
       parameter: 'Purchase price',
       // BEV usually more expensive, so lower price helps BEV
-      lowDelta: bevResult.breakdown.purchase_cost * 0.2,
-      highDelta: -(bevResult.breakdown.purchase_cost * 0.2),
+      lowDelta: bevResult.breakdown.upfront_costs.purchase_cost * 0.2,
+      highDelta: -(bevResult.breakdown.upfront_costs.purchase_cost * 0.2),
       baselineSavings,
     },
   ];

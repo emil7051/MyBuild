@@ -21,8 +21,8 @@ describe('Vehicle Parameter Overrides', () => {
         vehicle_overrides: { msrp_override: 500000 },
       });
 
-      expect(higherMsrp.breakdown.purchase_cost).toBeGreaterThan(
-        standard.breakdown.purchase_cost
+      expect(higherMsrp.breakdown.upfront_costs.purchase_cost).toBeGreaterThan(
+        standard.breakdown.upfront_costs.purchase_cost
       );
     });
 
@@ -33,8 +33,8 @@ describe('Vehicle Parameter Overrides', () => {
         vehicle_overrides: { msrp_override: 500000 },
       });
 
-      expect(higherMsrp.breakdown.depreciation).toBeGreaterThan(
-        standard.breakdown.depreciation
+      expect(higherMsrp.breakdown.nominal_costs.depreciation).toBeGreaterThan(
+        standard.breakdown.nominal_costs.depreciation
       );
     });
   });
@@ -48,8 +48,8 @@ describe('Vehicle Parameter Overrides', () => {
       });
 
       // Higher range = fewer charging sessions = lower labor cost
-      expect(higherRange.breakdown.charging_labour_cost).toBeLessThanOrEqual(
-        standard.breakdown.charging_labour_cost
+      expect(higherRange.breakdown.npv_costs.charging_labour_cost).toBeLessThanOrEqual(
+        standard.breakdown.npv_costs.charging_labour_cost
       );
     });
   });
@@ -62,8 +62,8 @@ describe('Vehicle Parameter Overrides', () => {
         vehicle_overrides: { kwh_per_km_override: 2.0 }, // Higher = less efficient
       });
 
-      expect(lessEfficient.breakdown.fuel_cost).toBeGreaterThan(
-        standard.breakdown.fuel_cost
+      expect(lessEfficient.breakdown.npv_costs.fuel_cost).toBeGreaterThan(
+        standard.breakdown.npv_costs.fuel_cost
       );
     });
   });
@@ -80,7 +80,7 @@ describe('Vehicle Parameter Overrides', () => {
       });
 
       expect(result.total_cost).toBeGreaterThan(0);
-      expect(result.breakdown.purchase_cost).toBeGreaterThan(0);
+      expect(result.breakdown.upfront_costs.purchase_cost).toBeGreaterThan(0);
     });
   });
 });
@@ -102,8 +102,8 @@ describe('Cost Overrides', () => {
       });
 
       // Higher annual kms should increase fuel costs
-      expect(higherKms.breakdown.fuel_cost).toBeGreaterThan(
-        standard.breakdown.fuel_cost
+      expect(higherKms.breakdown.npv_costs.fuel_cost).toBeGreaterThan(
+        standard.breakdown.npv_costs.fuel_cost
       );
     });
 
@@ -114,7 +114,7 @@ describe('Cost Overrides', () => {
       });
 
       expect(result.total_cost).toBeGreaterThan(0);
-      expect(result.breakdown.fuel_cost).toBeGreaterThan(0);
+      expect(result.breakdown.npv_costs.fuel_cost).toBeGreaterThan(0);
     });
   });
 
@@ -130,8 +130,8 @@ describe('Cost Overrides', () => {
         overrides: { fuel_price_variation: 1.5 }, // 50% higher
       });
 
-      expect(higherFuel.breakdown.fuel_cost).toBeGreaterThan(
-        standard.breakdown.fuel_cost
+      expect(higherFuel.breakdown.npv_costs.fuel_cost).toBeGreaterThan(
+        standard.breakdown.npv_costs.fuel_cost
       );
     });
 
@@ -157,7 +157,7 @@ describe('Cost Overrides', () => {
         vehicle_id: 'DSL001',
       });
 
-      expect(result.breakdown.fuel_cost).toBeCloseTo(expectedFuelCost, 6);
+      expect(result.breakdown.npv_costs.fuel_cost).toBeCloseTo(expectedFuelCost, 6);
     });
   });
 
@@ -169,8 +169,8 @@ describe('Cost Overrides', () => {
         overrides: { electricity_price_variation: 1.5 },
       });
 
-      expect(higherElectricity.breakdown.fuel_cost).toBeGreaterThan(
-        standard.breakdown.fuel_cost
+      expect(higherElectricity.breakdown.npv_costs.fuel_cost).toBeGreaterThan(
+        standard.breakdown.npv_costs.fuel_cost
       );
     });
   });
@@ -183,7 +183,7 @@ describe('Cost Overrides', () => {
         overrides: { apply_road_user_charge_bev: false },
       });
 
-      expect(explicitOff.breakdown.fuel_cost).toBeCloseTo(defaultResult.breakdown.fuel_cost, 6);
+      expect(explicitOff.breakdown.npv_costs.fuel_cost).toBeCloseTo(defaultResult.breakdown.npv_costs.fuel_cost, 6);
     });
 
     it('should increase BEV fuel/energy costs when enabled', () => {
@@ -193,7 +193,7 @@ describe('Cost Overrides', () => {
         overrides: { apply_road_user_charge_bev: true },
       });
 
-      expect(withRoadUserCharge.breakdown.fuel_cost).toBeGreaterThan(defaultResult.breakdown.fuel_cost);
+      expect(withRoadUserCharge.breakdown.npv_costs.fuel_cost).toBeGreaterThan(defaultResult.breakdown.npv_costs.fuel_cost);
     });
 
     it('should not affect diesel vehicles when enabled', () => {
@@ -207,7 +207,7 @@ describe('Cost Overrides', () => {
         overrides: { apply_road_user_charge_bev: true },
       });
 
-      expect(dieselWithToggle.breakdown.fuel_cost).toBeCloseTo(dieselDefault.breakdown.fuel_cost, 6);
+      expect(dieselWithToggle.breakdown.npv_costs.fuel_cost).toBeCloseTo(dieselDefault.breakdown.npv_costs.fuel_cost, 6);
     });
   });
 });

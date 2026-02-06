@@ -157,6 +157,7 @@ DOWN_PAYMENT_RATE = 0.20  # % (percentage of price paid upfront)
 BATTERY_REPLACEMENT_COST = 130  # $/kWh (cost to replace battery cells)
 BATTERY_RECYCLE_VALUE = 13  # $/kWh (value obtained from recycling old battery)
 BATTERY_DEGRADATION_RATE = 0.025  # %/year (annual capacity loss)
+BATTERY_REPLACEMENT_YEAR = 8  # Year of mid-life battery replacement
 BATTERY_LIFE_VARIATION_BASE = (
     2.0  # Base multiplier for battery life variation calculations
 )

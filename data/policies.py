@@ -170,7 +170,10 @@ def calculate_bev_purchase_rebate(vehicle_price: float) -> float:
 
     # Percentage rebate
     if POLICIES["percentage_rebate"].enabled:
-        percentage_rebate = vehicle_price * POLICIES["percentage_rebate"].percentage
+        percentage_base = max(0.0, vehicle_price - bev_purchase_rebate)
+        percentage_rebate = (
+            percentage_base * POLICIES["percentage_rebate"].percentage
+        )
         if POLICIES["percentage_rebate"].max_amount:
             percentage_rebate = min(
                 percentage_rebate, POLICIES["percentage_rebate"].max_amount

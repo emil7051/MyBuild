@@ -28,11 +28,6 @@ const metrics: {
         : `${detail.litres_per_km.toFixed(2)} L/km`,
   },
   {
-    key: 'maintenance_cost_per_km',
-    label: 'Maintenance ($/km)',
-    formatter: (detail) => `$${detail.maintenance_cost_per_km.toFixed(2)}`,
-  },
-  {
     key: 'annual_kms',
     label: 'Annual kms default',
     formatter: (detail) => `${detail.annual_kms.toLocaleString()} km`,

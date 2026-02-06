@@ -81,51 +81,13 @@ export interface CalculationRequestPayload {
   vehicle_overrides?: VehicleParamOverrides;
 }
 
-/**
- * Cost breakdown for a vehicle over its lifetime.
- *
- * IMPORTANT: Value types are MIXED for different cost categories.
- * When displaying or comparing these values, be aware of their different bases.
- *
- * NPV-ADJUSTED (discounted to present value using annuity-due convention):
- * - fuel_cost: Energy/fuel costs over 15 years
- * - maintenance_cost: Maintenance costs over 15 years
- * - battery_replacement_cost: Battery replacement at mid-life (if applicable)
- * - carbon_cost: Carbon price costs over 15 years
- * - charging_labour_cost: Driver time spent charging (BEV only)
- * - payload_penalty_cost: Lost revenue from reduced payload capacity
- * - residual_value: End-of-life vehicle value (negative - offsets costs)
- *
- * NOMINAL LIFETIME TOTALS (NOT discounted - simple sum over 15 years):
- * - insurance_cost: Total insurance premiums (annual × 15)
- * - registration_cost: Total registration fees (annual × 15)
- * - depreciation: Accounting depreciation (MSRP - residual)
- *
- * UPFRONT VALUES (year 0, no discounting needed):
- * - purchase_cost: Initial purchase price including stamp duty, minus rebates
- * - financing_cost: Total nominal interest over loan term (if financed)
- * - taxes_and_fees: Stamp duty and transfer fees (upfront only)
- *
- * NOTE: The total_cost in CalculationResponsePayload IS fully NPV-adjusted
- * and represents the true economic cost comparison. Individual breakdown
- * components should be used for directional insights rather than precise
- * summation due to the mixed value bases.
- */
-export interface CostBreakdown {
-  /** Upfront purchase price including stamp duty, minus rebates */
-  purchase_cost: number;
+export interface NpvCostBreakdown {
   /** NPV of fuel/energy costs over vehicle life */
   fuel_cost: number;
   /** NPV of maintenance costs over vehicle life */
   maintenance_cost: number;
-  /** Nominal total: annual insurance × vehicle life (NOT NPV-adjusted) */
-  insurance_cost: number;
-  /** Nominal total: annual registration × vehicle life (NOT NPV-adjusted) */
-  registration_cost: number;
   /** NPV of battery replacement cost (if applicable) */
   battery_replacement_cost: number;
-  /** Total nominal interest paid over loan term (NOT NPV-adjusted) */
-  financing_cost: number;
   /** NPV of carbon cost over vehicle life */
   carbon_cost: number;
   /** NPV of charging labour cost (driver time at charger) */
@@ -134,10 +96,36 @@ export interface CostBreakdown {
   payload_penalty_cost: number;
   /** NPV of residual value at end of life (negative value - offsets costs) */
   residual_value: number;
+}
+
+export interface NominalCostBreakdown {
+  /** Nominal total: annual insurance × vehicle life (NOT NPV-adjusted) */
+  insurance_cost: number;
+  /** Nominal total: annual registration × vehicle life (NOT NPV-adjusted) */
+  registration_cost: number;
+  /** Total nominal interest paid over loan term (NOT NPV-adjusted) */
+  financing_cost: number;
   /** Accounting depreciation: MSRP minus residual value */
   depreciation: number;
+}
+
+export interface UpfrontCostBreakdown {
+  /** Upfront purchase price including stamp duty, minus rebates */
+  purchase_cost: number;
   /** Stamp duty only (registration is separate in registration_cost) */
   taxes_and_fees: number;
+}
+
+/**
+ * Grouped cost breakdown for a vehicle over its lifetime.
+ *
+ * NOTE: The `total_cost` in `CalculationResponsePayload` is fully NPV-adjusted
+ * and is the authoritative comparison metric.
+ */
+export interface CostBreakdown {
+  npv_costs: NpvCostBreakdown;
+  nominal_costs: NominalCostBreakdown;
+  upfront_costs: UpfrontCostBreakdown;
 }
 
 export interface CalculationResponsePayload {
@@ -173,7 +161,6 @@ export interface VehicleDetail extends VehicleSummary {
   battery_capacity_kwh: number;
   kwh_per_km: number;
   litres_per_km: number;
-  maintenance_cost_per_km: number;
   annual_registration: number;
   annual_kms: number;
 }

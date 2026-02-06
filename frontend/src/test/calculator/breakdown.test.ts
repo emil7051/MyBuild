@@ -14,26 +14,18 @@ describe('Cost Breakdown Consistency', () => {
     const result = calculateTco(basePayload);
     const breakdown = result.breakdown;
 
-    const requiredFields: (keyof CostBreakdown)[] = [
-      'purchase_cost',
-      'fuel_cost',
-      'maintenance_cost',
-      'insurance_cost',
-      'registration_cost',
-      'battery_replacement_cost',
-      'financing_cost',
-      'carbon_cost',
-      'charging_labour_cost',
-      'payload_penalty_cost',
-      'residual_value',
-      'depreciation',
-      'taxes_and_fees',
+    const requiredGroups: (keyof CostBreakdown)[] = [
+      'npv_costs',
+      'nominal_costs',
+      'upfront_costs',
     ];
 
-    for (const field of requiredFields) {
-      expect(breakdown[field]).toBeDefined();
-      expect(typeof breakdown[field]).toBe('number');
-      expect(breakdown[field]).not.toBeNaN();
+    for (const group of requiredGroups) {
+      expect(breakdown[group]).toBeDefined();
+      Object.values(breakdown[group]).forEach((value) => {
+        expect(typeof value).toBe('number');
+        expect(value).not.toBeNaN();
+      });
     }
   });
 
@@ -41,20 +33,20 @@ describe('Cost Breakdown Consistency', () => {
     const result = calculateTco(basePayload);
     const breakdown = result.breakdown;
 
-    expect(breakdown.purchase_cost).toBeGreaterThanOrEqual(0);
-    expect(breakdown.fuel_cost).toBeGreaterThanOrEqual(0);
-    expect(breakdown.maintenance_cost).toBeGreaterThanOrEqual(0);
-    expect(breakdown.insurance_cost).toBeGreaterThanOrEqual(0);
-    expect(breakdown.registration_cost).toBeGreaterThanOrEqual(0);
-    expect(breakdown.financing_cost).toBeGreaterThanOrEqual(0);
-    expect(breakdown.carbon_cost).toBeGreaterThanOrEqual(0);
-    expect(breakdown.taxes_and_fees).toBeGreaterThanOrEqual(0);
+    expect(breakdown.upfront_costs.purchase_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.npv_costs.fuel_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.npv_costs.maintenance_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.nominal_costs.insurance_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.nominal_costs.registration_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.nominal_costs.financing_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.npv_costs.carbon_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.upfront_costs.taxes_and_fees).toBeGreaterThanOrEqual(0);
   });
 
   it('should have residual value less than purchase cost', () => {
     const result = calculateTco(basePayload);
-    expect(result.breakdown.residual_value).toBeLessThan(
-      result.breakdown.purchase_cost + result.breakdown.taxes_and_fees
+    expect(result.breakdown.npv_costs.residual_value).toBeLessThan(
+      result.breakdown.upfront_costs.purchase_cost + result.breakdown.upfront_costs.taxes_and_fees
     );
   });
 
@@ -63,9 +55,9 @@ describe('Cost Breakdown Consistency', () => {
     const breakdown = result.breakdown;
 
     // This is an approximation due to NPV adjustments
-    expect(breakdown.depreciation).toBeGreaterThan(0);
-    expect(breakdown.depreciation).toBeLessThan(
-      breakdown.purchase_cost + breakdown.taxes_and_fees
+    expect(breakdown.nominal_costs.depreciation).toBeGreaterThan(0);
+    expect(breakdown.nominal_costs.depreciation).toBeLessThan(
+      breakdown.upfront_costs.purchase_cost + breakdown.upfront_costs.taxes_and_fees
     );
   });
 
@@ -74,8 +66,8 @@ describe('Cost Breakdown Consistency', () => {
       const bev = calculateTco(basePayload);
       const diesel = calculateTco({ ...basePayload, vehicle_id: 'DSL001' });
 
-      expect(bev.breakdown.battery_replacement_cost).toBeGreaterThan(0);
-      expect(diesel.breakdown.battery_replacement_cost).toBe(0);
+      expect(bev.breakdown.npv_costs.battery_replacement_cost).toBeGreaterThan(0);
+      expect(diesel.breakdown.npv_costs.battery_replacement_cost).toBe(0);
     });
 
     it('should have charging labour cost only for large BEVs (articulated trucks)', () => {
@@ -83,13 +75,13 @@ describe('Cost Breakdown Consistency', () => {
       const articulatedBev = calculateTco({ ...basePayload, vehicle_id: 'BEV007' });
       const diesel = calculateTco({ ...basePayload, vehicle_id: 'DSL007' });
 
-      expect(articulatedBev.breakdown.charging_labour_cost).toBeGreaterThan(0);
-      expect(diesel.breakdown.charging_labour_cost).toBe(0);
+      expect(articulatedBev.breakdown.npv_costs.charging_labour_cost).toBeGreaterThan(0);
+      expect(diesel.breakdown.npv_costs.charging_labour_cost).toBe(0);
     });
 
     it('should have zero charging labour cost for smaller BEVs', () => {
       const smallBev = calculateTco(basePayload); // BEV001 - light rigid
-      expect(smallBev.breakdown.charging_labour_cost).toBe(0);
+      expect(smallBev.breakdown.npv_costs.charging_labour_cost).toBe(0);
     });
   });
 });

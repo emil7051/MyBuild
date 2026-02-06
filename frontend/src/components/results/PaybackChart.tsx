@@ -92,8 +92,8 @@ const PaybackChart = () => {
 
   // Upfront costs are purchase_cost only (which includes stamp duty but excludes financing_cost).
   // financing_cost is the total nominal interest over the loan term, NOT an upfront amount.
-  const dieselUpfront = dieselResult.breakdown.purchase_cost;
-  const bevUpfront = bevResult.breakdown.purchase_cost;
+  const dieselUpfront = dieselResult.breakdown.upfront_costs.purchase_cost;
+  const bevUpfront = bevResult.breakdown.upfront_costs.purchase_cost;
 
   // Calculate cumulative costs over the vehicle life
   const data: CumulativeCostData[] = [];

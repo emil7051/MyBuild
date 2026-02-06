@@ -22,6 +22,5 @@ class VehicleDetail(VehicleSummary):
     battery_capacity_kwh: float
     kwh_per_km: float
     litres_per_km: float
-    maintenance_cost_per_km: float
     annual_registration: float
     annual_kms: float

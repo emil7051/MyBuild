@@ -112,25 +112,6 @@ Ranked by likelihood x impact. Scores: L=likelihood (1-5), I=impact (1-5), Risk=
 
 ### 4.1 Correctness & Reliability
 
-#### CALC-05: Python and TypeScript rebate calculation logic diverges
-- **Evidence:** TypeScript at `tcoCalculator.ts:694-711` applies fixed rebate before calculating percentage rebate base (`percentageBase = Math.max(0, msrp - rebate)`). Python at `policies.py:163-180` calculates percentage rebate on the full `vehicle_price`.
-- **Impact:** No current impact (both policies disabled). If both rebates are enabled simultaneously, the two implementations produce different results.
-- **Recommendation:** Align the logic. Most rebate schemes apply to the base price. Update whichever implementation is wrong.
-
-#### CALC-06: Mixed-basis cost breakdown can mislead users
-- **Evidence:** `shared/types/tco.types.ts:83-140`. The `CostBreakdown` struct mixes NPV-adjusted values (fuel, maintenance), nominal lifetime totals (insurance, registration), and upfront values (purchase). Returned as a flat object.
-- **Impact:** If anyone sums breakdown fields to reconstruct `total_cost`, they get a wrong answer. Chart components stacking these values may present misleading visualizations.
-- **Decision:** Restructure into named groups (`npv_costs`, `nominal_costs`, `upfront_costs`). This is a breaking change that touches the calculator output, all chart components, API response shapes, and session storage. Requires a comprehensive migration plan (see Phase 2 sub-plan for CALC-06).
-
-#### CALC-07: `BATTERY_REPLACEMENT_YEAR` not in Python constants
-- **Evidence:** `tcoCalculator.ts:318` uses `CONSTANTS.BATTERY_REPLACEMENT_YEAR ?? 8`. Not defined in `data/constants.py` or `constants.generated.ts`. The nullish coalescing silently falls back to 8.
-- **Impact:** Hidden magic number outside the generation pipeline.
-- **Recommendation:** Add `BATTERY_REPLACEMENT_YEAR = 8` to `data/constants.py`.
-
-#### CALC-08: Vehicle `maintenance_cost_per_km` field ignored by calculator
-- **Evidence:** Vehicle catalog has per-vehicle values (BEV001=0.05, DSL001=0.20). Calculator uses per-weight-class constants instead (BEV Light Rigid=0.10, Diesel Light Rigid=0.18). `tcoCalculator.ts:546-553`.
-- **Impact:** Users see one maintenance cost in vehicle specs, calculations use a different number. Confusing.
-- **Decision:** Use per-weight-class constants (current calculator behavior). Remove the misleading `maintenance_cost_per_km` field from the vehicle catalog data to avoid showing users a number that doesn't drive calculations.
 
 #### FE-01: Missing Error Boundary
 - **Evidence:** No `ErrorBoundary` component in `frontend/src/`. No `componentDidCatch` or `getDerivedStateFromError` usage. Searched entire `src/`.
@@ -832,6 +813,10 @@ Completed items moved from active backlog/planning lists.
 | CALC-02 | **DONE** | 2026-02-06 | Fixed articulated BEV charging mix sum to 1.0 in `data/constants.py`; added charging-mix validation in `scripts/validation.py`. |
 | CALC-03 | **DONE** | 2026-02-06 | Applied diesel fuel tax credit in `shared/calculator/tcoCalculator.ts`; refreshed verification fixtures/tests. |
 | CALC-04 | **DONE** | 2026-02-06 | Implemented BEV road user charge as a toggleable override (default OFF) across shared types, frontend, backend model, and calculator logic. |
+| CALC-05 | **DONE** | 2026-02-06 | Aligned Python and TypeScript rebate calculation logic. |
+| CALC-06 | **DONE** | 2026-02-06 | Restructured cost breakdown into named groups (`npv_costs`, `nominal_costs`, `upfront_costs`). |
+| CALC-07 | **DONE** | 2026-02-06 | Added `BATTERY_REPLACEMENT_YEAR = 8` to `data/constants.py`. |
+| CALC-08 | **DONE** | 2026-02-06 | Removed the misleading `maintenance_cost_per_km` field from the vehicle catalog data to avoid showing users a number that doesn't drive calculations. |
 
 
 #### CALC-01: `calculateAnnualisedCost` uses ordinary annuity instead of annuity-due
@@ -863,3 +848,22 @@ Completed items moved from active backlog/planning lists.
 - **Impact:** Planned feature infrastructure exists but is inactive. Road user charges for BEVs are active Australian policy. Not applying them understates BEV operating costs.
 - **Decision:** Implement as opt-in toggle (`apply_road_user_charge_bev`) with default OFF, so current policy settings remain reflected while enabling scenario testing.
 
+#### CALC-05: Python and TypeScript rebate calculation logic diverges
+- **Evidence:** TypeScript at `tcoCalculator.ts:694-711` applies fixed rebate before calculating percentage rebate base (`percentageBase = Math.max(0, msrp - rebate)`). Python at `policies.py:163-180` calculates percentage rebate on the full `vehicle_price`.
+- **Impact:** No current impact (both policies disabled). If both rebates are enabled simultaneously, the two implementations produce different results.
+- **Recommendation:** Align the logic. Most rebate schemes apply to the base price. Update whichever implementation is wrong.
+
+#### CALC-06: Mixed-basis cost breakdown can mislead users
+- **Evidence:** `shared/types/tco.types.ts:83-140`. The `CostBreakdown` struct mixes NPV-adjusted values (fuel, maintenance), nominal lifetime totals (insurance, registration), and upfront values (purchase). Returned as a flat object.
+- **Impact:** If anyone sums breakdown fields to reconstruct `total_cost`, they get a wrong answer. Chart components stacking these values may present misleading visualizations.
+- **Decision:** Restructure into named groups (`npv_costs`, `nominal_costs`, `upfront_costs`). This is a breaking change that touches the calculator output, all chart components, API response shapes, and session storage. Requires a comprehensive migration plan (see Phase 2 sub-plan for CALC-06).
+
+#### CALC-07: `BATTERY_REPLACEMENT_YEAR` not in Python constants
+- **Evidence:** `tcoCalculator.ts:318` uses `CONSTANTS.BATTERY_REPLACEMENT_YEAR ?? 8`. Not defined in `data/constants.py` or `constants.generated.ts`. The nullish coalescing silently falls back to 8.
+- **Impact:** Hidden magic number outside the generation pipeline.
+- **Recommendation:** Add `BATTERY_REPLACEMENT_YEAR = 8` to `data/constants.py`.
+
+#### CALC-08: Vehicle `maintenance_cost_per_km` field ignored by calculator
+- **Evidence:** Vehicle catalog has per-vehicle values (BEV001=0.05, DSL001=0.20). Calculator uses per-weight-class constants instead (BEV Light Rigid=0.10, Diesel Light Rigid=0.18). `tcoCalculator.ts:546-553`.
+- **Impact:** Users see one maintenance cost in vehicle specs, calculations use a different number. Confusing.
+- **Decision:** Use per-weight-class constants (current calculator behavior). Remove the misleading `maintenance_cost_per_km` field from the vehicle catalog data to avoid showing users a number that doesn't drive calculations.

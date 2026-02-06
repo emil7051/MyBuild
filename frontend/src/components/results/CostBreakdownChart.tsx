@@ -28,26 +28,86 @@ const COST_COLORS = {
   taxes_and_fees: '#000000',
 } as const;
 
-const breakdownSeries = [
-  { key: 'purchase_cost', label: 'Purchase', color: COST_COLORS.purchase_cost },
-  { key: 'fuel_cost', label: 'Fuel / Energy', color: COST_COLORS.fuel_cost },
-  { key: 'maintenance_cost', label: 'Maintenance', color: COST_COLORS.maintenance_cost },
-  { key: 'insurance_cost', label: 'Insurance', color: COST_COLORS.insurance_cost },
-  { key: 'registration_cost', label: 'Registration', color: COST_COLORS.registration_cost },
-  { key: 'battery_replacement_cost', label: 'Battery replacement', color: COST_COLORS.battery_replacement_cost },
-  { key: 'financing_cost', label: 'Financing', color: COST_COLORS.financing_cost },
-  { key: 'carbon_cost', label: 'Carbon', color: COST_COLORS.carbon_cost },
-  { key: 'charging_labour_cost', label: 'Charging labour', color: COST_COLORS.charging_labour_cost },
-  { key: 'payload_penalty_cost', label: 'Payload penalty', color: COST_COLORS.payload_penalty_cost },
-  { key: 'taxes_and_fees', label: 'Taxes & fees', color: COST_COLORS.taxes_and_fees },
-] as const;
+type BreakdownSeriesItem = {
+  key: keyof typeof COST_COLORS;
+  label: string;
+  color: string;
+  getValue: (result: CalculationResponsePayload) => number;
+};
 
-type BreakdownKey = keyof CalculationResponsePayload['breakdown'];
+const breakdownSeries: BreakdownSeriesItem[] = [
+  {
+    key: 'purchase_cost',
+    label: 'Purchase',
+    color: COST_COLORS.purchase_cost,
+    getValue: (result) => result.breakdown.upfront_costs.purchase_cost,
+  },
+  {
+    key: 'fuel_cost',
+    label: 'Fuel / Energy',
+    color: COST_COLORS.fuel_cost,
+    getValue: (result) => result.breakdown.npv_costs.fuel_cost,
+  },
+  {
+    key: 'maintenance_cost',
+    label: 'Maintenance',
+    color: COST_COLORS.maintenance_cost,
+    getValue: (result) => result.breakdown.npv_costs.maintenance_cost,
+  },
+  {
+    key: 'insurance_cost',
+    label: 'Insurance',
+    color: COST_COLORS.insurance_cost,
+    getValue: (result) => result.breakdown.nominal_costs.insurance_cost,
+  },
+  {
+    key: 'registration_cost',
+    label: 'Registration',
+    color: COST_COLORS.registration_cost,
+    getValue: (result) => result.breakdown.nominal_costs.registration_cost,
+  },
+  {
+    key: 'battery_replacement_cost',
+    label: 'Battery replacement',
+    color: COST_COLORS.battery_replacement_cost,
+    getValue: (result) => result.breakdown.npv_costs.battery_replacement_cost,
+  },
+  {
+    key: 'financing_cost',
+    label: 'Financing',
+    color: COST_COLORS.financing_cost,
+    getValue: (result) => result.breakdown.nominal_costs.financing_cost,
+  },
+  {
+    key: 'carbon_cost',
+    label: 'Carbon',
+    color: COST_COLORS.carbon_cost,
+    getValue: (result) => result.breakdown.npv_costs.carbon_cost,
+  },
+  {
+    key: 'charging_labour_cost',
+    label: 'Charging labour',
+    color: COST_COLORS.charging_labour_cost,
+    getValue: (result) => result.breakdown.npv_costs.charging_labour_cost,
+  },
+  {
+    key: 'payload_penalty_cost',
+    label: 'Payload penalty',
+    color: COST_COLORS.payload_penalty_cost,
+    getValue: (result) => result.breakdown.npv_costs.payload_penalty_cost,
+  },
+  {
+    key: 'taxes_and_fees',
+    label: 'Taxes & fees',
+    color: COST_COLORS.taxes_and_fees,
+    getValue: (result) => result.breakdown.upfront_costs.taxes_and_fees,
+  },
+];
 
-// Info tooltip explaining mixed value bases in the breakdown chart
+// Info tooltip explaining grouped value bases in the breakdown chart
 const MixedBasesInfo = () => (
   <span className="inline-flex items-center gap-1">
-    Stacked view of lifetime cost components for each vehicle.
+    Grouped cost-basis components for each vehicle.
     <span className="group relative cursor-help">
       <svg
         className="h-4 w-4 text-slate-400 hover:text-slate-600 transition-colors"
@@ -63,12 +123,12 @@ const MixedBasesInfo = () => (
         />
       </svg>
       <span className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 top-6 z-10 w-72 rounded-md bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-        <span className="font-semibold block mb-1">Values have mixed bases:</span>
+        <span className="font-semibold block mb-1">Breakdown groups:</span>
         <span className="block mb-1">
           <span className="text-emerald-300">NPV-adjusted:</span> Fuel, Maintenance, Battery replacement, Carbon, Charging labour, Payload penalty, Residual value
         </span>
         <span className="block mb-1">
-          <span className="text-amber-300">Nominal lifetime:</span> Insurance, Registration, Depreciation
+          <span className="text-amber-300">Nominal lifetime:</span> Insurance, Registration, Financing, Depreciation
         </span>
         <span className="block">
           <span className="text-sky-300">Upfront:</span> Purchase, Taxes &amp; fees
@@ -101,9 +161,8 @@ const CostBreakdownChart = () => {
       vehicle: vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id,
     };
 
-    breakdownSeries.forEach(({ key }) => {
-      const breakdownValue = result.breakdown[key as BreakdownKey] ?? 0;
-      entry[key] = breakdownValue;
+    breakdownSeries.forEach((series) => {
+      entry[series.key] = series.getValue(result);
     });
 
     return entry;

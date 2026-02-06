@@ -38,8 +38,8 @@ describe('Economic Scenarios', () => {
         scenario_name: 'technology_breakthrough',
       });
 
-      expect(breakthrough.breakdown.battery_replacement_cost).toBeLessThanOrEqual(
-        baseline.breakdown.battery_replacement_cost
+      expect(breakthrough.breakdown.npv_costs.battery_replacement_cost).toBeLessThanOrEqual(
+        baseline.breakdown.npv_costs.battery_replacement_cost
       );
     });
   });
@@ -57,8 +57,8 @@ describe('Economic Scenarios', () => {
         scenario_name: 'oil_crisis',
       });
 
-      expect(dieselCrisis.breakdown.fuel_cost).toBeGreaterThan(
-        dieselBaseline.breakdown.fuel_cost
+      expect(dieselCrisis.breakdown.npv_costs.fuel_cost).toBeGreaterThan(
+        dieselBaseline.breakdown.npv_costs.fuel_cost
       );
     });
 

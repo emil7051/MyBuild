@@ -113,7 +113,7 @@ describe('Edge Cases', () => {
         });
         expect(result.total_cost).toBeGreaterThan(0);
         expect(result.annual_cost).toBeGreaterThan(0);
-        expect(result.breakdown.purchase_cost).toBeGreaterThan(0);
+        expect(result.breakdown.upfront_costs.purchase_cost).toBeGreaterThan(0);
       });
     });
   });

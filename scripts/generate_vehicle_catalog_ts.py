@@ -38,7 +38,6 @@ DETAIL_FIELDS: List[str] = SUMMARY_FIELDS + [
     "battery_capacity_kwh",
     "kwh_per_km",
     "litres_per_km",
-    "maintenance_cost_per_km",
     "annual_registration",
     "annual_kms",
 ]

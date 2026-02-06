@@ -19,19 +19,19 @@ describe('TCO Calculation Verification', () => {
       expect(result.cost_per_km).toBeCloseTo(expected.cost_per_km, 3);
 
       // Verify breakdown
-      expect(result.breakdown.purchase_cost).toBeCloseTo(expected.breakdown.purchase_cost, 1);
-      expect(result.breakdown.fuel_cost).toBeCloseTo(expected.breakdown.fuel_cost, 1);
-      expect(result.breakdown.maintenance_cost).toBeCloseTo(expected.breakdown.maintenance_cost, 1);
-      expect(result.breakdown.insurance_cost).toBeCloseTo(expected.breakdown.insurance_cost, 1);
-      expect(result.breakdown.registration_cost).toBeCloseTo(expected.breakdown.registration_cost, 1);
-      expect(result.breakdown.battery_replacement_cost).toBeCloseTo(expected.breakdown.battery_replacement_cost, 1);
-      expect(result.breakdown.financing_cost).toBeCloseTo(expected.breakdown.financing_cost, 1);
-      expect(result.breakdown.carbon_cost).toBeCloseTo(expected.breakdown.carbon_cost, 1);
-      expect(result.breakdown.charging_labour_cost).toBeCloseTo(expected.breakdown.charging_labour_cost, 1);
-      expect(result.breakdown.payload_penalty_cost).toBeCloseTo(expected.breakdown.payload_penalty_cost, 1);
-      expect(result.breakdown.residual_value).toBeCloseTo(expected.breakdown.residual_value, 1);
-      expect(result.breakdown.depreciation).toBeCloseTo(expected.breakdown.depreciation, 1);
-      expect(result.breakdown.taxes_and_fees).toBeCloseTo(expected.breakdown.taxes_and_fees, 1);
+      expect(result.breakdown.upfront_costs.purchase_cost).toBeCloseTo(expected.breakdown.upfront_costs.purchase_cost, 1);
+      expect(result.breakdown.npv_costs.fuel_cost).toBeCloseTo(expected.breakdown.npv_costs.fuel_cost, 1);
+      expect(result.breakdown.npv_costs.maintenance_cost).toBeCloseTo(expected.breakdown.npv_costs.maintenance_cost, 1);
+      expect(result.breakdown.nominal_costs.insurance_cost).toBeCloseTo(expected.breakdown.nominal_costs.insurance_cost, 1);
+      expect(result.breakdown.nominal_costs.registration_cost).toBeCloseTo(expected.breakdown.nominal_costs.registration_cost, 1);
+      expect(result.breakdown.npv_costs.battery_replacement_cost).toBeCloseTo(expected.breakdown.npv_costs.battery_replacement_cost, 1);
+      expect(result.breakdown.nominal_costs.financing_cost).toBeCloseTo(expected.breakdown.nominal_costs.financing_cost, 1);
+      expect(result.breakdown.npv_costs.carbon_cost).toBeCloseTo(expected.breakdown.npv_costs.carbon_cost, 1);
+      expect(result.breakdown.npv_costs.charging_labour_cost).toBeCloseTo(expected.breakdown.npv_costs.charging_labour_cost, 1);
+      expect(result.breakdown.npv_costs.payload_penalty_cost).toBeCloseTo(expected.breakdown.npv_costs.payload_penalty_cost, 1);
+      expect(result.breakdown.npv_costs.residual_value).toBeCloseTo(expected.breakdown.npv_costs.residual_value, 1);
+      expect(result.breakdown.nominal_costs.depreciation).toBeCloseTo(expected.breakdown.nominal_costs.depreciation, 1);
+      expect(result.breakdown.upfront_costs.taxes_and_fees).toBeCloseTo(expected.breakdown.upfront_costs.taxes_and_fees, 1);
     });
   });
 });

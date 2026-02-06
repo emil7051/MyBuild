@@ -16,7 +16,7 @@ describe('Purchase Methods', () => {
         ...basePayload,
         purchase_method: 'outright',
       });
-      expect(result.breakdown.financing_cost).toBe(0);
+      expect(result.breakdown.nominal_costs.financing_cost).toBe(0);
     });
 
     it('should have full purchase cost upfront', () => {
@@ -24,7 +24,7 @@ describe('Purchase Methods', () => {
         ...basePayload,
         purchase_method: 'outright',
       });
-      expect(result.breakdown.purchase_cost).toBeGreaterThan(0);
+      expect(result.breakdown.upfront_costs.purchase_cost).toBeGreaterThan(0);
     });
   });
 
@@ -34,7 +34,7 @@ describe('Purchase Methods', () => {
         ...basePayload,
         purchase_method: 'financed',
       });
-      expect(result.breakdown.financing_cost).toBeGreaterThan(0);
+      expect(result.breakdown.nominal_costs.financing_cost).toBeGreaterThan(0);
     });
 
     it('should have lower upfront cost than outright', () => {
@@ -48,8 +48,8 @@ describe('Purchase Methods', () => {
       });
 
       // Upfront cost should be lower (down payment only)
-      expect(financed.breakdown.purchase_cost).toBeLessThan(
-        outright.breakdown.purchase_cost
+      expect(financed.breakdown.upfront_costs.purchase_cost).toBeLessThan(
+        outright.breakdown.upfront_costs.purchase_cost
       );
     });
 
@@ -80,8 +80,8 @@ describe('Purchase Methods', () => {
         vehicle_overrides: { interest_rate_override: 0.12 }, // 12%
       });
 
-      expect(higherRate.breakdown.financing_cost).toBeGreaterThan(
-        standardRate.breakdown.financing_cost
+      expect(higherRate.breakdown.nominal_costs.financing_cost).toBeGreaterThan(
+        standardRate.breakdown.nominal_costs.financing_cost
       );
     });
 
@@ -92,7 +92,7 @@ describe('Purchase Methods', () => {
         vehicle_overrides: { interest_rate_override: 0 },
       });
 
-      expect(result.breakdown.financing_cost).toBe(0);
+      expect(result.breakdown.nominal_costs.financing_cost).toBe(0);
     });
   });
 });

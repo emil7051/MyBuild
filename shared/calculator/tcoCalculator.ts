@@ -284,7 +284,6 @@ const NUMERIC_VEHICLE_FIELDS = [
   'battery_capacity_kwh',
   'kwh_per_km',
   'litres_per_km',
-  'maintenance_cost_per_km',
   'annual_registration',
   'annual_kms',
 ] as const;
@@ -326,7 +325,7 @@ const HOURLY_WAGE = asNumber(CONSTANTS.HOURLY_WAGE, 'HOURLY_WAGE');
 const BATTERY_REPLACEMENT_COST = asNumber(CONSTANTS.BATTERY_REPLACEMENT_COST, 'BATTERY_REPLACEMENT_COST');
 const BATTERY_RECYCLE_VALUE = asNumber(CONSTANTS.BATTERY_RECYCLE_VALUE, 'BATTERY_RECYCLE_VALUE');
 const BATTERY_LIFE_VARIATION_BASE = asNumber(CONSTANTS.BATTERY_LIFE_VARIATION_BASE, 'BATTERY_LIFE_VARIATION_BASE');
-const BATTERY_REPLACEMENT_YEAR = CONSTANTS.BATTERY_REPLACEMENT_YEAR ?? 8;
+const BATTERY_REPLACEMENT_YEAR = asNumber(CONSTANTS.BATTERY_REPLACEMENT_YEAR, 'BATTERY_REPLACEMENT_YEAR');
 const DIESEL_PRICE = asNumber(CONSTANTS.DIESEL_PRICE, 'DIESEL_PRICE');
 const FUEL_TAX_CREDIT = asNumber(CONSTANTS.FUEL_TAX_CREDIT, 'FUEL_TAX_CREDIT');
 const ROAD_USER_CHARGE = asNumber(CONSTANTS.ROAD_USER_CHARGE, 'ROAD_USER_CHARGE');
@@ -926,19 +925,25 @@ export const calculateTco = (payload: CalculationRequestPayload): CalculationRes
   const taxesAndFees = stampDuty;
 
   const breakdown: CostBreakdown = {
-    purchase_cost: financing.upfrontCost,
-    fuel_cost: totalFuelCost,
-    maintenance_cost: totalMaintenanceCost,
-    insurance_cost: annualInsuranceCost * VEHICLE_LIFE,
-    registration_cost: vehicle.annual_registration * VEHICLE_LIFE,
-    battery_replacement_cost: totalBatteryCost,
-    financing_cost: financing.financingCost,
-    carbon_cost: totalCarbonCost,
-    charging_labour_cost: totalChargingLabourCost,
-    payload_penalty_cost: totalPayloadPenalty,
-    residual_value: residualValuePv,
-    depreciation,
-    taxes_and_fees: taxesAndFees,
+    npv_costs: {
+      fuel_cost: totalFuelCost,
+      maintenance_cost: totalMaintenanceCost,
+      battery_replacement_cost: totalBatteryCost,
+      carbon_cost: totalCarbonCost,
+      charging_labour_cost: totalChargingLabourCost,
+      payload_penalty_cost: totalPayloadPenalty,
+      residual_value: residualValuePv,
+    },
+    nominal_costs: {
+      insurance_cost: annualInsuranceCost * VEHICLE_LIFE,
+      registration_cost: vehicle.annual_registration * VEHICLE_LIFE,
+      financing_cost: financing.financingCost,
+      depreciation,
+    },
+    upfront_costs: {
+      purchase_cost: financing.upfrontCost,
+      taxes_and_fees: taxesAndFees,
+    },
   };
 
   return {

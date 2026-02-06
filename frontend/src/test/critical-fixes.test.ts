@@ -22,8 +22,8 @@ describe('Critical Bug Fixes', () => {
       });
 
       // Different duty cycles should produce different fuel costs
-      expect(urbanHeavy.breakdown.fuel_cost).not.toEqual(
-        longHaulHeavy.breakdown.fuel_cost
+      expect(urbanHeavy.breakdown.npv_costs.fuel_cost).not.toEqual(
+        longHaulHeavy.breakdown.npv_costs.fuel_cost
       );
     });
 

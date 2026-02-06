@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from data.constants import OVERRIDE_LIMITS
 
@@ -146,20 +146,81 @@ class VehicleParamOverride(BaseModel):
     }
 
 
-class CostBreakdown(BaseModel):
-    purchase_cost: float
+class NpvCostBreakdown(BaseModel):
     fuel_cost: float
     maintenance_cost: float
-    insurance_cost: float
-    registration_cost: float
     battery_replacement_cost: float
-    financing_cost: float
     carbon_cost: float
     charging_labour_cost: float
     payload_penalty_cost: float
     residual_value: float
+
+
+class NominalCostBreakdown(BaseModel):
+    insurance_cost: float
+    registration_cost: float
+    financing_cost: float
     depreciation: float
+
+
+class UpfrontCostBreakdown(BaseModel):
+    purchase_cost: float
     taxes_and_fees: float
+
+
+class CostBreakdown(BaseModel):
+    npv_costs: NpvCostBreakdown
+    nominal_costs: NominalCostBreakdown
+    upfront_costs: UpfrontCostBreakdown
+
+    @model_validator(mode="before")
+    @classmethod
+    def _migrate_flat_breakdown(cls, value):
+        """Accept legacy flat breakdown payloads and map them to grouped shape."""
+        if not isinstance(value, dict):
+            return value
+        if {"npv_costs", "nominal_costs", "upfront_costs"}.issubset(value):
+            return value
+
+        required_flat = {
+            "purchase_cost",
+            "fuel_cost",
+            "maintenance_cost",
+            "insurance_cost",
+            "registration_cost",
+            "battery_replacement_cost",
+            "financing_cost",
+            "carbon_cost",
+            "charging_labour_cost",
+            "payload_penalty_cost",
+            "residual_value",
+            "depreciation",
+            "taxes_and_fees",
+        }
+        if not required_flat.issubset(value):
+            return value
+
+        return {
+            "npv_costs": {
+                "fuel_cost": value["fuel_cost"],
+                "maintenance_cost": value["maintenance_cost"],
+                "battery_replacement_cost": value["battery_replacement_cost"],
+                "carbon_cost": value["carbon_cost"],
+                "charging_labour_cost": value["charging_labour_cost"],
+                "payload_penalty_cost": value["payload_penalty_cost"],
+                "residual_value": value["residual_value"],
+            },
+            "nominal_costs": {
+                "insurance_cost": value["insurance_cost"],
+                "registration_cost": value["registration_cost"],
+                "financing_cost": value["financing_cost"],
+                "depreciation": value["depreciation"],
+            },
+            "upfront_costs": {
+                "purchase_cost": value["purchase_cost"],
+                "taxes_and_fees": value["taxes_and_fees"],
+            },
+        }
 
 
 class CalculationResponse(BaseModel):

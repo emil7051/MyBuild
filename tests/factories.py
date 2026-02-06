@@ -47,19 +47,25 @@ def make_breakdown(
     taxes_and_fees: float = 2000.0,
 ) -> CostBreakdown:
     return CostBreakdown(
-        purchase_cost=purchase_cost,
-        fuel_cost=fuel_cost,
-        maintenance_cost=maintenance_cost,
-        insurance_cost=insurance_cost,
-        registration_cost=registration_cost,
-        battery_replacement_cost=battery_replacement_cost,
-        financing_cost=financing_cost,
-        carbon_cost=carbon_cost,
-        charging_labour_cost=charging_labour_cost,
-        payload_penalty_cost=payload_penalty_cost,
-        residual_value=residual_value,
-        depreciation=depreciation,
-        taxes_and_fees=taxes_and_fees,
+        npv_costs={
+            "fuel_cost": fuel_cost,
+            "maintenance_cost": maintenance_cost,
+            "battery_replacement_cost": battery_replacement_cost,
+            "carbon_cost": carbon_cost,
+            "charging_labour_cost": charging_labour_cost,
+            "payload_penalty_cost": payload_penalty_cost,
+            "residual_value": residual_value,
+        },
+        nominal_costs={
+            "insurance_cost": insurance_cost,
+            "registration_cost": registration_cost,
+            "financing_cost": financing_cost,
+            "depreciation": depreciation,
+        },
+        upfront_costs={
+            "purchase_cost": purchase_cost,
+            "taxes_and_fees": taxes_and_fees,
+        },
     )
 
 

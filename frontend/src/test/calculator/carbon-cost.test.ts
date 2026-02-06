@@ -25,9 +25,9 @@ describe('Carbon cost calculations', () => {
       baselineScenario.diesel_efficiency_improvement = originalEfficiency.map(() => 0.8);
       const withImprovement = calculateTco(payload);
 
-      expect(withImprovement.breakdown.carbon_cost).toBeGreaterThan(0);
-      expect(withImprovement.breakdown.carbon_cost).toBeLessThan(
-        noImprovement.breakdown.carbon_cost
+      expect(withImprovement.breakdown.npv_costs.carbon_cost).toBeGreaterThan(0);
+      expect(withImprovement.breakdown.npv_costs.carbon_cost).toBeLessThan(
+        noImprovement.breakdown.npv_costs.carbon_cost
       );
     } finally {
       baselineScenario.carbon_price_trajectory = originalCarbon;

@@ -23,7 +23,7 @@ describe('Override sanitization', () => {
       overrides: { fuel_price_variation: 2.0 },
     });
 
-    expect(clamped.breakdown.fuel_cost).toBeCloseTo(maxed.breakdown.fuel_cost, 5);
+    expect(clamped.breakdown.npv_costs.fuel_cost).toBeCloseTo(maxed.breakdown.npv_costs.fuel_cost, 5);
   });
 
   it('should ignore annual kms overrides below the minimum', () => {
@@ -43,7 +43,7 @@ describe('Override sanitization', () => {
       vehicle_overrides: { range_km_override: 0, charging_time_hours_override: 0 },
     });
 
-    expect(Number.isFinite(result.breakdown.charging_labour_cost)).toBe(true);
-    expect(result.breakdown.charging_labour_cost).not.toBeNaN();
+    expect(Number.isFinite(result.breakdown.npv_costs.charging_labour_cost)).toBe(true);
+    expect(result.breakdown.npv_costs.charging_labour_cost).not.toBeNaN();
   });
 });

@@ -48,7 +48,6 @@ class VehicleCatalogService:
             battery_capacity_kwh=model.battery_capacity_kwh,
             kwh_per_km=model.kwh_per_km,
             litres_per_km=model.litres_per_km,
-            maintenance_cost_per_km=model.maintenance_cost_per_km,
             annual_registration=model.annual_registration,
             annual_kms=model.annual_kms,
         )

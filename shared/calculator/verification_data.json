@@ -15,19 +15,25 @@
       "annual_cost": 31649.97104177622,
       "cost_per_km": 1.3760856974685314,
       "breakdown": {
-        "purchase_cost": 36359,
-        "fuel_cost": 23885.5751048324,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 122662.50000000001,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 4635.14274666076,
-        "financing_cost": 23265.119394035835,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 25066.87416220613,
-        "residual_value": 16314.72064769865,
-        "depreciation": 144197.96905359504,
-        "taxes_and_fees": 5295
+        "npv_costs": {
+          "fuel_cost": 23885.5751048324,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 4635.14274666076,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 25066.87416220613,
+          "residual_value": 16314.72064769865
+        },
+        "nominal_costs": {
+          "insurance_cost": 122662.50000000001,
+          "registration_cost": 9795,
+          "financing_cost": 23265.119394035835,
+          "depreciation": 144197.96905359504
+        },
+        "upfront_costs": {
+          "purchase_cost": 36359,
+          "taxes_and_fees": 5295
+        }
       }
     }
   },
@@ -47,19 +53,25 @@
       "annual_cost": 31286.65668150172,
       "cost_per_km": 1.3602894209348575,
       "breakdown": {
-        "purchase_cost": 181795,
-        "fuel_cost": 23885.5751048324,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 122662.50000000001,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 4635.14274666076,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 25066.87416220613,
-        "residual_value": 16314.72064769865,
-        "depreciation": 144197.96905359504,
-        "taxes_and_fees": 5295
+        "npv_costs": {
+          "fuel_cost": 23885.5751048324,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 4635.14274666076,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 25066.87416220613,
+          "residual_value": 16314.72064769865
+        },
+        "nominal_costs": {
+          "insurance_cost": 122662.50000000001,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 144197.96905359504
+        },
+        "upfront_costs": {
+          "purchase_cost": 181795,
+          "taxes_and_fees": 5295
+        }
       }
     }
   },
@@ -79,19 +91,25 @@
       "annual_cost": 26075.477391140586,
       "cost_per_km": 1.1337164083104603,
       "breakdown": {
-        "purchase_cost": 30900,
-        "fuel_cost": 23885.5751048324,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 4496.088464260937,
-        "financing_cost": 19772.056142240093,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 13865.201683596582,
-        "depreciation": 122547.84905404679,
-        "taxes_and_fees": 4500
+        "npv_costs": {
+          "fuel_cost": 23885.5751048324,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 4496.088464260937,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 13865.201683596582
+        },
+        "nominal_costs": {
+          "insurance_cost": 108750.00000000001,
+          "registration_cost": 9795,
+          "financing_cost": 19772.056142240093,
+          "depreciation": 122547.84905404679
+        },
+        "upfront_costs": {
+          "purchase_cost": 30900,
+          "taxes_and_fees": 4500
+        }
       }
     }
   },
@@ -111,19 +129,25 @@
       "annual_cost": 25766.71164586481,
       "cost_per_km": 1.1202918106897743,
       "breakdown": {
-        "purchase_cost": 154500,
-        "fuel_cost": 23885.5751048324,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 4496.088464260937,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 13865.201683596582,
-        "depreciation": 122547.84905404679,
-        "taxes_and_fees": 4500
+        "npv_costs": {
+          "fuel_cost": 23885.5751048324,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 4496.088464260937,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 13865.201683596582
+        },
+        "nominal_costs": {
+          "insurance_cost": 108750.00000000001,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 122547.84905404679
+        },
+        "upfront_costs": {
+          "purchase_cost": 154500,
+          "taxes_and_fees": 4500
+        }
       }
     }
   },
@@ -143,19 +167,25 @@
       "annual_cost": 31311.568096119303,
       "cost_per_km": 1.3613725259182305,
       "breakdown": {
-        "purchase_cost": 30900,
-        "fuel_cost": 30354.58502905784,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 4959.602738927013,
-        "financing_cost": 19772.056142240093,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 50133.74832441226,
-        "residual_value": 13865.201683596582,
-        "depreciation": 122547.84905404679,
-        "taxes_and_fees": 4500
+        "npv_costs": {
+          "fuel_cost": 30354.58502905784,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 4959.602738927013,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 50133.74832441226,
+          "residual_value": 13865.201683596582
+        },
+        "nominal_costs": {
+          "insurance_cost": 108750.00000000001,
+          "registration_cost": 9795,
+          "financing_cost": 19772.056142240093,
+          "depreciation": 122547.84905404679
+        },
+        "upfront_costs": {
+          "purchase_cost": 30900,
+          "taxes_and_fees": 4500
+        }
       }
     }
   },
@@ -175,19 +205,25 @@
       "annual_cost": 31002.802350843525,
       "cost_per_km": 1.3479479282975446,
       "breakdown": {
-        "purchase_cost": 154500,
-        "fuel_cost": 30354.58502905784,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 108750.00000000001,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 4959.602738927013,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 50133.74832441226,
-        "residual_value": 13865.201683596582,
-        "depreciation": 122547.84905404679,
-        "taxes_and_fees": 4500
+        "npv_costs": {
+          "fuel_cost": 30354.58502905784,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 4959.602738927013,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 50133.74832441226,
+          "residual_value": 13865.201683596582
+        },
+        "nominal_costs": {
+          "insurance_cost": 108750.00000000001,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 122547.84905404679
+        },
+        "upfront_costs": {
+          "purchase_cost": 154500,
+          "taxes_and_fees": 4500
+        }
       }
     }
   },
@@ -207,19 +243,25 @@
       "annual_cost": 41666.279444017106,
       "cost_per_km": 1.8115773671311786,
       "breakdown": {
-        "purchase_cost": 41200,
-        "fuel_cost": 43790.22102552607,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 135000,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 12236.776851184406,
-        "financing_cost": 26362.741522986762,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 75200.62248661839,
-        "residual_value": 18486.935578128778,
-        "depreciation": 163397.1320720624,
-        "taxes_and_fees": 6000
+        "npv_costs": {
+          "fuel_cost": 43790.22102552607,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 12236.776851184406,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 75200.62248661839,
+          "residual_value": 18486.935578128778
+        },
+        "nominal_costs": {
+          "insurance_cost": 135000,
+          "registration_cost": 9795,
+          "financing_cost": 26362.741522986762,
+          "depreciation": 163397.1320720624
+        },
+        "upfront_costs": {
+          "purchase_cost": 41200,
+          "taxes_and_fees": 6000
+        }
       }
     }
   },
@@ -239,19 +281,25 @@
       "annual_cost": 41254.591783649405,
       "cost_per_km": 1.7936779036369306,
       "breakdown": {
-        "purchase_cost": 206000,
-        "fuel_cost": 43790.22102552607,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 135000,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 12236.776851184406,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 75200.62248661839,
-        "residual_value": 18486.935578128778,
-        "depreciation": 163397.1320720624,
-        "taxes_and_fees": 6000
+        "npv_costs": {
+          "fuel_cost": 43790.22102552607,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 12236.776851184406,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 75200.62248661839,
+          "residual_value": 18486.935578128778
+        },
+        "nominal_costs": {
+          "insurance_cost": 135000,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 163397.1320720624
+        },
+        "upfront_costs": {
+          "purchase_cost": 206000,
+          "taxes_and_fees": 6000
+        }
       }
     }
   },
@@ -271,19 +319,25 @@
       "annual_cost": 74448.1880626115,
       "cost_per_km": 3.236877741852674,
       "breakdown": {
-        "purchase_cost": 82400,
-        "fuel_cost": 54240.16013389024,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 240000.00000000003,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 15574.079628780153,
-        "financing_cost": 52725.483045973524,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 150401.24497323678,
-        "residual_value": 36973.871156257555,
-        "depreciation": 326794.2641441248,
-        "taxes_and_fees": 12000
+        "npv_costs": {
+          "fuel_cost": 54240.16013389024,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 15574.079628780153,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 150401.24497323678,
+          "residual_value": 36973.871156257555
+        },
+        "nominal_costs": {
+          "insurance_cost": 240000.00000000003,
+          "registration_cost": 9795,
+          "financing_cost": 52725.483045973524,
+          "depreciation": 326794.2641441248
+        },
+        "upfront_costs": {
+          "purchase_cost": 82400,
+          "taxes_and_fees": 12000
+        }
       }
     }
   },
@@ -303,19 +357,25 @@
       "annual_cost": 73624.8127418761,
       "cost_per_km": 3.2010788148641782,
       "breakdown": {
-        "purchase_cost": 412000,
-        "fuel_cost": 54240.16013389024,
-        "maintenance_cost": 25673.71720008134,
-        "insurance_cost": 240000.00000000003,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 15574.079628780153,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 150401.24497323678,
-        "residual_value": 36973.871156257555,
-        "depreciation": 326794.2641441248,
-        "taxes_and_fees": 12000
+        "npv_costs": {
+          "fuel_cost": 54240.16013389024,
+          "maintenance_cost": 25673.71720008134,
+          "battery_replacement_cost": 15574.079628780153,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 150401.24497323678,
+          "residual_value": 36973.871156257555
+        },
+        "nominal_costs": {
+          "insurance_cost": 240000.00000000003,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 326794.2641441248
+        },
+        "upfront_costs": {
+          "purchase_cost": 412000,
+          "taxes_and_fees": 12000
+        }
       }
     }
   },
@@ -335,19 +395,25 @@
       "annual_cost": 197222.87521760806,
       "cost_per_km": 2.347891371638191,
       "breakdown": {
-        "purchase_cost": 123600,
-        "fuel_cost": 383019.8350052815,
-        "maintenance_cost": 178153.2723970862,
-        "insurance_cost": 345000.00000000006,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 28784.236456763323,
-        "financing_cost": 79088.22456896037,
-        "carbon_cost": 0,
-        "charging_labour_cost": 130620.21166697412,
-        "payload_penalty_cost": 527319.8432452963,
-        "residual_value": 55460.80673438633,
-        "depreciation": 490191.39621618716,
-        "taxes_and_fees": 18000
+        "npv_costs": {
+          "fuel_cost": 383019.8350052815,
+          "maintenance_cost": 178153.2723970862,
+          "battery_replacement_cost": 28784.236456763323,
+          "carbon_cost": 0,
+          "charging_labour_cost": 130620.21166697412,
+          "payload_penalty_cost": 527319.8432452963,
+          "residual_value": 55460.80673438633
+        },
+        "nominal_costs": {
+          "insurance_cost": 345000.00000000006,
+          "registration_cost": 103080,
+          "financing_cost": 79088.22456896037,
+          "depreciation": 490191.39621618716
+        },
+        "upfront_costs": {
+          "purchase_cost": 123600,
+          "taxes_and_fees": 18000
+        }
       }
     }
   },
@@ -367,19 +433,25 @@
       "annual_cost": 195987.81223650495,
       "cost_per_km": 2.3331882409107734,
       "breakdown": {
-        "purchase_cost": 618000,
-        "fuel_cost": 383019.8350052815,
-        "maintenance_cost": 178153.2723970862,
-        "insurance_cost": 345000.00000000006,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 28784.236456763323,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 130620.21166697412,
-        "payload_penalty_cost": 527319.8432452963,
-        "residual_value": 55460.80673438633,
-        "depreciation": 490191.39621618716,
-        "taxes_and_fees": 18000
+        "npv_costs": {
+          "fuel_cost": 383019.8350052815,
+          "maintenance_cost": 178153.2723970862,
+          "battery_replacement_cost": 28784.236456763323,
+          "carbon_cost": 0,
+          "charging_labour_cost": 130620.21166697412,
+          "payload_penalty_cost": 527319.8432452963,
+          "residual_value": 55460.80673438633
+        },
+        "nominal_costs": {
+          "insurance_cost": 345000.00000000006,
+          "registration_cost": 103080,
+          "financing_cost": 0,
+          "depreciation": 490191.39621618716
+        },
+        "upfront_costs": {
+          "purchase_cost": 618000,
+          "taxes_and_fees": 18000
+        }
       }
     }
   },
@@ -399,19 +471,25 @@
       "annual_cost": 195987.64428923905,
       "cost_per_km": 2.3331862415385602,
       "breakdown": {
-        "purchase_cost": 92700,
-        "fuel_cost": 574529.7525079224,
-        "maintenance_cost": 178153.2723970862,
-        "insurance_cost": 266250,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 25029.770831968104,
-        "financing_cost": 59316.16842672025,
-        "carbon_cost": 0,
-        "charging_labour_cost": 130620.21166697412,
-        "payload_penalty_cost": 527319.8432452963,
-        "residual_value": 41595.60505078975,
-        "depreciation": 367643.54716214037,
-        "taxes_and_fees": 13500
+        "npv_costs": {
+          "fuel_cost": 574529.7525079224,
+          "maintenance_cost": 178153.2723970862,
+          "battery_replacement_cost": 25029.770831968104,
+          "carbon_cost": 0,
+          "charging_labour_cost": 130620.21166697412,
+          "payload_penalty_cost": 527319.8432452963,
+          "residual_value": 41595.60505078975
+        },
+        "nominal_costs": {
+          "insurance_cost": 266250,
+          "registration_cost": 103080,
+          "financing_cost": 59316.16842672025,
+          "depreciation": 367643.54716214037
+        },
+        "upfront_costs": {
+          "purchase_cost": 92700,
+          "taxes_and_fees": 13500
+        }
       }
     }
   },
@@ -431,19 +509,25 @@
       "annual_cost": 195061.3470534117,
       "cost_per_km": 2.3221588934929964,
       "breakdown": {
-        "purchase_cost": 463500,
-        "fuel_cost": 574529.7525079224,
-        "maintenance_cost": 178153.2723970862,
-        "insurance_cost": 266250,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 25029.770831968104,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 130620.21166697412,
-        "payload_penalty_cost": 527319.8432452963,
-        "residual_value": 41595.60505078975,
-        "depreciation": 367643.54716214037,
-        "taxes_and_fees": 13500
+        "npv_costs": {
+          "fuel_cost": 574529.7525079224,
+          "maintenance_cost": 178153.2723970862,
+          "battery_replacement_cost": 25029.770831968104,
+          "carbon_cost": 0,
+          "charging_labour_cost": 130620.21166697412,
+          "payload_penalty_cost": 527319.8432452963,
+          "residual_value": 41595.60505078975
+        },
+        "nominal_costs": {
+          "insurance_cost": 266250,
+          "registration_cost": 103080,
+          "financing_cost": 0,
+          "depreciation": 367643.54716214037
+        },
+        "upfront_costs": {
+          "purchase_cost": 463500,
+          "taxes_and_fees": 13500
+        }
       }
     }
   },
@@ -463,19 +547,25 @@
       "annual_cost": 174486.62667672307,
       "cost_per_km": 2.0772217461514653,
       "breakdown": {
-        "purchase_cost": 65920,
-        "fuel_cost": 510693.1133403754,
-        "maintenance_cost": 178153.2723970862,
-        "insurance_cost": 198000.00000000003,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 28923.29073916314,
-        "financing_cost": 42180.38643677882,
-        "carbon_cost": 0,
-        "charging_labour_cost": 130620.21166697412,
-        "payload_penalty_cost": 527319.8432452963,
-        "residual_value": 29579.09692500605,
-        "depreciation": 261435.4113152998,
-        "taxes_and_fees": 9600
+        "npv_costs": {
+          "fuel_cost": 510693.1133403754,
+          "maintenance_cost": 178153.2723970862,
+          "battery_replacement_cost": 28923.29073916314,
+          "carbon_cost": 0,
+          "charging_labour_cost": 130620.21166697412,
+          "payload_penalty_cost": 527319.8432452963,
+          "residual_value": 29579.09692500605
+        },
+        "nominal_costs": {
+          "insurance_cost": 198000.00000000003,
+          "registration_cost": 103080,
+          "financing_cost": 42180.38643677882,
+          "depreciation": 261435.4113152998
+        },
+        "upfront_costs": {
+          "purchase_cost": 65920,
+          "taxes_and_fees": 9600
+        }
       }
     }
   },
@@ -495,19 +585,25 @@
       "annual_cost": 173827.92642013473,
       "cost_per_km": 2.0693800764301753,
       "breakdown": {
-        "purchase_cost": 329600,
-        "fuel_cost": 510693.1133403754,
-        "maintenance_cost": 178153.2723970862,
-        "insurance_cost": 198000.00000000003,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 28923.29073916314,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 130620.21166697412,
-        "payload_penalty_cost": 527319.8432452963,
-        "residual_value": 29579.09692500605,
-        "depreciation": 261435.4113152998,
-        "taxes_and_fees": 9600
+        "npv_costs": {
+          "fuel_cost": 510693.1133403754,
+          "maintenance_cost": 178153.2723970862,
+          "battery_replacement_cost": 28923.29073916314,
+          "carbon_cost": 0,
+          "charging_labour_cost": 130620.21166697412,
+          "payload_penalty_cost": 527319.8432452963,
+          "residual_value": 29579.09692500605
+        },
+        "nominal_costs": {
+          "insurance_cost": 198000.00000000003,
+          "registration_cost": 103080,
+          "financing_cost": 0,
+          "depreciation": 261435.4113152998
+        },
+        "upfront_costs": {
+          "purchase_cost": 329600,
+          "taxes_and_fees": 9600
+        }
       }
     }
   },
@@ -527,19 +623,25 @@
       "annual_cost": 29903.81345494011,
       "cost_per_km": 1.3001658023887004,
       "breakdown": {
-        "purchase_cost": 16480,
-        "fuel_cost": 146519.60487690955,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 67800,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 10545.096609194705,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 7394.774231251513,
-        "depreciation": 65358.85282882495,
-        "taxes_and_fees": 2400
+        "npv_costs": {
+          "fuel_cost": 146519.60487690955,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 7394.774231251513
+        },
+        "nominal_costs": {
+          "insurance_cost": 67800,
+          "registration_cost": 9795,
+          "financing_cost": 10545.096609194705,
+          "depreciation": 65358.85282882495
+        },
+        "upfront_costs": {
+          "purchase_cost": 16480,
+          "taxes_and_fees": 2400
+        }
       }
     }
   },
@@ -559,19 +661,25 @@
       "annual_cost": 29739.138390793025,
       "cost_per_km": 1.2930060169910012,
       "breakdown": {
-        "purchase_cost": 82400,
-        "fuel_cost": 146519.60487690955,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 67800,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 7394.774231251513,
-        "depreciation": 65358.85282882495,
-        "taxes_and_fees": 2400
+        "npv_costs": {
+          "fuel_cost": 146519.60487690955,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 7394.774231251513
+        },
+        "nominal_costs": {
+          "insurance_cost": 67800,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 65358.85282882495
+        },
+        "upfront_costs": {
+          "purchase_cost": 82400,
+          "taxes_and_fees": 2400
+        }
       }
     }
   },
@@ -591,19 +699,25 @@
       "annual_cost": 29305.891797168468,
       "cost_per_km": 1.274169208572542,
       "breakdown": {
-        "purchase_cost": 15450,
-        "fuel_cost": 146519.60487690955,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 65437.5,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 9886.028071120047,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 6932.600841798291,
-        "depreciation": 61273.924527023395,
-        "taxes_and_fees": 2250
+        "npv_costs": {
+          "fuel_cost": 146519.60487690955,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 6932.600841798291
+        },
+        "nominal_costs": {
+          "insurance_cost": 65437.5,
+          "registration_cost": 9795,
+          "financing_cost": 9886.028071120047,
+          "depreciation": 61273.924527023395
+        },
+        "upfront_costs": {
+          "purchase_cost": 15450,
+          "taxes_and_fees": 2250
+        }
       }
     }
   },
@@ -623,19 +737,25 @@
       "annual_cost": 29151.50892453058,
       "cost_per_km": 1.267456909762199,
       "breakdown": {
-        "purchase_cost": 77250,
-        "fuel_cost": 146519.60487690955,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 65437.5,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 6932.600841798291,
-        "depreciation": 61273.924527023395,
-        "taxes_and_fees": 2250
+        "npv_costs": {
+          "fuel_cost": 146519.60487690955,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 6932.600841798291
+        },
+        "nominal_costs": {
+          "insurance_cost": 65437.5,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 61273.924527023395
+        },
+        "upfront_costs": {
+          "purchase_cost": 77250,
+          "taxes_and_fees": 2250
+        }
       }
     }
   },
@@ -655,19 +775,25 @@
       "annual_cost": 35883.03003265649,
       "cost_per_km": 1.5601317405502821,
       "breakdown": {
-        "purchase_cost": 26780,
-        "fuel_cost": 146519.60487690955,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 91425,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 17135.78198994143,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 12016.508125783706,
-        "depreciation": 106208.13584684055,
-        "taxes_and_fees": 3900
+        "npv_costs": {
+          "fuel_cost": 146519.60487690955,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 12016.508125783706
+        },
+        "nominal_costs": {
+          "insurance_cost": 91425,
+          "registration_cost": 9795,
+          "financing_cost": 17135.78198994143,
+          "depreciation": 106208.13584684055
+        },
+        "upfront_costs": {
+          "purchase_cost": 26780,
+          "taxes_and_fees": 3900
+        }
       }
     }
   },
@@ -687,19 +813,25 @@
       "annual_cost": 35615.43305341747,
       "cost_per_km": 1.5484970892790206,
       "breakdown": {
-        "purchase_cost": 133900,
-        "fuel_cost": 146519.60487690955,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 91425,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 12016.508125783706,
-        "depreciation": 106208.13584684055,
-        "taxes_and_fees": 3900
+        "npv_costs": {
+          "fuel_cost": 146519.60487690955,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 12016.508125783706
+        },
+        "nominal_costs": {
+          "insurance_cost": 91425,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 106208.13584684055
+        },
+        "upfront_costs": {
+          "purchase_cost": 133900,
+          "taxes_and_fees": 3900
+        }
       }
     }
   },
@@ -719,19 +851,25 @@
       "annual_cost": 48566.16870430704,
       "cost_per_km": 2.1115725523611757,
       "breakdown": {
-        "purchase_cost": 45320,
-        "fuel_cost": 167450.97700218234,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 133950,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 28999.015675285453,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 20335.629135941654,
-        "depreciation": 179736.84527926863,
-        "taxes_and_fees": 6600
+        "npv_costs": {
+          "fuel_cost": 167450.97700218234,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 20335.629135941654
+        },
+        "nominal_costs": {
+          "insurance_cost": 133950,
+          "registration_cost": 9795,
+          "financing_cost": 28999.015675285453,
+          "depreciation": 179736.84527926863
+        },
+        "upfront_costs": {
+          "purchase_cost": 45320,
+          "taxes_and_fees": 6600
+        }
       }
     }
   },
@@ -751,19 +889,25 @@
       "annual_cost": 48113.31227790257,
       "cost_per_km": 2.0918831425175033,
       "breakdown": {
-        "purchase_cost": 226600,
-        "fuel_cost": 167450.97700218234,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 133950,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 20335.629135941654,
-        "depreciation": 179736.84527926863,
-        "taxes_and_fees": 6600
+        "npv_costs": {
+          "fuel_cost": 167450.97700218234,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 20335.629135941654
+        },
+        "nominal_costs": {
+          "insurance_cost": 133950,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 179736.84527926863
+        },
+        "upfront_costs": {
+          "purchase_cost": 226600,
+          "taxes_and_fees": 6600
+        }
       }
     }
   },
@@ -783,19 +927,25 @@
       "annual_cost": 54545.38528202342,
       "cost_per_km": 2.3715384905227572,
       "breakdown": {
-        "purchase_cost": 55620,
-        "fuel_cost": 167450.97700218234,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 157575,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 35589.70105603218,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 24957.363030473847,
-        "depreciation": 220586.12829728425,
-        "taxes_and_fees": 8100
+        "npv_costs": {
+          "fuel_cost": 167450.97700218234,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 24957.363030473847
+        },
+        "nominal_costs": {
+          "insurance_cost": 157575,
+          "registration_cost": 9795,
+          "financing_cost": 35589.70105603218,
+          "depreciation": 220586.12829728425
+        },
+        "upfront_costs": {
+          "purchase_cost": 55620,
+          "taxes_and_fees": 8100
+        }
       }
     }
   },
@@ -815,19 +965,25 @@
       "annual_cost": 53989.60694052702,
       "cost_per_km": 2.3473742148055226,
       "breakdown": {
-        "purchase_cost": 278100,
-        "fuel_cost": 167450.97700218234,
-        "maintenance_cost": 46212.69096014642,
-        "insurance_cost": 157575,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 24957.363030473847,
-        "depreciation": 220586.12829728425,
-        "taxes_and_fees": 8100
+        "npv_costs": {
+          "fuel_cost": 167450.97700218234,
+          "maintenance_cost": 46212.69096014642,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 24957.363030473847
+        },
+        "nominal_costs": {
+          "insurance_cost": 157575,
+          "registration_cost": 9795,
+          "financing_cost": 0,
+          "depreciation": 220586.12829728425
+        },
+        "upfront_costs": {
+          "purchase_cost": 278100,
+          "taxes_and_fees": 8100
+        }
       }
     }
   },
@@ -847,19 +1003,25 @@
       "annual_cost": 126623.22483087977,
       "cost_per_km": 1.5074193432247591,
       "breakdown": {
-        "purchase_cost": 55620,
-        "fuel_cost": 668893.8483511088,
-        "maintenance_cost": 262541.6645851797,
-        "insurance_cost": 157575,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 0,
-        "financing_cost": 35589.70105603218,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 24957.363030473847,
-        "depreciation": 220586.12829728425,
-        "taxes_and_fees": 8100
+        "npv_costs": {
+          "fuel_cost": 668893.8483511088,
+          "maintenance_cost": 262541.6645851797,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 24957.363030473847
+        },
+        "nominal_costs": {
+          "insurance_cost": 157575,
+          "registration_cost": 103080,
+          "financing_cost": 35589.70105603218,
+          "depreciation": 220586.12829728425
+        },
+        "upfront_costs": {
+          "purchase_cost": 55620,
+          "taxes_and_fees": 8100
+        }
       }
     }
   },
@@ -879,19 +1041,25 @@
       "annual_cost": 126067.44648938334,
       "cost_per_km": 1.5008029343974207,
       "breakdown": {
-        "purchase_cost": 278100,
-        "fuel_cost": 668893.8483511088,
-        "maintenance_cost": 262541.6645851797,
-        "insurance_cost": 157575,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 24957.363030473847,
-        "depreciation": 220586.12829728425,
-        "taxes_and_fees": 8100
+        "npv_costs": {
+          "fuel_cost": 668893.8483511088,
+          "maintenance_cost": 262541.6645851797,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 24957.363030473847
+        },
+        "nominal_costs": {
+          "insurance_cost": 157575,
+          "registration_cost": 103080,
+          "financing_cost": 0,
+          "depreciation": 220586.12829728425
+        },
+        "upfront_costs": {
+          "purchase_cost": 278100,
+          "taxes_and_fees": 8100
+        }
       }
     }
   },
@@ -911,19 +1079,25 @@
       "annual_cost": 127819.06814642306,
       "cost_per_km": 1.521655573171703,
       "breakdown": {
-        "purchase_cost": 57680,
-        "fuel_cost": 668893.8483511088,
-        "maintenance_cost": 262541.6645851797,
-        "insurance_cost": 162300,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 0,
-        "financing_cost": 36907.838132181554,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 25881.70980938029,
-        "depreciation": 228755.98490088736,
-        "taxes_and_fees": 8400
+        "npv_costs": {
+          "fuel_cost": 668893.8483511088,
+          "maintenance_cost": 262541.6645851797,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 25881.70980938029
+        },
+        "nominal_costs": {
+          "insurance_cost": 162300,
+          "registration_cost": 103080,
+          "financing_cost": 36907.838132181554,
+          "depreciation": 228755.98490088736
+        },
+        "upfront_costs": {
+          "purchase_cost": 57680,
+          "taxes_and_fees": 8400
+        }
       }
     }
   },
@@ -943,19 +1117,25 @@
       "annual_cost": 127242.70542190825,
       "cost_per_km": 1.5147941121655744,
       "breakdown": {
-        "purchase_cost": 288400,
-        "fuel_cost": 668893.8483511088,
-        "maintenance_cost": 262541.6645851797,
-        "insurance_cost": 162300,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 25881.70980938029,
-        "depreciation": 228755.98490088736,
-        "taxes_and_fees": 8400
+        "npv_costs": {
+          "fuel_cost": 668893.8483511088,
+          "maintenance_cost": 262541.6645851797,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 25881.70980938029
+        },
+        "nominal_costs": {
+          "insurance_cost": 162300,
+          "registration_cost": 103080,
+          "financing_cost": 0,
+          "depreciation": 228755.98490088736
+        },
+        "upfront_costs": {
+          "purchase_cost": 288400,
+          "taxes_and_fees": 8400
+        }
       }
     }
   },
@@ -975,19 +1155,25 @@
       "annual_cost": 130210.75477750959,
       "cost_per_km": 1.5501280330655904,
       "breakdown": {
-        "purchase_cost": 61800,
-        "fuel_cost": 668893.8483511088,
-        "maintenance_cost": 262541.6645851797,
-        "insurance_cost": 171750,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 0,
-        "financing_cost": 39544.11228448019,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 27730.403367193165,
-        "depreciation": 245095.69810809358,
-        "taxes_and_fees": 9000
+        "npv_costs": {
+          "fuel_cost": 668893.8483511088,
+          "maintenance_cost": 262541.6645851797,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 27730.403367193165
+        },
+        "nominal_costs": {
+          "insurance_cost": 171750,
+          "registration_cost": 103080,
+          "financing_cost": 39544.11228448019,
+          "depreciation": 245095.69810809358
+        },
+        "upfront_costs": {
+          "purchase_cost": 61800,
+          "taxes_and_fees": 9000
+        }
       }
     }
   },
@@ -1007,19 +1193,25 @@
       "annual_cost": 129593.223286958,
       "cost_per_km": 1.542776467701881,
       "breakdown": {
-        "purchase_cost": 309000,
-        "fuel_cost": 668893.8483511088,
-        "maintenance_cost": 262541.6645851797,
-        "insurance_cost": 171750,
-        "registration_cost": 103080,
-        "battery_replacement_cost": 0,
-        "financing_cost": 0,
-        "carbon_cost": 0,
-        "charging_labour_cost": 0,
-        "payload_penalty_cost": 0,
-        "residual_value": 27730.403367193165,
-        "depreciation": 245095.69810809358,
-        "taxes_and_fees": 9000
+        "npv_costs": {
+          "fuel_cost": 668893.8483511088,
+          "maintenance_cost": 262541.6645851797,
+          "battery_replacement_cost": 0,
+          "carbon_cost": 0,
+          "charging_labour_cost": 0,
+          "payload_penalty_cost": 0,
+          "residual_value": 27730.403367193165
+        },
+        "nominal_costs": {
+          "insurance_cost": 171750,
+          "registration_cost": 103080,
+          "financing_cost": 0,
+          "depreciation": 245095.69810809358
+        },
+        "upfront_costs": {
+          "purchase_cost": 309000,
+          "taxes_and_fees": 9000
+        }
       }
     }
   },
@@ -1043,19 +1235,25 @@
       "annual_cost": 45926.221209272975,
       "cost_per_km": 0.9185244241854595,
       "breakdown": {
-        "purchase_cost": 36359,
-        "fuel_cost": 41540.13061709982,
-        "maintenance_cost": 55812.42869582901,
-        "insurance_cost": 122662.50000000001,
-        "registration_cost": 9795,
-        "battery_replacement_cost": 4635.14274666076,
-        "financing_cost": 23265.119394035835,
-        "carbon_cost": 0,
-        "charging_labour_cost": 78372.12700018445,
-        "payload_penalty_cost": 54493.20470044812,
-        "residual_value": 16314.72064769865,
-        "depreciation": 144197.96905359504,
-        "taxes_and_fees": 5295
+        "npv_costs": {
+          "fuel_cost": 41540.13061709982,
+          "maintenance_cost": 55812.42869582901,
+          "battery_replacement_cost": 4635.14274666076,
+          "carbon_cost": 0,
+          "charging_labour_cost": 78372.12700018445,
+          "payload_penalty_cost": 54493.20470044812,
+          "residual_value": 16314.72064769865
+        },
+        "nominal_costs": {
+          "insurance_cost": 122662.50000000001,
+          "registration_cost": 9795,
+          "financing_cost": 23265.119394035835,
+          "depreciation": 144197.96905359504
+        },
+        "upfront_costs": {
+          "purchase_cost": 36359,
+          "taxes_and_fees": 5295
+        }
       }
     }
   }

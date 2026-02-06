@@ -6,7 +6,7 @@ import type { VehicleDetail, VehicleSummary } from '../types/tco.types';
  * Catalog version - auto-generated from vehicle data hash.
  * Used for cache invalidation when vehicle data changes.
  */
-export const VEHICLE_CATALOG_VERSION = 'v1-886232f5';
+export const VEHICLE_CATALOG_VERSION = 'v1-1ef71da9';
 
 export const VEHICLE_DETAILS: VehicleDetail[] = [
   {
@@ -21,7 +21,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 100.0,
     "kwh_per_km": 0.48,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.05,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -37,7 +36,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 97.0,
     "kwh_per_km": 0.48,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.05,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -53,7 +51,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 107.0,
     "kwh_per_km": 0.61,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.05,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -69,7 +66,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 264.0,
     "kwh_per_km": 0.88,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.08,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -85,7 +81,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 336.0,
     "kwh_per_km": 1.09,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.08,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -101,7 +96,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 621.0,
     "kwh_per_km": 1.2,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.12,
     "annual_registration": 6872.0,
     "annual_kms": 84000.0
   },
@@ -117,7 +111,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 540.0,
     "kwh_per_km": 1.8,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.12,
     "annual_registration": 6872.0,
     "annual_kms": 84000.0
   },
@@ -133,7 +126,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 624.0,
     "kwh_per_km": 1.6,
     "litres_per_km": 0.0,
-    "maintenance_cost_per_km": 0.12,
     "annual_registration": 6872.0,
     "annual_kms": 84000.0
   },
@@ -149,7 +141,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.28,
-    "maintenance_cost_per_km": 0.2,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -165,7 +156,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.28,
-    "maintenance_cost_per_km": 0.02,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -181,7 +171,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.28,
-    "maintenance_cost_per_km": 0.02,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -197,7 +186,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.32,
-    "maintenance_cost_per_km": 0.025,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -213,7 +201,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.32,
-    "maintenance_cost_per_km": 0.025,
     "annual_registration": 653.0,
     "annual_kms": 23000.0
   },
@@ -229,7 +216,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.35,
-    "maintenance_cost_per_km": 0.03,
     "annual_registration": 6872.0,
     "annual_kms": 84000.0
   },
@@ -245,7 +231,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.35,
-    "maintenance_cost_per_km": 0.03,
     "annual_registration": 6872.0,
     "annual_kms": 84000.0
   },
@@ -261,7 +246,6 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "battery_capacity_kwh": 0.0,
     "kwh_per_km": 0.0,
     "litres_per_km": 0.35,
-    "maintenance_cost_per_km": 0.03,
     "annual_registration": 6872.0,
     "annual_kms": 84000.0
   }
