@@ -2,12 +2,15 @@ import { useMemo } from 'react';
 import Card from '@components/shared/Card';
 import type { CalculationResponsePayload } from '@shared/types/tco.types';
 import type { VehicleDetail } from '@shared/types/tco.types';
+import { calculatePresentValue } from '@shared/calculator/math';
+import { CONSTANTS } from '@shared/data/constants';
 import { formatCurrency } from '@utils/format';
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Legend,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,99 +19,95 @@ import {
 
 // Brand-aligned cost colors
 const COST_COLORS = {
-  purchase_cost: '#3040B9',
+  purchase_financing_npv: '#3040B9',
   fuel_cost: '#3B52FF',
   maintenance_cost: '#7080FF',
   insurance_cost: '#B9C2FF',
   registration_cost: '#844A34',
   battery_replacement_cost: '#005A46',
-  financing_cost: '#EA5300',
   carbon_cost: '#F2AE95',
   charging_labour_cost: '#00FFC7',
   payload_penalty_cost: '#C5FFF3',
-  taxes_and_fees: '#000000',
+  residual_value_credit: '#1E8E5A',
 } as const;
 
 type BreakdownSeriesItem = {
   key: keyof typeof COST_COLORS;
   label: string;
   color: string;
-  getValue: (result: CalculationResponsePayload) => number;
 };
 
 const breakdownSeries: BreakdownSeriesItem[] = [
   {
-    key: 'purchase_cost',
-    label: 'Purchase',
-    color: COST_COLORS.purchase_cost,
-    getValue: (result) => result.breakdown.upfront_costs.purchase_cost,
+    key: 'purchase_financing_npv',
+    label: 'Purchase + financing (NPV)',
+    color: COST_COLORS.purchase_financing_npv,
   },
   {
     key: 'fuel_cost',
     label: 'Fuel / Energy',
     color: COST_COLORS.fuel_cost,
-    getValue: (result) => result.breakdown.npv_costs.fuel_cost,
   },
   {
     key: 'maintenance_cost',
     label: 'Maintenance',
     color: COST_COLORS.maintenance_cost,
-    getValue: (result) => result.breakdown.npv_costs.maintenance_cost,
   },
   {
     key: 'insurance_cost',
-    label: 'Insurance',
+    label: 'Insurance (NPV)',
     color: COST_COLORS.insurance_cost,
-    getValue: (result) => result.breakdown.nominal_costs.insurance_cost,
   },
   {
     key: 'registration_cost',
-    label: 'Registration',
+    label: 'Registration (NPV)',
     color: COST_COLORS.registration_cost,
-    getValue: (result) => result.breakdown.nominal_costs.registration_cost,
   },
   {
     key: 'battery_replacement_cost',
     label: 'Battery replacement',
     color: COST_COLORS.battery_replacement_cost,
-    getValue: (result) => result.breakdown.npv_costs.battery_replacement_cost,
-  },
-  {
-    key: 'financing_cost',
-    label: 'Financing',
-    color: COST_COLORS.financing_cost,
-    getValue: (result) => result.breakdown.nominal_costs.financing_cost,
   },
   {
     key: 'carbon_cost',
     label: 'Carbon',
     color: COST_COLORS.carbon_cost,
-    getValue: (result) => result.breakdown.npv_costs.carbon_cost,
   },
   {
     key: 'charging_labour_cost',
     label: 'Charging labour',
     color: COST_COLORS.charging_labour_cost,
-    getValue: (result) => result.breakdown.npv_costs.charging_labour_cost,
   },
   {
     key: 'payload_penalty_cost',
     label: 'Payload penalty',
     color: COST_COLORS.payload_penalty_cost,
-    getValue: (result) => result.breakdown.npv_costs.payload_penalty_cost,
   },
   {
-    key: 'taxes_and_fees',
-    label: 'Taxes & fees',
-    color: COST_COLORS.taxes_and_fees,
-    getValue: (result) => result.breakdown.upfront_costs.taxes_and_fees,
+    key: 'residual_value_credit',
+    label: 'Residual value credit',
+    color: COST_COLORS.residual_value_credit,
   },
 ];
 
-// Info tooltip explaining grouped value bases in the breakdown chart
-const MixedBasesInfo = () => (
+const DISCOUNT_RATE = CONSTANTS.DISCOUNT_RATE as number;
+const VEHICLE_LIFE = CONSTANTS.VEHICLE_LIFE as number;
+
+const normaliseCurrencyValue = (value: number): number => (Math.abs(value) < 1e-6 ? 0 : value);
+
+const convertNominalLifetimeToNpv = (nominalLifetimeCost: number): number => {
+  if (VEHICLE_LIFE <= 0) {
+    return nominalLifetimeCost;
+  }
+
+  const annualCost = nominalLifetimeCost / VEHICLE_LIFE;
+  return calculatePresentValue(annualCost, VEHICLE_LIFE, DISCOUNT_RATE);
+};
+
+// Info tooltip explaining NPV-converted value bases in the breakdown chart
+const NpvAlignedInfo = () => (
   <span className="inline-flex items-center gap-1">
-    Grouped cost-basis components for each vehicle.
+    NPV-aligned components that sum to total cost.
     <span className="group relative cursor-help">
       <svg
         className="h-4 w-4 text-slate-400 hover:text-slate-600 transition-colors"
@@ -124,15 +123,17 @@ const MixedBasesInfo = () => (
         />
       </svg>
       <span className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 top-6 z-10 w-72 rounded-md bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
-        <span className="font-semibold block mb-1">Breakdown groups:</span>
+        <span className="font-semibold block mb-1">Chart basis:</span>
         <span className="block mb-1">
-          <span className="text-emerald-300">NPV-adjusted:</span> Fuel, Maintenance, Battery replacement, Carbon, Charging labour, Payload penalty, Residual value
+          Every segment is displayed on an NPV basis and the stacked total equals
+          the vehicle&apos;s reported total cost.
         </span>
         <span className="block mb-1">
-          <span className="text-amber-300">Nominal lifetime:</span> Insurance, Registration, Financing, Depreciation
+          Insurance and registration are converted from nominal lifetime totals to
+          NPV using the model discount rate and horizon.
         </span>
         <span className="block">
-          <span className="text-sky-300">Upfront:</span> Purchase, Taxes &amp; fees
+          Residual value is shown as a negative credit.
         </span>
         <span className="absolute -top-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800" />
       </span>
@@ -153,13 +154,38 @@ const CostBreakdownChart = ({ results, vehicleDetails }: CostBreakdownChartProps
       }
 
       return results.map((result) => {
+        const insuranceCostNpv = convertNominalLifetimeToNpv(result.breakdown.nominal_costs.insurance_cost);
+        const registrationCostNpv = convertNominalLifetimeToNpv(
+          result.breakdown.nominal_costs.registration_cost
+        );
+        const residualValueCredit = -result.breakdown.npv_costs.residual_value;
+        const variableAndFixedNpvWithoutPurchase =
+          result.breakdown.npv_costs.fuel_cost +
+          result.breakdown.npv_costs.maintenance_cost +
+          insuranceCostNpv +
+          registrationCostNpv +
+          result.breakdown.npv_costs.battery_replacement_cost +
+          result.breakdown.npv_costs.carbon_cost +
+          result.breakdown.npv_costs.charging_labour_cost +
+          result.breakdown.npv_costs.payload_penalty_cost +
+          residualValueCredit;
+        const purchaseFinancingNpv = result.total_cost - variableAndFixedNpvWithoutPurchase;
+
         const entry: Record<string, number | string> = {
           vehicle: vehicleDetails[result.vehicle_id]?.model_name ?? result.vehicle_id,
+          purchase_financing_npv: normaliseCurrencyValue(purchaseFinancingNpv),
+          fuel_cost: normaliseCurrencyValue(result.breakdown.npv_costs.fuel_cost),
+          maintenance_cost: normaliseCurrencyValue(result.breakdown.npv_costs.maintenance_cost),
+          insurance_cost: normaliseCurrencyValue(insuranceCostNpv),
+          registration_cost: normaliseCurrencyValue(registrationCostNpv),
+          battery_replacement_cost: normaliseCurrencyValue(
+            result.breakdown.npv_costs.battery_replacement_cost
+          ),
+          carbon_cost: normaliseCurrencyValue(result.breakdown.npv_costs.carbon_cost),
+          charging_labour_cost: normaliseCurrencyValue(result.breakdown.npv_costs.charging_labour_cost),
+          payload_penalty_cost: normaliseCurrencyValue(result.breakdown.npv_costs.payload_penalty_cost),
+          residual_value_credit: normaliseCurrencyValue(residualValueCredit),
         };
-
-        breakdownSeries.forEach((series) => {
-          entry[series.key] = series.getValue(result);
-        });
 
         return entry;
       });
@@ -171,7 +197,7 @@ const CostBreakdownChart = ({ results, vehicleDetails }: CostBreakdownChartProps
     return (
       <Card
         title="Cost components"
-        subtitle={<MixedBasesInfo />}
+        subtitle={<NpvAlignedInfo />}
       >
         <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
           <p className="text-sm text-slate-500">No results to display</p>
@@ -183,11 +209,12 @@ const CostBreakdownChart = ({ results, vehicleDetails }: CostBreakdownChartProps
   return (
     <Card
       title="Cost components"
-      subtitle={<MixedBasesInfo />}
+      subtitle={<NpvAlignedInfo />}
     >
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
           <CartesianGrid stroke="#E5E5E5" vertical={false} />
+          <ReferenceLine y={0} stroke="#94A3B8" strokeWidth={1} />
           <XAxis dataKey="vehicle" tick={{ fontSize: 12, fill: '#000000' }} />
           <YAxis
             tickFormatter={(value) =>
