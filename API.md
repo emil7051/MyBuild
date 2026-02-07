@@ -14,6 +14,9 @@ The TCO Web Platform exposes a REST API for vehicle catalog access, session pers
 - `POST /sessions` does not require an existing session cookie.
 - `GET /sessions/{session_id}` and `PUT /sessions/{session_id}` require the HttpOnly session-secret cookie that is issued when the session is created.
 - Session secrets are stored server-side as SHA-256 hashes and are never returned in JSON responses.
+- Browser clients must send credentialed requests (`withCredentials=true`).
+- When using `VITE_API_URL`, use a relative path (`/api/v1`) or an HTTPS API
+  origin. HTTP absolute URLs are only acceptable for localhost development.
 
 Expected failures on protected session routes:
 - `401 Unauthorized`: session secret cookie is missing.

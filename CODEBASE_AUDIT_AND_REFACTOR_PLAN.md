@@ -31,6 +31,21 @@ Independent source review was validated against the current repository state bef
   - `F5` should **not** be dropped on this stack. In current dependencies (`starlette==0.50.0`), `HTTP_422_UNPROCESSABLE_ENTITY` emits a deprecation warning and `HTTP_422_UNPROCESSABLE_CONTENT` exists.
   - `bandit==1.9.3` **does** exist on PyPI; issue is local install drift, not invalid pin.
 
+# Completion Verification + Migration Debt Cleanup (2026-02-07)
+Parallel sub-agent verification across backend, frontend, shared/scripts, and CI/docs confirmed that all findings marked `DONE` are implemented in current code.
+
+- Additional migration-tech-debt cleanup completed during verification:
+  - Removed legacy client cache payload compatibility branch (`sessionSecretHash` fallback) in `backend/app/core/cache.py`.
+  - Removed unused legacy store setter `setIsCalculating` in `frontend/src/state/tcoStore.ts`.
+  - Finalized `P3` persistence cleanup by no longer persisting `results` and clearing legacy hydrated result payloads in `frontend/src/state/tcoStore.ts`.
+- Verification checks executed after cleanup:
+  - `python -m pytest tests --cov` ✅
+  - `cd frontend && bun run test` ✅
+  - `cd frontend && bun run lint` ✅
+  - `cd frontend && bun run typecheck` ✅
+- Scope note:
+  - `archive/` remains intentionally legacy-only and isolated from active runtime paths.
+
 # Repo Overview
 - Architecture map
   - Backend API: FastAPI app, middleware, routing, DB initialization (`backend/app/main.py:36-98`, `backend/app/api/router.py:33-186`, `backend/app/db/session.py:39-79`).
@@ -152,7 +167,7 @@ Independent source review was validated against the current repository state bef
 
 ## Security and Privacy
 
-### Finding S1
+### Finding S1 - DONE
 - Issue: Rate-limiter protection can fail open (missing `slowapi`) or degrade to per-process limits (no storage backend).
 - Evidence:
   - No-op limiter fallback: `backend/app/core/security.py:75-84`, `backend/app/core/security.py:105-109`
@@ -165,7 +180,7 @@ Independent source review was validated against the current repository state bef
 - Migration/compatibility considerations: Provide escape hatch env var for emergency read-only modes.
 - Test/verification plan: Add startup validation tests for production env permutations.
 
-### Finding S2
+### Finding S2 - DONE
 - Issue: Frontend Axios client globally enables credentials for all API requests as part of cookie-session architecture.
 - Evidence:
   - `frontend/src/services/api.ts:9-13`
@@ -176,7 +191,7 @@ Independent source review was validated against the current repository state bef
 - Migration/compatibility considerations: Add explicit env docs and startup/config checks without changing default runtime behavior.
 - Test/verification plan: Add config test matrix (same-origin, trusted cross-origin, untrusted cross-origin).
 
-### Finding S3
+### Finding S3 - DONE
 - Issue: Production-sensitive defaults exist for `database_url` and `redis_url` and can be used if env is incomplete.
 - Evidence:
   - `backend/app/core/config.py:22-29`
@@ -189,7 +204,7 @@ Independent source review was validated against the current repository state bef
 
 ## Performance
 
-### Finding P1
+### Finding P1 - DONE
 - Issue: Payback chart recomputes nominal timelines on broad `wizardData` dependency changes.
 - Evidence:
   - Heavy calculation in memo: `frontend/src/components/results/PaybackChart.tsx:75-138`
@@ -201,7 +216,7 @@ Independent source review was validated against the current repository state bef
 - Migration/compatibility considerations: Ensure key includes all financially relevant fields.
 - Test/verification plan: Add profiling benchmark and regression threshold in CI.
 
-### Finding P2
+### Finding P2 - DONE
 - Issue: Request-size middleware buffers entire body before handing off to app.
 - Evidence:
   - `backend/app/core/middleware.py:52-87`
@@ -212,7 +227,7 @@ Independent source review was validated against the current repository state bef
 - Migration/compatibility considerations: Preserve semantics for handlers expecting full body.
 - Test/verification plan: Add stress tests for many near-limit concurrent requests.
 
-### Finding P3
+### Finding P3 - DONE
 - Issue: Local storage persistence includes full `results` and `vehicleDetails` payloads.
 - Evidence:
   - `frontend/src/state/tcoStore.ts:141-147`
@@ -222,8 +237,11 @@ Independent source review was validated against the current repository state bef
 - Tradeoffs: Slightly more recomputation on hydration; lower storage overhead.
 - Migration/compatibility considerations: Add store schema migration for older persisted data.
 - Test/verification plan: Add hydration-size budget and migration tests.
+- Implementation status:
+  - `vehicleDetails` is reconstructed from the shared catalog on hydration.
+  - Persisted state now excludes `results`; legacy hydrated `results` payloads are explicitly dropped during rehydration.
 
-### Finding P4
+### Finding P4 - DONE
 - Issue: `useWizardAutosave` tracks `saveStatus` state that is never consumed by callers.
 - Evidence:
   - State is updated in hook: `frontend/src/hooks/useWizardAutosave.ts:14`, `frontend/src/hooks/useWizardAutosave.ts:40-48`, `frontend/src/hooks/useWizardAutosave.ts:69-82`

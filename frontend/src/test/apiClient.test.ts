@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SessionResponsePayload, WizardData } from '@shared/types/tco.types';
 
 const axiosMocks = vi.hoisted(() => {
@@ -47,6 +47,10 @@ describe('api.getSession', () => {
     axiosMocks.create.mockClear();
   });
 
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('returns the backend session payload', async () => {
     const expected = makeSessionResponse();
     axiosMocks.get.mockResolvedValue({ data: expected });
@@ -57,5 +61,27 @@ describe('api.getSession', () => {
     expect(axiosMocks.get).toHaveBeenCalledTimes(1);
     expect(axiosMocks.get).toHaveBeenCalledWith(`/sessions/${expected.sessionId}`, {});
     expect(response).toEqual(expected);
+  });
+
+  it('uses localhost HTTP API URLs in development', async () => {
+    vi.stubEnv('VITE_API_URL', 'http://localhost:8000/api/v1');
+
+    await import('@services/api');
+
+    expect(axiosMocks.create).toHaveBeenCalledTimes(1);
+    expect(axiosMocks.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        baseURL: 'http://localhost:8000/api/v1',
+        withCredentials: true,
+      })
+    );
+  });
+
+  it('rejects insecure non-localhost HTTP API URLs', async () => {
+    vi.stubEnv('VITE_API_URL', 'http://example.com/api/v1');
+
+    await expect(import('@services/api')).rejects.toThrow(
+      'VITE_API_URL must use HTTPS unless pointing to localhost for development.'
+    );
   });
 });

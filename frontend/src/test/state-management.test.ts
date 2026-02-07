@@ -4,6 +4,7 @@ import type { CalculationResponsePayload } from '@shared/types/tco.types';
 
 describe('TCO Store State Management', () => {
   beforeEach(() => {
+    useTCOStore.persist.clearStorage();
     // Reset store between tests
     useTCOStore.setState({
       stepIndex: 0,
@@ -178,22 +179,38 @@ describe('TCO Store State Management', () => {
 
   });
 
-  describe('Calculating State', () => {
-    it('should track calculating state through legacy setter', () => {
+  describe('Persistence', () => {
+    it('partializes wizard/session without vehicleDetails or results payload', () => {
       const store = useTCOStore.getState();
+      const requestId = store.getNextRequestId();
 
-      expect(store.isCalculating).toBe(false);
-      expect(store.calculationInFlightCount).toBe(0);
+      store.updateWizard({
+        currentVehicle: 'BEV001',
+      });
+      store.setResults(
+        [
+          { vehicle_id: 'BEV001', total_cost: 150000, breakdown: {} } as unknown as CalculationResponsePayload,
+        ],
+        requestId,
+        ['BEV001']
+      );
+      store.setSessionId('session-123');
 
-      store.setIsCalculating(true);
-      expect(useTCOStore.getState().isCalculating).toBe(true);
-      expect(useTCOStore.getState().calculationInFlightCount).toBe(1);
+      const persistOptions = useTCOStore.persist.getOptions();
+      expect(persistOptions.partialize).toBeTypeOf('function');
+      const persistedStore = persistOptions.partialize!(useTCOStore.getState()) as Record<
+        string,
+        unknown
+      >;
 
-      store.setIsCalculating(false);
-      expect(useTCOStore.getState().isCalculating).toBe(false);
-      expect(useTCOStore.getState().calculationInFlightCount).toBe(0);
+      expect(persistedStore._vehicleCatalogVersion).toBeDefined();
+      expect(persistedStore.vehicleDetails).toBeUndefined();
+      expect(persistedStore.results).toBeUndefined();
+      expect(persistedStore.sessionId).toBe('session-123');
     });
+  });
 
+  describe('Calculating State', () => {
     it('should derive isCalculating from overlapping in-flight calculations', () => {
       const store = useTCOStore.getState();
 

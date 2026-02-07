@@ -26,6 +26,7 @@ Set these in Replit Secrets for production deployments:
 | `RUN_MIGRATIONS` | Recommended | Set `false` for controlled/manual migration flow. |
 | `ANALYTICS_API_KEY` | Optional | Required only if `/api/v1/analytics/summary` should be enabled. |
 | `RATE_LIMIT_REDIS_URL` | Optional | Dedicated Redis for rate limits; defaults to `REDIS_URL` outside development. |
+| `ALLOW_INSECURE_RATE_LIMITER` | Optional (emergency only) | Keep unset/`false` in production. Set `true` only as a temporary break-glass override if limiter dependencies are unavailable. |
 | `OBSERVABILITY_TRACING_ENABLED` | Optional | Defaults to `true`. Set `false` to disable tracing completely. |
 | `OBSERVABILITY_TRACING_SAMPLE_RATE` | Optional | Defaults to `0.1` (10%). Use lower values for cost/noise control. |
 | `OBSERVABILITY_TRACING_SERVICE_NAME` | Optional | Defaults to `tco-web-platform-api`. |

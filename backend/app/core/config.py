@@ -5,8 +5,11 @@ import os
 from typing import List, Optional
 from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
-from pydantic import AnyHttpUrl, Field, field_validator
+from pydantic import AnyHttpUrl, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULT_DATABASE_URL = "sqlite+aiosqlite:///./tco.db"
+DEFAULT_REDIS_URL = "redis://localhost:6379/0"
 
 
 class Settings(BaseSettings):
@@ -20,11 +23,11 @@ class Settings(BaseSettings):
         default_factory=lambda: ["http://localhost:5000", "http://127.0.0.1:5000"]
     )
     database_url: str = Field(
-        default="sqlite+aiosqlite:///./tco.db",
+        default=DEFAULT_DATABASE_URL,
         description="SQLAlchemy-compatible database URL.",
     )
     redis_url: Optional[str] = Field(
-        default="redis://localhost:6379/0",
+        default=DEFAULT_REDIS_URL,
         description="Redis connection string for session caching (omit to disable).",
     )
     rate_limit_redis_url: Optional[str] = Field(
@@ -85,6 +88,13 @@ class Settings(BaseSettings):
         default=60,
         ge=1,
         description="Max vehicle catalog requests per IP per minute.",
+    )
+    allow_insecure_rate_limiter: bool = Field(
+        default=False,
+        description=(
+            "Emergency override to allow startup without strict rate-limit "
+            "dependencies in non-development environments."
+        ),
     )
     observability_tracing_enabled: bool = Field(
         default=True,
@@ -216,6 +226,29 @@ class Settings(BaseSettings):
 
         # Reconstruct URL
         return urlunsplit((scheme, parts.netloc, parts.path, new_query, parts.fragment))
+
+    @model_validator(mode="after")
+    def _require_explicit_service_urls_outside_development(self) -> "Settings":
+        environment = self.environment.strip().lower()
+        if environment == "development":
+            return self
+
+        errors: list[str] = []
+        if not self.database_url.strip() or self.database_url == DEFAULT_DATABASE_URL:
+            errors.append(
+                "DATABASE_URL must be explicitly configured when ENVIRONMENT is not development."
+            )
+
+        redis_url = self.redis_url.strip() if isinstance(self.redis_url, str) else None
+        if not redis_url or redis_url == DEFAULT_REDIS_URL:
+            errors.append(
+                "REDIS_URL must be explicitly configured when ENVIRONMENT is not development."
+            )
+
+        if errors:
+            raise ValueError(" ".join(errors))
+
+        return self
 
     @property
     def should_run_migrations(self) -> bool:

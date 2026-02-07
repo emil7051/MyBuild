@@ -120,14 +120,17 @@ async def get_cached_session(session_id: str) -> Optional[CachedSession]:
         return None
 
     if isinstance(decoded, dict) and "payload" in decoded:
-        session_hash = decoded.get("session_secret_hash")
-        # Backward compatibility for legacy cache entries.
-        if session_hash is None and "sessionSecretHash" in decoded:
-            session_hash = decoded.get("sessionSecretHash")
-        if "session_secret_hash" in decoded or "sessionSecretHash" in decoded:
+        if "session_secret_hash" in decoded:
             return {
                 "payload": decoded["payload"],
-                "session_secret_hash": session_hash,
+                "session_secret_hash": decoded.get("session_secret_hash"),
             }
-    # Legacy cache entries without secret hash should be refreshed from DB
+        logger.warning(
+            "Cached payload for session %s missing session_secret_hash; evicting entry.",
+            session_id,
+        )
+        try:
+            await client.delete(cache_key)
+        except RedisError as exc:  # pragma: no cover
+            _mark_redis_unavailable(exc)
     return None

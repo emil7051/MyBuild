@@ -29,6 +29,7 @@ from backend.app.core.observability import (
     ObservabilityMiddleware,
     create_observability_runtime,
 )
+from backend.app.core.security import validate_rate_limiter_configuration
 from backend.app.db.session import init_db
 
 
@@ -44,6 +45,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     observability_runtime = create_observability_runtime()
+    validate_rate_limiter_configuration()
 
     # Add rate limiter state.
     if _rate_limit_exceeded_handler and RateLimitExceeded:

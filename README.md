@@ -189,8 +189,9 @@ The calculator engine and frontend include multiple layers of defensive programm
 
 ### State Management
 - **Race condition prevention** - Session creation uses mutex pattern to prevent duplicate sessions
-- **Stale closure protection** - Generation counter pattern prevents outdated calculation results from overwriting newer ones
+- **Request ordering protection** - Request IDs and in-flight counters prevent outdated calculation results from overwriting newer ones
 - **Cache versioning** - Vehicle catalog includes version tracking to invalidate stale localStorage cache on updates
+- **Minimal persisted payloads** - Local storage keeps wizard/session state; result payloads are re-computed/refetched rather than persisted long-term
 - **Autosave feedback** - Toast notifications inform users when autosave fails
 
 ### Test Coverage

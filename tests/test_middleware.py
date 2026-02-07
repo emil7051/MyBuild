@@ -156,6 +156,25 @@ async def test_allows_request_within_limit(
 
 
 @pytest.mark.anyio
+async def test_allows_chunked_request_within_limit(
+    middleware_app: tuple[FastAPI, dict[str, int]],
+    middleware_client: httpx.AsyncClient,
+) -> None:
+    _, side_effects = middleware_app
+    chunked_payload = _ChunkedBody([b'{"payload":"', b"ok", b'"}'])
+
+    response = await middleware_client.post(
+        "/write",
+        content=chunked_payload,
+        headers={"content-type": "application/json"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["received"] == "ok"
+    assert side_effects["writes"] == 1
+
+
+@pytest.mark.anyio
 async def test_observability_adds_request_id_header_and_tracks_api_metrics(
     observability_client: httpx.AsyncClient,
     observability_runtime,

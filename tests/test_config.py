@@ -33,6 +33,31 @@ def test_normalize_database_url_non_postgres() -> None:
     assert settings.database_url == url
 
 
+def test_require_explicit_service_urls_outside_development() -> None:
+    with pytest.raises(ValueError, match="DATABASE_URL must be explicitly configured"):
+        Settings(environment="production")
+
+
+def test_reject_default_redis_url_outside_development() -> None:
+    with pytest.raises(ValueError, match="REDIS_URL must be explicitly configured"):
+        Settings(
+            environment="staging",
+            database_url="postgresql+asyncpg://user:pass@localhost:5432/app",
+            redis_url="redis://localhost:6379/0",
+        )
+
+
+def test_allow_explicit_service_urls_outside_development() -> None:
+    settings = Settings(
+        environment="production",
+        database_url="postgresql+asyncpg://user:pass@localhost:5432/app",
+        redis_url="redis://redis.internal:6379/2",
+    )
+    assert settings.environment == "production"
+    assert settings.database_url.startswith("postgresql+asyncpg://")
+    assert settings.redis_url == "redis://redis.internal:6379/2"
+
+
 def test_reject_invalid_tracing_sample_rate() -> None:
     with pytest.raises(ValueError, match="observability_tracing_sample_rate"):
         Settings(observability_tracing_sample_rate=1.5)

@@ -40,6 +40,17 @@ interface PaybackChartProps {
   wizardData: WizardData;
 }
 
+type PaybackInputSnapshot = {
+  dieselVehicleId: string;
+  bevVehicleId: string;
+  scenario: WizardData['scenario'];
+  purchaseMethod: WizardData['purchaseMethod'];
+  dutyCycle: WizardData['dutyCycle'];
+  overrides: WizardData['overrides'];
+  dieselVehicleOverrides: CalculationRequestPayload['vehicle_overrides'] | null;
+  bevVehicleOverrides: CalculationRequestPayload['vehicle_overrides'] | null;
+};
+
 type PaybackTooltipProps = TooltipProps<ValueType, NameType> & {
   label?: string | number;
   payload?: Array<{
@@ -72,30 +83,59 @@ const PaybackChart = ({ results, vehicleDetails, wizardData }: PaybackChartProps
     [results, vehicleDetails]
   );
 
-  const paybackAnalysis = useMemo(() => {
-    const dieselResult = comparisonPair?.dieselResult;
-    const bevResult = comparisonPair?.bevResult;
+  // Keep the heavy timeline recomputation scoped to the actual financial inputs
+  // used by this chart, instead of the entire wizard state object.
+  const paybackInputKey = useMemo(() => {
+    const dieselVehicleId = comparisonPair?.dieselResult.vehicle_id;
+    const bevVehicleId = comparisonPair?.bevResult.vehicle_id;
 
-    if (!dieselResult || !bevResult) {
+    if (!dieselVehicleId || !bevVehicleId) {
+      return null;
+    }
+
+    const snapshot: PaybackInputSnapshot = {
+      dieselVehicleId,
+      bevVehicleId,
+      scenario: wizardData.scenario,
+      purchaseMethod: wizardData.purchaseMethod,
+      dutyCycle: wizardData.dutyCycle,
+      overrides: wizardData.overrides,
+      dieselVehicleOverrides: wizardData.vehicleParamOverrides?.[dieselVehicleId] ?? null,
+      bevVehicleOverrides: wizardData.vehicleParamOverrides?.[bevVehicleId] ?? null,
+    };
+
+    return JSON.stringify(snapshot);
+  }, [
+    comparisonPair,
+    wizardData.scenario,
+    wizardData.purchaseMethod,
+    wizardData.dutyCycle,
+    wizardData.overrides,
+    wizardData.vehicleParamOverrides,
+  ]);
+
+  const paybackAnalysis = useMemo(() => {
+    if (!paybackInputKey) {
       return undefined;
     }
 
+    const snapshot = JSON.parse(paybackInputKey) as PaybackInputSnapshot;
     const commonPayload = {
-      scenario_name: wizardData.scenario,
-      purchase_method: wizardData.purchaseMethod,
-      duty_cycle: wizardData.dutyCycle,
-      overrides: wizardData.overrides,
+      scenario_name: snapshot.scenario,
+      purchase_method: snapshot.purchaseMethod,
+      duty_cycle: snapshot.dutyCycle,
+      overrides: snapshot.overrides,
     } as const;
 
     const dieselPayload: CalculationRequestPayload = {
-      vehicle_id: dieselResult.vehicle_id,
+      vehicle_id: snapshot.dieselVehicleId,
       ...commonPayload,
-      vehicle_overrides: wizardData.vehicleParamOverrides?.[dieselResult.vehicle_id],
+      vehicle_overrides: snapshot.dieselVehicleOverrides ?? undefined,
     };
     const bevPayload: CalculationRequestPayload = {
-      vehicle_id: bevResult.vehicle_id,
+      vehicle_id: snapshot.bevVehicleId,
       ...commonPayload,
-      vehicle_overrides: wizardData.vehicleParamOverrides?.[bevResult.vehicle_id],
+      vehicle_overrides: snapshot.bevVehicleOverrides ?? undefined,
     };
 
     const dieselTimeline = calculateNominalCostTimeline(dieselPayload);
@@ -138,7 +178,7 @@ const PaybackChart = ({ results, vehicleDetails, wizardData }: PaybackChartProps
       horizonYears: memoHorizonYears,
       totalSavings: memoTotalSavings,
     };
-  }, [comparisonPair, wizardData]);
+  }, [paybackInputKey]);
 
   if (!results.length) {
     return (

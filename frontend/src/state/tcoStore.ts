@@ -34,7 +34,6 @@ interface TCOStore {
     vehicleOrder: string[]
   ) => void;
   resetResults: () => void;
-  setIsCalculating: (state: boolean) => void;
   beginCalculation: () => void;
   finishCalculation: () => void;
   setSessionId: (sessionId?: string) => void;
@@ -135,11 +134,6 @@ export const useTCOStore = create<TCOStore>()(
           return { results: [...prioritized, ...remainder] };
         }),
       resetResults: () => set({ results: [] }),
-      setIsCalculating: (state) =>
-        set((currentState) => ({
-          isCalculating: state,
-          calculationInFlightCount: state ? Math.max(currentState.calculationInFlightCount, 1) : 0,
-        })),
       beginCalculation: () =>
         set((state) => {
           const calculationInFlightCount = state.calculationInFlightCount + 1;
@@ -165,8 +159,6 @@ export const useTCOStore = create<TCOStore>()(
       partialize: (state) => ({
         _vehicleCatalogVersion: VEHICLE_CATALOG_VERSION,
         wizardData: state.wizardData,
-        results: state.results,
-        vehicleDetails: state.vehicleDetails,
         sessionId: state.sessionId,
       }),
       onRehydrateStorage: () => (state, error) => {
@@ -182,12 +174,16 @@ export const useTCOStore = create<TCOStore>()(
         if (!state.wizardData.vehicleParamOverrides) {
           state.wizardData.vehicleParamOverrides = {};
         }
+        // Results are intentionally ephemeral across page reloads.
+        state.results = [];
+        // Vehicle catalog is canonical source of truth. Avoid persisting
+        // full vehicle details payloads in local storage.
+        state.vehicleDetails = { ...VEHICLE_BY_ID };
 
         // Check vehicle catalog version and refresh if outdated
         const storedVersion = (state as { _vehicleCatalogVersion?: string })._vehicleCatalogVersion;
         if (storedVersion !== VEHICLE_CATALOG_VERSION) {
           console.info('Vehicle catalog updated, refreshing cache');
-          state.vehicleDetails = { ...VEHICLE_BY_ID };
 
           // Clear vehicle param overrides for vehicles that no longer exist
           if (state.wizardData.vehicleParamOverrides) {

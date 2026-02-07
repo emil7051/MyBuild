@@ -29,6 +29,10 @@ from backend.app.core.config import settings  # noqa: E402
 _SESSION_SECRET_SHA256_PREFIX = "sha256$"
 
 
+class RateLimiterConfigurationError(RuntimeError):
+    """Raised when rate-limiter safety requirements are not met."""
+
+
 def _is_trusted_proxy(direct_ip: str) -> bool:
     """Check if the direct connection IP is from a trusted proxy."""
     if not settings.trusted_proxies:
@@ -89,6 +93,39 @@ def _get_rate_limit_storage_uri() -> str | None:
     if settings.environment != "development":
         return settings.redis_url
     return None
+
+
+def validate_rate_limiter_configuration() -> None:
+    """Enforce non-development rate-limit safety requirements.
+
+    In non-development environments, startup must fail unless the application can
+    build a real limiter with shared storage. This can be bypassed temporarily via
+    the ALLOW_INSECURE_RATE_LIMITER emergency override.
+    """
+    if settings.environment == "development":
+        return
+
+    if settings.allow_insecure_rate_limiter:
+        logger.warning(
+            "SECURITY WARNING: ALLOW_INSECURE_RATE_LIMITER=true in %s. "
+            "Rate limiting may run in a degraded mode.",
+            settings.environment,
+        )
+        return
+
+    if not _SLOWAPI_AVAILABLE:
+        raise RateLimiterConfigurationError(
+            "slowapi is required outside development. Install slowapi or set "
+            "ALLOW_INSECURE_RATE_LIMITER=true for an emergency override."
+        )
+
+    storage_uri = _get_rate_limit_storage_uri()
+    if not storage_uri:
+        raise RateLimiterConfigurationError(
+            "Shared rate-limit storage is required outside development. Set "
+            "RATE_LIMIT_REDIS_URL (or REDIS_URL) or use "
+            "ALLOW_INSECURE_RATE_LIMITER=true for an emergency override."
+        )
 
 
 def _build_limiter():

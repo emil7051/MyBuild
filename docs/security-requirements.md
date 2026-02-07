@@ -46,6 +46,9 @@ Primary implementation:
   - `Content-Length` pre-check
   - streaming byte-count enforcement for chunked/forged requests
 - Session, vehicle-catalog, and analytics routes are rate-limited.
+- Outside development, startup fails closed if rate-limiter dependencies are not
+  available, unless `ALLOW_INSECURE_RATE_LIMITER=true` is explicitly set as an
+  emergency override.
 - `X-Forwarded-For` is trusted only when requests come through configured trusted
   proxy CIDRs.
 
@@ -54,6 +57,21 @@ Primary implementation:
 - `backend/app/core/security.py`
 - `backend/app/main.py`
 - `backend/app/core/config.py`
+
+## Frontend Credentialed API Invariants
+
+- Browser API calls use `withCredentials=true` for session-secret cookie flows.
+- `VITE_API_URL` must be:
+  - a relative path (recommended: `/api/v1`), or
+  - an HTTPS absolute URL, or
+  - an HTTP localhost URL for local development only.
+- Backend CORS origin configuration must be explicit and cannot contain `*` when
+  credentials are enabled.
+
+Primary implementation:
+- `frontend/src/services/api.ts`
+- `backend/app/core/config.py`
+- `backend/app/main.py`
 
 ## Observability and Alerting Controls
 

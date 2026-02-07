@@ -334,3 +334,87 @@ def test_rate_limiter_uses_configured_storage(
 
     assert isinstance(limiter, DummyLimiter)
     assert created["kwargs"]["storage_uri"] == "redis://rate-limit"
+
+
+def test_validate_rate_limiter_configuration_allows_development(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from backend.app.core import security
+
+    monkeypatch.setattr(security.settings, "environment", "development", raising=False)
+    monkeypatch.setattr(
+        security.settings, "allow_insecure_rate_limiter", False, raising=False
+    )
+    monkeypatch.setattr(security, "_SLOWAPI_AVAILABLE", False)
+
+    security.validate_rate_limiter_configuration()
+
+
+def test_validate_rate_limiter_configuration_requires_slowapi_outside_development(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from backend.app.core import security
+
+    monkeypatch.setattr(security.settings, "environment", "production", raising=False)
+    monkeypatch.setattr(
+        security.settings, "allow_insecure_rate_limiter", False, raising=False
+    )
+    monkeypatch.setattr(security, "_SLOWAPI_AVAILABLE", False)
+
+    with pytest.raises(
+        security.RateLimiterConfigurationError, match="slowapi is required"
+    ):
+        security.validate_rate_limiter_configuration()
+
+
+def test_validate_rate_limiter_configuration_requires_storage_outside_development(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from backend.app.core import security
+
+    monkeypatch.setattr(security.settings, "environment", "production", raising=False)
+    monkeypatch.setattr(
+        security.settings, "allow_insecure_rate_limiter", False, raising=False
+    )
+    monkeypatch.setattr(security.settings, "rate_limit_redis_url", None, raising=False)
+    monkeypatch.setattr(security.settings, "redis_url", None, raising=False)
+    monkeypatch.setattr(security, "_SLOWAPI_AVAILABLE", True)
+
+    with pytest.raises(
+        security.RateLimiterConfigurationError,
+        match="Shared rate-limit storage is required",
+    ):
+        security.validate_rate_limiter_configuration()
+
+
+def test_validate_rate_limiter_configuration_allows_emergency_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from backend.app.core import security
+
+    monkeypatch.setattr(security.settings, "environment", "production", raising=False)
+    monkeypatch.setattr(
+        security.settings, "allow_insecure_rate_limiter", True, raising=False
+    )
+    monkeypatch.setattr(security, "_SLOWAPI_AVAILABLE", False)
+    monkeypatch.setattr(security.settings, "rate_limit_redis_url", None, raising=False)
+    monkeypatch.setattr(security.settings, "redis_url", None, raising=False)
+
+    security.validate_rate_limiter_configuration()
+
+
+def test_create_app_calls_rate_limiter_validation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import backend.app.main as main_module
+
+    called = {"value": False}
+
+    def _stub_validate() -> None:
+        called["value"] = True
+
+    monkeypatch.setattr(main_module, "validate_rate_limiter_configuration", _stub_validate)
+
+    main_module.create_app()
+
+    assert called["value"] is True

@@ -49,9 +49,9 @@ class RequestSizeLimitMiddleware:
             except ValueError:
                 pass  # Invalid header, will be caught by streaming check
 
-        # Buffer the request body while counting bytes so we can reject oversized
+        # Buffer request chunks while counting bytes so we can reject oversized
         # payloads before any route logic executes.
-        body_parts: list[bytes] = []
+        buffered_chunks: list[bytes] = []
         received_bytes = 0
 
         while True:
@@ -63,25 +63,29 @@ class RequestSizeLimitMiddleware:
                 continue
 
             body = message.get("body", b"")
+            received_bytes += len(body)
+            if received_bytes > self.max_size:
+                response = self._payload_too_large_response(self.max_size)
+                await response(scope, receive, send)
+                return
             if body:
-                received_bytes += len(body)
-                if received_bytes > self.max_size:
-                    response = self._payload_too_large_response(self.max_size)
-                    await response(scope, receive, send)
-                    return
-                body_parts.append(body)
+                buffered_chunks.append(body)
 
             if not message.get("more_body", False):
                 break
 
-        buffered_body = b"".join(body_parts)
-        body_sent = False
+        chunk_index = 0
 
         async def replay_receive() -> Message:
-            nonlocal body_sent
-            if body_sent:
+            nonlocal chunk_index
+            if chunk_index >= len(buffered_chunks):
                 return {"type": "http.request", "body": b"", "more_body": False}
-            body_sent = True
-            return {"type": "http.request", "body": buffered_body, "more_body": False}
+            body = buffered_chunks[chunk_index]
+            chunk_index += 1
+            return {
+                "type": "http.request",
+                "body": body,
+                "more_body": chunk_index < len(buffered_chunks),
+            }
 
         await self.app(scope, replay_receive, send)
