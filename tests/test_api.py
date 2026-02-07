@@ -158,6 +158,59 @@ async def test_session_create_and_get(client: httpx.AsyncClient) -> None:
 
 
 @pytest.mark.anyio
+async def test_session_get_falls_back_to_db_on_corrupted_cache_json(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from backend.app.core import cache as cache_module
+    from backend.app.core import config
+    import backend.app.services.sessions as sessions_module
+
+    class DummyRedis:
+        def __init__(self) -> None:
+            self.deleted_keys: list[str] = []
+
+        async def setex(self, *_args, **_kwargs) -> bool:
+            return True
+
+        async def get(self, *_args, **_kwargs) -> str:
+            return "{not-json"
+
+        async def delete(self, key: str) -> int:
+            self.deleted_keys.append(key)
+            return 1
+
+    redis_client = DummyRedis()
+
+    async def _fake_get_redis_client():
+        return redis_client
+
+    async def _noop_cache(*_args, **_kwargs) -> None:
+        return None
+
+    monkeypatch.setattr(cache_module, "_get_redis_client", _fake_get_redis_client)
+    monkeypatch.setattr(
+        sessions_module, "get_cached_session", cache_module.get_cached_session
+    )
+    monkeypatch.setattr(sessions_module, "cache_session", _noop_cache)
+
+    create_response = await client.post(
+        "/api/v1/sessions", json=make_session_payload_dict()
+    )
+    assert create_response.status_code == 201
+    session_id = create_response.json()["sessionId"]
+
+    cookie_name = config.settings.session_secret_cookie_name
+    session_secret = client.cookies.get(cookie_name)
+    assert session_secret
+    client.cookies.set(cookie_name, session_secret)
+
+    get_response = await client.get(f"/api/v1/sessions/{session_id}")
+    assert get_response.status_code == 200
+    assert get_response.json()["sessionId"] == session_id
+    assert redis_client.deleted_keys == [f"session:{session_id}"]
+
+
+@pytest.mark.anyio
 async def test_session_update_clears_results(client: httpx.AsyncClient) -> None:
     create_response = await client.post(
         "/api/v1/sessions", json=make_session_payload_dict()

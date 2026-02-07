@@ -35,8 +35,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.lock.txt
 
+      - name: Validate scenario contract parity
+        run: python scripts/check_scenario_contract.py
+
       - name: Run data generator
         run: python scripts/generate_vehicle_catalog_ts.py
+
+      - name: Verify generator from non-root working directory
+        run: |
+          cd backend
+          python ../scripts/generate_vehicle_catalog_ts.py
 
       - name: Check for drift in generated files
         run: |

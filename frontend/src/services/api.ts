@@ -41,3 +41,14 @@ export const updateSession = async (
   );
   return data;
 };
+
+export const getSession = async (
+  sessionId: string,
+  options: SessionRequestOptions = {}
+) => {
+  const { data } = await api.get<SessionResponsePayload>(
+    `/sessions/${sessionId}`,
+    getSessionConfig(options)
+  );
+  return data;
+};

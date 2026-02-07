@@ -5,6 +5,7 @@ import ComparisonConfigPanel from './ComparisonConfigPanel';
 import SelectedVehiclesSummary from './SelectedVehiclesSummary';
 import { useTCOStore } from '@state/tcoStore';
 import { useCalculationRunner } from '@hooks/useCalculations';
+import { reportClientError } from '@services/clientTelemetry';
 import type { ComparisonRequestPayload } from '@shared/types/tco.types';
 import { buildComparisonPayload } from '@utils/payload';
 
@@ -23,7 +24,11 @@ const WizardCompareStep = () => {
       debounce((p: ComparisonRequestPayload) => {
         if (!p.vehicle_ids.length) return;
         void runComparison(p).catch((error) => {
-          console.warn('Auto-calculation failed:', error);
+          reportClientError({
+            source: 'WizardCompareStep.debouncedAutoCalculation',
+            error,
+            level: 'warning',
+          });
         });
       }, 600), // Increased debounce to 600ms for stability
     [runComparison]

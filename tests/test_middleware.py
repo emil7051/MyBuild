@@ -16,8 +16,7 @@ from backend.app.core.observability import (
     TRACE_ID_HEADER,
     ObservabilityMiddleware,
     RequestAlertPolicy,
-    observability_logger,
-    request_metrics,
+    create_observability_runtime,
 )
 
 
@@ -62,12 +61,26 @@ async def middleware_client(middleware_app: tuple[FastAPI, dict[str, int]]):
 
 
 @pytest.fixture()
-def observability_app() -> FastAPI:
-    """Build a test app with observability middleware."""
-    request_metrics.reset()
+def observability_runtime():
+    runtime = create_observability_runtime()
+    runtime.request_metrics.reset()
+    yield runtime
+    runtime.request_metrics.reset()
 
+
+@pytest.fixture()
+def observability_app(observability_runtime) -> FastAPI:
+    """Build a test app with observability middleware."""
     app = FastAPI()
-    app.add_middleware(ObservabilityMiddleware)
+    app.add_middleware(
+        ObservabilityMiddleware,
+        logger=observability_runtime.logger,
+        metrics=observability_runtime.request_metrics,
+        tracing_state=observability_runtime.tracing_state,
+        tracer=observability_runtime.tracer,
+        slow_request_threshold_ms=config.settings.observability_slow_request_threshold_ms,
+        api_v1_prefix=config.settings.api_v1_prefix,
+    )
 
     @app.get("/")
     async def root() -> dict[str, str]:
@@ -145,13 +158,14 @@ async def test_allows_request_within_limit(
 @pytest.mark.anyio
 async def test_observability_adds_request_id_header_and_tracks_api_metrics(
     observability_client: httpx.AsyncClient,
+    observability_runtime,
 ) -> None:
     response = await observability_client.post("/api/v1/sessions")
 
     assert response.status_code == 200
     assert response.headers.get("x-request-id")
 
-    snapshot = request_metrics.snapshot()
+    snapshot = observability_runtime.request_metrics.snapshot()
     assert snapshot["requests"] == 1
     assert snapshot["errors"] == 0
     assert snapshot["routes"]["sessions"]["requests"] == 1
@@ -173,22 +187,24 @@ async def test_observability_adds_trace_id_header(
 @pytest.mark.anyio
 async def test_observability_skips_non_api_paths(
     observability_client: httpx.AsyncClient,
+    observability_runtime,
 ) -> None:
     response = await observability_client.get("/")
 
     assert response.status_code == 200
     assert response.headers.get("x-request-id") is None
-    assert request_metrics.snapshot()["requests"] == 0
+    assert observability_runtime.request_metrics.snapshot()["requests"] == 0
 
 
 @pytest.mark.anyio
 async def test_observability_counts_server_errors(
     observability_client: httpx.AsyncClient,
+    observability_runtime,
 ) -> None:
     response = await observability_client.get("/api/v1/error")
 
     assert response.status_code == 500
-    snapshot = request_metrics.snapshot()
+    snapshot = observability_runtime.request_metrics.snapshot()
     assert snapshot["requests"] == 1
     assert snapshot["errors"] == 1
 
@@ -196,6 +212,7 @@ async def test_observability_counts_server_errors(
 @pytest.mark.anyio
 async def test_observability_emits_alert_event_for_error_rate_breach(
     observability_client: httpx.AsyncClient,
+    observability_runtime,
 ) -> None:
     captured_records: list[logging.LogRecord] = []
 
@@ -204,30 +221,30 @@ async def test_observability_emits_alert_event_for_error_rate_breach(
             captured_records.append(record)
 
     capture_handler = _CaptureHandler()
-    observability_logger.addHandler(capture_handler)
+    observability_runtime.logger.addHandler(capture_handler)
 
-    original_policy = request_metrics.alert_policy
-    original_dispatcher = request_metrics.alert_dispatcher
-    original_emit_at = request_metrics._next_emit_at
+    original_policy = observability_runtime.request_metrics.alert_policy
+    original_dispatcher = observability_runtime.request_metrics.alert_dispatcher
+    original_emit_at = observability_runtime.request_metrics._next_emit_at
 
     try:
-        request_metrics.alert_policy = RequestAlertPolicy(
+        observability_runtime.request_metrics.alert_policy = RequestAlertPolicy(
             min_requests=1,
             error_rate_threshold=0.5,
             avg_duration_ms_threshold=100_000,
             cooldown_seconds=60,
         )
-        request_metrics.alert_dispatcher = None
-        request_metrics._next_emit_at = 0.0
+        observability_runtime.request_metrics.alert_dispatcher = None
+        observability_runtime.request_metrics._next_emit_at = 0.0
 
         response = await observability_client.get("/api/v1/error")
         assert response.status_code == 500
     finally:
-        request_metrics.alert_policy = original_policy
-        request_metrics.alert_dispatcher = original_dispatcher
-        request_metrics._next_emit_at = original_emit_at
-        observability_logger.removeHandler(capture_handler)
-        request_metrics.reset()
+        observability_runtime.request_metrics.alert_policy = original_policy
+        observability_runtime.request_metrics.alert_dispatcher = original_dispatcher
+        observability_runtime.request_metrics._next_emit_at = original_emit_at
+        observability_runtime.logger.removeHandler(capture_handler)
+        observability_runtime.request_metrics.reset()
 
     alert_records = [
         record

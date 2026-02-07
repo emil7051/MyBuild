@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import Card from '@components/shared/Card';
 import type { CalculationResponsePayload, VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency } from '@utils/format';
+import EmptyChartState from './EmptyChartState';
+import { selectComparisonPair } from './comparisonSelection';
 import {
   Bar,
   BarChart,
@@ -67,21 +69,9 @@ const WaterfallTooltip = ({ active, payload }: WaterfallTooltipProps) => {
 
 const SavingsWaterfallChart = ({ results, vehicleDetails }: SavingsWaterfallChartProps) => {
   const chartAnalysis = useMemo(() => {
-    // Find diesel and BEV results deterministically:
-    // - Diesel: use first diesel result (baseline)
-    // - BEV: use the BEV with the lowest total_cost (best option)
-    const dieselResults = results.filter(
-      (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'Diesel'
-    );
-    const bevResults = results.filter(
-      (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'BEV'
-    );
-
-    const dieselResult = dieselResults[0];
-    const bevResult =
-      bevResults.length > 0
-        ? [...bevResults].sort((a, b) => a.total_cost - b.total_cost)[0]
-        : undefined;
+    const comparisonPair = selectComparisonPair(results, vehicleDetails);
+    const dieselResult = comparisonPair?.dieselResult;
+    const bevResult = comparisonPair?.bevResult;
 
     if (!dieselResult || !bevResult) {
       return undefined;
@@ -185,9 +175,7 @@ const SavingsWaterfallChart = ({ results, vehicleDetails }: SavingsWaterfallChar
         title="Savings breakdown"
         subtitle="What drives the cost difference?"
       >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
-          <p className="text-sm text-slate-500">No results to display</p>
-        </div>
+        <EmptyChartState message="No results to display" />
       </Card>
     );
   }
@@ -198,11 +186,7 @@ const SavingsWaterfallChart = ({ results, vehicleDetails }: SavingsWaterfallChar
         title="Savings breakdown"
         subtitle="What drives the cost difference?"
       >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
-          <p className="text-sm text-slate-500">
-            Compare both diesel and electric vehicles to see savings breakdown
-          </p>
-        </div>
+        <EmptyChartState message="Compare both diesel and electric vehicles to see savings breakdown" />
       </Card>
     );
   }

@@ -301,31 +301,5 @@ SCENARIOS = {
     ),
 }
 
-# ============================================================================
-# SCENARIO FUNCTIONS
-# ============================================================================
-
-# Active scenario (default to baseline)
-active_scenario: EconomicScenario = SCENARIOS["baseline"]
-
-
-def set_active_scenario(scenario_name: str):
-    """Set the active economic scenario."""
-    global active_scenario
-    if scenario_name not in SCENARIOS:
-        raise ValueError(
-            f"Scenario '{scenario_name}' not found. Available: {list(SCENARIOS.keys())}"
-        )
-    active_scenario = SCENARIOS[scenario_name]
-
-
-def get_active_scenario() -> EconomicScenario:
-    """Get the currently active economic scenario."""
-    return active_scenario
-
-
-def create_custom_scenario(name: str, description: str, **kwargs) -> EconomicScenario:
-    """Create a custom economic scenario."""
-    scenario = EconomicScenario(name=name, description=description, **kwargs)
-    SCENARIOS[name] = scenario
-    return scenario
+# Legacy global scenario mutators were removed to keep this module stateless.
+# Runtime code should select scenarios explicitly from `SCENARIOS`.

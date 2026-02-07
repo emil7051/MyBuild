@@ -5,6 +5,7 @@ import type { VehicleDetail } from '@shared/types/tco.types';
 import { calculatePresentValue } from '@shared/calculator/math';
 import { CONSTANTS } from '@shared/data/constants';
 import { formatCurrency } from '@utils/format';
+import EmptyChartState from './EmptyChartState';
 import {
   Bar,
   BarChart,
@@ -199,9 +200,7 @@ const CostBreakdownChart = ({ results, vehicleDetails }: CostBreakdownChartProps
         title="Cost components"
         subtitle={<NpvAlignedInfo />}
       >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
-          <p className="text-sm text-slate-500">No results to display</p>
-        </div>
+        <EmptyChartState message="No results to display" />
       </Card>
     );
   }

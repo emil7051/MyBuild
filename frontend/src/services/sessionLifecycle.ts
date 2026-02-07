@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { createSession, updateSession } from '@services/api';
+import { reportClientError } from '@services/clientTelemetry';
 import { useTCOStore } from '@state/tcoStore';
 import type {
   SessionCreatePayload,
@@ -9,20 +10,43 @@ import type {
 
 type PendingUpdate = {
   payload: SessionUpdatePayload;
-  timestamp: number;
-  hasResults: boolean;
+  fieldTimestamps: Partial<Record<keyof SessionUpdatePayload, number>>;
 };
 
 let createInFlight: Promise<SessionCreateResponsePayload> | null = null;
-let pendingWizardUpdate: PendingUpdate | null = null;
-let pendingResultsUpdate: PendingUpdate | null = null;
+let pendingUpdate: PendingUpdate | null = null;
 
 const RETRYABLE_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 250;
 
-const hasResultsPayload = (payload: SessionUpdatePayload) =>
-  Object.prototype.hasOwnProperty.call(payload, 'results');
+// During initial session creation, queued updates are merged by top-level field
+// so wizard-only and results updates cannot overwrite each other accidentally.
+const PENDING_UPDATE_FIELDS: (keyof SessionUpdatePayload)[] = [
+  'wizardData',
+  'results',
+  'operatorProfile',
+  'feedback',
+];
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const mergeFieldValue = (existingValue: unknown, incomingValue: unknown): unknown => {
+  if (!isPlainObject(existingValue) || !isPlainObject(incomingValue)) {
+    return incomingValue;
+  }
+
+  const merged: Record<string, unknown> = { ...existingValue };
+  Object.entries(incomingValue).forEach(([key, value]) => {
+    if (value === undefined) {
+      return;
+    }
+    merged[key] = mergeFieldValue(merged[key], value);
+  });
+
+  return merged;
+};
 
 const sleep = (ms: number) => new Promise((resolve) => {
   setTimeout(resolve, ms);
@@ -64,54 +88,70 @@ const withTransientRetry = async <T>(operation: () => Promise<T>): Promise<T> =>
 };
 
 const enqueuePendingUpdate = (payload: SessionUpdatePayload) => {
-  const pending = {
-    payload,
-    timestamp: Date.now(),
-    hasResults: hasResultsPayload(payload),
-  };
-
-  if (pending.hasResults) {
-    pendingResultsUpdate = pending;
-  } else {
-    pendingWizardUpdate = pending;
+  if (!pendingUpdate) {
+    pendingUpdate = {
+      payload: {},
+      fieldTimestamps: {},
+    };
   }
+
+  const queued = pendingUpdate;
+  if (!queued) {
+    return;
+  }
+  const queuedPayload = queued.payload as Partial<Record<keyof SessionUpdatePayload, unknown>>;
+
+  const timestamp = Date.now();
+
+  PENDING_UPDATE_FIELDS.forEach((field) => {
+    if (!Object.prototype.hasOwnProperty.call(payload, field)) {
+      return;
+    }
+
+    if (timestamp < (queued.fieldTimestamps[field] ?? -Infinity)) {
+      return;
+    }
+
+    const incomingValue = payload[field];
+
+    if (incomingValue === undefined) {
+      delete queuedPayload[field];
+      queued.fieldTimestamps[field] = timestamp;
+      return;
+    }
+
+    queuedPayload[field] = mergeFieldValue(
+      queuedPayload[field],
+      incomingValue
+    );
+    queued.fieldTimestamps[field] = timestamp;
+  });
 };
 
 const flushPendingUpdates = async (
   sessionId: string
 ): Promise<void> => {
-  const resultsUpdate = pendingResultsUpdate;
-  const wizardUpdate = pendingWizardUpdate;
-
-  pendingResultsUpdate = null;
-  pendingWizardUpdate = null;
+  const mergedPayload = pendingUpdate?.payload;
+  pendingUpdate = null;
 
   const safeUpdate = async (payload: SessionUpdatePayload): Promise<void> => {
     try {
       await withTransientRetry(() => updateSession(sessionId, payload));
     } catch (error) {
-      console.warn('Failed to flush pending session update', error);
+      reportClientError({
+        source: 'sessionLifecycle.flushPendingUpdates',
+        error,
+        level: 'warning',
+        context: {
+          sessionId,
+        },
+      });
       throw error;
     }
   };
 
-  if (resultsUpdate && wizardUpdate) {
-    if (wizardUpdate.timestamp > resultsUpdate.timestamp) {
-      await safeUpdate(resultsUpdate.payload);
-      await safeUpdate(wizardUpdate.payload);
-      return;
-    }
-    await safeUpdate(resultsUpdate.payload);
-    return;
-  }
-
-  if (resultsUpdate) {
-    await safeUpdate(resultsUpdate.payload);
-    return;
-  }
-
-  if (wizardUpdate) {
-    await safeUpdate(wizardUpdate.payload);
+  if (mergedPayload && Object.keys(mergedPayload).length > 0) {
+    await safeUpdate(mergedPayload);
   }
 };
 

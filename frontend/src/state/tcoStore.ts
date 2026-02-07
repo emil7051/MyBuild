@@ -21,6 +21,7 @@ interface TCOStore {
   wizardData: WizardData;
   results: CalculationResponsePayload[];
   isCalculating: boolean;
+  calculationInFlightCount: number;
   vehicleDetails: Record<string, VehicleDetail>;
   sessionId?: string;
   latestRequestId: number;
@@ -34,6 +35,8 @@ interface TCOStore {
   ) => void;
   resetResults: () => void;
   setIsCalculating: (state: boolean) => void;
+  beginCalculation: () => void;
+  finishCalculation: () => void;
   setSessionId: (sessionId?: string) => void;
   getNextRequestId: () => number;
   setHasHydrated: (state: boolean) => void;
@@ -91,6 +94,7 @@ export const useTCOStore = create<TCOStore>()(
       wizardData: defaultWizardData,
       results: [],
       isCalculating: false,
+      calculationInFlightCount: 0,
       vehicleDetails: initialVehicleDetails,
       sessionId: undefined,
       latestRequestId: 0,
@@ -131,7 +135,27 @@ export const useTCOStore = create<TCOStore>()(
           return { results: [...prioritized, ...remainder] };
         }),
       resetResults: () => set({ results: [] }),
-      setIsCalculating: (state) => set({ isCalculating: state }),
+      setIsCalculating: (state) =>
+        set((currentState) => ({
+          isCalculating: state,
+          calculationInFlightCount: state ? Math.max(currentState.calculationInFlightCount, 1) : 0,
+        })),
+      beginCalculation: () =>
+        set((state) => {
+          const calculationInFlightCount = state.calculationInFlightCount + 1;
+          return {
+            calculationInFlightCount,
+            isCalculating: calculationInFlightCount > 0,
+          };
+        }),
+      finishCalculation: () =>
+        set((state) => {
+          const calculationInFlightCount = Math.max(state.calculationInFlightCount - 1, 0);
+          return {
+            calculationInFlightCount,
+            isCalculating: calculationInFlightCount > 0,
+          };
+        }),
       setSessionId: (sessionId) => set({ sessionId }),
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),

@@ -4,7 +4,8 @@ See `docs/security-requirements.md` for request validation, auth, and rate-limit
 requirements.
 """
 
-from typing import List
+from collections.abc import Awaitable, Callable
+from typing import List, TypeVar
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -34,6 +35,7 @@ api_router = APIRouter(prefix=settings.api_v1_prefix)
 
 _vehicle_service = VehicleCatalogService()
 _session_service = SessionService()
+TSessionResult = TypeVar("TSessionResult")
 
 
 def _get_session_secret(request: Request) -> str | None:
@@ -52,6 +54,24 @@ def _set_session_secret_cookie(response: Response, session_secret: str) -> None:
     )
 
 
+async def _run_with_session_secret(
+    request: Request,
+    response: Response,
+    operation: Callable[[str | None], Awaitable[TSessionResult]],
+) -> TSessionResult:
+    """Run a session operation with shared secret lifecycle handling.
+
+    The session secret is extracted from the request cookie and passed into the
+    provided operation. On successful completion, an existing secret is refreshed
+    on the response to preserve cookie expiration behavior.
+    """
+    resolved_secret = _get_session_secret(request)
+    result = await operation(resolved_secret)
+    if resolved_secret:
+        _set_session_secret_cookie(response, resolved_secret)
+    return result
+
+
 def validate_uuid(session_id: str) -> str:
     """Validate session_id is a valid UUID format.
 
@@ -62,7 +82,7 @@ def validate_uuid(session_id: str) -> str:
         return session_id
     except ValueError:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid session_id format. Expected a valid UUID v4.",
         )
 
@@ -129,13 +149,13 @@ async def update_session(
     validate_uuid(session_id)
 
     try:
-        resolved_secret = _get_session_secret(request)
-        updated = await _session_service.update_session(
-            db, session_id, payload, resolved_secret
+        return await _run_with_session_secret(
+            request=request,
+            response=response,
+            operation=lambda resolved_secret: _session_service.update_session(
+                db, session_id, payload, resolved_secret
+            ),
         )
-        if resolved_secret:
-            _set_session_secret_cookie(response, resolved_secret)
-        return updated
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -157,11 +177,13 @@ async def get_session(
     validate_uuid(session_id)
 
     try:
-        resolved_secret = _get_session_secret(request)
-        fetched = await _session_service.get_session(db, session_id, resolved_secret)
-        if resolved_secret:
-            _set_session_secret_cookie(response, resolved_secret)
-        return fetched
+        return await _run_with_session_secret(
+            request=request,
+            response=response,
+            operation=lambda resolved_secret: _session_service.get_session(
+                db, session_id, resolved_secret
+            ),
+        )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

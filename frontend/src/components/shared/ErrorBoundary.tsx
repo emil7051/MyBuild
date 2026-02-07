@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { reportClientError } from '@services/clientTelemetry';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -22,7 +23,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('Unhandled application error', error, errorInfo);
+    reportClientError({
+      source: 'ErrorBoundary',
+      error,
+      context: {
+        componentStack: errorInfo.componentStack,
+      },
+    });
   }
 
   handleRetry = () => {

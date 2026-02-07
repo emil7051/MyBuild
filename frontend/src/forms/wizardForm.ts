@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { OVERRIDE_LIMITS } from '@shared/data/constants';
 import { getDutyCycleErrorMessage, validateDutyCycle } from '@shared/types/dutyCycle';
 import { SCENARIO_DEFINITIONS } from '@shared/data/scenarios';
+import { getScenarioKeys } from '@utils/scenario';
 import type { DutyCycle, PurchaseMethod, ScenarioKey } from '@shared/types/tco.types';
 
 export interface ScenarioOption {
@@ -10,7 +11,17 @@ export interface ScenarioOption {
   description: string;
 }
 
-const scenarioKeys = Object.keys(SCENARIO_DEFINITIONS) as ScenarioKey[];
+const scenarioKeys = getScenarioKeys();
+const [firstScenarioKey, ...remainingScenarioKeys] = scenarioKeys;
+
+if (!firstScenarioKey) {
+  throw new Error('No scenario definitions available.');
+}
+
+const scenarioEnumValues: [ScenarioKey, ...ScenarioKey[]] = [
+  firstScenarioKey,
+  ...remainingScenarioKeys,
+];
 const costLimits = OVERRIDE_LIMITS.cost;
 const vehicleLimits = OVERRIDE_LIMITS.vehicle;
 
@@ -164,7 +175,7 @@ export const vehicleParamOverridesSchema = z.object({
 export type VehicleParamOverridesValidated = z.infer<typeof vehicleParamOverridesSchema>;
 
 export const wizardFormSchema = z.object({
-  scenario: z.enum(scenarioKeys as [ScenarioKey, ...ScenarioKey[]]),
+  scenario: z.enum(scenarioEnumValues),
   purchaseMethod: z.enum(['financed', 'outright']),
   dutyCycle: dutyCycleSchema.default({
     urban: 60,

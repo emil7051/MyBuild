@@ -8,6 +8,7 @@ import tempfile
 
 from alembic import command
 from alembic.config import Config
+import pytest
 from sqlalchemy import create_engine, inspect
 
 from backend.app.db.models import (
@@ -38,6 +39,7 @@ class TestMigrationSystem:
 
         config = Config(str(alembic_ini))
         assert config.get_main_option("script_location") == "alembic"
+        assert config.get_main_option("path_separator") == "os"
 
     def test_migrations_directory_exists(self) -> None:
         """Verify migration versions directory exists."""
@@ -130,6 +132,40 @@ class TestMigrationSystem:
         asyncio.run(db_session.init_db())
 
         assert called["upgrade"] is False
+
+    @pytest.mark.parametrize(
+        ("db_url", "expected_sync_url"),
+        [
+            ("sqlite+aiosqlite:///./tco.db", "sqlite:///./tco.db"),
+            ("sqlite:///./tco.db", "sqlite:///./tco.db"),
+            (
+                "postgresql+asyncpg://user:pass@localhost:5432/tco",
+                "postgresql+psycopg2://user:pass@localhost:5432/tco",
+            ),
+            (
+                "postgresql://user:pass@localhost:5432/tco",
+                "postgresql+psycopg2://user:pass@localhost:5432/tco",
+            ),
+            (
+                "postgres://user:pass@localhost:5432/tco",
+                "postgresql+psycopg2://user:pass@localhost:5432/tco",
+            ),
+        ],
+    )
+    def test_to_sync_migration_url_supported_schemes(
+        self, db_url: str, expected_sync_url: str
+    ) -> None:
+        """Verify runtime URLs are mapped to supported Alembic sync URLs."""
+        from backend.app.db.session import _to_sync_migration_url
+
+        assert _to_sync_migration_url(db_url) == expected_sync_url
+
+    def test_to_sync_migration_url_rejects_unsupported_scheme(self) -> None:
+        """Verify unsupported schemes fail fast with an actionable error."""
+        from backend.app.db.session import _to_sync_migration_url
+
+        with pytest.raises(ValueError, match="Unsupported database URL scheme"):
+            _to_sync_migration_url("mysql+aiomysql://user:pass@localhost:3306/tco")
 
 
 class TestModelIndexDefinitions:

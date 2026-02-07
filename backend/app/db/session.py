@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import AsyncGenerator
+from urllib.parse import urlsplit, urlunsplit
 
 from alembic import command
 from alembic.config import Config
@@ -16,6 +17,17 @@ from backend.app.db.base import Base  # noqa: F401 - needed for Alembic metadata
 engine = create_async_engine(settings.database_url, echo=False, future=True)
 AsyncSessionFactory = async_sessionmaker(engine, expire_on_commit=False)
 logger = logging.getLogger(__name__)
+
+
+MIGRATION_SYNC_SCHEME_MAP: dict[str, str] = {
+    "sqlite": "sqlite",
+    "sqlite+aiosqlite": "sqlite",
+    "sqlite+pysqlite": "sqlite",
+    "postgres": "postgresql+psycopg2",
+    "postgresql": "postgresql+psycopg2",
+    "postgresql+asyncpg": "postgresql+psycopg2",
+    "postgresql+psycopg2": "postgresql+psycopg2",
+}
 
 
 def _get_alembic_config() -> Config:
@@ -34,6 +46,29 @@ def _get_alembic_config() -> Config:
     # Override script_location to absolute path for reliability
     config.set_main_option("script_location", str(backend_dir / "alembic"))
     return config
+
+
+def _to_sync_migration_url(db_url: str) -> str:
+    """Map runtime DB URLs to Alembic-compatible sync-driver URLs."""
+    parsed = urlsplit(db_url)
+    sync_scheme = MIGRATION_SYNC_SCHEME_MAP.get(parsed.scheme)
+    if sync_scheme is None:
+        supported = ", ".join(sorted(MIGRATION_SYNC_SCHEME_MAP))
+        raise ValueError(
+            f"Unsupported database URL scheme '{parsed.scheme}' for migrations. "
+            f"Supported schemes: {supported}."
+        )
+    if sync_scheme == "sqlite":
+        # Preserve SQLite's triple-slash semantics for local paths.
+        normalized = f"sqlite://{parsed.netloc}{parsed.path}"
+        if parsed.query:
+            normalized = f"{normalized}?{parsed.query}"
+        if parsed.fragment:
+            normalized = f"{normalized}#{parsed.fragment}"
+        return normalized
+    return urlunsplit(
+        (sync_scheme, parsed.netloc, parsed.path, parsed.query, parsed.fragment)
+    )
 
 
 async def init_db() -> None:
@@ -55,17 +90,8 @@ async def init_db() -> None:
     # This is safe at startup before any async operations begin
     config = _get_alembic_config()
 
-    # Check if we're using SQLite (development) or PostgreSQL (production)
-    db_url = settings.database_url
-
-    if db_url.startswith("sqlite"):
-        # For SQLite, we need sync driver - convert URL
-        sync_url = db_url.replace("sqlite+aiosqlite", "sqlite")
-        config.set_main_option("sqlalchemy.url", sync_url)
-    else:
-        # For PostgreSQL, convert async to sync driver
-        sync_url = db_url.replace("postgresql+asyncpg", "postgresql+psycopg2")
-        config.set_main_option("sqlalchemy.url", sync_url)
+    sync_url = _to_sync_migration_url(settings.database_url)
+    config.set_main_option("sqlalchemy.url", sync_url)
 
     # Run migrations to head (latest version)
     command.upgrade(config, "head")

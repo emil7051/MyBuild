@@ -3,6 +3,7 @@ import Card from '@components/shared/Card';
 import type { CalculationResponsePayload, VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency, formatCurrencyCompact, formatPerKilometre } from '@utils/format';
 import { getScenarioLabel } from '@utils/scenario';
+import { selectComparisonHighlights } from './comparisonSelection';
 
 interface ComparisonHighlightsProps {
   results: CalculationResponsePayload[];
@@ -16,13 +17,15 @@ const ComparisonHighlights = ({
   vehicleDetails,
 }: ComparisonHighlightsProps) => {
   const highlightData = useMemo(() => {
-    if (!results.length) {
+    const highlightSelection = selectComparisonHighlights(results);
+    if (!highlightSelection) {
       return undefined;
     }
 
-    const sorted = [...results].sort((a, b) => a.total_cost - b.total_cost);
-    const memoLeader = sorted[0];
-    const memoRunnerUp = sorted.length > 1 ? sorted[1] : undefined;
+    // Intentional policy difference from pair charts:
+    // this card ranks all selected vehicles by total cost, regardless of drivetrain.
+    const memoLeader = highlightSelection.leader;
+    const memoRunnerUp = highlightSelection.runnerUp;
     const baselineResult = baselineId
       ? results.find((result) => result.vehicle_id === baselineId)
       : undefined;
@@ -40,6 +43,7 @@ const ComparisonHighlights = ({
       lifetimeDelta: memoLifetimeDelta,
       annualDelta: memoAnnualDelta,
       runnerDelta: memoRunnerDelta,
+      selectionPolicy: highlightSelection.policy,
     };
   }, [baselineId, results]);
 
@@ -55,6 +59,7 @@ const ComparisonHighlights = ({
     lifetimeDelta,
     annualDelta,
     runnerDelta,
+    selectionPolicy,
   } = highlightData;
 
   const getDisplayName = (vehicleId: string) =>
@@ -81,6 +86,9 @@ const ComparisonHighlights = ({
           <p className="text-xs text-slate-500 mt-1">
             Total cost {formatCurrencyCompact(leader.total_cost)}
           </p>
+          {selectionPolicy === 'overall-lowest-total-cost' && (
+            <p className="text-xs text-slate-500 mt-1">Ranked across all selected vehicles.</p>
+          )}
         </div>
 
         <div className="border border-slate-200 bg-white px-6 py-5">

@@ -95,8 +95,10 @@ async def get_cached_session(session_id: str) -> Optional[CachedSession]:
         logger.debug("Redis not available, returning None for session %s", session_id)
         return None
 
+    cache_key = f"session:{session_id}"
+
     try:
-        raw = await client.get(f"session:{session_id}")
+        raw = await client.get(cache_key)
     except RedisError as exc:  # pragma: no cover
         _mark_redis_unavailable(exc)
         return None
@@ -104,7 +106,19 @@ async def get_cached_session(session_id: str) -> Optional[CachedSession]:
     if not raw:
         return None
 
-    decoded = json.loads(raw)
+    try:
+        decoded = json.loads(raw)
+    except json.JSONDecodeError:
+        logger.warning(
+            "Invalid cached JSON for session %s; evicting corrupted entry.",
+            session_id,
+        )
+        try:
+            await client.delete(cache_key)
+        except RedisError as exc:  # pragma: no cover
+            _mark_redis_unavailable(exc)
+        return None
+
     if isinstance(decoded, dict) and "payload" in decoded:
         session_hash = decoded.get("session_secret_hash")
         # Backward compatibility for legacy cache entries.

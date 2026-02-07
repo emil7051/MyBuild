@@ -18,6 +18,7 @@ describe('TCO Store State Management', () => {
       },
       results: [],
       isCalculating: false,
+      calculationInFlightCount: 0,
       sessionId: undefined,
       latestRequestId: 0,
     });
@@ -178,16 +179,43 @@ describe('TCO Store State Management', () => {
   });
 
   describe('Calculating State', () => {
-    it('should track calculating state', () => {
+    it('should track calculating state through legacy setter', () => {
       const store = useTCOStore.getState();
 
       expect(store.isCalculating).toBe(false);
+      expect(store.calculationInFlightCount).toBe(0);
 
       store.setIsCalculating(true);
       expect(useTCOStore.getState().isCalculating).toBe(true);
+      expect(useTCOStore.getState().calculationInFlightCount).toBe(1);
 
       store.setIsCalculating(false);
       expect(useTCOStore.getState().isCalculating).toBe(false);
+      expect(useTCOStore.getState().calculationInFlightCount).toBe(0);
+    });
+
+    it('should derive isCalculating from overlapping in-flight calculations', () => {
+      const store = useTCOStore.getState();
+
+      store.beginCalculation();
+      expect(useTCOStore.getState().isCalculating).toBe(true);
+      expect(useTCOStore.getState().calculationInFlightCount).toBe(1);
+
+      store.beginCalculation();
+      expect(useTCOStore.getState().isCalculating).toBe(true);
+      expect(useTCOStore.getState().calculationInFlightCount).toBe(2);
+
+      store.finishCalculation();
+      expect(useTCOStore.getState().isCalculating).toBe(true);
+      expect(useTCOStore.getState().calculationInFlightCount).toBe(1);
+
+      store.finishCalculation();
+      expect(useTCOStore.getState().isCalculating).toBe(false);
+      expect(useTCOStore.getState().calculationInFlightCount).toBe(0);
+
+      store.finishCalculation();
+      expect(useTCOStore.getState().isCalculating).toBe(false);
+      expect(useTCOStore.getState().calculationInFlightCount).toBe(0);
     });
   });
 });

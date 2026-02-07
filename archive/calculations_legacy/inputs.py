@@ -7,7 +7,7 @@ Input calculations and vehicle data management for TCO analysis.
 from dataclasses import dataclass, field
 from typing import Dict, List, Literal, Optional
 
-from data.scenarios import EconomicScenario, get_active_scenario
+from data.scenarios import SCENARIOS, EconomicScenario
 from data.vehicles import BY_ID, VehicleModel
 
 # Import modular calculators
@@ -29,6 +29,11 @@ from .operating import (
 )
 
 
+def _baseline_scenario() -> EconomicScenario:
+    """Return baseline scenario without relying on global mutable state."""
+    return SCENARIOS["baseline"]
+
+
 @dataclass
 class VehicleInputs:
     """Pre-calculated subcomponents for vehicle calculations."""
@@ -37,7 +42,7 @@ class VehicleInputs:
     vehicle: VehicleModel
 
     # Economic scenario
-    scenario: EconomicScenario = field(default_factory=get_active_scenario)
+    scenario: EconomicScenario = field(default_factory=_baseline_scenario)
 
     # Purchase method
     purchase_method: Literal["outright", "financed"] = "financed"
@@ -262,7 +267,7 @@ class VehicleData:
         scenario: Optional[EconomicScenario] = None,
         purchase_method: Literal["outright", "financed"] = "financed",
     ):
-        self._default_scenario = scenario or get_active_scenario()
+        self._default_scenario = scenario or _baseline_scenario()
         self._default_purchase_method = purchase_method
         self._inputs_cache: Dict[str, VehicleInputs] = {}
         self._initialise_all_vehicles()

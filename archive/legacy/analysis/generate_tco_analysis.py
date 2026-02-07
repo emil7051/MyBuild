@@ -23,7 +23,7 @@ from app import VehicleInputs, calculate_all_tcos, vehicle_data
 from calculations.inputs import vehicle_data
 from data.constants import *
 from data.policies import POLICIES, get_active_policies
-from data.scenarios import SCENARIOS, get_active_scenario, set_active_scenario
+from data.scenarios import SCENARIOS
 from data.vehicles import ALL_MODELS, VehicleModel
 
 
@@ -197,9 +197,8 @@ def main():
     print("Generating TCO Analysis for Light and Medium Rigid Vehicles (2024-2035)")
     print("=" * 80)
 
-    # Set baseline scenario
-    set_active_scenario("baseline")
-    scenario = get_active_scenario()
+    # Use baseline scenario
+    scenario = SCENARIOS["baseline"]
 
     # Filter vehicles
     target_vehicles = filter_light_medium_rigid_vehicles()

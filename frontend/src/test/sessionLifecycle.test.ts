@@ -47,6 +47,17 @@ const sampleResult: CalculationResponsePayload = {
   },
 };
 
+const sampleResultUpdated: CalculationResponsePayload = {
+  ...sampleResult,
+  total_cost: 950,
+  annual_cost: 95,
+};
+
+const wizardDataUpdated: WizardData = {
+  ...wizardData,
+  dutyCycle: { urban: 55, regional: 30, longHaul: 15 },
+};
+
 const makeSessionResponse = () => ({
   sessionId: 'session-123',
   status: 'completed' as const,
@@ -111,6 +122,82 @@ describe('sessionLifecycle', () => {
     expect(updateSessionMock).toHaveBeenCalledWith(
       'session-123',
       { wizardData, results: [sampleResult] }
+    );
+  });
+
+  it('field-merges queued wizard and results updates during create', async () => {
+    const { createSession, updateSession } = await import('@services/api');
+    let resolveCreate: (value: SessionCreateResponsePayload) => void;
+
+    const createPromise = new Promise<SessionCreateResponsePayload>((resolve) => {
+      resolveCreate = resolve;
+    });
+
+    const createSessionMock = vi.mocked(createSession);
+    const updateSessionMock = vi.mocked(updateSession);
+
+    createSessionMock.mockReturnValue(createPromise);
+    updateSessionMock.mockResolvedValue(makeSessionResponse());
+
+    const { persistSessionUpdate } = await import('@services/sessionLifecycle');
+
+    const createOnly = persistSessionUpdate({ wizardData }, { wizardData });
+    const queuedResultsOnly = persistSessionUpdate({ results: [sampleResult] }, { wizardData });
+    const queuedWizardOnly = persistSessionUpdate({ wizardData: wizardDataUpdated }, { wizardData });
+
+    resolveCreate!({
+      sessionId: 'session-123',
+      status: 'draft',
+      wizardData,
+      results: [],
+      updatedAt: new Date().toISOString(),
+      lastCalculatedAt: null,
+    });
+
+    await Promise.all([createOnly, queuedResultsOnly, queuedWizardOnly]);
+
+    expect(updateSessionMock).toHaveBeenCalledTimes(1);
+    expect(updateSessionMock).toHaveBeenCalledWith(
+      'session-123',
+      { wizardData: wizardDataUpdated, results: [sampleResult] }
+    );
+  });
+
+  it('applies last-write-wins for repeated queued field updates', async () => {
+    const { createSession, updateSession } = await import('@services/api');
+    let resolveCreate: (value: SessionCreateResponsePayload) => void;
+
+    const createPromise = new Promise<SessionCreateResponsePayload>((resolve) => {
+      resolveCreate = resolve;
+    });
+
+    const createSessionMock = vi.mocked(createSession);
+    const updateSessionMock = vi.mocked(updateSession);
+
+    createSessionMock.mockReturnValue(createPromise);
+    updateSessionMock.mockResolvedValue(makeSessionResponse());
+
+    const { persistSessionUpdate } = await import('@services/sessionLifecycle');
+
+    const createOnly = persistSessionUpdate({ wizardData }, { wizardData });
+    const queuedResultsOld = persistSessionUpdate({ results: [sampleResult] }, { wizardData });
+    const queuedResultsNew = persistSessionUpdate({ results: [sampleResultUpdated] }, { wizardData });
+
+    resolveCreate!({
+      sessionId: 'session-123',
+      status: 'draft',
+      wizardData,
+      results: [],
+      updatedAt: new Date().toISOString(),
+      lastCalculatedAt: null,
+    });
+
+    await Promise.all([createOnly, queuedResultsOld, queuedResultsNew]);
+
+    expect(updateSessionMock).toHaveBeenCalledTimes(1);
+    expect(updateSessionMock).toHaveBeenCalledWith(
+      'session-123',
+      { results: [sampleResultUpdated] }
     );
   });
 

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 
 import pytest
 from redis.exceptions import ConnectionError as RedisConnectionError
@@ -129,17 +128,27 @@ def test_get_cached_session_handles_redis_errors(monkeypatch) -> None:
     assert isinstance(seen[0], RedisConnectionError)
 
 
-def test_get_cached_session_propagates_invalid_json(monkeypatch) -> None:
+def test_get_cached_session_treats_invalid_json_as_cache_miss(monkeypatch) -> None:
     from backend.app.core import cache
 
     class DummyRedis:
+        def __init__(self) -> None:
+            self.deleted_keys: list[str] = []
+
         async def get(self, *_args, **_kwargs):
             return "{not-json"
 
+        async def delete(self, key: str):
+            self.deleted_keys.append(key)
+            return 1
+
+    client = DummyRedis()
+
     async def _fake_get_client():
-        return DummyRedis()
+        return client
 
     monkeypatch.setattr(cache, "_get_redis_client", _fake_get_client)
 
-    with pytest.raises(json.JSONDecodeError):
-        asyncio.run(cache.get_cached_session("session-1"))
+    value = asyncio.run(cache.get_cached_session("session-1"))
+    assert value is None
+    assert client.deleted_keys == ["session:session-1"]

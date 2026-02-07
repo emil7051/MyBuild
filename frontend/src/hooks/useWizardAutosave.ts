@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useTCOStore } from '@state/tcoStore';
+import { reportClientError } from '@services/clientTelemetry';
 import { persistSessionUpdate } from '@services/sessionLifecycle';
 import { hasValidWizardDutyCycle, sanitizeWizardData } from '@utils/payload';
 
@@ -11,7 +12,6 @@ export const useWizardAutosave = () => {
   const hasHydrated = useTCOStore((state) => state._hasHydrated);
   const lastSnapshot = useRef<string>('');
   const abortControllerRef = useRef<AbortController | null>(null);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'error'>('idle');
 
   useEffect(() => {
     // Wait for store to hydrate before attempting any session operations
@@ -37,15 +37,16 @@ export const useWizardAutosave = () => {
         return;
       }
 
-      setSaveStatus('saving');
       persistSessionUpdate({ wizardData: payload }, { wizardData: payload })
         .then(() => {
           lastSnapshot.current = serialized;
-          setSaveStatus('idle');
         })
         .catch((error) => {
-          console.warn('Failed to create session for autosave', error);
-          setSaveStatus('error');
+          reportClientError({
+            source: 'useWizardAutosave.createSession',
+            error,
+            level: 'warning',
+          });
           toast.error('Not saved. Session creation failed.', {
             id: 'session-create-error',
             duration: 5000,
@@ -66,19 +67,18 @@ export const useWizardAutosave = () => {
       const signal = abortControllerRef.current.signal;
 
       lastSnapshot.current = serialized;
-      setSaveStatus('saving');
 
       persistSessionUpdate({ wizardData: payload }, { wizardData: payload }, { signal })
-        .then(() => {
-          setSaveStatus('idle');
-        })
         .catch((error) => {
           // Ignore aborted requests (they were cancelled intentionally)
           if (axios.isCancel(error) || error.name === 'CanceledError') {
             return;
           }
-          console.warn('Autosave failed', error);
-          setSaveStatus('error');
+          reportClientError({
+            source: 'useWizardAutosave.persist',
+            error,
+            level: 'warning',
+          });
           toast.error('Auto-save failed. Your changes may not be saved.', {
             id: 'autosave-error',
             duration: 5000,
@@ -102,5 +102,4 @@ export const useWizardAutosave = () => {
     };
   }, []);
 
-  return { saveStatus };
 };

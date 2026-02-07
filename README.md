@@ -90,6 +90,9 @@ bun install --frozen-lockfile
 
 # Set up environment (if needed)
 cp .env.example .env
+# Optional client telemetry sink (opt-in; payloads are redacted)
+# VITE_CLIENT_TELEMETRY_ENABLED=false
+# VITE_CLIENT_TELEMETRY_URL=
 
 # Start development server
 bun run dev
@@ -206,6 +209,9 @@ cd frontend && bun run test
 
 # E2E tests (requires dev server running)
 cd frontend && bun run test:e2e
+
+# Full E2E suite (nightly/release CI lane)
+cd frontend && bun run test:e2e:full
 ```
 
 ## Database Migrations
@@ -286,6 +292,16 @@ cd frontend && bun audit
 
 The CI workflow runs weekly scheduled scans to detect newly disclosed vulnerabilities.
 
+## CI/CD Workflows
+
+Repository automation is defined in `.github/workflows/`:
+
+- `ci.yml` - Main quality gate on pushes/PRs to `main` (backend lint/tests/typecheck, frontend lint/tests/build, and Playwright E2E). The E2E lane runs smoke-dev mode on PRs and preview-mode (`vite build && vite preview`) checks on pushes to `main`.
+- `dependency-audit.yml` - Scheduled and on-demand dependency vulnerability checks for Python and frontend dependencies.
+- `data-sync-check.yml` - Validates generated `shared/data/*` outputs stay in sync with Python source data and confirms the generator works from non-root working directories.
+- `e2e-full.yml` - Scheduled nightly and release-triggered full Playwright suite with artifact upload and flaky-test summary.
+- `claude-review.yml` - Optional automated PR review via Claude Code Action. Triggers on PR updates or PR comments containing `@claude`, and runs only when `ANTHROPIC_API_KEY` is configured in repository secrets.
+
 ## Development Workflow
 
 ### Running Tests
@@ -306,9 +322,17 @@ bun run test -- verification.test.ts
 cd frontend
 bunx vitest run --coverage
 
-# E2E tests (requires dev server running on localhost:5000)
+# E2E smoke tests (dev-server mode; Playwright starts the server)
 cd frontend
 bun run test:e2e
+
+# Full E2E suite (all specs + JSON/JUnit reports)
+cd frontend
+bun run test:e2e:full
+
+# E2E smoke tests against preview build (release-like)
+cd frontend
+bun run test:e2e:preview
 
 # E2E tests with UI mode (for debugging)
 cd frontend

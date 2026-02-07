@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import Card from '@components/shared/Card';
 import type { CalculationResponsePayload, VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency } from '@utils/format';
+import EmptyChartState from './EmptyChartState';
+import { selectComparisonPair } from './comparisonSelection';
 import {
   Bar,
   BarChart,
@@ -72,12 +74,10 @@ const SensitivityTornadoChart = ({
   vehicleDetails,
 }: SensitivityTornadoChartProps) => {
   const chartAnalysis = useMemo(() => {
-    const dieselResult = results.find(
-      (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'Diesel'
-    );
-    const bevResult = results.find(
-      (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'BEV'
-    );
+    const comparisonPair = selectComparisonPair(results, vehicleDetails);
+    const dieselResult = comparisonPair?.dieselResult;
+    const bevResult = comparisonPair?.bevResult;
+
     if (!dieselResult || !bevResult) {
       return undefined;
     }
@@ -164,9 +164,7 @@ const SensitivityTornadoChart = ({
         title="Sensitivity analysis"
         subtitle="How do assumptions affect the comparison?"
       >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
-          <p className="text-sm text-slate-500">No results to display</p>
-        </div>
+        <EmptyChartState message="No results to display" />
       </Card>
     );
   }
@@ -177,11 +175,7 @@ const SensitivityTornadoChart = ({
         title="Sensitivity analysis"
         subtitle="How do assumptions affect the comparison?"
       >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
-          <p className="text-sm text-slate-500">
-            Compare both diesel and electric vehicles to see sensitivity analysis
-          </p>
-        </div>
+        <EmptyChartState message="Compare both diesel and electric vehicles to see sensitivity analysis" />
       </Card>
     );
   }

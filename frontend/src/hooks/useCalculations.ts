@@ -1,13 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 import stableStringify from 'fast-json-stable-stringify';
-import { calculateComparison, calculateTco } from '@shared/calculator';
+import { calculateComparison } from '@shared/calculator';
 import type {
-  CalculationRequestPayload,
   CalculationResponsePayload,
   ComparisonRequestPayload,
 } from '@shared/types/tco.types';
+import { reportClientError } from '@services/clientTelemetry';
 import { persistSessionUpdate } from '@services/sessionLifecycle';
 import { useTCOStore } from '@state/tcoStore';
 import { buildSessionPayload } from '@utils/payload';
@@ -38,15 +38,22 @@ const normalizeForStableHash = (value: unknown): unknown => {
 const serializeForHash = (value: unknown): string =>
   stableStringify(normalizeForStableHash(value));
 
+const calculationRunnerState = {
+  lastComparisonHash: null as string | null,
+  inflightComparisonHashes: new Set<string>(),
+};
+
+export const resetCalculationRunnerStateForTests = (): void => {
+  calculationRunnerState.lastComparisonHash = null;
+  calculationRunnerState.inflightComparisonHashes.clear();
+};
+
 export const useCalculationRunner = () => {
   const setResults = useTCOStore((state) => state.setResults);
-  const setIsCalculating = useTCOStore((state) => state.setIsCalculating);
+  const beginCalculation = useTCOStore((state) => state.beginCalculation);
+  const finishCalculation = useTCOStore((state) => state.finishCalculation);
   const getNextRequestId = useTCOStore((state) => state.getNextRequestId);
   const wizardData = useTCOStore((state) => state.wizardData);
-  const lastComparisonHash = useRef<string | null>(null);
-  const inflightComparisonHash = useRef<string | null>(null);
-  const lastSingleHash = useRef<string | null>(null);
-  const inflightSingleHash = useRef<string | null>(null);
 
   const persistSession = useCallback(
     async (data: CalculationResponsePayload[]) => {
@@ -58,7 +65,14 @@ export const useCalculationRunner = () => {
       try {
         await persistSessionUpdate(payload, payload);
       } catch (error) {
-        console.warn('Failed to persist session', error);
+        reportClientError({
+          source: 'useCalculationRunner.persistSession',
+          error,
+          level: 'warning',
+          context: {
+            resultsCount: data.length,
+          },
+        });
         toast.error('Results calculated, but saving failed. We will retry automatically.', {
           id: 'persist-session-error',
           duration: 5000,
@@ -77,87 +91,48 @@ export const useCalculationRunner = () => {
       return { data, requestId, vehicleOrder };
     },
     onMutate: () => {
-      setIsCalculating(true);
+      beginCalculation();
     },
     onSuccess: ({ data, requestId, vehicleOrder }) => {
       setResults(data, requestId, vehicleOrder);
       void persistSession(data);
     },
     onError: (error) => {
-      console.warn('Comparison calculation failed', error);
+      reportClientError({
+        source: 'useCalculationRunner.runComparison',
+        error,
+        level: 'warning',
+      });
       toast.error('Comparison failed. Please try again.', {
         id: 'comparison-error',
         duration: 5000,
       });
     },
     onSettled: () => {
-      setIsCalculating(false);
+      finishCalculation();
     },
-  });
-
-  const singleMutation = useMutation({
-    mutationFn: async (payload: CalculationRequestPayload) => {
-      // Capture request context before starting calculation
-      const requestId = getNextRequestId();
-      const vehicleOrder = [payload.vehicle_id];
-      const data = await calculateTco(payload);
-      return { data, requestId, vehicleOrder };
-    },
-    onMutate: () => setIsCalculating(true),
-    onSuccess: ({ data, requestId, vehicleOrder }) => {
-      setResults([data], requestId, vehicleOrder);
-      void persistSession([data]);
-    },
-    onError: (error) => {
-      console.warn('Single-vehicle calculation failed', error);
-      toast.error('Calculation failed. Please try again.', {
-        id: 'single-calculation-error',
-        duration: 5000,
-      });
-    },
-    onSettled: () => setIsCalculating(false),
   });
 
   return {
     runComparison: useCallback(
       async (payload: ComparisonRequestPayload) => {
         const hash = serializeForHash(payload);
-        if (hash === lastComparisonHash.current || hash === inflightComparisonHash.current) {
+        if (
+          hash === calculationRunnerState.lastComparisonHash ||
+          calculationRunnerState.inflightComparisonHashes.has(hash)
+        ) {
           return;
         }
-        inflightComparisonHash.current = hash;
+        calculationRunnerState.inflightComparisonHashes.add(hash);
         try {
           const result = await comparisonMutation.mutateAsync(payload);
-          lastComparisonHash.current = hash;
+          calculationRunnerState.lastComparisonHash = hash;
           return result;
         } finally {
-          if (inflightComparisonHash.current === hash) {
-            inflightComparisonHash.current = null;
-          }
+          calculationRunnerState.inflightComparisonHashes.delete(hash);
         }
       },
       [comparisonMutation]
     ),
-    runSingle: useCallback(
-      async (payload: CalculationRequestPayload) => {
-        const hash = serializeForHash(payload);
-        if (hash === lastSingleHash.current || hash === inflightSingleHash.current) {
-          return;
-        }
-        inflightSingleHash.current = hash;
-        try {
-          const result = await singleMutation.mutateAsync(payload);
-          lastSingleHash.current = hash;
-          return result;
-        } finally {
-          if (inflightSingleHash.current === hash) {
-            inflightSingleHash.current = null;
-          }
-        }
-      },
-      [singleMutation]
-    ),
-    comparisonStatus: comparisonMutation.status,
-    singleStatus: singleMutation.status,
   };
 };

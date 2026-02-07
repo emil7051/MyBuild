@@ -1,0 +1,133 @@
+name: Frontend E2E Full
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+  release:
+    types: [published]
+
+concurrency:
+  group: frontend-e2e-full-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUN_VERSION: '1.3.5'
+
+jobs:
+  e2e-full:
+    name: Full E2E (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache Bun install cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ env.BUN_VERSION }}-${{ hashFiles('frontend/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-${{ env.BUN_VERSION }}-
+            ${{ runner.os }}-bun-
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright browser
+        working-directory: frontend
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run full E2E suite
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/e2e-full-junit.xml
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/e2e-full-report.json
+        run: bun run test:e2e:full
+
+      - name: Summarize flaky tests
+        if: always()
+        working-directory: frontend
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const reportPath = 'test-results/e2e-full-report.json';
+          const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+
+          if (!fs.existsSync(reportPath)) {
+            const lines = [
+              '### Full E2E Flake Summary',
+              '',
+              '- Playwright JSON report not found.',
+            ];
+            if (summaryPath) {
+              fs.appendFileSync(summaryPath, `${lines.join('\n')}\n`);
+            }
+            console.log(lines.join('\n'));
+            process.exit(0);
+          }
+
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          let totalTests = 0;
+          let failedTests = 0;
+          let flakyTests = 0;
+
+          const visitSuite = (suite) => {
+            for (const spec of suite.specs || []) {
+              for (const test of spec.tests || []) {
+                totalTests += 1;
+                const results = test.results || [];
+                const finalResult = results[results.length - 1];
+                const finalStatus = finalResult?.status ?? 'unknown';
+                const hasRetry = results.some((result) => (result.retry ?? 0) > 0);
+
+                if (finalStatus === 'failed' || finalStatus === 'timedOut' || finalStatus === 'interrupted') {
+                  failedTests += 1;
+                }
+
+                if (hasRetry && finalStatus === 'passed') {
+                  flakyTests += 1;
+                }
+              }
+            }
+
+            for (const childSuite of suite.suites || []) {
+              visitSuite(childSuite);
+            }
+          };
+
+          for (const suite of report.suites || []) {
+            visitSuite(suite);
+          }
+
+          const lines = [
+            '### Full E2E Flake Summary',
+            '',
+            `- Total tests: ${totalTests}`,
+            `- Flaky tests (passed on retry): ${flakyTests}`,
+            `- Failed tests: ${failedTests}`,
+          ];
+
+          if (summaryPath) {
+            fs.appendFileSync(summaryPath, `${lines.join('\n')}\n`);
+          }
+          console.log(lines.join('\n'));
+          NODE
+
+      - name: Upload Playwright report and raw results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-full-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          retention-days: 14

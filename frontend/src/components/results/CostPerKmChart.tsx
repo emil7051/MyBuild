@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import Card from '@components/shared/Card';
 import type { CalculationResponsePayload, VehicleDetail } from '@shared/types/tco.types';
 import { formatCurrency, formatPerKilometre } from '@utils/format';
+import EmptyChartState from './EmptyChartState';
 import {
   Bar,
   BarChart,
@@ -87,9 +88,7 @@ const CostPerKmChart = ({ results, vehicleDetails }: CostPerKmChartProps) => {
         title="Cost per kilometre"
         subtitle="Lower bars indicate cheaper ownership under the selected scenario."
       >
-        <div className="flex h-64 items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
-          <p className="text-sm text-slate-500">No results to display</p>
-        </div>
+        <EmptyChartState message="No results to display" />
       </Card>
     );
   }

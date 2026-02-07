@@ -93,6 +93,7 @@ Primary workflows:
 - `.github/workflows/ci.yml`
 - `.github/workflows/dependency-audit.yml`
 - `.github/workflows/data-sync-check.yml`
+- `.github/workflows/e2e-full.yml`
 
 CI includes:
 - Backend lint/test/typecheck jobs.
@@ -118,6 +119,7 @@ Backend:
 Frontend:
 - `cd frontend && bun run test`
 - `cd frontend && bun run test:e2e`
+- `cd frontend && bun run test:e2e:full`
 
 Data parity and integrity:
 - `python scripts/validation.py`

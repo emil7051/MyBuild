@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 import { toast } from 'react-hot-toast';
 import { useTCOStore } from '@state/tcoStore';
 import { useCalculationRunner } from '@hooks/useCalculations';
+import { reportClientError } from '@services/clientTelemetry';
 import { buildComparisonPayload } from '@utils/payload';
 
 const AppShell = ({ children }: PropsWithChildren) => {
@@ -25,7 +26,10 @@ const AppShell = ({ children }: PropsWithChildren) => {
         toast.success('Comparison complete.');
       }
     } catch (error) {
-      console.error('Calculation failed', error);
+      reportClientError({
+        source: 'AppShell.handleRunComparison',
+        error,
+      });
     }
   };
 

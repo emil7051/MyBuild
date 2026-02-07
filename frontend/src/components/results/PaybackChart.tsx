@@ -8,6 +8,8 @@ import type {
   WizardData,
 } from '@shared/types/tco.types';
 import { formatCurrency } from '@utils/format';
+import EmptyChartState from './EmptyChartState';
+import { selectComparisonPair } from './comparisonSelection';
 import {
   CartesianGrid,
   Legend,
@@ -65,14 +67,15 @@ const PaybackTooltip = ({ active, payload, label }: PaybackTooltipProps) => {
 };
 
 const PaybackChart = ({ results, vehicleDetails, wizardData }: PaybackChartProps) => {
-  const dieselResult = results.find(
-    (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'Diesel'
-  );
-  const bevResult = results.find(
-    (result) => vehicleDetails[result.vehicle_id]?.drivetrain_type === 'BEV'
+  const comparisonPair = useMemo(
+    () => selectComparisonPair(results, vehicleDetails),
+    [results, vehicleDetails]
   );
 
   const paybackAnalysis = useMemo(() => {
+    const dieselResult = comparisonPair?.dieselResult;
+    const bevResult = comparisonPair?.bevResult;
+
     if (!dieselResult || !bevResult) {
       return undefined;
     }
@@ -135,26 +138,20 @@ const PaybackChart = ({ results, vehicleDetails, wizardData }: PaybackChartProps
       horizonYears: memoHorizonYears,
       totalSavings: memoTotalSavings,
     };
-  }, [bevResult, dieselResult, wizardData]);
+  }, [comparisonPair, wizardData]);
 
   if (!results.length) {
     return (
       <Card title="Payback timeline" subtitle="When does switching to electric break even?">
-        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
-          <p className="text-sm text-slate-500">No results to display</p>
-        </div>
+        <EmptyChartState message="No results to display" />
       </Card>
     );
   }
 
-  if (!dieselResult || !bevResult) {
+  if (!comparisonPair) {
     return (
       <Card title="Payback timeline" subtitle="When does switching to electric break even?">
-        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
-          <p className="text-sm text-slate-500">
-            Compare both diesel and electric vehicles to see payback timeline
-          </p>
-        </div>
+        <EmptyChartState message="Compare both diesel and electric vehicles to see payback timeline" />
       </Card>
     );
   }
@@ -162,14 +159,13 @@ const PaybackChart = ({ results, vehicleDetails, wizardData }: PaybackChartProps
   if (!paybackAnalysis || !paybackAnalysis.data.length) {
     return (
       <Card title="Payback timeline" subtitle="When does switching to electric break even?">
-        <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
-          <p className="text-sm text-slate-500">Unable to build payback timeline.</p>
-        </div>
+        <EmptyChartState message="Unable to build payback timeline." />
       </Card>
     );
   }
 
   const { data, paybackYear, horizonYears, totalSavings } = paybackAnalysis;
+  const { dieselResult, bevResult } = comparisonPair;
   const dieselName = vehicleDetails[dieselResult.vehicle_id]?.model_name ?? 'Diesel';
   const bevName = vehicleDetails[bevResult.vehicle_id]?.model_name ?? 'Electric';
 
