@@ -29,6 +29,9 @@ describe('TCO Calculation Verification', () => {
       expect(result.breakdown.npv_costs.carbon_cost).toBeCloseTo(expected.breakdown.npv_costs.carbon_cost, 1);
       expect(result.breakdown.npv_costs.charging_labour_cost).toBeCloseTo(expected.breakdown.npv_costs.charging_labour_cost, 1);
       expect(result.breakdown.npv_costs.payload_penalty_cost).toBeCloseTo(expected.breakdown.npv_costs.payload_penalty_cost, 1);
+      expect(result.breakdown.npv_costs.payload_trip_multiplier_cost).toBeCloseTo(expected.breakdown.npv_costs.payload_trip_multiplier_cost, 1);
+      expect(result.breakdown.npv_costs.charging_dwell_opportunity_cost).toBeCloseTo(expected.breakdown.npv_costs.charging_dwell_opportunity_cost, 1);
+      expect(result.breakdown.npv_costs.mr_downtime_opportunity_cost).toBeCloseTo(expected.breakdown.npv_costs.mr_downtime_opportunity_cost, 1);
       expect(result.breakdown.npv_costs.residual_value).toBeCloseTo(expected.breakdown.npv_costs.residual_value, 1);
       expect(result.breakdown.nominal_costs.depreciation).toBeCloseTo(expected.breakdown.nominal_costs.depreciation, 1);
       expect(result.breakdown.upfront_costs.taxes_and_fees).toBeCloseTo(expected.breakdown.upfront_costs.taxes_and_fees, 1);

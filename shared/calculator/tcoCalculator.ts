@@ -679,12 +679,13 @@ const getAdjustedKwhPerKm = (
  * Shared helper: calculate number of en-route charging stops per day.
  * Used by both calculateChargingLabourCost and calculateChargingDwellOpportunityCost.
  */
-const getChargingStopsPerDay = (vehicle: VehicleDetail): number => {
-  if (vehicle.drivetrain_type !== 'BEV') return 0;
+const getChargingStopsPerDay = (vehicle: VehicleDetail): { stopsPerDay: number; extraRangeFractions: number } => {
+  if (vehicle.drivetrain_type !== 'BEV') return { stopsPerDay: 0, extraRangeFractions: 0 };
   const dailyKms = vehicle.annual_kms / WORKING_DAYS;
   const usableRange = vehicle.range_km * BATTERY_USABLE_RANGE_FACTOR;
-  if (usableRange <= 0 || dailyKms <= usableRange) return 0;
-  return Math.ceil((dailyKms - usableRange) / usableRange);
+  if (usableRange <= 0 || dailyKms <= usableRange) return { stopsPerDay: 0, extraRangeFractions: 0 };
+  const extraRangeFractions = (dailyKms - usableRange) / usableRange;
+  return { stopsPerDay: Math.ceil(extraRangeFractions), extraRangeFractions };
 };
 
 const calculateChargingLabourCost = (
@@ -694,7 +695,7 @@ const calculateChargingLabourCost = (
   if (vehicle.drivetrain_type !== 'BEV') {
     return 0;
   }
-  const stopsPerDay = getChargingStopsPerDay(vehicle);
+  const { stopsPerDay } = getChargingStopsPerDay(vehicle);
   if (stopsPerDay <= 0) {
     return 0;
   }
@@ -744,12 +745,8 @@ const calculateChargingDwellOpportunityCost = (
 ): number => {
   if (vehicle.drivetrain_type !== 'BEV') return 0;
 
-  const dailyKms = vehicle.annual_kms / WORKING_DAYS;
-  const usableRange = vehicle.range_km * BATTERY_USABLE_RANGE_FACTOR;
-  if (usableRange <= 0 || dailyKms <= usableRange) return 0;
-
-  const extraRangeFractionsPerDay = (dailyKms - usableRange) / usableRange;
-  const stopsPerDay = Math.ceil(extraRangeFractionsPerDay);
+  const { stopsPerDay, extraRangeFractions } = getChargingStopsPerDay(vehicle);
+  if (stopsPerDay <= 0) return 0;
 
   const vehicleChargeKw = vehicle.dc_charge_rate_kw ?? DEFAULT_VEHICLE_CHARGE_RATE_KW[vehicle.weight_class];
   const effectiveChargeKw = Math.min(vehicleChargeKw, AU_INFRASTRUCTURE_CHARGE_CAP_KW);
@@ -757,7 +754,7 @@ const calculateChargingDwellOpportunityCost = (
     (vehicle.battery_capacity_kwh * BATTERY_USABLE_RANGE_FACTOR) / effectiveChargeKw;
 
   const grossDwellHrPerDay =
-    extraRangeFractionsPerDay * fullChargeTimeHr +
+    extraRangeFractions * fullChargeTimeHr +
     stopsPerDay * CHARGING_OVERHEAD_HR_PER_STOP;
   const netDwellHrPerDay = Math.max(0, grossDwellHrPerDay - FREE_DWELL_TIME_HR[vehicle.weight_class]);
 

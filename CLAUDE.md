@@ -147,7 +147,7 @@ python scripts/generate_vehicle_catalog_ts.py
 
 The `CostBreakdown` type is grouped into:
 
-- `npv_costs` (discounted values): `fuel_cost`, `maintenance_cost`, `battery_replacement_cost`, `carbon_cost`, `charging_labour_cost`, `payload_penalty_cost`, `residual_value`
+- `npv_costs` (discounted values): `fuel_cost`, `maintenance_cost`, `battery_replacement_cost`, `carbon_cost`, `charging_labour_cost`, `payload_penalty_cost`, `payload_trip_multiplier_cost`, `charging_dwell_opportunity_cost`, `mr_downtime_opportunity_cost`, `residual_value`
 - `nominal_costs` (non-discounted totals): `insurance_cost`, `registration_cost`, `financing_cost`, `depreciation`
 - `upfront_costs`: `purchase_cost`, `taxes_and_fees`
 
