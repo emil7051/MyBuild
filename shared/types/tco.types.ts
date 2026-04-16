@@ -54,6 +54,7 @@ export interface CostOverrides {
   battery_life_variation?: number;
   charging_efficiency_variation?: number;
   apply_road_user_charge_bev?: boolean;
+  downtime_opportunity_cost_variation?: number;
 }
 
 export interface VehicleParamOverrides {
@@ -90,6 +91,12 @@ export interface NpvCostBreakdown {
   charging_labour_cost: number;
   /** NPV of payload penalty (lost revenue from reduced capacity) */
   payload_penalty_cost: number;
+  /** NPV of extra km-linked operating cost from payload trip multiplier (BEV only) */
+  payload_trip_multiplier_cost: number;
+  /** NPV of charging dwell time opportunity cost (BEV only) */
+  charging_dwell_opportunity_cost: number;
+  /** NPV of maintenance & repair downtime opportunity cost (both drivetrains) */
+  mr_downtime_opportunity_cost: number;
   /** NPV of residual value at end of life (negative value - offsets costs) */
   residual_value: number;
 }

@@ -284,6 +284,61 @@ const OFFPEAK_EMISSIONS = asNumber(CONSTANTS.OFFPEAK_CHARGING_EMISSIONS, 'OFFPEA
 const SOLAR_EMISSIONS = asNumber(CONSTANTS.SOLAR_CHARGING_EMISSIONS, 'SOLAR_CHARGING_EMISSIONS');
 const PUBLIC_EMISSIONS = asNumber(CONSTANTS.PUBLIC_CHARGING_EMISSIONS, 'PUBLIC_CHARGING_EMISSIONS');
 
+// === Opportunity Cost Constants ===
+const REFERENCE_PAYLOAD_FRACTION = assertRecord<WeightClass, number>(
+  CONSTANTS.REFERENCE_PAYLOAD_FRACTION,
+  'REFERENCE_PAYLOAD_FRACTION'
+);
+const MASS_DEPENDENT_ENERGY_FRACTION = assertRecord<WeightClass, number>(
+  CONSTANTS.MASS_DEPENDENT_ENERGY_FRACTION,
+  'MASS_DEPENDENT_ENERGY_FRACTION'
+);
+const DOWNTIME_OPPORTUNITY_COST_PER_HR = assertRecord<WeightClass, number>(
+  CONSTANTS.DOWNTIME_OPPORTUNITY_COST_PER_HR,
+  'DOWNTIME_OPPORTUNITY_COST_PER_HR'
+);
+const FREE_DWELL_TIME_HR = assertRecord<WeightClass, number>(
+  CONSTANTS.FREE_DWELL_TIME_HR,
+  'FREE_DWELL_TIME_HR'
+);
+const CHARGING_OVERHEAD_HR_PER_STOP = asNumber(
+  CONSTANTS.CHARGING_OVERHEAD_HR_PER_STOP,
+  'CHARGING_OVERHEAD_HR_PER_STOP'
+);
+const AU_INFRASTRUCTURE_CHARGE_CAP_KW = asNumber(
+  CONSTANTS.AU_INFRASTRUCTURE_CHARGE_CAP_KW,
+  'AU_INFRASTRUCTURE_CHARGE_CAP_KW'
+);
+const DEFAULT_VEHICLE_CHARGE_RATE_KW = assertRecord<WeightClass, number>(
+  CONSTANTS.DEFAULT_VEHICLE_CHARGE_RATE_KW,
+  'DEFAULT_VEHICLE_CHARGE_RATE_KW'
+);
+
+type DrivetrainMRKey = 'BEV' | 'Diesel';
+const PLANNED_MAINTENANCE_HR_PER_YR = assertRecord<DrivetrainMRKey, unknown>(
+  CONSTANTS.PLANNED_MAINTENANCE_HR_PER_YR,
+  'PLANNED_MAINTENANCE_HR_PER_YR',
+  ['BEV', 'Diesel']
+) as Record<DrivetrainMRKey, Record<WeightClass, number>>;
+const UNPLANNED_DOWNTIME_HR_PER_1000KM_BASE = assertRecord<DrivetrainMRKey, unknown>(
+  CONSTANTS.UNPLANNED_DOWNTIME_HR_PER_1000KM_BASE,
+  'UNPLANNED_DOWNTIME_HR_PER_1000KM_BASE',
+  ['BEV', 'Diesel']
+) as Record<DrivetrainMRKey, Record<WeightClass, number>>;
+const TYRE_LIFE_KM = asNumber(CONSTANTS.TYRE_LIFE_KM, 'TYRE_LIFE_KM');
+const TYRE_REPLACEMENT_HR_PER_EVENT = asNumber(
+  CONSTANTS.TYRE_REPLACEMENT_HR_PER_EVENT,
+  'TYRE_REPLACEMENT_HR_PER_EVENT'
+);
+const PAYLOAD_BINDING_SHARE = assertRecord<WeightClass, number>(
+  CONSTANTS.PAYLOAD_BINDING_SHARE,
+  'PAYLOAD_BINDING_SHARE'
+);
+const ZERO_EMISSION_MASS_EXEMPTION_KG = assertRecord<WeightClass, number>(
+  CONSTANTS.ZERO_EMISSION_MASS_EXEMPTION_KG,
+  'ZERO_EMISSION_MASS_EXEMPTION_KG'
+);
+
 const getScenario = (scenarioKey: ScenarioKey): EconomicScenarioDefinition => {
   const scenario = SCENARIO_DEFINITIONS[scenarioKey];
   if (!scenario) {
@@ -507,7 +562,7 @@ const calculateFuelCostYear = (
     if (overrides?.charging_efficiency_variation) {
       efficiencyMultiplier *= overrides.charging_efficiency_variation;
     }
-    const adjustedKwhPerKm = vehicle.kwh_per_km * efficiencyMultiplier;
+    const adjustedKwhPerKm = getAdjustedKwhPerKm(vehicle) * efficiencyMultiplier;
     const chargingMix = getDutyAdjustedChargingMix(vehicle, dutyCycle);
     const baseCost = adjustedKwhPerKm * vehicle.annual_kms * getChargingBlendRate(chargingMix);
     let priceMultiplier = getSeriesValue(scenario.electricity_price_trajectory, year, 1);
@@ -567,7 +622,7 @@ const calculateCarbonCostYear = (
     if (overrides?.charging_efficiency_variation) {
       efficiencyMultiplier *= overrides.charging_efficiency_variation;
     }
-    const adjustedKwhPerKm = vehicle.kwh_per_km * efficiencyMultiplier;
+    const adjustedKwhPerKm = getAdjustedKwhPerKm(vehicle) * efficiencyMultiplier;
     const chargingMix = getDutyAdjustedChargingMix(vehicle, dutyCycle);
     const emissionsRate = getChargingBlendEmissions(chargingMix); // kg CO2e/kWh
     const emissionsTonnes = (adjustedKwhPerKm * vehicle.annual_kms * emissionsRate) / 1000;
@@ -593,6 +648,45 @@ const calculateMaintenanceCostYear = (
   return getMaintenanceBaseCost(vehicle) * multiplier;
 };
 
+
+/**
+ * Feature 4: Payload-sensitive energy consumption.
+ * Returns adjusted kWh/km based on actual payload vs reference payload.
+ * Returns vehicle.kwh_per_km unchanged if gvm_kg or tare_weight_kg is missing.
+ */
+const getAdjustedKwhPerKm = (
+  vehicle: VehicleDetail,
+  actualPayloadFraction = REFERENCE_PAYLOAD_FRACTION[vehicle.weight_class]
+): number => {
+  if (vehicle.drivetrain_type !== 'BEV') return vehicle.kwh_per_km;
+  if (!vehicle.gvm_kg || !vehicle.tare_weight_kg) return vehicle.kwh_per_km;
+
+  const massDependentFraction = MASS_DEPENDENT_ENERGY_FRACTION[vehicle.weight_class];
+  const massIndependentFraction = 1 - massDependentFraction;
+  const baselinePayloadFraction = REFERENCE_PAYLOAD_FRACTION[vehicle.weight_class];
+
+  const maxPayloadKg = vehicle.gvm_kg - vehicle.tare_weight_kg;
+  if (maxPayloadKg <= 0) return vehicle.kwh_per_km;
+
+  const massRatio =
+    (vehicle.tare_weight_kg + actualPayloadFraction * maxPayloadKg) /
+    (vehicle.tare_weight_kg + baselinePayloadFraction * maxPayloadKg);
+
+  return vehicle.kwh_per_km * (massIndependentFraction + massDependentFraction * massRatio);
+};
+
+/**
+ * Shared helper: calculate number of en-route charging stops per day.
+ * Used by both calculateChargingLabourCost and calculateChargingDwellOpportunityCost.
+ */
+const getChargingStopsPerDay = (vehicle: VehicleDetail): number => {
+  if (vehicle.drivetrain_type !== 'BEV') return 0;
+  const dailyKms = vehicle.annual_kms / WORKING_DAYS;
+  const usableRange = vehicle.range_km * BATTERY_USABLE_RANGE_FACTOR;
+  if (usableRange <= 0 || dailyKms <= usableRange) return 0;
+  return Math.ceil((dailyKms - usableRange) / usableRange);
+};
+
 const calculateChargingLabourCost = (
   vehicle: VehicleDetail,
   chargingTimeOverride?: number
@@ -600,17 +694,15 @@ const calculateChargingLabourCost = (
   if (vehicle.drivetrain_type !== 'BEV') {
     return 0;
   }
-  const dailyKms = vehicle.annual_kms / WORKING_DAYS;
-  const usableRange = vehicle.range_km * BATTERY_USABLE_RANGE_FACTOR;
-  if (usableRange <= 0) {
+  const stopsPerDay = getChargingStopsPerDay(vehicle);
+  if (stopsPerDay <= 0) {
     return 0;
   }
-  const sessionsPerDay = dailyKms <= usableRange ? 0 : Math.ceil((dailyKms - usableRange) / usableRange);
   const hoursPerDay = chargingTimeOverride ?? CHARGING_TIME_HOURS[vehicle.weight_class] ?? 0;
   if (hoursPerDay <= 0) {
     return 0;
   }
-  return sessionsPerDay * hoursPerDay * WORKING_DAYS * HOURLY_WAGE;
+  return stopsPerDay * hoursPerDay * WORKING_DAYS * HOURLY_WAGE;
 };
 
 const calculatePayloadPenalty = (vehicle: VehicleDetail): number => {
@@ -639,6 +731,89 @@ const calculatePayloadPenalty = (vehicle: VehicleDetail): number => {
   const freightRate = FREIGHT_RATE_PER_TONNE_KM[vehicle.weight_class];
   const utilisation = PAYLOAD_UTILISATION_FACTOR[vehicle.weight_class];
   return payloadDifference * freightRate * vehicle.annual_kms * utilisation;
+};
+
+/**
+ * Feature 2: Charging dwell time opportunity cost.
+ * Revenue lost while the truck is stationary at a charger, net of mandatory rest breaks.
+ */
+const calculateChargingDwellOpportunityCost = (
+  vehicle: VehicleDetail,
+  overrides?: CostOverrides,
+  chargingTimeOverride?: number
+): number => {
+  if (vehicle.drivetrain_type !== 'BEV') return 0;
+
+  const dailyKms = vehicle.annual_kms / WORKING_DAYS;
+  const usableRange = vehicle.range_km * BATTERY_USABLE_RANGE_FACTOR;
+  if (usableRange <= 0 || dailyKms <= usableRange) return 0;
+
+  const extraRangeFractionsPerDay = (dailyKms - usableRange) / usableRange;
+  const stopsPerDay = Math.ceil(extraRangeFractionsPerDay);
+
+  const vehicleChargeKw = vehicle.dc_charge_rate_kw ?? DEFAULT_VEHICLE_CHARGE_RATE_KW[vehicle.weight_class];
+  const effectiveChargeKw = Math.min(vehicleChargeKw, AU_INFRASTRUCTURE_CHARGE_CAP_KW);
+  const fullChargeTimeHr = chargingTimeOverride ??
+    (vehicle.battery_capacity_kwh * BATTERY_USABLE_RANGE_FACTOR) / effectiveChargeKw;
+
+  const grossDwellHrPerDay =
+    extraRangeFractionsPerDay * fullChargeTimeHr +
+    stopsPerDay * CHARGING_OVERHEAD_HR_PER_STOP;
+  const netDwellHrPerDay = Math.max(0, grossDwellHrPerDay - FREE_DWELL_TIME_HR[vehicle.weight_class]);
+
+  const annualDwellHours = netDwellHrPerDay * WORKING_DAYS;
+  const baseCost = annualDwellHours * DOWNTIME_OPPORTUNITY_COST_PER_HR[vehicle.weight_class];
+  return baseCost * (overrides?.downtime_opportunity_cost_variation ?? 1.0);
+};
+
+/**
+ * Feature 3: Maintenance & Repair downtime opportunity cost.
+ * Applies to BOTH BEV and diesel vehicles. BETs incur less downtime = TCO advantage.
+ */
+const calculateMrDowntimeOpportunityCost = (
+  vehicle: VehicleDetail,
+  year: number,
+  overrides?: CostOverrides
+): number => {
+  const drivetrainKey: DrivetrainMRKey = vehicle.drivetrain_type === 'BEV' ? 'BEV' : 'Diesel';
+  const weightClass = vehicle.weight_class;
+
+  const plannedHrs = PLANNED_MAINTENANCE_HR_PER_YR[drivetrainKey][weightClass];
+
+  const baseRate = UNPLANNED_DOWNTIME_HR_PER_1000KM_BASE[drivetrainKey][weightClass];
+  const ageMultiplier = 1 + (year - 1) * 0.10;
+  const unplannedHrs = baseRate * (vehicle.annual_kms / 1000) * ageMultiplier;
+
+  const tyreReplacementHrs = (vehicle.annual_kms / TYRE_LIFE_KM) * TYRE_REPLACEMENT_HR_PER_EVENT;
+
+  const totalDowntimeHrs = plannedHrs + unplannedHrs + tyreReplacementHrs;
+  const baseCost = totalDowntimeHrs * DOWNTIME_OPPORTUNITY_COST_PER_HR[weightClass];
+  return baseCost * (overrides?.downtime_opportunity_cost_variation ?? 1.0);
+};
+
+/**
+ * Feature 1: Payload trip multiplier cost.
+ * Extra km-linked operating costs caused by lower BET payload capacity.
+ * Computed per-year because km-linked costs (maintenance, carbon) vary by year.
+ */
+const calculatePayloadTripMultiplierCostYear = (
+  vehicle: VehicleDetail,
+  annualKmLinkedCost: number
+): number => {
+  if (vehicle.drivetrain_type !== 'BEV' || !vehicle.comparison_pair) return 0;
+  const diesel = VEHICLE_BY_ID[vehicle.comparison_pair];
+  if (!diesel || !vehicle.gvm_kg || !vehicle.tare_weight_kg || !diesel.gvm_kg || !diesel.tare_weight_kg) {
+    return 0;
+  }
+
+  const massExemptionKg = ZERO_EMISSION_MASS_EXEMPTION_KG[vehicle.weight_class];
+  const bevPayloadKg = vehicle.gvm_kg + massExemptionKg - vehicle.tare_weight_kg;
+  const dieselPayloadKg = diesel.gvm_kg - diesel.tare_weight_kg;
+  if (bevPayloadKg <= 0 || bevPayloadKg >= dieselPayloadKg) return 0;
+
+  const bindingShare = PAYLOAD_BINDING_SHARE[vehicle.weight_class];
+  const extraKmFactor = bindingShare * Math.max(0, dieselPayloadKg / bevPayloadKg - 1);
+  return annualKmLinkedCost * extraKmFactor;
 };
 
 const calculateStampDuty = (msrp: number, isBev: boolean): number => {
@@ -842,12 +1017,42 @@ const calculateTcoWithDetails = (payload: CalculationRequestPayload): TcoComputa
   const annualChargingLabourCosts = Array.from({ length: VEHICLE_LIFE }, () => annualChargingLabourCost);
   const annualPayloadPenalties = Array.from({ length: VEHICLE_LIFE }, () => annualPayloadPenalty);
 
+  // Feature 2: Charging dwell opportunity cost (BEV only, constant per year)
+  const annualChargingDwellCost = calculateChargingDwellOpportunityCost(
+    vehicle,
+    overrides,
+    sanitizedPayload.vehicle_overrides?.charging_time_hours_override
+  );
+  const annualChargingDwellCosts = Array.from({ length: VEHICLE_LIFE }, () => annualChargingDwellCost);
+
+  // Feature 3: M&R downtime opportunity cost (both drivetrains, varies by year due to aging)
+  const annualMrDowntimeCosts = Array.from({ length: VEHICLE_LIFE }, (_, idx) =>
+    calculateMrDowntimeOpportunityCost(vehicle, idx + 1, overrides)
+  );
+
   const totalFuelCost = calculateNpvOfAnnualCashflows(annualFuelCosts, DISCOUNT_RATE);
   const totalBatteryCost = calculateNpvOfAnnualCashflows(annualBatteryCosts, DISCOUNT_RATE);
   const totalCarbonCost = calculateNpvOfAnnualCashflows(annualCarbonCosts, DISCOUNT_RATE);
   const totalMaintenanceCost = calculateNpvOfAnnualCashflows(annualMaintenanceCosts, DISCOUNT_RATE);
   const totalChargingLabourCost = calculateNpvOfAnnualCashflows(annualChargingLabourCosts, DISCOUNT_RATE);
   const totalPayloadPenalty = calculateNpvOfAnnualCashflows(annualPayloadPenalties, DISCOUNT_RATE);
+  const totalChargingDwellCost = calculateNpvOfAnnualCashflows(annualChargingDwellCosts, DISCOUNT_RATE);
+  const totalMrDowntimeCost = calculateNpvOfAnnualCashflows(annualMrDowntimeCosts, DISCOUNT_RATE);
+
+  // Feature 1: Payload trip multiplier (per-year, applied to km-linked costs)
+  const annualPayloadTripMultiplierCosts = Array.from({ length: VEHICLE_LIFE }, (_, idx) => {
+    const kmLinkedCost =
+      annualFuelCosts[idx] +
+      annualMaintenanceCosts[idx] +
+      annualChargingLabourCosts[idx] +
+      annualChargingDwellCosts[idx] +
+      annualCarbonCosts[idx];
+    return calculatePayloadTripMultiplierCostYear(vehicle, kmLinkedCost);
+  });
+  const totalPayloadTripMultiplierCost = calculateNpvOfAnnualCashflows(
+    annualPayloadTripMultiplierCosts,
+    DISCOUNT_RATE
+  );
 
   const insurancePv = calculatePresentValue(annualInsuranceCost, VEHICLE_LIFE, DISCOUNT_RATE);
   const registrationPv = calculatePresentValue(vehicle.annual_registration, VEHICLE_LIFE, DISCOUNT_RATE);
@@ -872,7 +1077,10 @@ const calculateTcoWithDetails = (payload: CalculationRequestPayload): TcoComputa
       annualBatteryCosts[idx] +
       annualCarbonCosts[idx] +
       annualChargingLabourCosts[idx] +
-      annualPayloadPenalties[idx];
+      annualPayloadPenalties[idx] +
+      annualPayloadTripMultiplierCosts[idx] +
+      annualChargingDwellCosts[idx] +
+      annualMrDowntimeCosts[idx];
     const annualFixedCost = annualInsuranceCost + vehicle.annual_registration;
     const residualCredit = idx === VEHICLE_LIFE - 1 ? residualFuture : 0;
 
@@ -888,7 +1096,10 @@ const calculateTcoWithDetails = (payload: CalculationRequestPayload): TcoComputa
     totalBatteryCost +
     totalCarbonCost +
     totalChargingLabourCost +
-    totalPayloadPenalty -
+    totalPayloadPenalty +
+    totalPayloadTripMultiplierCost +
+    totalChargingDwellCost +
+    totalMrDowntimeCost -
     residualValuePv;
 
   const annualCost = calculateAnnualisedCost(totalCost, VEHICLE_LIFE, DISCOUNT_RATE);
@@ -904,6 +1115,9 @@ const calculateTcoWithDetails = (payload: CalculationRequestPayload): TcoComputa
       carbon_cost: totalCarbonCost,
       charging_labour_cost: totalChargingLabourCost,
       payload_penalty_cost: totalPayloadPenalty,
+      payload_trip_multiplier_cost: totalPayloadTripMultiplierCost,
+      charging_dwell_opportunity_cost: totalChargingDwellCost,
+      mr_downtime_opportunity_cost: totalMrDowntimeCost,
       residual_value: residualValuePv,
     },
     nominal_costs: {

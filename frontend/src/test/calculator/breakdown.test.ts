@@ -40,6 +40,9 @@ describe('Cost Breakdown Consistency', () => {
     expect(breakdown.nominal_costs.registration_cost).toBeGreaterThanOrEqual(0);
     expect(breakdown.nominal_costs.financing_cost).toBeGreaterThanOrEqual(0);
     expect(breakdown.npv_costs.carbon_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.npv_costs.payload_trip_multiplier_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.npv_costs.charging_dwell_opportunity_cost).toBeGreaterThanOrEqual(0);
+    expect(breakdown.npv_costs.mr_downtime_opportunity_cost).toBeGreaterThanOrEqual(0);
     expect(breakdown.upfront_costs.taxes_and_fees).toBeGreaterThanOrEqual(0);
   });
 

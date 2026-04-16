@@ -57,6 +57,9 @@ const breakdownTemplate: CostBreakdown = {
     carbon_cost: 0,
     charging_labour_cost: 0,
     payload_penalty_cost: 0,
+    payload_trip_multiplier_cost: 0,
+    charging_dwell_opportunity_cost: 0,
+    mr_downtime_opportunity_cost: 0,
     residual_value: 0,
   },
   nominal_costs: {

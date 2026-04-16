@@ -29,6 +29,9 @@ const COST_COLORS = {
   carbon_cost: '#F2AE95',
   charging_labour_cost: '#00FFC7',
   payload_penalty_cost: '#C5FFF3',
+  payload_trip_multiplier_cost: '#F97316',
+  charging_dwell_opportunity_cost: '#8B5CF6',
+  mr_downtime_opportunity_cost: '#06B6D4',
   residual_value_credit: '#1E8E5A',
 } as const;
 
@@ -83,6 +86,21 @@ const breakdownSeries: BreakdownSeriesItem[] = [
     key: 'payload_penalty_cost',
     label: 'Payload penalty',
     color: COST_COLORS.payload_penalty_cost,
+  },
+  {
+    key: 'payload_trip_multiplier_cost',
+    label: 'Payload Trip Multiplier',
+    color: COST_COLORS.payload_trip_multiplier_cost,
+  },
+  {
+    key: 'charging_dwell_opportunity_cost',
+    label: 'Charging Dwell Opportunity',
+    color: COST_COLORS.charging_dwell_opportunity_cost,
+  },
+  {
+    key: 'mr_downtime_opportunity_cost',
+    label: 'M&R Downtime Opportunity',
+    color: COST_COLORS.mr_downtime_opportunity_cost,
   },
   {
     key: 'residual_value_credit',
@@ -169,6 +187,9 @@ const CostBreakdownChart = ({ results, vehicleDetails }: CostBreakdownChartProps
           result.breakdown.npv_costs.carbon_cost +
           result.breakdown.npv_costs.charging_labour_cost +
           result.breakdown.npv_costs.payload_penalty_cost +
+          result.breakdown.npv_costs.payload_trip_multiplier_cost +
+          result.breakdown.npv_costs.charging_dwell_opportunity_cost +
+          result.breakdown.npv_costs.mr_downtime_opportunity_cost +
           residualValueCredit;
         const purchaseFinancingNpv = result.total_cost - variableAndFixedNpvWithoutPurchase;
 
@@ -185,6 +206,15 @@ const CostBreakdownChart = ({ results, vehicleDetails }: CostBreakdownChartProps
           carbon_cost: normaliseCurrencyValue(result.breakdown.npv_costs.carbon_cost),
           charging_labour_cost: normaliseCurrencyValue(result.breakdown.npv_costs.charging_labour_cost),
           payload_penalty_cost: normaliseCurrencyValue(result.breakdown.npv_costs.payload_penalty_cost),
+          payload_trip_multiplier_cost: normaliseCurrencyValue(
+            result.breakdown.npv_costs.payload_trip_multiplier_cost
+          ),
+          charging_dwell_opportunity_cost: normaliseCurrencyValue(
+            result.breakdown.npv_costs.charging_dwell_opportunity_cost
+          ),
+          mr_downtime_opportunity_cost: normaliseCurrencyValue(
+            result.breakdown.npv_costs.mr_downtime_opportunity_cost
+          ),
           residual_value_credit: normaliseCurrencyValue(residualValueCredit),
         };
 

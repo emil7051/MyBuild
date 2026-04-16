@@ -2,6 +2,7 @@
 
 export interface ConstantsSchema {
   ART_ANNUAL_KMS: number;
+  AU_INFRASTRUCTURE_CHARGE_CAP_KW: number;
   BATTERY_DEGRADATION_RATE: number;
   BATTERY_LIFE_VARIATION_BASE: number;
   BATTERY_RECYCLE_VALUE: number;
@@ -31,20 +32,36 @@ export interface ConstantsSchema {
       };
     };
   };
+  CHARGING_OVERHEAD_HR_PER_STOP: number;
   CHARGING_TIME_HOURS: {
     Articulated: number;
     "Light Rigid": number;
     "Medium Rigid": number;
   };
   DAYS_IN_YEAR: number;
+  DEFAULT_VEHICLE_CHARGE_RATE_KW: {
+    Articulated: number;
+    "Light Rigid": number;
+    "Medium Rigid": number;
+  };
   DEPRECIATION_RATE_FIRST_YEAR: number;
   DEPRECIATION_RATE_ONGOING: number;
   DIESEL_EMISSIONS: number;
   DIESEL_PRICE: number;
   DISCOUNT_RATE: number;
+  DOWNTIME_OPPORTUNITY_COST_PER_HR: {
+    Articulated: number;
+    "Light Rigid": number;
+    "Medium Rigid": number;
+  };
   DOWN_PAYMENT_RATE: number;
   DUTY_CYCLE_TOTAL_TOLERANCE: number;
   FINANCING_TERM: number;
+  FREE_DWELL_TIME_HR: {
+    Articulated: number;
+    "Light Rigid": number;
+    "Medium Rigid": number;
+  };
   FREIGHT_RATE_PER_TONNE_KM: {
     Articulated: number;
     "Light Rigid": number;
@@ -71,6 +88,11 @@ export interface ConstantsSchema {
       "Medium Rigid": number;
     };
   };
+  MASS_DEPENDENT_ENERGY_FRACTION: {
+    Articulated: number;
+    "Light Rigid": number;
+    "Medium Rigid": number;
+  };
   MONTHS_IN_YEAR: number;
   OFFPEAK_CHARGING_EMISSIONS: number;
   OFFPEAK_CHARGING_PRICE: number;
@@ -86,6 +108,10 @@ export interface ConstantsSchema {
         min: number;
       };
       charging_efficiency_variation: {
+        max: number;
+        min: number;
+      };
+      downtime_opportunity_cost_variation: {
         max: number;
         min: number;
       };
@@ -145,13 +171,35 @@ export interface ConstantsSchema {
       };
     };
   };
+  PAYLOAD_BINDING_SHARE: {
+    Articulated: number;
+    "Light Rigid": number;
+    "Medium Rigid": number;
+  };
   PAYLOAD_UTILISATION_FACTOR: {
     Articulated: number;
     "Light Rigid": number;
     "Medium Rigid": number;
   };
+  PLANNED_MAINTENANCE_HR_PER_YR: {
+    BEV: {
+      Articulated: number;
+      "Light Rigid": number;
+      "Medium Rigid": number;
+    };
+    Diesel: {
+      Articulated: number;
+      "Light Rigid": number;
+      "Medium Rigid": number;
+    };
+  };
   PUBLIC_CHARGING_EMISSIONS: number;
   PUBLIC_CHARGING_PRICE: number;
+  REFERENCE_PAYLOAD_FRACTION: {
+    Articulated: number;
+    "Light Rigid": number;
+    "Medium Rigid": number;
+  };
   RETAIL_CHARGING_EMISSIONS: number;
   RETAIL_CHARGING_PRICE: number;
   RIGID_ANNUAL_KMS: number;
@@ -163,15 +211,35 @@ export interface ConstantsSchema {
   STAMP_DUTY_RATE: number;
   STORAGE_INSTALLATION: number;
   STORAGE_MAINTENANCE: number;
+  TYRE_LIFE_KM: number;
+  TYRE_REPLACEMENT_HR_PER_EVENT: number;
+  UNPLANNED_DOWNTIME_HR_PER_1000KM_BASE: {
+    BEV: {
+      Articulated: number;
+      "Light Rigid": number;
+      "Medium Rigid": number;
+    };
+    Diesel: {
+      Articulated: number;
+      "Light Rigid": number;
+      "Medium Rigid": number;
+    };
+  };
   VEHICLE_LIFE: number;
   WEEKS_IN_YEAR: number;
   WORKING_DAYS: number;
+  ZERO_EMISSION_MASS_EXEMPTION_KG: {
+    Articulated: number;
+    "Light Rigid": number;
+    "Medium Rigid": number;
+  };
 }
 
 export type ConstantCatalog = ConstantsSchema;
 
 export const CONSTANTS: ConstantsSchema = {
   "ART_ANNUAL_KMS": 84000,
+  "AU_INFRASTRUCTURE_CHARGE_CAP_KW": 400,
   "BATTERY_DEGRADATION_RATE": 0.025,
   "BATTERY_LIFE_VARIATION_BASE": 2.0,
   "BATTERY_RECYCLE_VALUE": 13,
@@ -201,20 +269,36 @@ export const CONSTANTS: ConstantsSchema = {
       }
     }
   },
+  "CHARGING_OVERHEAD_HR_PER_STOP": 0.25,
   "CHARGING_TIME_HOURS": {
     "Articulated": 1.0,
     "Light Rigid": 0.6,
     "Medium Rigid": 0.75
   },
   "DAYS_IN_YEAR": 365,
+  "DEFAULT_VEHICLE_CHARGE_RATE_KW": {
+    "Articulated": 300,
+    "Light Rigid": 90,
+    "Medium Rigid": 140
+  },
   "DEPRECIATION_RATE_FIRST_YEAR": 0.2,
   "DEPRECIATION_RATE_ONGOING": 0.1,
   "DIESEL_EMISSIONS": 2.68,
   "DIESEL_PRICE": 2.05,
   "DISCOUNT_RATE": 0.05,
+  "DOWNTIME_OPPORTUNITY_COST_PER_HR": {
+    "Articulated": 120,
+    "Light Rigid": 70,
+    "Medium Rigid": 80
+  },
   "DOWN_PAYMENT_RATE": 0.2,
   "DUTY_CYCLE_TOTAL_TOLERANCE": 0.5,
   "FINANCING_TERM": 5,
+  "FREE_DWELL_TIME_HR": {
+    "Articulated": 0.75,
+    "Light Rigid": 0.5,
+    "Medium Rigid": 0.5
+  },
   "FREIGHT_RATE_PER_TONNE_KM": {
     "Articulated": 0.08,
     "Light Rigid": 0.25,
@@ -241,6 +325,11 @@ export const CONSTANTS: ConstantsSchema = {
       "Medium Rigid": 0.18
     }
   },
+  "MASS_DEPENDENT_ENERGY_FRACTION": {
+    "Articulated": 0.38,
+    "Light Rigid": 0.45,
+    "Medium Rigid": 0.45
+  },
   "MONTHS_IN_YEAR": 12,
   "OFFPEAK_CHARGING_EMISSIONS": 0.7,
   "OFFPEAK_CHARGING_PRICE": 0.15,
@@ -258,6 +347,10 @@ export const CONSTANTS: ConstantsSchema = {
       "charging_efficiency_variation": {
         "max": 1.3,
         "min": 0.7
+      },
+      "downtime_opportunity_cost_variation": {
+        "max": 3.0,
+        "min": 0.0
       },
       "electricity_price_variation": {
         "max": 2.0,
@@ -315,13 +408,35 @@ export const CONSTANTS: ConstantsSchema = {
       }
     }
   },
+  "PAYLOAD_BINDING_SHARE": {
+    "Articulated": 0.35,
+    "Light Rigid": 0.15,
+    "Medium Rigid": 0.2
+  },
   "PAYLOAD_UTILISATION_FACTOR": {
     "Articulated": 0.9,
     "Light Rigid": 0.8,
     "Medium Rigid": 0.8
   },
+  "PLANNED_MAINTENANCE_HR_PER_YR": {
+    "BEV": {
+      "Articulated": 16,
+      "Light Rigid": 8,
+      "Medium Rigid": 10
+    },
+    "Diesel": {
+      "Articulated": 24,
+      "Light Rigid": 12,
+      "Medium Rigid": 16
+    }
+  },
   "PUBLIC_CHARGING_EMISSIONS": 0.7,
   "PUBLIC_CHARGING_PRICE": 0.5,
+  "REFERENCE_PAYLOAD_FRACTION": {
+    "Articulated": 0.65,
+    "Light Rigid": 0.6,
+    "Medium Rigid": 0.6
+  },
   "RETAIL_CHARGING_EMISSIONS": 0.7,
   "RETAIL_CHARGING_PRICE": 0.3,
   "RIGID_ANNUAL_KMS": 23000,
@@ -333,8 +448,27 @@ export const CONSTANTS: ConstantsSchema = {
   "STAMP_DUTY_RATE": 0.03,
   "STORAGE_INSTALLATION": 423,
   "STORAGE_MAINTENANCE": 0.025,
+  "TYRE_LIFE_KM": 100000,
+  "TYRE_REPLACEMENT_HR_PER_EVENT": 2,
+  "UNPLANNED_DOWNTIME_HR_PER_1000KM_BASE": {
+    "BEV": {
+      "Articulated": 0.06,
+      "Light Rigid": 0.03,
+      "Medium Rigid": 0.04
+    },
+    "Diesel": {
+      "Articulated": 0.12,
+      "Light Rigid": 0.08,
+      "Medium Rigid": 0.1
+    }
+  },
   "VEHICLE_LIFE": 15,
   "WEEKS_IN_YEAR": 52,
-  "WORKING_DAYS": 255
+  "WORKING_DAYS": 255,
+  "ZERO_EMISSION_MASS_EXEMPTION_KG": {
+    "Articulated": 0,
+    "Light Rigid": 0,
+    "Medium Rigid": 0
+  }
 } as const;
 

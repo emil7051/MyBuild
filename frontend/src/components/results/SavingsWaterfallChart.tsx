@@ -122,6 +122,21 @@ const SavingsWaterfallChart = ({ results, vehicleDetails }: SavingsWaterfallChar
         diesel: dieselResult.breakdown.npv_costs.payload_penalty_cost,
         bev: bevResult.breakdown.npv_costs.payload_penalty_cost,
       },
+      {
+        name: 'Payload Trip Multiplier',
+        diesel: dieselResult.breakdown.npv_costs.payload_trip_multiplier_cost,
+        bev: bevResult.breakdown.npv_costs.payload_trip_multiplier_cost,
+      },
+      {
+        name: 'Charging Dwell Opportunity',
+        diesel: dieselResult.breakdown.npv_costs.charging_dwell_opportunity_cost,
+        bev: bevResult.breakdown.npv_costs.charging_dwell_opportunity_cost,
+      },
+      {
+        name: 'M&R Downtime Opportunity',
+        diesel: dieselResult.breakdown.npv_costs.mr_downtime_opportunity_cost,
+        bev: bevResult.breakdown.npv_costs.mr_downtime_opportunity_cost,
+      },
     ].map((category) => ({
       name: category.name,
       savings: category.diesel - category.bev,

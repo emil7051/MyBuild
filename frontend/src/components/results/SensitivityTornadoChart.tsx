@@ -125,6 +125,42 @@ const SensitivityTornadoChart = ({
         lowDelta: bevResult.breakdown.upfront_costs.purchase_cost * 0.2,
         highDelta: -(bevResult.breakdown.upfront_costs.purchase_cost * 0.2),
       },
+      {
+        parameter: 'Payload Trip Multiplier',
+        lowDelta: -(
+          (dieselResult.breakdown.npv_costs.payload_trip_multiplier_cost -
+            bevResult.breakdown.npv_costs.payload_trip_multiplier_cost) *
+          0.2
+        ),
+        highDelta:
+          (dieselResult.breakdown.npv_costs.payload_trip_multiplier_cost -
+            bevResult.breakdown.npv_costs.payload_trip_multiplier_cost) *
+          0.2,
+      },
+      {
+        parameter: 'Charging Dwell Opportunity',
+        lowDelta: -(
+          (dieselResult.breakdown.npv_costs.charging_dwell_opportunity_cost -
+            bevResult.breakdown.npv_costs.charging_dwell_opportunity_cost) *
+          0.2
+        ),
+        highDelta:
+          (dieselResult.breakdown.npv_costs.charging_dwell_opportunity_cost -
+            bevResult.breakdown.npv_costs.charging_dwell_opportunity_cost) *
+          0.2,
+      },
+      {
+        parameter: 'M&R Downtime Opportunity',
+        lowDelta: -(
+          (dieselResult.breakdown.npv_costs.mr_downtime_opportunity_cost -
+            bevResult.breakdown.npv_costs.mr_downtime_opportunity_cost) *
+          0.2
+        ),
+        highDelta:
+          (dieselResult.breakdown.npv_costs.mr_downtime_opportunity_cost -
+            bevResult.breakdown.npv_costs.mr_downtime_opportunity_cost) *
+          0.2,
+      },
     ];
 
     const significantSensitivities = sensitivities

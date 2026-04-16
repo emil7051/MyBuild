@@ -11,18 +11,21 @@
     "expected": {
       "vehicle_id": "BEV001",
       "scenario_name": "baseline",
-      "total_cost": 344941.67014855356,
-      "annual_cost": 31649.97104177622,
-      "cost_per_km": 1.3760856974685314,
+      "total_cost": 353280.5024349618,
+      "annual_cost": 32415.096926026123,
+      "cost_per_km": 1.4093520402620052,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 23885.5751048324,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 23885.575104832387,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4635.14274666076,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 25066.87416220613,
-          "residual_value": 16314.72064769865
+          "payload_penalty_cost": 25066.874162206124,
+          "payload_trip_multiplier_cost": 1037.2875133586597,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 16314.72064769864
         },
         "nominal_costs": {
           "insurance_cost": 122662.50000000001,
@@ -49,18 +52,21 @@
     "expected": {
       "vehicle_id": "BEV001",
       "scenario_name": "baseline",
-      "total_cost": 340982.0373875434,
-      "annual_cost": 31286.65668150172,
-      "cost_per_km": 1.3602894209348575,
+      "total_cost": 349320.86967395165,
+      "annual_cost": 32051.782565751622,
+      "cost_per_km": 1.3935557637283313,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 23885.5751048324,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 23885.575104832387,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4635.14274666076,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 25066.87416220613,
-          "residual_value": 16314.72064769865
+          "payload_penalty_cost": 25066.874162206124,
+          "payload_trip_multiplier_cost": 1037.2875133586597,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 16314.72064769864
         },
         "nominal_costs": {
           "insurance_cost": 122662.50000000001,
@@ -87,18 +93,21 @@
     "expected": {
       "vehicle_id": "BEV002",
       "scenario_name": "baseline",
-      "total_cost": 284187.2654274663,
-      "annual_cost": 26075.477391140586,
-      "cost_per_km": 1.1337164083104603,
+      "total_cost": 291488.81020051584,
+      "annual_cost": 26745.42741639479,
+      "cost_per_km": 1.1628446702780342,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 23885.5751048324,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 23885.575104832387,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4496.088464260937,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 13865.201683596582
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -125,18 +134,21 @@
     "expected": {
       "vehicle_id": "BEV002",
       "scenario_name": "baseline",
-      "total_cost": 280822.13843510643,
-      "annual_cost": 25766.71164586481,
-      "cost_per_km": 1.1202918106897743,
+      "total_cost": 288123.68320815597,
+      "annual_cost": 26436.66167111901,
+      "cost_per_km": 1.1494200726573482,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 23885.5751048324,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 23885.575104832387,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4496.088464260937,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 13865.201683596582
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -163,18 +175,21 @@
     "expected": {
       "vehicle_id": "BEV003",
       "scenario_name": "baseline",
-      "total_cost": 341253.5379507701,
-      "annual_cost": 31311.568096119303,
-      "cost_per_km": 1.3613725259182305,
+      "total_cost": 350824.0796879837,
+      "annual_cost": 32189.70893861731,
+      "cost_per_km": 1.3995525625485787,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 30354.58502905784,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 30354.585029057835,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4959.602738927013,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 50133.74832441226,
-          "residual_value": 13865.201683596582
+          "payload_penalty_cost": 50133.74832441225,
+          "payload_trip_multiplier_cost": 2268.996964164073,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -201,18 +216,21 @@
     "expected": {
       "vehicle_id": "BEV003",
       "scenario_name": "baseline",
-      "total_cost": 337888.41095841024,
-      "annual_cost": 31002.802350843525,
-      "cost_per_km": 1.3479479282975446,
+      "total_cost": 347458.95269562386,
+      "annual_cost": 31880.943193341533,
+      "cost_per_km": 1.3861279649278928,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 30354.58502905784,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 30354.585029057835,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4959.602738927013,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 50133.74832441226,
-          "residual_value": 13865.201683596582
+          "payload_penalty_cost": 50133.74832441225,
+          "payload_trip_multiplier_cost": 2268.996964164073,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -239,18 +257,21 @@
     "expected": {
       "vehicle_id": "BEV004",
       "scenario_name": "baseline",
-      "total_cost": 454105.81896977976,
-      "annual_cost": 41666.279444017106,
-      "cost_per_km": 1.8115773671311786,
+      "total_cost": 469840.7972649393,
+      "annual_cost": 43110.03544824327,
+      "cost_per_km": 1.8743493673149247,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 43790.22102552607,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 12236.776851184406,
+          "fuel_cost": 43790.22102552606,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 12236.776851184404,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 75200.62248661839,
-          "residual_value": 18486.935578128778
+          "payload_penalty_cost": 75200.62248661838,
+          "payload_trip_multiplier_cost": 5323.765677134983,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 18486.935578128763
         },
         "nominal_costs": {
           "insurance_cost": 135000,
@@ -277,18 +298,21 @@
     "expected": {
       "vehicle_id": "BEV004",
       "scenario_name": "baseline",
-      "total_cost": 449618.9829799667,
-      "annual_cost": 41254.591783649405,
-      "cost_per_km": 1.7936779036369306,
+      "total_cost": 465353.9612751262,
+      "annual_cost": 42698.34778787557,
+      "cost_per_km": 1.856449903820677,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 43790.22102552607,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 12236.776851184406,
+          "fuel_cost": 43790.22102552606,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 12236.776851184404,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 75200.62248661839,
-          "residual_value": 18486.935578128778
+          "payload_penalty_cost": 75200.62248661838,
+          "payload_trip_multiplier_cost": 5323.765677134983,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 18486.935578128763
         },
         "nominal_costs": {
           "insurance_cost": 135000,
@@ -315,18 +339,21 @@
     "expected": {
       "vehicle_id": "BEV005",
       "scenario_name": "baseline",
-      "total_cost": 811384.0703346698,
-      "annual_cost": 74448.1880626115,
-      "cost_per_km": 3.236877741852674,
+      "total_cost": 821795.2829526943,
+      "annual_cost": 75403.46429157029,
+      "cost_per_km": 3.2784114909378386,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 54240.16013389024,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 15574.079628780153,
+          "fuel_cost": 54240.16013389023,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 15574.079628780151,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 150401.24497323678,
-          "residual_value": 36973.871156257555
+          "payload_penalty_cost": 150401.24497323675,
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 36973.871156257526
         },
         "nominal_costs": {
           "insurance_cost": 240000.00000000003,
@@ -353,18 +380,21 @@
     "expected": {
       "vehicle_id": "BEV005",
       "scenario_name": "baseline",
-      "total_cost": 802410.3983550435,
-      "annual_cost": 73624.8127418761,
-      "cost_per_km": 3.2010788148641782,
+      "total_cost": 812821.6109730682,
+      "annual_cost": 74580.08897083488,
+      "cost_per_km": 3.2426125639493426,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 54240.16013389024,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 15574.079628780153,
+          "fuel_cost": 54240.16013389023,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 15574.079628780151,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 150401.24497323678,
-          "residual_value": 36973.871156257555
+          "payload_penalty_cost": 150401.24497323675,
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 36973.871156257526
         },
         "nominal_costs": {
           "insurance_cost": 240000.00000000003,
@@ -391,18 +421,21 @@
     "expected": {
       "vehicle_id": "BEV006",
       "scenario_name": "baseline",
-      "total_cost": 2149461.3021688117,
-      "annual_cost": 197222.87521760806,
-      "cost_per_km": 2.347891371638191,
+      "total_cost": 2343562.8646180877,
+      "annual_cost": 215032.57860321936,
+      "cost_per_km": 2.559911650038326,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 383019.8350052815,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28784.236456763323,
+          "fuel_cost": 383019.83500528143,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28784.236456763316,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 55460.80673438633
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 160368.46464823437,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 55460.80673438629
         },
         "nominal_costs": {
           "insurance_cost": 345000.00000000006,
@@ -429,18 +462,21 @@
     "expected": {
       "vehicle_id": "BEV006",
       "scenario_name": "baseline",
-      "total_cost": 2136000.794199372,
-      "annual_cost": 195987.81223650495,
-      "cost_per_km": 2.3331882409107734,
+      "total_cost": 2330102.3566486486,
+      "annual_cost": 213797.51562211628,
+      "cost_per_km": 2.545208519310908,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 383019.8350052815,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28784.236456763323,
+          "fuel_cost": 383019.83500528143,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28784.236456763316,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 55460.80673438633
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 160368.46464823437,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 55460.80673438629
         },
         "nominal_costs": {
           "insurance_cost": 345000.00000000006,
@@ -467,18 +503,21 @@
     "expected": {
       "vehicle_id": "BEV007",
       "scenario_name": "baseline",
-      "total_cost": 2135998.9638024243,
-      "annual_cost": 195987.64428923905,
-      "cost_per_km": 2.3331862415385602,
+      "total_cost": 2471146.3592577195,
+      "annual_cost": 226738.94596966114,
+      "cost_per_km": 2.6992731663054896,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 574529.7525079224,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 25029.770831968104,
+          "fuel_cost": 574529.7525079222,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 25029.7708319681,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 41595.60505078975
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 109397.68211537901,
+          "charging_dwell_opportunity_cost": 192016.61553887502,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 41595.60505078972
         },
         "nominal_costs": {
           "insurance_cost": 266250,
@@ -505,18 +544,21 @@
     "expected": {
       "vehicle_id": "BEV007",
       "scenario_name": "baseline",
-      "total_cost": 2125903.5828253445,
-      "annual_cost": 195061.3470534117,
-      "cost_per_km": 2.3221588934929964,
+      "total_cost": 2461050.9782806397,
+      "annual_cost": 225812.6487338338,
+      "cost_per_km": 2.6882458182599263,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 574529.7525079224,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 25029.770831968104,
+          "fuel_cost": 574529.7525079222,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 25029.7708319681,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 41595.60505078975
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 109397.68211537901,
+          "charging_dwell_opportunity_cost": 192016.61553887502,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 41595.60505078972
         },
         "nominal_costs": {
           "insurance_cost": 266250,
@@ -543,18 +585,21 @@
     "expected": {
       "vehicle_id": "BEV008",
       "scenario_name": "baseline",
-      "total_cost": 1901667.0929970692,
-      "annual_cost": 174486.62667672307,
-      "cost_per_km": 2.0772217461514653,
+      "total_cost": 2066925.864111926,
+      "annual_cost": 189649.87244500668,
+      "cost_per_km": 2.25773657672627,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 510693.1133403754,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28923.29073916314,
+          "fuel_cost": 510693.11334037536,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28923.290739163138,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 29579.09692500605
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 131525.67331381538,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 29579.09692500603
         },
         "nominal_costs": {
           "insurance_cost": 198000.00000000003,
@@ -581,18 +626,21 @@
     "expected": {
       "vehicle_id": "BEV008",
       "scenario_name": "baseline",
-      "total_cost": 1894488.155413368,
-      "annual_cost": 173827.92642013473,
-      "cost_per_km": 2.0693800764301753,
+      "total_cost": 2059746.9265282252,
+      "annual_cost": 188991.1721884184,
+      "cost_per_km": 2.2498949070049807,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 510693.1133403754,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28923.29073916314,
+          "fuel_cost": 510693.11334037536,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28923.290739163138,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 29579.09692500605
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 131525.67331381538,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 29579.09692500603
         },
         "nominal_costs": {
           "insurance_cost": 198000.00000000003,
@@ -619,18 +667,21 @@
     "expected": {
       "vehicle_id": "DSL001",
       "scenario_name": "baseline",
-      "total_cost": 325910.9255848134,
-      "annual_cost": 29903.81345494011,
-      "cost_per_km": 1.3001658023887004,
+      "total_cost": 337676.37250163546,
+      "annual_cost": 30983.346855617983,
+      "cost_per_km": 1.3471020372007818,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 7394.774231251513
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 7394.774231251507
         },
         "nominal_costs": {
           "insurance_cost": 67800,
@@ -657,18 +708,21 @@
     "expected": {
       "vehicle_id": "DSL001",
       "scenario_name": "baseline",
-      "total_cost": 324116.1911888881,
-      "annual_cost": 29739.138390793025,
-      "cost_per_km": 1.2930060169910012,
+      "total_cost": 335881.6381057102,
+      "annual_cost": 30818.671791470904,
+      "cost_per_km": 1.3399422518030828,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 7394.774231251513
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 7394.774231251507
         },
         "nominal_costs": {
           "insurance_cost": 67800,
@@ -695,18 +749,21 @@
     "expected": {
       "vehicle_id": "DSL002",
       "scenario_name": "baseline",
-      "total_cost": 319394.3921264571,
-      "annual_cost": 29305.891797168468,
-      "cost_per_km": 1.274169208572542,
+      "total_cost": 331159.83904327924,
+      "annual_cost": 30385.425197846347,
+      "cost_per_km": 1.3211054433846239,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 6932.600841798291
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 6932.600841798287
         },
         "nominal_costs": {
           "insurance_cost": 65437.5,
@@ -733,18 +790,21 @@
     "expected": {
       "vehicle_id": "DSL002",
       "scenario_name": "baseline",
-      "total_cost": 317711.8286302772,
-      "annual_cost": 29151.50892453058,
-      "cost_per_km": 1.267456909762199,
+      "total_cost": 329477.2755470993,
+      "annual_cost": 30231.04232520846,
+      "cost_per_km": 1.3143931445742807,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 6932.600841798291
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 6932.600841798287
         },
         "nominal_costs": {
           "insurance_cost": 65437.5,
@@ -771,18 +831,21 @@
     "expected": {
       "vehicle_id": "DSL003",
       "scenario_name": "baseline",
-      "total_cost": 391076.26016837574,
-      "annual_cost": 35883.03003265649,
-      "cost_per_km": 1.5601317405502821,
+      "total_cost": 402841.7070851978,
+      "annual_cost": 36962.56343333436,
+      "cost_per_km": 1.6070679753623636,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 12016.508125783706
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 12016.508125783697
         },
         "nominal_costs": {
           "insurance_cost": 91425,
@@ -809,18 +872,21 @@
     "expected": {
       "vehicle_id": "DSL003",
       "scenario_name": "baseline",
-      "total_cost": 388159.8167749971,
-      "annual_cost": 35615.43305341747,
-      "cost_per_km": 1.5484970892790206,
+      "total_cost": 399925.2636918192,
+      "annual_cost": 36694.96645409535,
+      "cost_per_km": 1.5954333240911023,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 12016.508125783706
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 12016.508125783697
         },
         "nominal_costs": {
           "insurance_cost": 91425,
@@ -847,18 +913,21 @@
     "expected": {
       "vehicle_id": "DSL004",
       "scenario_name": "baseline",
-      "total_cost": 529305.2345440604,
-      "annual_cost": 48566.16870430704,
-      "cost_per_km": 2.1115725523611757,
+      "total_cost": 546884.6396323646,
+      "annual_cost": 50179.159276704006,
+      "cost_per_km": 2.181702577248,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 20335.629135941654
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 20335.629135941643
         },
         "nominal_costs": {
           "insurance_cost": 133950,
@@ -885,18 +954,21 @@
     "expected": {
       "vehicle_id": "DSL004",
       "scenario_name": "baseline",
-      "total_cost": 524369.714955266,
-      "annual_cost": 48113.31227790257,
-      "cost_per_km": 2.0918831425175033,
+      "total_cost": 541949.1200435702,
+      "annual_cost": 49726.30285029954,
+      "cost_per_km": 2.1620131674043277,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 20335.629135941654
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 20335.629135941643
         },
         "nominal_costs": {
           "insurance_cost": 133950,
@@ -923,18 +995,21 @@
     "expected": {
       "vehicle_id": "DSL005",
       "scenario_name": "baseline",
-      "total_cost": 594470.5691276228,
-      "annual_cost": 54545.38528202342,
-      "cost_per_km": 2.3715384905227572,
+      "total_cost": 612049.9742159268,
+      "annual_cost": 56158.375854420374,
+      "cost_per_km": 2.4416685154095816,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -961,18 +1036,21 @@
     "expected": {
       "vehicle_id": "DSL005",
       "scenario_name": "baseline",
-      "total_cost": 588413.340541375,
-      "annual_cost": 53989.60694052702,
-      "cost_per_km": 2.3473742148055226,
+      "total_cost": 605992.7456296792,
+      "annual_cost": 55602.59751292399,
+      "cost_per_km": 2.4175042396923474,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -999,18 +1077,21 @@
     "expected": {
       "vehicle_id": "DSL006",
       "scenario_name": "baseline",
-      "total_cost": 1380021.062108,
-      "annual_cost": 126623.22483087977,
-      "cost_per_km": 1.5074193432247591,
+      "total_cost": 1434827.3963940756,
+      "annual_cost": 131651.95589811547,
+      "cost_per_km": 1.5672851892632793,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -1037,18 +1118,21 @@
     "expected": {
       "vehicle_id": "DSL006",
       "scenario_name": "baseline",
-      "total_cost": 1373963.833521752,
-      "annual_cost": 126067.44648938334,
-      "cost_per_km": 1.5008029343974207,
+      "total_cost": 1428770.1678078275,
+      "annual_cost": 131096.17755661905,
+      "cost_per_km": 1.5606687804359411,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -1075,18 +1159,21 @@
     "expected": {
       "vehicle_id": "DSL007",
       "scenario_name": "baseline",
-      "total_cost": 1393054.1290247126,
-      "annual_cost": 127819.06814642306,
-      "cost_per_km": 1.521655573171703,
+      "total_cost": 1447860.4633107882,
+      "annual_cost": 132847.79921365876,
+      "cost_per_km": 1.5815214192102234,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 25881.70980938029
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 25881.709809380274
         },
         "nominal_costs": {
           "insurance_cost": 162300,
@@ -1113,18 +1200,21 @@
     "expected": {
       "vehicle_id": "DSL007",
       "scenario_name": "baseline",
-      "total_cost": 1386772.5586389739,
-      "annual_cost": 127242.70542190825,
-      "cost_per_km": 1.5147941121655744,
+      "total_cost": 1441578.8929250494,
+      "annual_cost": 132271.43648914393,
+      "cost_per_km": 1.5746599582040945,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 25881.70980938029
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 25881.709809380274
         },
         "nominal_costs": {
           "insurance_cost": 162300,
@@ -1151,18 +1241,21 @@
     "expected": {
       "vehicle_id": "DSL008",
       "scenario_name": "baseline",
-      "total_cost": 1419120.2628581373,
-      "annual_cost": 130210.75477750959,
-      "cost_per_km": 1.5501280330655904,
+      "total_cost": 1473926.5971442128,
+      "annual_cost": 135239.48584474527,
+      "cost_per_km": 1.6099938791041104,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 27730.403367193165
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 27730.403367193147
         },
         "nominal_costs": {
           "insurance_cost": 171750,
@@ -1189,18 +1282,21 @@
     "expected": {
       "vehicle_id": "DSL008",
       "scenario_name": "baseline",
-      "total_cost": 1412390.0088734173,
-      "annual_cost": 129593.223286958,
-      "cost_per_km": 1.542776467701881,
+      "total_cost": 1467196.3431594928,
+      "annual_cost": 134621.9543541937,
+      "cost_per_km": 1.6026423137404011,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 27730.403367193165
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 27730.403367193147
         },
         "nominal_costs": {
           "insurance_cost": 171750,
@@ -1227,18 +1323,21 @@
     "expected": {
       "vehicle_id": "BEV001",
       "scenario_name": "oil_crisis",
-      "total_cost": 346425.85197107395,
-      "annual_cost": 31786.151491309243,
-      "cost_per_km": 1.3820065865786628,
+      "total_cost": 354795.7485281861,
+      "annual_cost": 32554.127664037744,
+      "cost_per_km": 1.4153968549581628,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 25369.75692735276,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 25369.75692735275,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4635.14274666076,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 25066.87416220613,
-          "residual_value": 16314.72064769865
+          "payload_penalty_cost": 25066.874162206124,
+          "payload_trip_multiplier_cost": 1068.351784062574,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 16314.72064769864
         },
         "nominal_costs": {
           "insurance_cost": 122662.50000000001,
@@ -1265,18 +1364,21 @@
     "expected": {
       "vehicle_id": "BEV001",
       "scenario_name": "oil_crisis",
-      "total_cost": 342466.21921006375,
-      "annual_cost": 31422.837131034736,
-      "cost_per_km": 1.3662103100449885,
+      "total_cost": 350836.1157671759,
+      "annual_cost": 32190.813303763236,
+      "cost_per_km": 1.3996005784244885,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 25369.75692735276,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 25369.75692735275,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4635.14274666076,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 25066.87416220613,
-          "residual_value": 16314.72064769865
+          "payload_penalty_cost": 25066.874162206124,
+          "payload_trip_multiplier_cost": 1068.351784062574,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 16314.72064769864
         },
         "nominal_costs": {
           "insurance_cost": 122662.50000000001,
@@ -1303,18 +1405,21 @@
     "expected": {
       "vehicle_id": "BEV002",
       "scenario_name": "oil_crisis",
-      "total_cost": 285671.44724998664,
-      "annual_cost": 26211.6578406736,
-      "cost_per_km": 1.1396372974205913,
+      "total_cost": 292972.9920230362,
+      "annual_cost": 26881.607865927803,
+      "cost_per_km": 1.1687655593881654,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 25369.75692735276,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 25369.75692735275,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4496.088464260937,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 13865.201683596582
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -1341,18 +1446,21 @@
     "expected": {
       "vehicle_id": "BEV002",
       "scenario_name": "oil_crisis",
-      "total_cost": 282306.32025762676,
-      "annual_cost": 25902.892095397823,
-      "cost_per_km": 1.1262126997999053,
+      "total_cost": 289607.8650306763,
+      "annual_cost": 26572.842120652025,
+      "cost_per_km": 1.1553409617674792,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 25369.75692735276,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 25369.75692735275,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4496.088464260937,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 13865.201683596582
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -1379,18 +1487,21 @@
     "expected": {
       "vehicle_id": "BEV003",
       "scenario_name": "oil_crisis",
-      "total_cost": 343139.68568355637,
-      "annual_cost": 31484.630750734173,
-      "cost_per_km": 1.3688969891623555,
+      "total_cost": 352786.61137868743,
+      "annual_cost": 32369.78016965353,
+      "cost_per_km": 1.4073817465066754,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 32240.73276184413,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 32240.732761844123,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4959.602738927013,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 50133.74832441226,
-          "residual_value": 13865.201683596582
+          "payload_penalty_cost": 50133.74832441225,
+          "payload_trip_multiplier_cost": 2345.380922081528,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -1417,18 +1528,21 @@
     "expected": {
       "vehicle_id": "BEV003",
       "scenario_name": "oil_crisis",
-      "total_cost": 339774.5586911965,
-      "annual_cost": 31175.865005458396,
-      "cost_per_km": 1.3554723915416693,
+      "total_cost": 349421.48438632756,
+      "annual_cost": 32061.014424377758,
+      "cost_per_km": 1.3939571488859894,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 32240.73276184413,
-          "maintenance_cost": 25673.71720008134,
+          "fuel_cost": 32240.732761844123,
+          "maintenance_cost": 25673.717200081337,
           "battery_replacement_cost": 4959.602738927013,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 50133.74832441226,
-          "residual_value": 13865.201683596582
+          "payload_penalty_cost": 50133.74832441225,
+          "payload_trip_multiplier_cost": 2345.380922081528,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 13865.201683596573
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -1455,18 +1569,21 @@
     "expected": {
       "vehicle_id": "BEV004",
       "scenario_name": "oil_crisis",
-      "total_cost": 456826.81897773384,
-      "annual_cost": 41915.94360149431,
-      "cost_per_km": 1.8224323304997527,
+      "total_cost": 472770.3366505886,
+      "annual_cost": 43378.83404448597,
+      "cost_per_km": 1.886036262803738,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 46511.22103348006,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 12236.776851184406,
+          "fuel_cost": 46511.221033480055,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 12236.776851184404,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 75200.62248661839,
-          "residual_value": 18486.935578128778
+          "payload_penalty_cost": 75200.62248661838,
+          "payload_trip_multiplier_cost": 5532.305054830236,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 18486.935578128763
         },
         "nominal_costs": {
           "insurance_cost": 135000,
@@ -1493,18 +1610,21 @@
     "expected": {
       "vehicle_id": "BEV004",
       "scenario_name": "oil_crisis",
-      "total_cost": 452339.98298792064,
-      "annual_cost": 41504.255941126605,
-      "cost_per_km": 1.8045328670055045,
+      "total_cost": 468283.5006607754,
+      "annual_cost": 42967.14638411826,
+      "cost_per_km": 1.8681367993094897,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 46511.22103348006,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 12236.776851184406,
+          "fuel_cost": 46511.221033480055,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 12236.776851184404,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 75200.62248661839,
-          "residual_value": 18486.935578128778
+          "payload_penalty_cost": 75200.62248661838,
+          "payload_trip_multiplier_cost": 5532.305054830236,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 18486.935578128763
         },
         "nominal_costs": {
           "insurance_cost": 135000,
@@ -1531,18 +1651,21 @@
     "expected": {
       "vehicle_id": "BEV005",
       "scenario_name": "oil_crisis",
-      "total_cost": 814754.3998899765,
-      "annual_cost": 74757.4311667594,
-      "cost_per_km": 3.2503230942069306,
+      "total_cost": 825165.6125080012,
+      "annual_cost": 75712.70739571819,
+      "cost_per_km": 3.291856843292095,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 57610.4896891969,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 15574.079628780153,
+          "fuel_cost": 57610.48968919688,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 15574.079628780151,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 150401.24497323678,
-          "residual_value": 36973.871156257555
+          "payload_penalty_cost": 150401.24497323675,
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 36973.871156257526
         },
         "nominal_costs": {
           "insurance_cost": 240000.00000000003,
@@ -1569,18 +1692,21 @@
     "expected": {
       "vehicle_id": "BEV005",
       "scenario_name": "oil_crisis",
-      "total_cost": 805780.7279103502,
-      "annual_cost": 73934.055846024,
-      "cost_per_km": 3.2145241672184346,
+      "total_cost": 816191.9405283747,
+      "annual_cost": 74889.33207498278,
+      "cost_per_km": 3.2560579163035994,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 57610.4896891969,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 15574.079628780153,
+          "fuel_cost": 57610.48968919688,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 15574.079628780151,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 150401.24497323678,
-          "residual_value": 36973.871156257555
+          "payload_penalty_cost": 150401.24497323675,
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 36973.871156257526
         },
         "nominal_costs": {
           "insurance_cost": 240000.00000000003,
@@ -1607,18 +1733,21 @@
     "expected": {
       "vehicle_id": "BEV006",
       "scenario_name": "oil_crisis",
-      "total_cost": 2173261.06726907,
-      "annual_cost": 199406.6121836286,
-      "cost_per_km": 2.373888240281293,
+      "total_cost": 2372879.7859020047,
+      "annual_cost": 217722.53980526954,
+      "cost_per_km": 2.59193499768178,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 406819.60010553984,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28784.236456763323,
+          "fuel_cost": 406819.60010553966,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28784.236456763316,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 55460.80673438633
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 165885.62083189285,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 55460.80673438629
         },
         "nominal_costs": {
           "insurance_cost": 345000.00000000006,
@@ -1645,18 +1774,21 @@
     "expected": {
       "vehicle_id": "BEV006",
       "scenario_name": "oil_crisis",
-      "total_cost": 2159800.5592996306,
-      "annual_cost": 198171.5492025255,
-      "cost_per_km": 2.359185109553875,
+      "total_cost": 2359419.2779325657,
+      "annual_cost": 216487.4768241665,
+      "cost_per_km": 2.577231866954363,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 406819.60010553984,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28784.236456763323,
+          "fuel_cost": 406819.60010553966,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28784.236456763316,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 55460.80673438633
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 165885.62083189285,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 55460.80673438629
         },
         "nominal_costs": {
           "insurance_cost": 345000.00000000006,
@@ -1683,18 +1815,21 @@
     "expected": {
       "vehicle_id": "BEV007",
       "scenario_name": "oil_crisis",
-      "total_cost": 2171698.6114528114,
-      "annual_cost": 199263.2497382698,
-      "cost_per_km": 2.372181544503212,
+      "total_cost": 2510477.911124905,
+      "annual_cost": 230347.79519071477,
+      "cost_per_km": 2.7422356570323188,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 610229.4001583096,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 25029.770831968104,
+          "fuel_cost": 610229.4001583095,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 25029.7708319681,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 41595.60505078975
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 113029.58633217709,
+          "charging_dwell_opportunity_cost": 192016.61553887502,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 41595.60505078972
         },
         "nominal_costs": {
           "insurance_cost": 266250,
@@ -1721,18 +1856,21 @@
     "expected": {
       "vehicle_id": "BEV007",
       "scenario_name": "oil_crisis",
-      "total_cost": 2161603.2304757317,
-      "annual_cost": 198336.95250244247,
-      "cost_per_km": 2.3611541964576483,
+      "total_cost": 2500382.5301478254,
+      "annual_cost": 229421.49795488743,
+      "cost_per_km": 2.731208308986755,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 610229.4001583096,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 25029.770831968104,
+          "fuel_cost": 610229.4001583095,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 25029.7708319681,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 41595.60505078975
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 113029.58633217709,
+          "charging_dwell_opportunity_cost": 192016.61553887502,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 41595.60505078972
         },
         "nominal_costs": {
           "insurance_cost": 266250,
@@ -1759,18 +1897,21 @@
     "expected": {
       "vehicle_id": "BEV008",
       "scenario_name": "oil_crisis",
-      "total_cost": 1933400.1131307466,
-      "annual_cost": 177398.27596475038,
-      "cost_per_km": 2.1118842376756,
+      "total_cost": 2103752.083715335,
+      "annual_cost": 193028.84600747604,
+      "cost_per_km": 2.2979624524699527,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 542426.133474053,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28923.29073916314,
+          "fuel_cost": 542426.1334740529,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28923.290739163138,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 29579.09692500605
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 136618.8727835467,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 29579.09692500603
         },
         "nominal_costs": {
           "insurance_cost": 198000.00000000003,
@@ -1797,18 +1938,21 @@
     "expected": {
       "vehicle_id": "BEV008",
       "scenario_name": "oil_crisis",
-      "total_cost": 1926221.1755470454,
-      "annual_cost": 176739.57570816204,
-      "cost_per_km": 2.10404256795431,
+      "total_cost": 2096573.146131634,
+      "annual_cost": 192370.14575088772,
+      "cost_per_km": 2.290120782748663,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 542426.133474053,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 28923.29073916314,
+          "fuel_cost": 542426.1334740529,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 28923.290739163138,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 29579.09692500605
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 136618.8727835467,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 29579.09692500603
         },
         "nominal_costs": {
           "insurance_cost": 198000.00000000003,
@@ -1835,18 +1979,21 @@
     "expected": {
       "vehicle_id": "DSL001",
       "scenario_name": "oil_crisis",
-      "total_cost": 369790.1549336111,
-      "annual_cost": 33929.93282064855,
-      "cost_per_km": 1.4752144704629806,
+      "total_cost": 381555.6018504332,
+      "annual_cost": 35009.46622132643,
+      "cost_per_km": 1.5221507052750622,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 190398.83422570725,
-          "maintenance_cost": 46212.69096014642,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 7394.774231251513
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 7394.774231251507
         },
         "nominal_costs": {
           "insurance_cost": 67800,
@@ -1873,18 +2020,21 @@
     "expected": {
       "vehicle_id": "DSL001",
       "scenario_name": "oil_crisis",
-      "total_cost": 367995.4205376858,
-      "annual_cost": 33765.257756501465,
-      "cost_per_km": 1.4680546850652811,
+      "total_cost": 379760.8674545079,
+      "annual_cost": 34844.791157179345,
+      "cost_per_km": 1.5149909198773628,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 190398.83422570725,
-          "maintenance_cost": 46212.69096014642,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 7394.774231251513
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 7394.774231251507
         },
         "nominal_costs": {
           "insurance_cost": 67800,
@@ -1911,18 +2061,21 @@
     "expected": {
       "vehicle_id": "DSL002",
       "scenario_name": "oil_crisis",
-      "total_cost": 363273.6214752549,
-      "annual_cost": 33332.011162876915,
-      "cost_per_km": 1.4492178766468224,
+      "total_cost": 375039.068392077,
+      "annual_cost": 34411.544563554795,
+      "cost_per_km": 1.496154111458904,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 190398.83422570725,
-          "maintenance_cost": 46212.69096014642,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 6932.600841798291
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 6932.600841798287
         },
         "nominal_costs": {
           "insurance_cost": 65437.5,
@@ -1949,18 +2102,21 @@
     "expected": {
       "vehicle_id": "DSL002",
       "scenario_name": "oil_crisis",
-      "total_cost": 361591.0579790749,
-      "annual_cost": 33177.62829023902,
-      "cost_per_km": 1.4425055778364793,
+      "total_cost": 373356.504895897,
+      "annual_cost": 34257.1616909169,
+      "cost_per_km": 1.489441812648561,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 190398.83422570725,
-          "maintenance_cost": 46212.69096014642,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 6932.600841798291
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 6932.600841798287
         },
         "nominal_costs": {
           "insurance_cost": 65437.5,
@@ -1987,18 +2143,21 @@
     "expected": {
       "vehicle_id": "DSL003",
       "scenario_name": "oil_crisis",
-      "total_cost": 434955.48951717344,
-      "annual_cost": 39909.14939836493,
-      "cost_per_km": 1.7351804086245621,
+      "total_cost": 446720.93643399555,
+      "annual_cost": 40988.68279904281,
+      "cost_per_km": 1.7821166434366438,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 190398.83422570725,
-          "maintenance_cost": 46212.69096014642,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 12016.508125783706
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 12016.508125783697
         },
         "nominal_costs": {
           "insurance_cost": 91425,
@@ -2025,18 +2184,21 @@
     "expected": {
       "vehicle_id": "DSL003",
       "scenario_name": "oil_crisis",
-      "total_cost": 432039.0461237948,
-      "annual_cost": 39641.55241912592,
-      "cost_per_km": 1.7235457573533008,
+      "total_cost": 443804.4930406169,
+      "annual_cost": 40721.0858198038,
+      "cost_per_km": 1.7704819921653825,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 190398.83422570725,
-          "maintenance_cost": 46212.69096014642,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 12016.508125783706
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 12016.508125783697
         },
         "nominal_costs": {
           "insurance_cost": 91425,
@@ -2063,18 +2225,21 @@
     "expected": {
       "vehicle_id": "DSL004",
       "scenario_name": "oil_crisis",
-      "total_cost": 579452.9252284007,
-      "annual_cost": 53167.44797940241,
-      "cost_per_km": 2.311628173017496,
+      "total_cost": 597032.3303167048,
+      "annual_cost": 54780.438551799365,
+      "cost_per_km": 2.38175819790432,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 217598.6676865226,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 217598.66768652256,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 20335.629135941654
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 20335.629135941643
         },
         "nominal_costs": {
           "insurance_cost": 133950,
@@ -2101,18 +2266,21 @@
     "expected": {
       "vehicle_id": "DSL004",
       "scenario_name": "oil_crisis",
-      "total_cost": 574517.4056396063,
-      "annual_cost": 52714.59155299794,
-      "cost_per_km": 2.2919387631738233,
+      "total_cost": 592096.8107279105,
+      "annual_cost": 54327.5821253949,
+      "cost_per_km": 2.362068788060648,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 217598.6676865226,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 217598.66768652256,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 20335.629135941654
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 20335.629135941643
         },
         "nominal_costs": {
           "insurance_cost": 133950,
@@ -2139,18 +2307,21 @@
     "expected": {
       "vehicle_id": "DSL005",
       "scenario_name": "oil_crisis",
-      "total_cost": 644618.259811963,
-      "annual_cost": 59146.66455711878,
-      "cost_per_km": 2.571594111179077,
+      "total_cost": 662197.6649002671,
+      "annual_cost": 60759.65512951574,
+      "cost_per_km": 2.6417241360659016,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 217598.6676865226,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 217598.66768652256,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -2177,18 +2348,21 @@
     "expected": {
       "vehicle_id": "DSL005",
       "scenario_name": "oil_crisis",
-      "total_cost": 638561.0312257152,
-      "annual_cost": 58590.88621562238,
-      "cost_per_km": 2.5474298354618425,
+      "total_cost": 656140.4363140194,
+      "annual_cost": 60203.87678801934,
+      "cost_per_km": 2.617559860348667,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 217598.6676865226,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 217598.66768652256,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -2215,18 +2389,21 @@
     "expected": {
       "vehicle_id": "DSL006",
       "scenario_name": "oil_crisis",
-      "total_cost": 1580339.283048163,
-      "annual_cost": 145003.33497867914,
-      "cost_per_km": 1.7262301783176088,
+      "total_cost": 1635145.617334239,
+      "annual_cost": 150032.06604591486,
+      "cost_per_km": 1.7860960243561292,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 869212.0692912721,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 869212.0692912719,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -2253,18 +2430,21 @@
     "expected": {
       "vehicle_id": "DSL006",
       "scenario_name": "oil_crisis",
-      "total_cost": 1574282.0544619153,
-      "annual_cost": 144447.55663718274,
-      "cost_per_km": 1.7196137694902707,
+      "total_cost": 1629088.3887479908,
+      "annual_cost": 149476.28770441844,
+      "cost_per_km": 1.779479615528791,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 869212.0692912721,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 869212.0692912719,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -2291,18 +2471,21 @@
     "expected": {
       "vehicle_id": "DSL007",
       "scenario_name": "oil_crisis",
-      "total_cost": 1593372.3499648755,
-      "annual_cost": 146199.17829422242,
-      "cost_per_km": 1.7404664082645527,
+      "total_cost": 1648178.6842509515,
+      "annual_cost": 151227.90936145815,
+      "cost_per_km": 1.8003322543030733,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 869212.0692912721,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 869212.0692912719,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 25881.70980938029
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 25881.709809380274
         },
         "nominal_costs": {
           "insurance_cost": 162300,
@@ -2329,18 +2512,21 @@
     "expected": {
       "vehicle_id": "DSL007",
       "scenario_name": "oil_crisis",
-      "total_cost": 1587090.7795791372,
-      "annual_cost": 145622.81556970763,
-      "cost_per_km": 1.733604947258424,
+      "total_cost": 1641897.1138652128,
+      "annual_cost": 150651.54663694333,
+      "cost_per_km": 1.7934707932969445,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 869212.0692912721,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 869212.0692912719,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 25881.70980938029
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 25881.709809380274
         },
         "nominal_costs": {
           "insurance_cost": 162300,
@@ -2367,18 +2553,21 @@
     "expected": {
       "vehicle_id": "DSL008",
       "scenario_name": "oil_crisis",
-      "total_cost": 1619438.4837983001,
-      "annual_cost": 148590.86492530894,
-      "cost_per_km": 1.7689388681584397,
+      "total_cost": 1674244.8180843762,
+      "annual_cost": 153619.59599254467,
+      "cost_per_km": 1.8288047141969603,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 869212.0692912721,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 869212.0692912719,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 27730.403367193165
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 27730.403367193147
         },
         "nominal_costs": {
           "insurance_cost": 171750,
@@ -2405,18 +2594,21 @@
     "expected": {
       "vehicle_id": "DSL008",
       "scenario_name": "oil_crisis",
-      "total_cost": 1612708.2298135806,
-      "annual_cost": 147973.3334347574,
-      "cost_per_km": 1.7615873027947309,
+      "total_cost": 1667514.5640996562,
+      "annual_cost": 153002.0645019931,
+      "cost_per_km": 1.821453148833251,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 869212.0692912721,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 869212.0692912719,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 27730.403367193165
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 27730.403367193147
         },
         "nominal_costs": {
           "insurance_cost": 171750,
@@ -2443,18 +2635,21 @@
     "expected": {
       "vehicle_id": "BEV001",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 334706.8134814503,
-      "annual_cost": 30710.876275431983,
-      "cost_per_km": 1.3352554902361733,
+      "total_cost": 342988.3420074568,
+      "annual_cost": 31470.7442783812,
+      "cost_per_km": 1.368293229494835,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 21147.72877452736,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 2032.5486041721474,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 2032.548604172147,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 25066.87416220613,
-          "residual_value": 21209.136842008244
+          "payload_penalty_cost": 25066.874162206124,
+          "payload_trip_multiplier_cost": 979.9837529569264,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 21209.13684200823
         },
         "nominal_costs": {
           "insurance_cost": 122662.50000000001,
@@ -2481,18 +2676,21 @@
     "expected": {
       "vehicle_id": "BEV001",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 330747.1807204402,
-      "annual_cost": 30347.561915157487,
-      "cost_per_km": 1.3194592137024994,
+      "total_cost": 339028.70924644667,
+      "annual_cost": 31107.4299181067,
+      "cost_per_km": 1.3524969529611608,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 21147.72877452736,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 2032.5486041721474,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 2032.548604172147,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 25066.87416220613,
-          "residual_value": 21209.136842008244
+          "payload_penalty_cost": 25066.874162206124,
+          "payload_trip_multiplier_cost": 979.9837529569264,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 21209.13684200823
         },
         "nominal_costs": {
           "insurance_cost": 122662.50000000001,
@@ -2519,18 +2717,21 @@
     "expected": {
       "vehicle_id": "BEV002",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 274765.34227386833,
-      "annual_cost": 25210.972981334744,
-      "cost_per_km": 1.0961292600580324,
+      "total_cost": 282066.8870469179,
+      "annual_cost": 25880.92300658895,
+      "cost_per_km": 1.1252575220256065,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 21147.72877452736,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 1971.572146046983,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 1971.5721460469829,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 18024.76218867556
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 18024.762188675548
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -2557,18 +2758,21 @@
     "expected": {
       "vehicle_id": "BEV002",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 271400.21528150846,
-      "annual_cost": 24902.207236058966,
-      "cost_per_km": 1.0827046624373464,
+      "total_cost": 278701.76005455805,
+      "annual_cost": 25572.157261313172,
+      "cost_per_km": 1.1118329244049205,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 21147.72877452736,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 1971.572146046983,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 1971.5721460469829,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 18024.76218867556
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 18024.762188675548
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -2595,18 +2799,21 @@
     "expected": {
       "vehicle_id": "BEV003",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 330829.85533513234,
-      "annual_cost": 30355.147688020963,
-      "cost_per_km": 1.319789029913955,
+      "total_cost": 340259.49281405006,
+      "annual_cost": 31220.359922349344,
+      "cost_per_km": 1.3574069531456237,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 26875.238650961855,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 2174.827006464198,
+          "fuel_cost": 26875.23865096185,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 2174.8270064641974,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 50133.74832441226,
-          "residual_value": 18024.76218867556
+          "payload_penalty_cost": 50133.74832441225,
+          "payload_trip_multiplier_cost": 2128.092705868178,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 18024.762188675548
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -2633,18 +2840,21 @@
     "expected": {
       "vehicle_id": "BEV003",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 327464.72834277246,
-      "annual_cost": 30046.381942745185,
-      "cost_per_km": 1.306364432293269,
+      "total_cost": 336894.3658216902,
+      "annual_cost": 30911.594177073566,
+      "cost_per_km": 1.3439823555249377,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 26875.238650961855,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 2174.827006464198,
+          "fuel_cost": 26875.23865096185,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 2174.8270064641974,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 50133.74832441226,
-          "residual_value": 18024.76218867556
+          "payload_penalty_cost": 50133.74832441225,
+          "payload_trip_multiplier_cost": 2128.092705868178,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 7301.5447730495525,
+          "residual_value": 18024.762188675548
         },
         "nominal_costs": {
           "insurance_cost": 108750.00000000001,
@@ -2671,18 +2881,21 @@
     "expected": {
       "vehicle_id": "BEV004",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 436669.5048212786,
-      "annual_cost": 40066.4181177885,
-      "cost_per_km": 1.7420181790342824,
+      "total_cost": 452019.7938814108,
+      "annual_cost": 41474.87713066116,
+      "cost_per_km": 1.8032555274200504,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 38770.836086633506,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 5365.928315014469,
+          "fuel_cost": 38770.83608663349,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 5365.928315014468,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 75200.62248661839,
-          "residual_value": 24033.016251567413
+          "payload_penalty_cost": 75200.62248661838,
+          "payload_trip_multiplier_cost": 4939.076442107512,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 24033.016251567395
         },
         "nominal_costs": {
           "insurance_cost": 135000,
@@ -2709,18 +2922,21 @@
     "expected": {
       "vehicle_id": "BEV004",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 432182.66883146553,
-      "annual_cost": 39654.7304574208,
-      "cost_per_km": 1.7241187155400348,
+      "total_cost": 447532.9578915977,
+      "annual_cost": 41063.18947029346,
+      "cost_per_km": 1.7853560639258026,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 38770.836086633506,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 5365.928315014469,
+          "fuel_cost": 38770.83608663349,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 5365.928315014468,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 75200.62248661839,
-          "residual_value": 24033.016251567413
+          "payload_penalty_cost": 75200.62248661838,
+          "payload_trip_multiplier_cost": 4939.076442107512,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 24033.016251567395
         },
         "nominal_costs": {
           "insurance_cost": 135000,
@@ -2747,18 +2963,21 @@
     "expected": {
       "vehicle_id": "BEV005",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 785329.9999606299,
-      "annual_cost": 72057.60830892841,
-      "cost_per_km": 3.1329394916925395,
+      "total_cost": 795741.2125786544,
+      "annual_cost": 73012.88453788719,
+      "cost_per_km": 3.174473240777704,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 48022.967425489216,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 6829.363310018415,
+          "fuel_cost": 48022.96742548921,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 6829.363310018414,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 150401.24497323678,
-          "residual_value": 48066.032503134826
+          "payload_penalty_cost": 150401.24497323675,
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 48066.03250313479
         },
         "nominal_costs": {
           "insurance_cost": 240000.00000000003,
@@ -2785,18 +3004,21 @@
     "expected": {
       "vehicle_id": "BEV005",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 776356.3279810036,
-      "annual_cost": 71234.232988193,
-      "cost_per_km": 3.0971405647040435,
+      "total_cost": 786767.5405990282,
+      "annual_cost": 72189.50921715179,
+      "cost_per_km": 3.1386743137892084,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 48022.967425489216,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 6829.363310018415,
+          "fuel_cost": 48022.96742548921,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 6829.363310018414,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 150401.24497323678,
-          "residual_value": 48066.032503134826
+          "payload_penalty_cost": 150401.24497323675,
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 48066.03250313479
         },
         "nominal_costs": {
           "insurance_cost": 240000.00000000003,
@@ -2823,18 +3045,21 @@
     "expected": {
       "vehicle_id": "BEV006",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 2072757.9067367204,
-      "annual_cost": 190184.98894777556,
-      "cost_per_km": 2.2641070112830426,
+      "total_cost": 2256682.059934684,
+      "annual_cost": 207060.86862938025,
+      "cost_per_km": 2.4650103408259554,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 339116.7912183604,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 12622.126831909036,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 12622.126831909034,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 72099.04875470223
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 150191.05539692153,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 72099.04875470219
         },
         "nominal_costs": {
           "insurance_cost": 345000.00000000006,
@@ -2861,18 +3086,21 @@
     "expected": {
       "vehicle_id": "BEV006",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 2059297.3987672809,
-      "annual_cost": 188949.92596667245,
-      "cost_per_km": 2.2494038805556245,
+      "total_cost": 2243221.551965244,
+      "annual_cost": 205825.8056482771,
+      "cost_per_km": 2.450307210098537,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 339116.7912183604,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 12622.126831909036,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 12622.126831909034,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 72099.04875470223
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 150191.05539692153,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 72099.04875470219
         },
         "nominal_costs": {
           "insurance_cost": 345000.00000000006,
@@ -2899,18 +3127,21 @@
     "expected": {
       "vehicle_id": "BEV007",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 2043611.7082373665,
-      "annual_cost": 187510.6923396414,
-      "cost_per_km": 2.232270146900493,
+      "total_cost": 2372059.388414453,
+      "annual_cost": 217647.26459507944,
+      "cost_per_km": 2.5910388642271363,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 508675.18682754063,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 10975.762462529596,
+          "fuel_cost": 508675.18682754046,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 10975.762462529594,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 54074.28656602668
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 102697.96683716984,
+          "charging_dwell_opportunity_cost": 192016.61553887502,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 54074.28656602665
         },
         "nominal_costs": {
           "insurance_cost": 266250,
@@ -2937,18 +3168,21 @@
     "expected": {
       "vehicle_id": "BEV007",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 2033516.3272602868,
-      "annual_cost": 186584.39510381405,
-      "cost_per_km": 2.221242798854929,
+      "total_cost": 2361964.0074373735,
+      "annual_cost": 216720.96735925213,
+      "cost_per_km": 2.580011516181573,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 508675.18682754063,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 10975.762462529596,
+          "fuel_cost": 508675.18682754046,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 10975.762462529594,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 54074.28656602668
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 102697.96683716984,
+          "charging_dwell_opportunity_cost": 192016.61553887502,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 54074.28656602665
         },
         "nominal_costs": {
           "insurance_cost": 266250,
@@ -2975,18 +3209,21 @@
     "expected": {
       "vehicle_id": "BEV008",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1818015.7847545436,
-      "annual_cost": 166811.23772663643,
-      "cost_per_km": 1.9858480681742432,
+      "total_cost": 1973879.212747602,
+      "annual_cost": 181112.4179242269,
+      "cost_per_km": 2.1561002133836538,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 452155.7216244807,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 12683.1032900342,
+          "fuel_cost": 452155.72162448056,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 12683.103290034198,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 38452.82600250787
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 122130.33019201658,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 38452.82600250784
         },
         "nominal_costs": {
           "insurance_cost": 198000.00000000003,
@@ -3013,18 +3250,21 @@
     "expected": {
       "vehicle_id": "BEV008",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1810836.8471708423,
-      "annual_cost": 166152.5374700481,
-      "cost_per_km": 1.9780063984529535,
+      "total_cost": 1966700.2751639008,
+      "annual_cost": 180453.71766763856,
+      "cost_per_km": 2.148258543662364,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 452155.7216244807,
-          "maintenance_cost": 178153.2723970862,
-          "battery_replacement_cost": 12683.1032900342,
+          "fuel_cost": 452155.72162448056,
+          "maintenance_cost": 178153.27239708614,
+          "battery_replacement_cost": 12683.103290034198,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 527319.8432452963,
-          "residual_value": 38452.82600250787
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 527319.843245296,
+          "payload_trip_multiplier_cost": 122130.33019201658,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 38452.82600250784
         },
         "nominal_costs": {
           "insurance_cost": 198000.00000000003,
@@ -3051,18 +3291,21 @@
     "expected": {
       "vehicle_id": "DSL001",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 325910.9255848134,
-      "annual_cost": 29903.81345494011,
-      "cost_per_km": 1.3001658023887004,
+      "total_cost": 337676.37250163546,
+      "annual_cost": 30983.346855617983,
+      "cost_per_km": 1.3471020372007818,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 7394.774231251513
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 7394.774231251507
         },
         "nominal_costs": {
           "insurance_cost": 67800,
@@ -3089,18 +3332,21 @@
     "expected": {
       "vehicle_id": "DSL001",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 324116.1911888881,
-      "annual_cost": 29739.138390793025,
-      "cost_per_km": 1.2930060169910012,
+      "total_cost": 335881.6381057102,
+      "annual_cost": 30818.671791470904,
+      "cost_per_km": 1.3399422518030828,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 7394.774231251513
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 7394.774231251507
         },
         "nominal_costs": {
           "insurance_cost": 67800,
@@ -3127,18 +3373,21 @@
     "expected": {
       "vehicle_id": "DSL002",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 319394.3921264571,
-      "annual_cost": 29305.891797168468,
-      "cost_per_km": 1.274169208572542,
+      "total_cost": 331159.83904327924,
+      "annual_cost": 30385.425197846347,
+      "cost_per_km": 1.3211054433846239,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 6932.600841798291
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 6932.600841798287
         },
         "nominal_costs": {
           "insurance_cost": 65437.5,
@@ -3165,18 +3414,21 @@
     "expected": {
       "vehicle_id": "DSL002",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 317711.8286302772,
-      "annual_cost": 29151.50892453058,
-      "cost_per_km": 1.267456909762199,
+      "total_cost": 329477.2755470993,
+      "annual_cost": 30231.04232520846,
+      "cost_per_km": 1.3143931445742807,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 6932.600841798291
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 6932.600841798287
         },
         "nominal_costs": {
           "insurance_cost": 65437.5,
@@ -3203,18 +3455,21 @@
     "expected": {
       "vehicle_id": "DSL003",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 391076.26016837574,
-      "annual_cost": 35883.03003265649,
-      "cost_per_km": 1.5601317405502821,
+      "total_cost": 402841.7070851978,
+      "annual_cost": 36962.56343333436,
+      "cost_per_km": 1.6070679753623636,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 12016.508125783706
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 12016.508125783697
         },
         "nominal_costs": {
           "insurance_cost": 91425,
@@ -3241,18 +3496,21 @@
     "expected": {
       "vehicle_id": "DSL003",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 388159.8167749971,
-      "annual_cost": 35615.43305341747,
-      "cost_per_km": 1.5484970892790206,
+      "total_cost": 399925.2636918192,
+      "annual_cost": 36694.96645409535,
+      "cost_per_km": 1.5954333240911023,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 146519.60487690955,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 146519.60487690952,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 12016.508125783706
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 11765.446916822115,
+          "residual_value": 12016.508125783697
         },
         "nominal_costs": {
           "insurance_cost": 91425,
@@ -3279,18 +3537,21 @@
     "expected": {
       "vehicle_id": "DSL004",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 529305.2345440604,
-      "annual_cost": 48566.16870430704,
-      "cost_per_km": 2.1115725523611757,
+      "total_cost": 546884.6396323646,
+      "annual_cost": 50179.159276704006,
+      "cost_per_km": 2.181702577248,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 20335.629135941654
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 20335.629135941643
         },
         "nominal_costs": {
           "insurance_cost": 133950,
@@ -3317,18 +3578,21 @@
     "expected": {
       "vehicle_id": "DSL004",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 524369.714955266,
-      "annual_cost": 48113.31227790257,
-      "cost_per_km": 2.0918831425175033,
+      "total_cost": 541949.1200435702,
+      "annual_cost": 49726.30285029954,
+      "cost_per_km": 2.1620131674043277,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 20335.629135941654
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 20335.629135941643
         },
         "nominal_costs": {
           "insurance_cost": 133950,
@@ -3355,18 +3619,21 @@
     "expected": {
       "vehicle_id": "DSL005",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 594470.5691276228,
-      "annual_cost": 54545.38528202342,
-      "cost_per_km": 2.3715384905227572,
+      "total_cost": 612049.9742159268,
+      "annual_cost": 56158.375854420374,
+      "cost_per_km": 2.4416685154095816,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -3393,18 +3660,21 @@
     "expected": {
       "vehicle_id": "DSL005",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 588413.340541375,
-      "annual_cost": 53989.60694052702,
-      "cost_per_km": 2.3473742148055226,
+      "total_cost": 605992.7456296792,
+      "annual_cost": 55602.59751292399,
+      "cost_per_km": 2.4175042396923474,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 167450.97700218234,
-          "maintenance_cost": 46212.69096014642,
+          "fuel_cost": 167450.9770021823,
+          "maintenance_cost": 46212.690960146414,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 17579.405088304222,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -3431,18 +3701,21 @@
     "expected": {
       "vehicle_id": "DSL006",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1380021.062108,
-      "annual_cost": 126623.22483087977,
-      "cost_per_km": 1.5074193432247591,
+      "total_cost": 1434827.3963940756,
+      "annual_cost": 131651.95589811547,
+      "cost_per_km": 1.5672851892632793,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -3469,18 +3742,21 @@
     "expected": {
       "vehicle_id": "DSL006",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1373963.833521752,
-      "annual_cost": 126067.44648938334,
-      "cost_per_km": 1.5008029343974207,
+      "total_cost": 1428770.1678078275,
+      "annual_cost": 131096.17755661905,
+      "cost_per_km": 1.5606687804359411,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 24957.363030473847
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 24957.36303047383
         },
         "nominal_costs": {
           "insurance_cost": 157575,
@@ -3507,18 +3783,21 @@
     "expected": {
       "vehicle_id": "DSL007",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1393054.1290247126,
-      "annual_cost": 127819.06814642306,
-      "cost_per_km": 1.521655573171703,
+      "total_cost": 1447860.4633107882,
+      "annual_cost": 132847.79921365876,
+      "cost_per_km": 1.5815214192102234,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 25881.70980938029
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 25881.709809380274
         },
         "nominal_costs": {
           "insurance_cost": 162300,
@@ -3545,18 +3824,21 @@
     "expected": {
       "vehicle_id": "DSL007",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1386772.5586389739,
-      "annual_cost": 127242.70542190825,
-      "cost_per_km": 1.5147941121655744,
+      "total_cost": 1441578.8929250494,
+      "annual_cost": 132271.43648914393,
+      "cost_per_km": 1.5746599582040945,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 25881.70980938029
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 25881.709809380274
         },
         "nominal_costs": {
           "insurance_cost": 162300,
@@ -3583,18 +3865,21 @@
     "expected": {
       "vehicle_id": "DSL008",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1419120.2628581373,
-      "annual_cost": 130210.75477750959,
-      "cost_per_km": 1.5501280330655904,
+      "total_cost": 1473926.5971442128,
+      "annual_cost": 135239.48584474527,
+      "cost_per_km": 1.6099938791041104,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 27730.403367193165
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 27730.403367193147
         },
         "nominal_costs": {
           "insurance_cost": 171750,
@@ -3621,18 +3906,21 @@
     "expected": {
       "vehicle_id": "DSL008",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 1412390.0088734173,
-      "annual_cost": 129593.223286958,
-      "cost_per_km": 1.542776467701881,
+      "total_cost": 1467196.3431594928,
+      "annual_cost": 134621.9543541937,
+      "cost_per_km": 1.6026423137404011,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 668893.8483511088,
-          "maintenance_cost": 262541.6645851797,
+          "fuel_cost": 668893.8483511085,
+          "maintenance_cost": 262541.6645851796,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 27730.403367193165
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 54806.33428607602,
+          "residual_value": 27730.403367193147
         },
         "nominal_costs": {
           "insurance_cost": 171750,
@@ -3663,18 +3951,21 @@
     "expected": {
       "vehicle_id": "BEV001",
       "scenario_name": "baseline",
-      "total_cost": 907711.3501441476,
-      "annual_cost": 83286.655201679,
-      "cost_per_km": 0.6940554600139917,
+      "total_cost": 1319949.2356134634,
+      "annual_cost": 121111.36084483285,
+      "cost_per_km": 1.009261340373607,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 137082.43103642942,
-          "maintenance_cost": 133949.82886998964,
-          "battery_replacement_cost": 5098.657021326837,
+          "fuel_cost": 137082.43103642936,
+          "maintenance_cost": 133949.8288699896,
+          "battery_replacement_cost": 5098.657021326836,
           "carbon_cost": 0,
-          "charging_labour_cost": 235116.38100055335,
-          "payload_penalty_cost": 130783.69128107544,
-          "residual_value": 16314.72064769865
+          "charging_labour_cost": 235116.3810005533,
+          "payload_penalty_cost": 130783.69128107543,
+          "payload_trip_multiplier_cost": 18574.672693650515,
+          "charging_dwell_opportunity_cost": 381307.9433452188,
+          "mr_downtime_opportunity_cost": 12355.269430446875,
+          "residual_value": 16314.72064769864
         },
         "nominal_costs": {
           "insurance_cost": 122662.50000000001,
@@ -3705,18 +3996,21 @@
     "expected": {
       "vehicle_id": "DSL001",
       "scenario_name": "baseline",
-      "total_cost": 1215397.958392257,
-      "annual_cost": 111518.30444487161,
-      "cost_per_km": 1.013802767680651,
+      "total_cost": 1237038.2401726344,
+      "annual_cost": 113503.89896985276,
+      "cost_per_km": 1.0318536269986613,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 840895.123641394,
-          "maintenance_cost": 243118.9393990312,
+          "fuel_cost": 840895.1236413937,
+          "maintenance_cost": 243118.9393990311,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
           "payload_penalty_cost": 0,
-          "residual_value": 7394.774231251513
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 21640.281780377514,
+          "residual_value": 7394.774231251507
         },
         "nominal_costs": {
           "insurance_cost": 67800,
@@ -3752,18 +4046,21 @@
     "expected": {
       "vehicle_id": "BEV004",
       "scenario_name": "technology_breakthrough",
-      "total_cost": 780500.5719411081,
-      "annual_cost": 71614.48626774279,
-      "cost_per_km": 3.113673315988817,
+      "total_cost": 798721.9001920666,
+      "annual_cost": 73286.37621724402,
+      "cost_per_km": 3.1863641833584357,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 76231.85542702243,
-          "maintenance_cost": 25673.71720008134,
-          "battery_replacement_cost": 5365.928315014469,
+          "maintenance_cost": 25673.717200081337,
+          "battery_replacement_cost": 5365.928315014468,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 75200.62248661839,
-          "residual_value": 50469.33412829156
+          "payload_penalty_cost": 75200.62248661838,
+          "payload_trip_multiplier_cost": 7810.115632933759,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 10411.212618024678,
+          "residual_value": 50469.33412829153
         },
         "nominal_costs": {
           "insurance_cost": 250500,
@@ -3798,18 +4095,21 @@
     "expected": {
       "vehicle_id": "DSL005",
       "scenario_name": "oil_crisis",
-      "total_cost": 4248199.4130580835,
-      "annual_cost": 389791.66635644267,
-      "cost_per_km": 2.784226188260305,
+      "total_cost": 4284240.119370029,
+      "annual_cost": 393098.565492772,
+      "cost_per_km": 2.8078468963769425,
       "breakdown": {
         "npv_costs": {
-          "fuel_cost": 1808788.9251442188,
-          "maintenance_cost": 281294.64062697825,
+          "fuel_cost": 1808788.9251442181,
+          "maintenance_cost": 281294.6406269782,
           "battery_replacement_cost": 0,
           "carbon_cost": 0,
           "charging_labour_cost": 0,
-          "payload_penalty_cost": 1830971.6779350564,
-          "residual_value": 19873.455746488435
+          "payload_penalty_cost": 1830971.6779350562,
+          "payload_trip_multiplier_cost": 0,
+          "charging_dwell_opportunity_cost": 0,
+          "mr_downtime_opportunity_cost": 36040.70631194648,
+          "residual_value": 19873.45574648842
         },
         "nominal_costs": {
           "insurance_cost": 131587.5,
@@ -3845,18 +4145,21 @@
     "expected": {
       "vehicle_id": "BEV008",
       "scenario_name": "oil_crisis",
-      "total_cost": 2714667.510639343,
-      "annual_cost": 249083.12197474943,
-      "cost_per_km": 2.9652752616041598,
+      "total_cost": 2908622.0873552216,
+      "annual_cost": 266879.33874912123,
+      "cost_per_km": 3.177134985108586,
       "breakdown": {
         "npv_costs": {
           "fuel_cost": 602024.9931850554,
-          "maintenance_cost": 160337.94515737757,
+          "maintenance_cost": 160337.94515737754,
           "battery_replacement_cost": 37081.14197328608,
           "carbon_cost": 0,
-          "charging_labour_cost": 130620.21166697412,
-          "payload_penalty_cost": 1318299.608113241,
-          "residual_value": 35494.91631000726
+          "charging_labour_cost": 130620.2116669741,
+          "payload_penalty_cost": 1318299.6081132405,
+          "payload_trip_multiplier_cost": 145662.01242820447,
+          "charging_dwell_opportunity_cost": 14559.466486632577,
+          "mr_downtime_opportunity_cost": 33733.09780104206,
+          "residual_value": 35494.91631000723
         },
         "nominal_costs": {
           "insurance_cost": 198000.00000000003,

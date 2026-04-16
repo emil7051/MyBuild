@@ -46,6 +46,9 @@ describe('cost breakdown chart NPV consistency', () => {
             result.breakdown.npv_costs.carbon_cost +
             result.breakdown.npv_costs.charging_labour_cost +
             result.breakdown.npv_costs.payload_penalty_cost +
+            result.breakdown.npv_costs.payload_trip_multiplier_cost +
+            result.breakdown.npv_costs.charging_dwell_opportunity_cost +
+            result.breakdown.npv_costs.mr_downtime_opportunity_cost +
             residualValueCredit;
           const purchaseFinancingNpv = result.total_cost - nonPurchaseComponents;
           const reconstructedTotal = purchaseFinancingNpv + nonPurchaseComponents;

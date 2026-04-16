@@ -92,6 +92,7 @@ OVERRIDE_LIMITS = {
         "electricity_price_variation": {"min": 0.5, "max": 2.0},
         "battery_life_variation": {"min": 0.5, "max": 1.5},
         "charging_efficiency_variation": {"min": 0.7, "max": 1.3},
+        "downtime_opportunity_cost_variation": {"min": 0.0, "max": 3.0},
     },
     "vehicle": {
         "msrp_override": {"min": 0, "max": 10_000_000},
@@ -177,3 +178,105 @@ HOURS_IN_YEAR = 8760  # Number of hours in a year
 DAYS_IN_YEAR = 365  # Number of days in a year
 WEEKS_IN_YEAR = 52  # Number of weeks in a year
 MONTHS_IN_YEAR = 12  # Number of months in a year
+
+# === OPPORTUNITY COST PARAMETERS ===
+
+# Baseline payload fraction implicit in current catalog kWh/km values.
+# Conservative class-level assumption rather than full payload.
+REFERENCE_PAYLOAD_FRACTION = {
+    "Light Rigid": 0.60,
+    "Medium Rigid": 0.60,
+    "Articulated": 0.65,
+}
+
+# Fraction of energy consumption that is mass-dependent (remainder is aero/auxiliaries).
+# Adjusted for BET regenerative braking (~60% energy recovery).
+# Sources: National Academies (2012), ICCT (2012), DOE/ORNL, Oeko-Institut.
+MASS_DEPENDENT_ENERGY_FRACTION = {
+    "Light Rigid": 0.45,
+    "Medium Rigid": 0.45,
+    "Articulated": 0.38,
+}
+
+# Revenue opportunity cost per hour by weight class (AUD/hr).
+# Derived from Vic Gov Owner-Driver Rates and Costs Schedules 2025-26 + 15-20% margin.
+DOWNTIME_OPPORTUNITY_COST_PER_HR = {
+    "Light Rigid": 70,
+    "Medium Rigid": 80,
+    "Articulated": 120,
+}
+
+# Free dwell time available per trip (hours).
+# Time during rest breaks or loading/unloading where charging can occur.
+FREE_DWELL_TIME_HR = {
+    "Light Rigid": 0.5,
+    "Medium Rigid": 0.5,
+    "Articulated": 0.75,
+}
+
+# Overhead per charging stop (hours): queuing, connecting, disconnecting.
+CHARGING_OVERHEAD_HR_PER_STOP = 0.25
+
+# Australian infrastructure charge rate cap (kW).
+# Source: Mov3ment March 2026 infrastructure extract.
+AU_INFRASTRUCTURE_CHARGE_CAP_KW = 400
+
+# Default vehicle DC charge capability by weight class (kW).
+# Fallback only: per-vehicle dc_charge_rate_kw should be used where available.
+# Source: Mov3ment March 2026 vehicle extract (median values by segment).
+DEFAULT_VEHICLE_CHARGE_RATE_KW = {
+    "Light Rigid": 90,
+    "Medium Rigid": 140,
+    "Articulated": 300,
+}
+
+# Planned maintenance downtime (hours/year).
+# Sources: Volvo electric/diesel charts, DAF/Scania OEM data.
+PLANNED_MAINTENANCE_HR_PER_YR = {
+    "BEV": {
+        "Light Rigid": 8,
+        "Medium Rigid": 10,
+        "Articulated": 16,
+    },
+    "Diesel": {
+        "Light Rigid": 12,
+        "Medium Rigid": 16,
+        "Articulated": 24,
+    },
+}
+
+# Unplanned downtime rate (hours per 1,000 km).
+# Diesel: calibrated against TMC/FleetNet America benchmarks.
+# BEV: speculative (~50% of diesel, no heavy-truck BEV telemetry exists).
+UNPLANNED_DOWNTIME_HR_PER_1000KM_BASE = {
+    "BEV": {
+        "Light Rigid": 0.03,
+        "Medium Rigid": 0.04,
+        "Articulated": 0.06,
+    },
+    "Diesel": {
+        "Light Rigid": 0.08,
+        "Medium Rigid": 0.10,
+        "Articulated": 0.12,
+    },
+}
+
+# Tyre life and replacement time (same for BEV and diesel).
+TYRE_LIFE_KM = 100000
+TYRE_REPLACEMENT_HR_PER_EVENT = 2
+
+# Share of work that is truly payload-constrained.
+# Provisional: ABS/BITRE/TNO evidence suggests many trips are not at max payload.
+PAYLOAD_BINDING_SHARE = {
+    "Light Rigid": 0.15,
+    "Medium Rigid": 0.20,
+    "Articulated": 0.35,
+}
+
+# Australian ZE mass exemptions by jurisdiction.
+# No flat national credit exists. Default to zero.
+ZERO_EMISSION_MASS_EXEMPTION_KG = {
+    "Light Rigid": 0,
+    "Medium Rigid": 0,
+    "Articulated": 0,
+}
