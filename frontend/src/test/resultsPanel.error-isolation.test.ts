@@ -103,19 +103,27 @@ const createVehicleDetail = (
   annual_kms: 0,
 });
 
-const waitForText = async (container: HTMLElement, text: string): Promise<void> => {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
+const waitForText = async (
+  container: HTMLElement,
+  text: string,
+  timeoutMs = 2000
+): Promise<void> => {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
     if (container.textContent?.includes(text)) {
       return;
     }
 
     await act(async () => {
       await Promise.resolve();
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 10));
     });
   }
 
-  throw new Error(`Timed out waiting for text: ${text}`);
+  throw new Error(
+    `Timed out waiting for text: ${text}\nCurrent content: ${container.textContent ?? '<empty>'}`
+  );
 };
 
 describe('ResultsPanel chart isolation', () => {
