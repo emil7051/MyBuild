@@ -2,13 +2,13 @@
 #    uv pip compile requirements.txt requirements-dev.txt --output-file requirements-dev.lock.txt --python-version 3.11 --universal --no-emit-package pip
 aiosqlite==0.22.1
     # via -r requirements.txt
-alembic==1.18.3
+alembic==1.18.4
     # via -r requirements.txt
 annotated-doc==0.0.4
     # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.12.1
+anyio==4.13.0
     # via
     #   -r requirements-dev.txt
     #   httpx
@@ -26,16 +26,16 @@ boolean-py==5.0
     # via license-expression
 cachecontrol==0.14.4
     # via pip-audit
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   httpcore
     #   httpx
     #   requests
 cfgv==3.5.0
     # via pre-commit
-charset-normalizer==3.4.4
+charset-normalizer==3.4.7
     # via requests
-click==8.3.1
+click==8.3.2
     # via
     #   black
     #   uvicorn
@@ -63,15 +63,15 @@ factory-boy==3.3.3
     # via -r requirements-dev.txt
 faker==40.1.2
     # via factory-boy
-fastapi==0.128.2
+fastapi==0.135.3
     # via -r requirements.txt
 filelock==3.20.3
     # via
     #   cachecontrol
     #   virtualenv
-googleapis-common-protos==1.72.0
+googleapis-common-protos==1.74.0
     # via opentelemetry-exporter-otlp-proto-http
-greenlet==3.3.1 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
+greenlet==3.4.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
 h11==0.16.0
     # via
@@ -90,7 +90,7 @@ idna==3.11
     #   anyio
     #   httpx
     #   requests
-importlib-metadata==8.7.1
+importlib-metadata==9.0.0
     # via opentelemetry-api
 iniconfig==2.3.0
     # via pytest
@@ -102,7 +102,7 @@ license-expression==30.4.4
     # via cyclonedx-python-lib
 limits==5.8.0
     # via slowapi
-mako==1.3.10
+mako==1.3.11
     # via alembic
 markdown-it-py==4.0.0
     # via rich
@@ -120,29 +120,29 @@ mypy-extensions==1.1.0
     #   mypy
 nodeenv==1.10.0
     # via pre-commit
-opentelemetry-api==1.39.1
+opentelemetry-api==1.41.0
     # via
     #   -r requirements.txt
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp-proto-common==1.39.1
+opentelemetry-exporter-otlp-proto-common==1.41.0
     # via opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-http==1.39.1
+opentelemetry-exporter-otlp-proto-http==1.41.0
     # via -r requirements.txt
-opentelemetry-proto==1.39.1
+opentelemetry-proto==1.41.0
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-sdk==1.39.1
+opentelemetry-sdk==1.41.0
     # via
     #   -r requirements.txt
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-semantic-conventions==0.60b1
+opentelemetry-semantic-conventions==0.62b0
     # via opentelemetry-sdk
 packageurl-python==0.17.6
     # via cyclonedx-python-lib
-packaging==26.0
+packaging==26.1
     # via
     #   black
     #   limits
@@ -173,7 +173,7 @@ pluggy==1.6.0
     #   pytest-cov
 pre-commit==4.5.1
     # via -r requirements-dev.txt
-protobuf==6.33.5
+protobuf==7.34.1
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
@@ -181,14 +181,14 @@ psycopg2-binary==2.9.11
     # via -r requirements.txt
 py-serializable==2.1.0
     # via cyclonedx-python-lib
-pydantic==2.12.5
+pydantic==2.13.1
     # via
     #   -r requirements.txt
     #   fastapi
     #   pydantic-settings
-pydantic-core==2.41.5
+pydantic-core==2.46.1
     # via pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.13.1
     # via -r requirements.txt
 pygments==2.19.2
     # via
@@ -211,7 +211,7 @@ pytest-mock==3.15.1
     # via -r requirements-dev.txt
 pytest-xdist==3.8.0
     # via -r requirements-dev.txt
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via
     #   -r requirements.txt
     #   pydantic-settings
@@ -223,7 +223,7 @@ pyyaml==6.0.3
     #   bandit
     #   pre-commit
     #   uvicorn
-redis==7.1.0
+redis==7.4.0
     # via -r requirements.txt
 requests==2.33.1
     # via
@@ -231,7 +231,7 @@ requests==2.33.1
     #   cachecontrol
     #   opentelemetry-exporter-otlp-proto-http
     #   pip-audit
-rich==14.3.2
+rich==15.0.0
     # via
     #   bandit
     #   pip-audit
@@ -241,11 +241,11 @@ slowapi==0.1.9
     # via -r requirements.txt
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
-sqlalchemy==2.0.46
+sqlalchemy==2.0.49
     # via
     #   -r requirements.txt
     #   alembic
-starlette==0.50.0
+starlette==1.0.0
     # via fastapi
 stevedore==5.6.0
     # via bandit
@@ -286,7 +286,7 @@ urllib3==2.6.3
     # via
     #   requests
     #   types-requests
-uvicorn==0.40.0
+uvicorn==0.44.0
     # via -r requirements.txt
 uvloop==0.22.1 ; platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32'
     # via uvicorn
@@ -298,9 +298,9 @@ watchfiles==1.1.1
     # via uvicorn
 websockets==16.0
     # via uvicorn
-wrapt==2.1.1
+wrapt==2.1.2
     # via deprecated
-zipp==3.23.0
+zipp==3.23.1
     # via importlib-metadata
 
 # The following packages were excluded from the output:

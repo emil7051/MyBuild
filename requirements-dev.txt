@@ -20,7 +20,7 @@ ruff==0.15.0
 vulture==2.14
 
 # Test runtime dependencies
-anyio==4.12.1
+anyio==4.13.0
 httpx==0.28.1
 factory-boy==3.3.3
 
