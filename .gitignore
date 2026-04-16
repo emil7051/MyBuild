@@ -154,6 +154,12 @@ Thumbs.db
 *.temp
 *.bak
 
+# Local planning and agent metadata
+/task_plan.md
+/progress.md
+/findings.md
+/.serena/
+
 # Data files (if sensitive)
 # Uncomment if your data directory contains sensitive information
 # data/ 
@@ -165,6 +171,7 @@ Thumbs.db
 venv/
 
 # Node / frontend artifacts
+/node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
