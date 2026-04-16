@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
 from fastapi import Request, Response
+import pytest
 
 from backend.app.api import router
 from backend.app.core import config
