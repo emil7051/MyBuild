@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
 from pydantic_settings import SettingsConfigDict
+import pytest
 
 from backend.app.core.config import Settings
 
