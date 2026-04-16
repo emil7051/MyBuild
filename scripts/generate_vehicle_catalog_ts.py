@@ -41,6 +41,9 @@ DETAIL_FIELDS: List[str] = SUMMARY_FIELDS + [
     "litres_per_km",
     "annual_registration",
     "annual_kms",
+    "gvm_kg",
+    "tare_weight_kg",
+    "dc_charge_rate_kw",
 ]
 
 

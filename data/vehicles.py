@@ -23,6 +23,9 @@ class VehicleModel:
     annual_registration: float
     annual_kms: float
     noise_pollution_per_km: float
+    gvm_kg: float | None = None
+    tare_weight_kg: float | None = None
+    dc_charge_rate_kw: float | None = None
 
 
 ALL_MODELS: List[VehicleModel] = [
@@ -42,6 +45,9 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.004,
+        gvm_kg=7500.0,
+        tare_weight_kg=3200.0,
+        dc_charge_rate_kw=90.0,
     ),
     VehicleModel(
         "BEV002",
@@ -59,6 +65,9 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.004,
+        gvm_kg=7300.0,
+        tare_weight_kg=3250.0,
+        dc_charge_rate_kw=100.0,
     ),
     VehicleModel(
         "BEV003",
@@ -76,6 +85,9 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.004,
+        gvm_kg=9000.0,
+        tare_weight_kg=3370.0,
+        dc_charge_rate_kw=90.0,
     ),
     VehicleModel(
         "BEV004",
@@ -93,6 +105,9 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.006,
+        gvm_kg=16000.0,
+        tare_weight_kg=7010.0,
+        dc_charge_rate_kw=150.0,
     ),
     VehicleModel(
         "BEV005",
@@ -110,6 +125,9 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.006,
+        gvm_kg=27000.0,
+        tare_weight_kg=10400.0,
+        dc_charge_rate_kw=160.0,
     ),
     VehicleModel(
         "BEV006",
@@ -127,6 +145,9 @@ ALL_MODELS: List[VehicleModel] = [
         6872.0,
         84000.0,
         0.009,
+        gvm_kg=22000.0,
+        tare_weight_kg=11546.0,
+        dc_charge_rate_kw=400.0,
     ),
     VehicleModel(
         "BEV007",
@@ -144,6 +165,9 @@ ALL_MODELS: List[VehicleModel] = [
         6872.0,
         84000.0,
         0.009,
+        gvm_kg=21000.0,
+        tare_weight_kg=9905.0,
+        dc_charge_rate_kw=250.0,
     ),
     VehicleModel(
         "BEV008",
@@ -161,6 +185,9 @@ ALL_MODELS: List[VehicleModel] = [
         6872.0,
         84000.0,
         0.009,
+        gvm_kg=29000.0,
+        tare_weight_kg=17835.0,
+        dc_charge_rate_kw=360.0,
     ),
     VehicleModel(
         "DSL001",
@@ -178,6 +205,8 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.01,
+        gvm_kg=7300.0,
+        tare_weight_kg=2400.0,
     ),
     VehicleModel(
         "DSL002",
@@ -195,6 +224,8 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.01,
+        gvm_kg=6500.0,
+        tare_weight_kg=2750.0,
     ),
     VehicleModel(
         "DSL003",
@@ -212,6 +243,8 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.01,
+        gvm_kg=11000.0,
+        tare_weight_kg=3850.0,
     ),
     VehicleModel(
         "DSL004",
@@ -229,6 +262,8 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.017,
+        gvm_kg=18000.0,
+        tare_weight_kg=5565.0,
     ),
     VehicleModel(
         "DSL005",
@@ -246,6 +281,8 @@ ALL_MODELS: List[VehicleModel] = [
         653.0,
         23000.0,
         0.017,
+        gvm_kg=None,
+        tare_weight_kg=None,
     ),
     VehicleModel(
         "DSL006",
@@ -263,6 +300,8 @@ ALL_MODELS: List[VehicleModel] = [
         6872.0,
         84000.0,
         0.025,
+        gvm_kg=26000.0,
+        tare_weight_kg=8622.0,
     ),
     VehicleModel(
         "DSL007",
@@ -280,6 +319,8 @@ ALL_MODELS: List[VehicleModel] = [
         6872.0,
         84000.0,
         0.025,
+        gvm_kg=23000.0,
+        tare_weight_kg=8680.0,
     ),
     VehicleModel(
         "DSL008",
@@ -297,6 +338,8 @@ ALL_MODELS: List[VehicleModel] = [
         6872.0,
         84000.0,
         0.025,
+        gvm_kg=26000.0,
+        tare_weight_kg=9715.0,
     ),
 ]
 

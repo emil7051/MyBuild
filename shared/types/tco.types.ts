@@ -159,6 +159,9 @@ export interface VehicleDetail extends VehicleSummary {
   litres_per_km: number;
   annual_registration: number;
   annual_kms: number;
+  gvm_kg?: number | null;
+  tare_weight_kg?: number | null;
+  dc_charge_rate_kw?: number | null;
 }
 
 export interface DutyCycle {

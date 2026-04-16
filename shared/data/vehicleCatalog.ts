@@ -6,7 +6,7 @@ import type { VehicleDetail, VehicleSummary } from '../types/tco.types';
  * Catalog version - auto-generated from vehicle data hash.
  * Used for cache invalidation when vehicle data changes.
  */
-export const VEHICLE_CATALOG_VERSION = 'v1-1ef71da9';
+export const VEHICLE_CATALOG_VERSION = 'v1-fe7af662';
 
 export const VEHICLE_DETAILS: VehicleDetail[] = [
   {
@@ -22,7 +22,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.48,
     "litres_per_km": 0.0,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 7500.0,
+    "tare_weight_kg": 3200.0,
+    "dc_charge_rate_kw": 90.0
   },
   {
     "vehicle_id": "BEV002",
@@ -37,7 +40,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.48,
     "litres_per_km": 0.0,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 7300.0,
+    "tare_weight_kg": 3250.0,
+    "dc_charge_rate_kw": 100.0
   },
   {
     "vehicle_id": "BEV003",
@@ -52,7 +58,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.61,
     "litres_per_km": 0.0,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 9000.0,
+    "tare_weight_kg": 3370.0,
+    "dc_charge_rate_kw": 90.0
   },
   {
     "vehicle_id": "BEV004",
@@ -67,7 +76,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.88,
     "litres_per_km": 0.0,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 16000.0,
+    "tare_weight_kg": 7010.0,
+    "dc_charge_rate_kw": 150.0
   },
   {
     "vehicle_id": "BEV005",
@@ -82,7 +94,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 1.09,
     "litres_per_km": 0.0,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 27000.0,
+    "tare_weight_kg": 10400.0,
+    "dc_charge_rate_kw": 160.0
   },
   {
     "vehicle_id": "BEV006",
@@ -97,7 +112,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 1.2,
     "litres_per_km": 0.0,
     "annual_registration": 6872.0,
-    "annual_kms": 84000.0
+    "annual_kms": 84000.0,
+    "gvm_kg": 22000.0,
+    "tare_weight_kg": 11546.0,
+    "dc_charge_rate_kw": 400.0
   },
   {
     "vehicle_id": "BEV007",
@@ -112,7 +130,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 1.8,
     "litres_per_km": 0.0,
     "annual_registration": 6872.0,
-    "annual_kms": 84000.0
+    "annual_kms": 84000.0,
+    "gvm_kg": 21000.0,
+    "tare_weight_kg": 9905.0,
+    "dc_charge_rate_kw": 250.0
   },
   {
     "vehicle_id": "BEV008",
@@ -127,7 +148,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 1.6,
     "litres_per_km": 0.0,
     "annual_registration": 6872.0,
-    "annual_kms": 84000.0
+    "annual_kms": 84000.0,
+    "gvm_kg": 29000.0,
+    "tare_weight_kg": 17835.0,
+    "dc_charge_rate_kw": 360.0
   },
   {
     "vehicle_id": "DSL001",
@@ -142,7 +166,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.28,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 7300.0,
+    "tare_weight_kg": 2400.0,
+    "dc_charge_rate_kw": null
   },
   {
     "vehicle_id": "DSL002",
@@ -157,7 +184,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.28,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 6500.0,
+    "tare_weight_kg": 2750.0,
+    "dc_charge_rate_kw": null
   },
   {
     "vehicle_id": "DSL003",
@@ -172,7 +202,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.28,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 11000.0,
+    "tare_weight_kg": 3850.0,
+    "dc_charge_rate_kw": null
   },
   {
     "vehicle_id": "DSL004",
@@ -187,7 +220,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.32,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": 18000.0,
+    "tare_weight_kg": 5565.0,
+    "dc_charge_rate_kw": null
   },
   {
     "vehicle_id": "DSL005",
@@ -202,7 +238,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.32,
     "annual_registration": 653.0,
-    "annual_kms": 23000.0
+    "annual_kms": 23000.0,
+    "gvm_kg": null,
+    "tare_weight_kg": null,
+    "dc_charge_rate_kw": null
   },
   {
     "vehicle_id": "DSL006",
@@ -217,7 +256,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.35,
     "annual_registration": 6872.0,
-    "annual_kms": 84000.0
+    "annual_kms": 84000.0,
+    "gvm_kg": 26000.0,
+    "tare_weight_kg": 8622.0,
+    "dc_charge_rate_kw": null
   },
   {
     "vehicle_id": "DSL007",
@@ -232,7 +274,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.35,
     "annual_registration": 6872.0,
-    "annual_kms": 84000.0
+    "annual_kms": 84000.0,
+    "gvm_kg": 23000.0,
+    "tare_weight_kg": 8680.0,
+    "dc_charge_rate_kw": null
   },
   {
     "vehicle_id": "DSL008",
@@ -247,7 +292,10 @@ export const VEHICLE_DETAILS: VehicleDetail[] = [
     "kwh_per_km": 0.0,
     "litres_per_km": 0.35,
     "annual_registration": 6872.0,
-    "annual_kms": 84000.0
+    "annual_kms": 84000.0,
+    "gvm_kg": 26000.0,
+    "tare_weight_kg": 9715.0,
+    "dc_charge_rate_kw": null
   }
 ] as const;
 
