@@ -10,13 +10,19 @@ jobs:
   claude-review:
     name: Claude Code Review
     runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     # Run on PR events or when someone comments @claude on a PR
     if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' &&
-       github.event.issue.pull_request &&
-       contains(github.event.comment.body, '@claude')) &&
-      secrets.ANTHROPIC_API_KEY != ''
+      env.ANTHROPIC_API_KEY != '' &&
+      (
+        github.event_name == 'pull_request' ||
+        (
+          github.event_name == 'issue_comment' &&
+          github.event.issue.pull_request &&
+          contains(github.event.comment.body, '@claude')
+        )
+      )
 
     permissions:
       contents: read
@@ -32,7 +38,7 @@ jobs:
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@beta
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ env.ANTHROPIC_API_KEY }}
           model: claude-sonnet-4-20250514
           timeout_minutes: 10
           trigger_phrase: "@claude"

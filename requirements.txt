@@ -34,6 +34,8 @@ redis==7.1.0
 opentelemetry-api==1.39.1
 opentelemetry-sdk==1.39.1
 opentelemetry-exporter-otlp-proto-http==1.39.1
+# Security floor for CVE-2026-25645 in requests' zip extraction helper.
+requests>=2.33.0
 
 # Security (Phase 4)
 slowapi==0.1.9
