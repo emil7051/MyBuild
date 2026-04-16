@@ -13,7 +13,11 @@ from backend.app.core.observability.runtime import (
     ObservabilityRuntime,
     create_observability_runtime,
 )
-from backend.app.core.observability.tracing import OTEL_AVAILABLE, TracingState, configure_tracing
+from backend.app.core.observability.tracing import (
+    OTEL_AVAILABLE,
+    TracingState,
+    configure_tracing,
+)
 
 __all__ = [
     "AlertDispatcher",

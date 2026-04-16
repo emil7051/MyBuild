@@ -26,7 +26,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency at runtime
 
 from backend.app.core.config import settings  # noqa: E402
 
-_SESSION_SECRET_SHA256_PREFIX = "sha256$"
+_SESSION_HASH_SHA256_PREFIX = "sha256$"
 
 
 class RateLimiterConfigurationError(RuntimeError):
@@ -169,7 +169,7 @@ def hash_secret(secret: str) -> str:
         A prefixed SHA-256 hash of the secret.
     """
     digest = hashlib.sha256(secret.encode("utf-8")).hexdigest()
-    return f"{_SESSION_SECRET_SHA256_PREFIX}{digest}"
+    return f"{_SESSION_HASH_SHA256_PREFIX}{digest}"
 
 
 def verify_secret(secret: str, hashed: str) -> bool:
@@ -183,8 +183,8 @@ def verify_secret(secret: str, hashed: str) -> bool:
         True if the secret matches the hash, False otherwise.
     """
     try:
-        if hashed.startswith(_SESSION_SECRET_SHA256_PREFIX):
-            expected_digest = hashed.removeprefix(_SESSION_SECRET_SHA256_PREFIX)
+        if hashed.startswith(_SESSION_HASH_SHA256_PREFIX):
+            expected_digest = hashed.removeprefix(_SESSION_HASH_SHA256_PREFIX)
             provided_digest = hashlib.sha256(secret.encode("utf-8")).hexdigest()
             return secrets.compare_digest(provided_digest, expected_digest)
 

@@ -413,7 +413,9 @@ def test_create_app_calls_rate_limiter_validation(
     def _stub_validate() -> None:
         called["value"] = True
 
-    monkeypatch.setattr(main_module, "validate_rate_limiter_configuration", _stub_validate)
+    monkeypatch.setattr(
+        main_module, "validate_rate_limiter_configuration", _stub_validate
+    )
 
     main_module.create_app()
 

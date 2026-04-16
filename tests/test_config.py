@@ -68,6 +68,18 @@ def test_reject_invalid_alert_error_rate_threshold() -> None:
         Settings(observability_alert_error_rate_threshold=-0.1)
 
 
+def test_accept_http_observability_alert_webhook_url() -> None:
+    settings = Settings(
+        observability_alert_webhook_url="https://alerts.example.com/hook"
+    )
+    assert settings.observability_alert_webhook_url == "https://alerts.example.com/hook"
+
+
+def test_reject_non_http_observability_alert_webhook_url() -> None:
+    with pytest.raises(ValueError, match="OBSERVABILITY_ALERT_WEBHOOK_URL"):
+        Settings(observability_alert_webhook_url="file:///tmp/alert-hook")
+
+
 def test_ignore_unknown_dotenv_keys(tmp_path) -> None:
     env_file = tmp_path / "deployment.env"
     env_file.write_text("UNKNOWN_DEPLOYMENT_FLAG=true\n", encoding="utf-8")

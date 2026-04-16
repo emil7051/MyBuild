@@ -30,7 +30,7 @@ class AlertDispatcher:
         timeout_seconds: float = 2.0,
     ) -> None:
         self.logger = logger
-        self.webhook_url = webhook_url
+        self.webhook_url = str(webhook_url) if webhook_url else None
         self.timeout_seconds = timeout_seconds
         self._executor: ThreadPoolExecutor | None = None
         if self.webhook_url:
@@ -54,7 +54,7 @@ class AlertDispatcher:
                 headers={"Content-Type": "application/json"},
                 method="POST",
             )
-            with urlopen(request, timeout=self.timeout_seconds):
+            with urlopen(request, timeout=self.timeout_seconds):  # nosec B310
                 return
         except URLError:
             self.logger.warning(

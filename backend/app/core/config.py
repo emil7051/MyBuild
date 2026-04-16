@@ -190,6 +190,18 @@ class Settings(BaseSettings):
             )
         return value
 
+    @field_validator("observability_alert_webhook_url")
+    @classmethod
+    def _validate_observability_alert_webhook_url(cls, value):
+        if value is None:
+            return value
+
+        parts = urlsplit(value)
+        if parts.scheme not in {"http", "https"} or not parts.netloc:
+            raise ValueError("OBSERVABILITY_ALERT_WEBHOOK_URL must be an http(s) URL.")
+
+        return value
+
     @field_validator("database_url", mode="before")
     @classmethod
     def _normalize_database_url(cls, value):
