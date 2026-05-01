@@ -2,13 +2,13 @@
 # Install with: pip install -r requirements.lock.txt -r requirements-scripts.txt
 
 # Numeric computation
-numpy==2.4.2
+numpy==2.4.4
 numpy-financial==1.0.0
 
 # Data analysis and visualization
-pandas==3.0.0
-plotly==6.5.2
+pandas==3.0.2
+plotly==6.7.0
 
 # CLI helpers
-rich==14.3.2
-click==8.3.1
+rich==15.0.0
+click==8.3.3
